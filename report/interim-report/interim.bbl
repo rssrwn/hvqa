@@ -1,0 +1,82 @@
+% $ biblatex auxiliary file $
+% $ biblatex bbl format version 2.8 $
+% Do not modify the above lines!
+%
+% This is an auxiliary file used by the 'biblatex' package.
+% This file may safely be deleted. It will be recreated as
+% required.
+%
+\begingroup
+\makeatletter
+\@ifundefined{ver@biblatex.sty}
+  {\@latex@error
+     {Missing 'biblatex' package}
+     {The bibliography requires the 'biblatex' package.}
+      \aftergroup\endinput}
+  {}
+\endgroup
+
+\sortlist[entry]{nty/global/}
+  \entry{2017vqa}{article}{}
+    \name{author}{7}{}{%
+      {{hash=AA}{%
+         family={Agrawal},
+         familyi={A\bibinitperiod},
+         given={Aishwarya},
+         giveni={A\bibinitperiod},
+      }}%
+      {{hash=LJ}{%
+         family={Lu},
+         familyi={L\bibinitperiod},
+         given={Jiasen},
+         giveni={J\bibinitperiod},
+      }}%
+      {{hash=AS}{%
+         family={Antol},
+         familyi={A\bibinitperiod},
+         given={Stanislaw},
+         giveni={S\bibinitperiod},
+      }}%
+      {{hash=MM}{%
+         family={Mitchell},
+         familyi={M\bibinitperiod},
+         given={Margaret},
+         giveni={M\bibinitperiod},
+      }}%
+      {{hash=ZCL}{%
+         family={Zitnick},
+         familyi={Z\bibinitperiod},
+         given={C\bibnamedelima Lawrence},
+         giveni={C\bibinitperiod\bibinitdelim L\bibinitperiod},
+      }}%
+      {{hash=PD}{%
+         family={Parikh},
+         familyi={P\bibinitperiod},
+         given={Devi},
+         giveni={D\bibinitperiod},
+      }}%
+      {{hash=BD}{%
+         family={Batra},
+         familyi={B\bibinitperiod},
+         given={Dhruv},
+         giveni={D\bibinitperiod},
+      }}%
+    }
+    \list{publisher}{1}{%
+      {Springer}%
+    }
+    \strng{namehash}{AA+1}
+    \strng{fullhash}{AALJASMMZCLPDBD1}
+    \field{labelnamesource}{author}
+    \field{labeltitlesource}{title}
+    \field{sortinit}{A}
+    \field{sortinithash}{A}
+    \field{number}{1}
+    \field{pages}{4\bibrangedash 31}
+    \field{title}{Vqa: Visual question answering}
+    \field{volume}{123}
+    \field{journaltitle}{International Journal of Computer Vision}
+    \field{year}{2017}
+  \endentry
+\endsortlist
+\endinput
