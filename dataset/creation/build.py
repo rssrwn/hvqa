@@ -12,17 +12,17 @@ SEGMENT_SIZE = FRAME_SIZE / NUM_SEGMENTS
 EDGE = 5
 OBJ_DIST = 5
 
-ROTATIONS = [0,1,2,3]
+ROTATIONS = [0, 1, 2, 3]
 ROCK_COLOURS = ["brown", "blue", "purple", "green"]
 
-OCTOPUS = (11,9)
-OCTOPUS_MIDDLE = (6,5)
-FISH = (7,5)
-FISH_MIDDLE = (4,3)
-BAG = (5,7)
-BAG_MIDDLE = (3,4)
-ROCK = (7,7)
-ROCK_MIDDLE = (4,4)
+OCTOPUS = (11, 9)
+OCTOPUS_MIDDLE = (6, 5)
+FISH = (7, 5)
+FISH_MIDDLE = (4, 3)
+BAG = (5, 7)
+BAG_MIDDLE = (3, 4)
+ROCK = (7, 7)
+ROCK_MIDDLE = (4, 4)
 
 MIN_OBJ = 2
 MAX_OBJ = 4
@@ -37,27 +37,6 @@ def build_frames(num_frames):
         next, octopus = move_octopus(template, octopus)
 
     # TODO
-
-
-def place_obj(obj_size, rotation, used_segments):
-    x_seg = random.randint(0, NUM_SEGMENTS)
-    y_seg = random.randint(0, NUM_SEGMENTS)
-
-    width = obj_size[0]
-    height = obj_size[1]
-    if rotation == 1 or rotation == 3:
-        width = obj_size[1]
-        height = obj_size[0]
-
-    while (x_seg, y_seg) in used_segments:
-        x_seg = random.randint(0, NUM_SEGMENTS)
-        y_seg = random.randint(0, NUM_SEGMENTS)
-
-    obj_x = random.randint(x_seg * SEGMENT_SIZE, ((x_seg + 1) * SEGMENT_SIZE) - width)
-    obj_y = random.randint(y_seg * SEGMENT_SIZE, ((y_seg + 1) * SEGMENT_SIZE) - height)
-
-    return [obj_x, obj_y, obj_x + width, obj_y + height], (x_seg, y_seg)
-
 
 def initial_frame():
     objects = []
@@ -91,7 +70,7 @@ def initial_frame():
         }
         objects.append(obj)
 
-    for bag in range(num_bag):
+    for bag in range(num_bags):
         rot = random.choice(ROTATIONS)
         box, segment = place_obj(BAG, rot, used_segments)
         used_segments.append(segment)
@@ -105,7 +84,8 @@ def initial_frame():
         objects.append(obj)
 
     for rock in range(num_rocks):
-        box, segment = place_obj(ROCK, 0, used_segments)
+        rot = 0
+        box, segment = place_obj(ROCK, rot, used_segments)
         used_segments.append(segment)
 
         colour = random.choice(ROCK_COLOURS)
@@ -117,4 +97,12 @@ def initial_frame():
         }
         objects.append(obj)
 
-    return objects, octo_obj
+    frame = {
+        "objects": objects
+    }
+    return frame, octo_obj
+
+
+initial, octo = initial_frame()
+print(initial)
+print(octo)
