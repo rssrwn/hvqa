@@ -114,6 +114,7 @@ class FrameObject:
 
         :param move_pixels: Number of pixels the octopus is moved by
         :param frame_size: Max length of frame
+        :return: Event which occurred ('move' or 'rotate')
         """
 
         x1, y1, x2, y2 = self.position
@@ -130,10 +131,14 @@ class FrameObject:
             x1 -= move_pixels
             x2 -= move_pixels
 
+        event = "rotate"
         if (0 <= x1 <= frame_size) and (0 <= x2 <= frame_size) and (0 <= y1 <= frame_size) and (0 <= y2 <= frame_size):
             self.position = [x1, y1, x2, y2]
+            event = "move"
         else:
             self.rotate()
+
+        return event
 
     def copy(self, frame):
         copy = FrameObject(frame)

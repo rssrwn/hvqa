@@ -1,15 +1,15 @@
-import random
+import json
 
-import numpy as np
-import cv2
+from dataset.creation.video import Video
 
 
-def build_frames(num_frames):
-    template, octopus = initial_frame()
-    initial = { "objects": template["objects"] + octopus }
+video_builder = Video()
+video_builder.random_video()
+video = video_builder.to_dict()
 
-    frames = [initial]
-    for frame in range(1, num_frames):
-        next, octopus = move_octopus(template, octopus)
+print(video)
+text = json.dumps(video)
 
-    # TODO
+file = open("example.txt", "w")
+file.write(text)
+file.close()

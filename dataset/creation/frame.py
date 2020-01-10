@@ -69,24 +69,32 @@ class Frame:
             obj.random_obj(obj_type)
             self.static_objects.append(obj)
 
-    def move_octopus(self):
+    def move(self):
         """
         Move or rotate the octopus
 
-        :return Next frame, with all objects updated
+        :return Next frame, with all objects updated and list of events which occurred
         """
 
         next_frame = Frame()
         next_frame.static_objects = [obj.copy(next_frame) for obj in self.static_objects]
+
+        # If the octopus has already disappeared then nothing happens
+        if self.octopus is None:
+            next_frame.octopus = None
+            return next_frame, ["no event"]
+
         next_frame.octopus = self.octopus.copy(next_frame)
 
         rand = random.random()
         if rand <= ROT_PROB:
             next_frame.octopus.rotate()
+            event = "rotate"
         else:
-            next_frame.octopus.move(MOVE_PIXELS, FRAME_SIZE)
+            event = next_frame.octopus.move(MOVE_PIXELS, FRAME_SIZE)
 
-        next_frame.update_frame()
+        update_events = next_frame.update_frame()
+        return next_frame, update_events + [event]
 
     def update_frame(self):
         """
@@ -94,17 +102,31 @@ class Frame:
         If the octopus is close to a fish, the fish disappears
         If the octopus is close to a bag, both objects disappear
         If the octopus is close to a rock, the octopus changes colour to the rock's colour
+
+        :return: List of events ('disappear' or 'colour change')
         """
 
+        events = []
+        remove_octopus = False
         for obj in self.static_objects:
             if self.close_to_octopus(obj):
                 if obj.obj_type == "fish":
                     self.static_objects.remove(obj)
+                    events.append('disappear')
+
                 elif obj.obj_type == "bag":
                     self.static_objects.remove(obj)
-                    self.octopus = None
+                    remove_octopus = True
+                    events.append('disappear')
+
                 elif obj.obj_type == "rock":
                     self.octopus.colour = obj.colour
+                    events.append('colour change')
+
+        if remove_octopus:
+            self.octopus = None
+
+        return events
 
     def close_to_octopus(self, obj):
         """
@@ -132,6 +154,10 @@ class Frame:
 
     def to_dict(self):
         statics = [obj.to_dict() for obj in self.static_objects]
+        octopus = None
+        if self.octopus is not None:
+            octopus = self.octopus.to_dict()
+
         return {
-            "objects": statics + self.octopus
+            "objects": statics + [octopus]
         }
