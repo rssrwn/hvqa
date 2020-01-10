@@ -7,21 +7,37 @@ FRAME_SIZE = 128
 NUM_SEGMENTS = 4
 SEGMENT_SIZE = FRAME_SIZE / NUM_SEGMENTS
 EDGE = 3
+CLOSE_OCTO = 2
 
 MIN_OBJ = 2
 MAX_OBJ = 4
+
+ROT_PROB = 0.33
+MOVE_PIXELS = 8
 
 
 class Frame:
 
     def __init__(self):
+        """
+        Initialisation method
+        """
+
         self.static_objects = []
-        self.remaining_segments = [(i, j) for i in range(NUM_SEGMENTS) for j in range(NUM_SEGMENTS)]
+        self._remaining_segments = [(i, j) for i in range(NUM_SEGMENTS) for j in range(NUM_SEGMENTS)]
         self.octopus = None
 
     def obj_box(self, obj_size, rotation):
-        x_seg, y_seg = random.choice(self.remaining_segments)
-        self.remaining_segments.remove((x_seg, y_seg))
+        """
+        Create the bounding box for an object
+
+        :param obj_size: Object's width and height when upright
+        :param rotation: Rotation (0: up, 1: left, 2: down, 3: right)
+        :return: List of four points: x1, y1, x2, y2
+        """
+
+        x_seg, y_seg = random.choice(self._remaining_segments)
+        self._remaining_segments.remove((x_seg, y_seg))
 
         width = obj_size[0]
         height = obj_size[1]
@@ -35,24 +51,84 @@ class Frame:
         return [obj_x, obj_y, obj_x + width, obj_y + height]
 
     def random_frame(self):
-        octo = FrameObject(self).random_obj("octopus")
+        """
+        Create a randomly initialised frame
+        """
+
+        octo = FrameObject(self)
+        octo.random_obj("octopus")
         self.octopus = octo
+        self._gen_static_objects("fish")
+        self._gen_static_objects("bag")
+        self._gen_static_objects("rock")
 
-        num_fish = random.randint(MIN_OBJ, MAX_OBJ)
-        num_bags = random.randint(MIN_OBJ, MAX_OBJ)
-        num_rocks = random.randint(MIN_OBJ, MAX_OBJ)
+    def _gen_static_objects(self, obj_type):
+        num_objs = random.randint(MIN_OBJ, MAX_OBJ)
+        for _ in range(num_objs):
+            obj = FrameObject(self)
+            obj.random_obj(obj_type)
+            self.static_objects.append(obj)
 
-        for _ in range(num_fish):
-            fish = FrameObject(self).random_obj("fish")
-            self.static_objects.append(fish)
+    def move_octopus(self):
+        """
+        Move or rotate the octopus
 
-        for _ in range(num_bags):
-            bag = FrameObject(self).random_obj("bag")
-            self.static_objects.append(bag)
+        :return Next frame, with all objects updated
+        """
 
-        for _ in range(num_rocks):
-            rock = FrameObject(self).random_obj("rock")
-            self.static_objects.append(rock)
+        next_frame = Frame()
+        next_frame.static_objects = [obj.copy(next_frame) for obj in self.static_objects]
+        next_frame.octopus = self.octopus.copy(next_frame)
+
+        rand = random.random()
+        if rand <= ROT_PROB:
+            next_frame.octopus.rotate()
+        else:
+            next_frame.octopus.move(MOVE_PIXELS, FRAME_SIZE)
+
+        next_frame.update_frame()
+
+    def update_frame(self):
+        """
+        Update the frame to account for the object getting close to an object
+        If the octopus is close to a fish, the fish disappears
+        If the octopus is close to a bag, both objects disappear
+        If the octopus is close to a rock, the octopus changes colour to the rock's colour
+        """
+
+        for obj in self.static_objects:
+            if self.close_to_octopus(obj):
+                if obj.obj_type == "fish":
+                    self.static_objects.remove(obj)
+                elif obj.obj_type == "bag":
+                    self.static_objects.remove(obj)
+                    self.octopus = None
+                elif obj.obj_type == "rock":
+                    self.octopus.colour = obj.colour
+
+    def close_to_octopus(self, obj):
+        """
+        Returns whether the object is close to the octopus
+        A border is created around the octopus, an object is close if it is within the border
+
+        :param obj: Object to check
+        :return: bool
+        """
+
+        octo_x1, octo_y1, octo_x2, octo_y2 = self.octopus.position
+        octo_x1 -= CLOSE_OCTO
+        octo_x2 += CLOSE_OCTO
+        octo_y1 -= CLOSE_OCTO
+        octo_y2 += CLOSE_OCTO
+
+        x1, y1, x2, y2 = obj.position
+        obj_corners = [(x1, y1), (x2, y1), (x2, y2), (x1, y2)]
+
+        for x, y in obj_corners:
+            if octo_x1 <= x <= octo_x2 and octo_y1 <= y <= octo_y2:
+                return True
+
+        return False
 
     def to_dict(self):
         statics = [obj.to_dict() for obj in self.static_objects]
