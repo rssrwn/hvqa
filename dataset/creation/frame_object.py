@@ -7,7 +7,7 @@ OCTO_COLOUR = "red"
 FISH_COLOUR = "silver"
 BAG_COLOUR = "white"
 
-OCTOPUS = (11, 9)
+OCTOPUS = (11, 11)
 FISH = (7, 5)
 BAG = (5, 7)
 ROCK = (7, 7)
@@ -35,6 +35,12 @@ class FrameObject:
         }
 
     def random_obj(self, obj_type):
+        """
+        Create random object of type <obj_type>
+
+        :param obj_type: String of type of object to be initialised
+        """
+
         if obj_type == "octopus":
             self._init_octopus()
         elif obj_type == "fish":
@@ -78,3 +84,61 @@ class FrameObject:
         self.position = box
         self.colour = colour
         self.rotation = rot
+
+    def rotate(self):
+        """
+        Rotate the object left or right with equal probability
+        Note: We assume the octopus is square and so do not update the position
+        """
+
+        rand = random.random()
+        if rand < 0.5:
+            self._rotate_left()
+        else:
+            self._rotate_right()
+
+    def _rotate_left(self):
+        self.rotation -= 1
+        if self.rotation == -1:
+            self.rotation = 3
+
+    def _rotate_right(self):
+        self.rotation += 1
+        if self.rotation == 4:
+            self.rotation = 0
+
+    def move(self, move_pixels, frame_size):
+        """
+        Move the octopus forward (in direction of rotation)
+        Note: If the octopus cannot be moved (as it is too close to the edge) it will rotate instead
+
+        :param move_pixels: Number of pixels the octopus is moved by
+        :param frame_size: Max length of frame
+        """
+
+        x1, y1, x2, y2 = self.position
+        if self.rotation == 0:
+            y1 -= move_pixels
+            y2 -= move_pixels
+        elif self.rotation == 1:
+            x1 += move_pixels
+            x2 += move_pixels
+        elif self.rotation == 2:
+            y1 += move_pixels
+            y2 += move_pixels
+        elif self.rotation == 3:
+            x1 -= move_pixels
+            x2 -= move_pixels
+
+        if (0 <= x1 <= frame_size) and (0 <= x2 <= frame_size) and (0 <= y1 <= frame_size) and (0 <= y2 <= frame_size):
+            self.position = [x1, y1, x2, y2]
+        else:
+            self.rotate()
+
+    def copy(self, frame):
+        copy = FrameObject(frame)
+        copy.obj_type = self.obj_type
+        copy.position = self.position
+        copy.colour = self.colour
+        copy.rotation = self.rotation
+        return copy
