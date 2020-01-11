@@ -95,6 +95,40 @@ class Drawer:
         Drawer._set_pixel_colour(img, x2, y1+1, BAG_RGB)
 
     @staticmethod
+    def _draw_rock(img, rock):
+        x1, y1, x2, y2 = rock.position
+        colour = rock.colour
+        if colour == "brown":
+            rock_rgb = BROWN_ROCK_RGB
+        elif colour == "blue":
+            rock_rgb = BLUE_ROCK_RGB
+        elif colour == "purple":
+            rock_rgb = PURPLE_ROCK_RGB
+        elif colour == "green":
+            rock_rgb = GREEN_ROCK_RGB
+        else:
+            raise UnknownPropertyException(f"Unknown rock colour: {colour}")
+
+        # Main body
+        for i in range(x1+1, x2):
+            for j in range(y1+1, y2):
+                Drawer._set_pixel_colour(img, i, j, rock_rgb)
+
+        for i in range(x1+2, x1+5):
+            Drawer._set_pixel_colour(img, i, y1, rock_rgb)
+            Drawer._set_pixel_colour(img, i, y2, rock_rgb)
+
+        for j in range(y1+2, y1+4):
+            Drawer._set_pixel_colour(img, x1, j, rock_rgb)
+            Drawer._set_pixel_colour(img, x2, j, rock_rgb)
+
+        # Black section
+        for i in range(x1+3, x1+5):
+            for j in range(y1+3, y1+5):
+                Drawer._set_pixel_colour(img, i, j, BLACK_RGB)
+                Drawer._set_pixel_colour(img, i+1, j-1, BLACK_RGB)
+
+    @staticmethod
     def _set_pixel_colour(img, x, y, rgb_tuple):
         r, g, b = rgb_tuple
         img[x, y, 0] = b
