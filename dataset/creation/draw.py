@@ -1,5 +1,4 @@
 import numpy as np
-import cv2
 
 from dataset.creation.definitions import *
 
@@ -7,23 +6,30 @@ from dataset.creation.definitions import *
 class Drawer:
 
     @staticmethod
-    def draw_frame(frame):
-        size = frame.frame_size
+    def draw_frame(frame_dict):
+        """
+        Draw a frame from a dictionary description of the frame
+
+        :param frame_dict: Dictionary corresponding to frame to draw
+        :return: Numpy array (BGR) of image
+        """
 
         # Create background (opencv uses BGR)
-        red = np.ones((size, size)) * BACKGROUND_B
-        green = np.ones((size, size)) * BACKGROUND_G
-        blue = np.ones((size, size)) * BACKGROUND_R
+        red = np.ones((FRAME_SIZE, FRAME_SIZE), dtype=np.uint8) * BACKGROUND_R
+        green = np.ones((FRAME_SIZE, FRAME_SIZE), dtype=np.uint8) * BACKGROUND_G
+        blue = np.ones((FRAME_SIZE, FRAME_SIZE), dtype=np.uint8) * BACKGROUND_B
         img = np.stack([red, green, blue], axis=2)
 
-        Drawer._draw_octopus(img, frame.octopus)
-
-        for obj in frame.static_objects:
-            if obj.obj_type == "fish":
+        # Draw objects
+        for obj in frame_dict["objects"]:
+            obj_type = obj["class"]
+            if obj_type == "octopus":
+                Drawer._draw_octopus(img, obj)
+            elif obj_type == "fish":
                 Drawer._draw_fish(img, obj)
-            elif obj.obj_type == "bag":
+            elif obj_type == "bag":
                 Drawer._draw_bag(img, obj)
-            elif obj.obj_type == "rock":
+            elif obj_type == "rock":
                 Drawer._draw_rock(img, obj)
             else:
                 raise UnknownObjectType()
@@ -32,72 +38,86 @@ class Drawer:
 
     @staticmethod
     def _draw_octopus(img, octopus):
-        x1, y1, x2, y2 = octopus.position
+        x1, y1, x2, y2 = octopus["position"]
+        rotation = octopus["rotation"]
+        x_centre = x1 + ((x2 - x1) // 2)
+        y_centre = y1 + ((y2 - y1) // 2)
 
         # Body
-        for i in range(x1+4, x1+7):
-            Drawer._set_pixel_colour(img, i, y1+1, OCTO_RGB)
+        for i in range(x1 + 4, x1 + 7):
+            Drawer._draw_pixel(img, i, y1 + 1, OCTO_RGB, rotation, x_centre, y_centre)
 
-        for i in range(x1+3, x1+8):
-            for j in range(y1+2, y1+7):
-                Drawer._set_pixel_colour(img, i, j, OCTO_RGB)
+        for i in range(x1 + 3, x1 + 8):
+            for j in range(y1 + 2, y1 + 7):
+                Drawer._draw_pixel(img, i, j, OCTO_RGB, rotation, x_centre, y_centre)
 
         # Arms
-        for i in range(x1+1, x1+10):
-            Drawer._set_pixel_colour(img, i, y1+5, OCTO_RGB)
+        for i in range(x1 + 1, x1 + 10):
+            Drawer._draw_pixel(img, i, y1 + 5, OCTO_RGB, rotation, x_centre, y_centre)
 
-        Drawer._set_pixel_colour(img, x1, y1+6, OCTO_RGB)
-        Drawer._set_pixel_colour(img, x2, y1+6, OCTO_RGB)
-        Drawer._set_pixel_colour(img, x1+2, y1+7, OCTO_RGB)
-        Drawer._set_pixel_colour(img, x1+1, y1+8, OCTO_RGB)
-        Drawer._set_pixel_colour(img, x2-2, y2-2, OCTO_RGB)
-        Drawer._set_pixel_colour(img, x1+5, y2-2, OCTO_RGB)
-        Drawer._set_pixel_colour(img, x1+4, y2-1, OCTO_RGB)
-        Drawer._set_pixel_colour(img, x1+6, y2-1, OCTO_RGB)
+        Drawer._draw_pixel(img, x1, y1 + 6, OCTO_RGB, rotation, x_centre, y_centre)
+        Drawer._draw_pixel(img, x1 + 10, y1 + 6, OCTO_RGB, rotation, x_centre, y_centre)
+        Drawer._draw_pixel(img, x1 + 2, y1 + 7, OCTO_RGB, rotation, x_centre, y_centre)
+        Drawer._draw_pixel(img, x1 + 1, y1 + 8, OCTO_RGB, rotation, x_centre, y_centre)
+        Drawer._draw_pixel(img, x1 + 9, y1 + 8, OCTO_RGB, rotation, x_centre, y_centre)
+        Drawer._draw_pixel(img, x1 + 8, y1 + 7, OCTO_RGB, rotation, x_centre, y_centre)
+        Drawer._draw_pixel(img, x1 + 5, y1 + 7, OCTO_RGB, rotation, x_centre, y_centre)
+        Drawer._draw_pixel(img, x1 + 4, y1 + 8, OCTO_RGB, rotation, x_centre, y_centre)
+        Drawer._draw_pixel(img, x1 + 6, y1 + 8, OCTO_RGB, rotation, x_centre, y_centre)
 
         # Eyes
-        Drawer._set_pixel_colour(img, x1+4, y1+3, BLACK_RGB)
-        Drawer._set_pixel_colour(img, x1+6, y1+3, BLACK_RGB)
+        Drawer._draw_pixel(img, x1 + 4, y1 + 3, BLACK_RGB, rotation, x_centre, y_centre)
+        Drawer._draw_pixel(img, x1 + 6, y1 + 3, BLACK_RGB, rotation, x_centre, y_centre)
 
     @staticmethod
     def _draw_fish(img, fish):
-        x1, y1, x2, y2 = fish.position
+        x1, y1, x2, y2 = fish["position"]
+        rotation = fish["rotation"]
+        x_centre = x1 + ((x2 - x1) // 2)
+        y_centre = y1 + ((y2 - y1) // 2)
 
         # Body
-        for i in range(x1+2, x1+7):
-            for j in range(y1+1, y1+4):
-                Drawer._set_pixel_colour(img, i, j, FISH_RGB)
+        for i in range(x1 + 1, x1 + 4):
+            for j in range(y1, y1 + 5):
+                Drawer._draw_pixel(img, i, j, FISH_RGB, rotation, x_centre, y_centre)
 
-        Drawer._set_pixel_colour(img, x1+4, y1, FISH_RGB)
-        Drawer._set_pixel_colour(img, x1+4, y2, FISH_RGB)
+        Drawer._draw_pixel(img, x1, y1 + 2, FISH_RGB, rotation, x_centre, y_centre)
+        Drawer._draw_pixel(img, x1 + 4, y1 + 2, FISH_RGB, rotation, x_centre, y_centre)
 
         # Tail
-        Drawer._set_pixel_colour(img, x1, y1+1, FISH_RGB)
-        Drawer._set_pixel_colour(img, x1, y1+3, FISH_RGB)
-        Drawer._set_pixel_colour(img, x1+1, y1+2, FISH_RGB)
+        Drawer._draw_pixel(img, x1 + 1, y1 + 6, FISH_RGB, rotation, x_centre, y_centre)
+        Drawer._draw_pixel(img, x1 + 3, y1 + 6, FISH_RGB, rotation, x_centre, y_centre)
+        Drawer._draw_pixel(img, x1 + 2, y1 + 5, FISH_RGB, rotation, x_centre, y_centre)
 
         # Eyes
-        Drawer._set_pixel_colour(img, x1+5, y1+2, BLACK_RGB)
+        Drawer._draw_pixel(img, x1 + 2, y1 + 1, BLACK_RGB, rotation, x_centre, y_centre)
 
     @staticmethod
     def _draw_bag(img, bag):
-        x1, y1, x2, y2 = bag.position
+        x1, y1, x2, y2 = bag["position"]
+        rotation = bag["rotation"]
+        x_centre = x1 + ((x2 - x1) // 2)
+        y_centre = y1 + ((y2 - y1) // 2)
 
         # Body
-        for i in range(x1, x2):
-            for j in range(y1+2, y2):
-                Drawer._set_pixel_colour(img, i, j, BAG_RGB)
+        for i in range(x1, x1 + 5):
+            for j in range(y1 + 2, y1 + 7):
+                Drawer._draw_pixel(img, i, j, BAG_RGB, rotation, x_centre, y_centre)
 
         # Handles
-        Drawer._set_pixel_colour(img, x1, y1, BAG_RGB)
-        Drawer._set_pixel_colour(img, x1, y1+1, BAG_RGB)
-        Drawer._set_pixel_colour(img, x2, y1, BAG_RGB)
-        Drawer._set_pixel_colour(img, x2, y1+1, BAG_RGB)
+        Drawer._draw_pixel(img, x1, y1, BAG_RGB, rotation, x_centre, y_centre)
+        Drawer._draw_pixel(img, x1, y1 + 1, BAG_RGB, rotation, x_centre, y_centre)
+        Drawer._draw_pixel(img, x1 + 4, y1, BAG_RGB, rotation, x_centre, y_centre)
+        Drawer._draw_pixel(img, x1 + 4, y1 + 1, BAG_RGB, rotation, x_centre, y_centre)
 
     @staticmethod
     def _draw_rock(img, rock):
-        x1, y1, x2, y2 = rock.position
-        colour = rock.colour
+        x1, y1, x2, y2 = rock["position"]
+        rotation = rock["rotation"]
+        x_centre = x1 + ((x2 - x1) // 2)
+        y_centre = y1 + ((y2 - y1) // 2)
+
+        colour = rock["colour"]
         if colour == "brown":
             rock_rgb = BROWN_ROCK_RGB
         elif colour == "blue":
@@ -110,27 +130,41 @@ class Drawer:
             raise UnknownPropertyException(f"Unknown rock colour: {colour}")
 
         # Main body
-        for i in range(x1+1, x2):
-            for j in range(y1+1, y2):
-                Drawer._set_pixel_colour(img, i, j, rock_rgb)
+        for i in range(x1 + 1, x1 + 6):
+            for j in range(y1 + 1, y1 + 6):
+                Drawer._draw_pixel(img, i, j, rock_rgb, rotation, x_centre, y_centre)
 
-        for i in range(x1+2, x1+5):
-            Drawer._set_pixel_colour(img, i, y1, rock_rgb)
-            Drawer._set_pixel_colour(img, i, y2, rock_rgb)
+        for i in range(x1 + 2, x1 + 5):
+            Drawer._draw_pixel(img, i, y1, rock_rgb, rotation, x_centre, y_centre)
+            Drawer._draw_pixel(img, i, y1 + 6, rock_rgb, rotation, x_centre, y_centre)
 
-        for j in range(y1+2, y1+4):
-            Drawer._set_pixel_colour(img, x1, j, rock_rgb)
-            Drawer._set_pixel_colour(img, x2, j, rock_rgb)
+        for j in range(y1 + 2, y1 + 5):
+            Drawer._draw_pixel(img, x1, j, rock_rgb, rotation, x_centre, y_centre)
+            Drawer._draw_pixel(img, x1 + 6, j, rock_rgb, rotation, x_centre, y_centre)
 
         # Black section
-        for i in range(x1+3, x1+5):
-            for j in range(y1+3, y1+5):
-                Drawer._set_pixel_colour(img, i, j, BLACK_RGB)
-                Drawer._set_pixel_colour(img, i+1, j-1, BLACK_RGB)
+        for i in range(x1 + 3, x1 + 5):
+            for j in range(y1 + 4, y1 + 6):
+                Drawer._draw_pixel(img, i, j, BLACK_RGB, rotation, x_centre, y_centre)
+                Drawer._draw_pixel(img, i + 1, j - 1, BLACK_RGB, rotation, x_centre, y_centre)
 
     @staticmethod
     def _set_pixel_colour(img, x, y, rgb_tuple):
         r, g, b = rgb_tuple
-        img[x, y, 0] = b
-        img[x, y, 1] = g
-        img[x, y, 2] = r
+        img[y, x, 0] = r
+        img[y, x, 1] = g
+        img[y, x, 2] = b
+
+    @staticmethod
+    def _draw_pixel(img, x, y, rgb_tuple, rotation, x_centre, y_centre):
+        x_diff = x_centre - x
+        y_diff = y_centre - y
+
+        if rotation == 0:
+            Drawer._set_pixel_colour(img, x, y, rgb_tuple)
+        elif rotation == 1:
+            Drawer._set_pixel_colour(img, x_centre + y_diff, y_centre - x_diff, rgb_tuple)
+        elif rotation == 2:
+            Drawer._set_pixel_colour(img, x_centre + x_diff, y_centre + y_diff, rgb_tuple)
+        elif rotation == 3:
+            Drawer._set_pixel_colour(img, x_centre - y_diff, y_centre + x_diff, rgb_tuple)

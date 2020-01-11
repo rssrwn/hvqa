@@ -15,7 +15,7 @@ FISH_COLOUR = "silver"
 BAG_COLOUR = "white"
 
 OCTOPUS = (11, 11)
-FISH = (7, 5)
+FISH = (5, 7)
 BAG = (5, 7)
 ROCK = (7, 7)
 
@@ -35,7 +35,7 @@ MOVE_PIXELS = 8
 
 # *** Colour definitions ***
 
-BLACK_RGB = (255, 255, 255)
+BLACK_RGB = (0, 0, 0)
 
 # Background
 BACKGROUND_R = 62
@@ -45,7 +45,7 @@ BACKGROUND_B = 179
 # Objects
 OCTO_RGB = (226, 29, 98)
 FISH_RGB = (192, 190, 188)
-BAG_RGB = (0, 0, 0)
+BAG_RGB = (255, 255, 255)
 
 BROWN_ROCK_RGB = (182, 122, 28)
 BLUE_ROCK_RGB = (0, 0, 255)

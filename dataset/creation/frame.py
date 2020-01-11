@@ -37,7 +37,7 @@ class Frame:
         obj_x = random.randint((x_seg * SEGMENT_SIZE) + EDGE, ((x_seg + 1) * SEGMENT_SIZE) - (width + EDGE))
         obj_y = random.randint((y_seg * SEGMENT_SIZE) + EDGE, ((y_seg + 1) * SEGMENT_SIZE) - (height + EDGE))
 
-        return [obj_x, obj_y, obj_x + width, obj_y + height]
+        return [obj_x, obj_y, obj_x + width - 1, obj_y + height - 1]
 
     def random_frame(self):
         """
