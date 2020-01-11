@@ -60,6 +60,26 @@ class Drawer:
         Drawer._set_pixel_colour(img, x1+6, y1+3, BLACK_RGB)
 
     @staticmethod
+    def _draw_fish(img, fish):
+        x1, y1, x2, y2 = fish.position
+
+        # Body
+        for i in range(x1+2, x1+7):
+            for j in range(y1+1, y1+4):
+                Drawer._set_pixel_colour(img, i, j, FISH_RGB)
+
+        Drawer._set_pixel_colour(img, x1+4, y1, FISH_RGB)
+        Drawer._set_pixel_colour(img, x1+4, y2, FISH_RGB)
+
+        # Tail
+        Drawer._set_pixel_colour(img, x1, y1+1, FISH_RGB)
+        Drawer._set_pixel_colour(img, x1, y1+3, FISH_RGB)
+        Drawer._set_pixel_colour(img, x1+1, y1+2, FISH_RGB)
+
+        # Eyes
+        Drawer._set_pixel_colour(img, x1+5, y1+2, BLACK_RGB)
+
+    @staticmethod
     def _set_pixel_colour(img, x, y, rgb_tuple):
         r, g, b = rgb_tuple
         img[x, y, 0] = b
