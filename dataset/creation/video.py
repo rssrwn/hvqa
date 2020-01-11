@@ -1,7 +1,5 @@
 from dataset.creation.frame import Frame
-
-
-NUM_FRAMES = 10
+from dataset.creation.definitions import *
 
 
 class Video:

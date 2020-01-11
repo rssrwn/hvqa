@@ -1,20 +1,6 @@
 import random
 
-
-ROTATIONS = [0, 1, 2, 3]
-ROCK_COLOURS = ["brown", "blue", "purple", "green"]
-OCTO_COLOUR = "red"
-FISH_COLOUR = "silver"
-BAG_COLOUR = "white"
-
-OCTOPUS = (11, 11)
-FISH = (7, 5)
-BAG = (5, 7)
-ROCK = (7, 7)
-
-
-class UnknownObjectType(BaseException):
-    pass
+from dataset.creation.definitions import *
 
 
 class FrameObject:

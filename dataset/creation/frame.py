@@ -1,19 +1,7 @@
 import random
 
 from dataset.creation.frame_object import FrameObject
-
-
-FRAME_SIZE = 128
-NUM_SEGMENTS = 4
-SEGMENT_SIZE = FRAME_SIZE / NUM_SEGMENTS
-EDGE = 3
-CLOSE_OCTO = 2
-
-MIN_OBJ = 2
-MAX_OBJ = 4
-
-ROT_PROB = 0.33
-MOVE_PIXELS = 8
+from dataset.creation.definitions import *
 
 
 class Frame:
@@ -26,6 +14,7 @@ class Frame:
         self.static_objects = []
         self._remaining_segments = [(i, j) for i in range(NUM_SEGMENTS) for j in range(NUM_SEGMENTS)]
         self.octopus = None
+        self.frame_size = FRAME_SIZE
 
     def obj_box(self, obj_size, rotation):
         """
@@ -122,6 +111,9 @@ class Frame:
                 elif obj.obj_type == "rock":
                     self.octopus.colour = obj.colour
                     events.append('colour change')
+
+                else:
+                    raise UnknownObjectType()
 
         if remove_octopus:
             self.octopus = None
