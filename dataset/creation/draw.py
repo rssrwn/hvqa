@@ -22,6 +22,7 @@ class Drawer:
 
         # Draw objects
         for obj in frame_dict["objects"]:
+            print(obj)
             obj_type = obj["class"]
             if obj_type == "octopus":
                 Drawer._draw_octopus(img, obj)
@@ -43,27 +44,29 @@ class Drawer:
         x_centre = x1 + ((x2 - x1) // 2)
         y_centre = y1 + ((y2 - y1) // 2)
 
+        octo_rgb = Drawer._get_obj_colour(octopus)
+
         # Body
         for i in range(x1 + 4, x1 + 7):
-            Drawer._draw_pixel(img, i, y1 + 1, OCTO_RGB, rotation, x_centre, y_centre)
+            Drawer._draw_pixel(img, i, y1 + 1, octo_rgb, rotation, x_centre, y_centre)
 
         for i in range(x1 + 3, x1 + 8):
             for j in range(y1 + 2, y1 + 7):
-                Drawer._draw_pixel(img, i, j, OCTO_RGB, rotation, x_centre, y_centre)
+                Drawer._draw_pixel(img, i, j, octo_rgb, rotation, x_centre, y_centre)
 
         # Arms
         for i in range(x1 + 1, x1 + 10):
-            Drawer._draw_pixel(img, i, y1 + 5, OCTO_RGB, rotation, x_centre, y_centre)
+            Drawer._draw_pixel(img, i, y1 + 5, octo_rgb, rotation, x_centre, y_centre)
 
-        Drawer._draw_pixel(img, x1, y1 + 6, OCTO_RGB, rotation, x_centre, y_centre)
-        Drawer._draw_pixel(img, x1 + 10, y1 + 6, OCTO_RGB, rotation, x_centre, y_centre)
-        Drawer._draw_pixel(img, x1 + 2, y1 + 7, OCTO_RGB, rotation, x_centre, y_centre)
-        Drawer._draw_pixel(img, x1 + 1, y1 + 8, OCTO_RGB, rotation, x_centre, y_centre)
-        Drawer._draw_pixel(img, x1 + 9, y1 + 8, OCTO_RGB, rotation, x_centre, y_centre)
-        Drawer._draw_pixel(img, x1 + 8, y1 + 7, OCTO_RGB, rotation, x_centre, y_centre)
-        Drawer._draw_pixel(img, x1 + 5, y1 + 7, OCTO_RGB, rotation, x_centre, y_centre)
-        Drawer._draw_pixel(img, x1 + 4, y1 + 8, OCTO_RGB, rotation, x_centre, y_centre)
-        Drawer._draw_pixel(img, x1 + 6, y1 + 8, OCTO_RGB, rotation, x_centre, y_centre)
+        Drawer._draw_pixel(img, x1, y1 + 6, octo_rgb, rotation, x_centre, y_centre)
+        Drawer._draw_pixel(img, x1 + 10, y1 + 6, octo_rgb, rotation, x_centre, y_centre)
+        Drawer._draw_pixel(img, x1 + 2, y1 + 7, octo_rgb, rotation, x_centre, y_centre)
+        Drawer._draw_pixel(img, x1 + 1, y1 + 8, octo_rgb, rotation, x_centre, y_centre)
+        Drawer._draw_pixel(img, x1 + 9, y1 + 8, octo_rgb, rotation, x_centre, y_centre)
+        Drawer._draw_pixel(img, x1 + 8, y1 + 7, octo_rgb, rotation, x_centre, y_centre)
+        Drawer._draw_pixel(img, x1 + 5, y1 + 7, octo_rgb, rotation, x_centre, y_centre)
+        Drawer._draw_pixel(img, x1 + 4, y1 + 8, octo_rgb, rotation, x_centre, y_centre)
+        Drawer._draw_pixel(img, x1 + 6, y1 + 8, octo_rgb, rotation, x_centre, y_centre)
 
         # Eyes
         Drawer._draw_pixel(img, x1 + 4, y1 + 3, BLACK_RGB, rotation, x_centre, y_centre)
@@ -117,17 +120,7 @@ class Drawer:
         x_centre = x1 + ((x2 - x1) // 2)
         y_centre = y1 + ((y2 - y1) // 2)
 
-        colour = rock["colour"]
-        if colour == "brown":
-            rock_rgb = BROWN_ROCK_RGB
-        elif colour == "blue":
-            rock_rgb = BLUE_ROCK_RGB
-        elif colour == "purple":
-            rock_rgb = PURPLE_ROCK_RGB
-        elif colour == "green":
-            rock_rgb = GREEN_ROCK_RGB
-        else:
-            raise UnknownPropertyException(f"Unknown rock colour: {colour}")
+        rock_rgb = Drawer._get_obj_colour(rock)
 
         # Main body
         for i in range(x1 + 1, x1 + 6):
@@ -147,6 +140,24 @@ class Drawer:
             for j in range(y1 + 4, y1 + 6):
                 Drawer._draw_pixel(img, i, j, BLACK_RGB, rotation, x_centre, y_centre)
                 Drawer._draw_pixel(img, i + 1, j - 1, BLACK_RGB, rotation, x_centre, y_centre)
+
+    @staticmethod
+    def _get_obj_colour(obj):
+        colour = obj["colour"]
+        if colour == "brown":
+            rgb = BROWN_ROCK_RGB
+        elif colour == "blue":
+            rgb = BLUE_ROCK_RGB
+        elif colour == "purple":
+            rgb = PURPLE_ROCK_RGB
+        elif colour == "green":
+            rgb = GREEN_ROCK_RGB
+        elif colour == "red":
+            rgb = OCTO_RGB
+        else:
+            raise UnknownPropertyException(f"Unknown rock colour: {colour}")
+
+        return rgb
 
     @staticmethod
     def _set_pixel_colour(img, x, y, rgb_tuple):

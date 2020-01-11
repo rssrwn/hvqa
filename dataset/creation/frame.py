@@ -146,10 +146,10 @@ class Frame:
 
     def to_dict(self):
         statics = [obj.to_dict() for obj in self.static_objects]
-        octopus = None
+        octopus = []
         if self.octopus is not None:
-            octopus = self.octopus.to_dict()
+            octopus = [self.octopus.to_dict()]
 
         return {
-            "objects": statics + [octopus]
+            "objects": statics + octopus
         }
