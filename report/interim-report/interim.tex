@@ -1,20 +1,29 @@
-% \documentclass[main.tex]{subfiles}
 \documentclass[11pt,a4paper]{article}
 
+\usepackage{graphicx}
+\graphicspath{{figures/}{../figures/}}
+
 \usepackage{subfiles}
-\usepackage[backend=bibtex]{biblatex}
+
+\usepackage[backend=bibtex, style=numeric]{biblatex}
 
 \bibliography{interim}
 
 \begin{document}
 
-\subfile{intro/intro}
+% \subfile{sections/intro}
 
-\subfile{background/background}
+% \subfile{sections/background}
 
-\section{Related Work} \label{section:related}  % TODO move to subfile
-%\subfile{related/related}
+% \section{Related Work} \label{section:related}  % TODO move to subfile
+%\subfile{sections/related}
 
-%\subfile{plan/plan}
+%\subfile{sections/plan}
+
+\newpage
+
+\printbibheading
+\printbibliography
+
 
 \end{document}
