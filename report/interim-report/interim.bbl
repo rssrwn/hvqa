@@ -245,6 +245,69 @@
     \field{year}{2007}
   \endentry
 
+  \entry{fast-r-cnn}{inproceedings}{}
+    \name{author}{1}{}{%
+      {{hash=GR}{%
+         family={Girshick},
+         familyi={G\bibinitperiod},
+         given={Ross},
+         giveni={R\bibinitperiod},
+      }}%
+    }
+    \strng{namehash}{GR1}
+    \strng{fullhash}{GR1}
+    \field{labelnamesource}{author}
+    \field{labeltitlesource}{title}
+    \field{sortinit}{G}
+    \field{sortinithash}{G}
+    \field{booktitle}{Proceedings of the IEEE international conference on
+  computer vision}
+    \field{pages}{1440\bibrangedash 1448}
+    \field{title}{Fast r-cnn}
+    \field{year}{2015}
+  \endentry
+
+  \entry{r-cnn}{inproceedings}{}
+    \name{author}{4}{}{%
+      {{hash=GR}{%
+         family={Girshick},
+         familyi={G\bibinitperiod},
+         given={Ross},
+         giveni={R\bibinitperiod},
+      }}%
+      {{hash=DJ}{%
+         family={Donahue},
+         familyi={D\bibinitperiod},
+         given={Jeff},
+         giveni={J\bibinitperiod},
+      }}%
+      {{hash=DT}{%
+         family={Darrell},
+         familyi={D\bibinitperiod},
+         given={Trevor},
+         giveni={T\bibinitperiod},
+      }}%
+      {{hash=MJ}{%
+         family={Malik},
+         familyi={M\bibinitperiod},
+         given={Jitendra},
+         giveni={J\bibinitperiod},
+      }}%
+    }
+    \strng{namehash}{GR+1}
+    \strng{fullhash}{GRDJDTMJ1}
+    \field{labelnamesource}{author}
+    \field{labeltitlesource}{title}
+    \field{sortinit}{G}
+    \field{sortinithash}{G}
+    \field{booktitle}{Proceedings of the IEEE conference on computer vision and
+  pattern recognition}
+    \field{pages}{580\bibrangedash 587}
+    \field{title}{Rich feature hierarchies for accurate object detection and
+  semantic segmentation}
+    \field{year}{2014}
+  \endentry
+
   \entry{cnn-uses:classification}{incollection}{}
     \name{author}{3}{}{%
       {{hash=KA}{%
@@ -548,6 +611,46 @@
     \field{title}{Yolov3: An incremental improvement}
     \field{journaltitle}{arXiv preprint arXiv:1804.02767}
     \field{year}{2018}
+  \endentry
+
+  \entry{yolo}{inproceedings}{}
+    \name{author}{4}{}{%
+      {{hash=RJ}{%
+         family={Redmon},
+         familyi={R\bibinitperiod},
+         given={Joseph},
+         giveni={J\bibinitperiod},
+      }}%
+      {{hash=DS}{%
+         family={Divvala},
+         familyi={D\bibinitperiod},
+         given={Santosh},
+         giveni={S\bibinitperiod},
+      }}%
+      {{hash=GR}{%
+         family={Girshick},
+         familyi={G\bibinitperiod},
+         given={Ross},
+         giveni={R\bibinitperiod},
+      }}%
+      {{hash=FA}{%
+         family={Farhadi},
+         familyi={F\bibinitperiod},
+         given={Ali},
+         giveni={A\bibinitperiod},
+      }}%
+    }
+    \strng{namehash}{RJ+1}
+    \strng{fullhash}{RJDSGRFA1}
+    \field{labelnamesource}{author}
+    \field{labeltitlesource}{title}
+    \field{sortinit}{R}
+    \field{sortinithash}{R}
+    \field{booktitle}{Proceedings of the IEEE conference on computer vision and
+  pattern recognition}
+    \field{pages}{779\bibrangedash 788}
+    \field{title}{You only look once: Unified, real-time object detection}
+    \field{year}{2016}
   \endentry
 
   \entry{cnn-uses:faster-r-cnn}{inproceedings}{}
