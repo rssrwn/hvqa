@@ -9,21 +9,24 @@
 
 \bibliography{interim}
 
+
 \begin{document}
 
-% \subfile{sections/intro}
+\tableofcontents
+\newpage
 
-% \subfile{sections/background}
+\subfile{sections/intro}
 
-% \section{Related Work} \label{section:related}  % TODO move to subfile
+\subfile{sections/background}
+
+\section{Related Work} \label{section:related}  % TODO move to subfile
 %\subfile{sections/related}
 
 %\subfile{sections/plan}
 
 \newpage
 
-\printbibheading
-\printbibliography
+\printbibliography[heading=bibintoc, title={References}]
 
 
 \end{document}

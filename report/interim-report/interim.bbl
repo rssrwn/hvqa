@@ -16,5 +16,625 @@
   {}
 \endgroup
 
-\sortlist[entry]{nty/global/}\endsortlist
+\sortlist[entry]{nty/global/}
+  \entry{def:ai-complete}{article}{}
+    \name{author}{3}{}{%
+      {{hash=AS}{%
+         family={Aditya},
+         familyi={A\bibinitperiod},
+         given={Somak},
+         giveni={S\bibinitperiod},
+      }}%
+      {{hash=YY}{%
+         family={Yang},
+         familyi={Y\bibinitperiod},
+         given={Yezhou},
+         giveni={Y\bibinitperiod},
+      }}%
+      {{hash=BC}{%
+         family={Baral},
+         familyi={B\bibinitperiod},
+         given={Chitta},
+         giveni={C\bibinitperiod},
+      }}%
+    }
+    \strng{namehash}{ASYYBC1}
+    \strng{fullhash}{ASYYBC1}
+    \field{labelnamesource}{author}
+    \field{labeltitlesource}{title}
+    \field{sortinit}{A}
+    \field{sortinithash}{A}
+    \verb{eprint}
+    \verb 1803.08896
+    \endverb
+    \field{title}{Explicit Reasoning over End-to-End Neural Architectures for
+  Visual Question Answering}
+    \verb{url}
+    \verb http://arxiv.org/abs/1803.08896
+    \endverb
+    \field{volume}{abs/1803.08896}
+    \field{journaltitle}{CoRR}
+    \field{eprinttype}{arXiv}
+    \field{year}{2018}
+  \endentry
+
+  \entry{vqa-intro}{article}{}
+    \name{author}{7}{}{%
+      {{hash=AA}{%
+         family={Agrawal},
+         familyi={A\bibinitperiod},
+         given={Aishwarya},
+         giveni={A\bibinitperiod},
+      }}%
+      {{hash=LJ}{%
+         family={Lu},
+         familyi={L\bibinitperiod},
+         given={Jiasen},
+         giveni={J\bibinitperiod},
+      }}%
+      {{hash=AS}{%
+         family={Antol},
+         familyi={A\bibinitperiod},
+         given={Stanislaw},
+         giveni={S\bibinitperiod},
+      }}%
+      {{hash=MM}{%
+         family={Mitchell},
+         familyi={M\bibinitperiod},
+         given={Margaret},
+         giveni={M\bibinitperiod},
+      }}%
+      {{hash=ZCL}{%
+         family={Zitnick},
+         familyi={Z\bibinitperiod},
+         given={C\bibnamedelima Lawrence},
+         giveni={C\bibinitperiod\bibinitdelim L\bibinitperiod},
+      }}%
+      {{hash=PD}{%
+         family={Parikh},
+         familyi={P\bibinitperiod},
+         given={Devi},
+         giveni={D\bibinitperiod},
+      }}%
+      {{hash=BD}{%
+         family={Batra},
+         familyi={B\bibinitperiod},
+         given={Dhruv},
+         giveni={D\bibinitperiod},
+      }}%
+    }
+    \list{publisher}{1}{%
+      {Springer}%
+    }
+    \strng{namehash}{AA+1}
+    \strng{fullhash}{AALJASMMZCLPDBD1}
+    \field{labelnamesource}{author}
+    \field{labeltitlesource}{title}
+    \field{sortinit}{A}
+    \field{sortinithash}{A}
+    \field{number}{1}
+    \field{pages}{4\bibrangedash 31}
+    \field{title}{Vqa: Visual question answering}
+    \field{volume}{123}
+    \field{journaltitle}{International Journal of Computer Vision}
+    \field{year}{2017}
+  \endentry
+
+  \entry{def:xai}{misc}{}
+    \name{author}{12}{}{%
+      {{hash=AAB}{%
+         family={Arrieta},
+         familyi={A\bibinitperiod},
+         given={Alejandro\bibnamedelima Barredo},
+         giveni={A\bibinitperiod\bibinitdelim B\bibinitperiod},
+      }}%
+      {{hash=DRN}{%
+         family={Díaz-Rodríguez},
+         familyi={D\bibinitperiod-R\bibinitperiod},
+         given={Natalia},
+         giveni={N\bibinitperiod},
+      }}%
+      {{hash=SJD}{%
+         family={Ser},
+         familyi={S\bibinitperiod},
+         given={Javier\bibnamedelima Del},
+         giveni={J\bibinitperiod\bibinitdelim D\bibinitperiod},
+      }}%
+      {{hash=BA}{%
+         family={Bennetot},
+         familyi={B\bibinitperiod},
+         given={Adrien},
+         giveni={A\bibinitperiod},
+      }}%
+      {{hash=TS}{%
+         family={Tabik},
+         familyi={T\bibinitperiod},
+         given={Siham},
+         giveni={S\bibinitperiod},
+      }}%
+      {{hash=BA}{%
+         family={Barbado},
+         familyi={B\bibinitperiod},
+         given={Alberto},
+         giveni={A\bibinitperiod},
+      }}%
+      {{hash=GS}{%
+         family={García},
+         familyi={G\bibinitperiod},
+         given={Salvador},
+         giveni={S\bibinitperiod},
+      }}%
+      {{hash=GLS}{%
+         family={Gil-López},
+         familyi={G\bibinitperiod-L\bibinitperiod},
+         given={Sergio},
+         giveni={S\bibinitperiod},
+      }}%
+      {{hash=MD}{%
+         family={Molina},
+         familyi={M\bibinitperiod},
+         given={Daniel},
+         giveni={D\bibinitperiod},
+      }}%
+      {{hash=BR}{%
+         family={Benjamins},
+         familyi={B\bibinitperiod},
+         given={Richard},
+         giveni={R\bibinitperiod},
+      }}%
+      {{hash=CR}{%
+         family={Chatila},
+         familyi={C\bibinitperiod},
+         given={Raja},
+         giveni={R\bibinitperiod},
+      }}%
+      {{hash=HF}{%
+         family={Herrera},
+         familyi={H\bibinitperiod},
+         given={Francisco},
+         giveni={F\bibinitperiod},
+      }}%
+    }
+    \strng{namehash}{AAB+1}
+    \strng{fullhash}{AABDRNSJDBATSBAGSGLSMDBRCRHF1}
+    \field{labelnamesource}{author}
+    \field{labeltitlesource}{title}
+    \field{sortinit}{A}
+    \field{sortinithash}{A}
+    \verb{eprint}
+    \verb 1910.10045
+    \endverb
+    \field{title}{Explainable Artificial Intelligence (XAI): Concepts,
+  Taxonomies, Opportunities and Challenges toward Responsible AI}
+    \field{eprinttype}{arXiv}
+    \field{eprintclass}{cs.AI}
+    \field{year}{2019}
+  \endentry
+
+  \entry{ED-uses:networks}{inproceedings}{}
+    \name{author}{3}{}{%
+      {{hash=DC}{%
+         family={Dousson},
+         familyi={D\bibinitperiod},
+         given={Christophe},
+         giveni={C\bibinitperiod},
+      }}%
+      {{hash=MPL}{%
+         family={Maigat},
+         familyi={M\bibinitperiod},
+         given={Pierre\bibnamedelima Le},
+         giveni={P\bibinitperiod\bibinitdelim L\bibinitperiod},
+      }}%
+      {{hash=RFT}{%
+         family={R\&d},
+         familyi={R\bibinitperiod},
+         given={France\bibnamedelima Telecom},
+         giveni={F\bibinitperiod\bibinitdelim T\bibinitperiod},
+      }}%
+    }
+    \strng{namehash}{DCMPLRFT1}
+    \strng{fullhash}{DCMPLRFT1}
+    \field{labelnamesource}{author}
+    \field{labeltitlesource}{title}
+    \field{sortinit}{D}
+    \field{sortinithash}{D}
+    \field{booktitle}{In IJCAI}
+    \field{pages}{324\bibrangedash 329}
+    \field{title}{Chronicle Recognition Improvement Using Temporal Focusing and
+  Hierarchization}
+    \field{year}{2007}
+  \endentry
+
+  \entry{cnn-uses:classification}{incollection}{}
+    \name{author}{3}{}{%
+      {{hash=KA}{%
+         family={Krizhevsky},
+         familyi={K\bibinitperiod},
+         given={Alex},
+         giveni={A\bibinitperiod},
+      }}%
+      {{hash=SI}{%
+         family={Sutskever},
+         familyi={S\bibinitperiod},
+         given={Ilya},
+         giveni={I\bibinitperiod},
+      }}%
+      {{hash=HGE}{%
+         family={Hinton},
+         familyi={H\bibinitperiod},
+         given={Geoffrey\bibnamedelima E},
+         giveni={G\bibinitperiod\bibinitdelim E\bibinitperiod},
+      }}%
+    }
+    \name{editor}{4}{}{%
+      {{hash=PF}{%
+         family={Pereira},
+         familyi={P\bibinitperiod},
+         given={F.},
+         giveni={F\bibinitperiod},
+      }}%
+      {{hash=BCJC}{%
+         family={Burges},
+         familyi={B\bibinitperiod},
+         given={C.\bibnamedelima J.\bibnamedelima C.},
+         giveni={C\bibinitperiod\bibinitdelim J\bibinitperiod\bibinitdelim
+  C\bibinitperiod},
+      }}%
+      {{hash=BL}{%
+         family={Bottou},
+         familyi={B\bibinitperiod},
+         given={L.},
+         giveni={L\bibinitperiod},
+      }}%
+      {{hash=WKQ}{%
+         family={Weinberger},
+         familyi={W\bibinitperiod},
+         given={K.\bibnamedelima Q.},
+         giveni={K\bibinitperiod\bibinitdelim Q\bibinitperiod},
+      }}%
+    }
+    \list{publisher}{1}{%
+      {Curran Associates, Inc.}%
+    }
+    \strng{namehash}{KASIHGE1}
+    \strng{fullhash}{KASIHGE1}
+    \field{labelnamesource}{author}
+    \field{labeltitlesource}{title}
+    \field{sortinit}{K}
+    \field{sortinithash}{K}
+    \field{booktitle}{Advances in Neural Information Processing Systems 25}
+    \field{pages}{1097\bibrangedash 1105}
+    \field{title}{ImageNet Classification with Deep Convolutional Neural
+  Networks}
+    \verb{url}
+    \verb http://papers.nips.cc/paper/4824-imagenet-classification-with-deep-co
+    \verb nvolutional-neural-networks.pdf
+    \endverb
+    \field{year}{2012}
+  \endentry
+
+  \entry{deep-learning-intro}{article}{}
+    \name{author}{3}{}{%
+      {{hash=LY}{%
+         family={LeCun},
+         familyi={L\bibinitperiod},
+         given={Yann},
+         giveni={Y\bibinitperiod},
+      }}%
+      {{hash=BY}{%
+         family={Bengio},
+         familyi={B\bibinitperiod},
+         given={Yoshua},
+         giveni={Y\bibinitperiod},
+      }}%
+      {{hash=HG}{%
+         family={Hinton},
+         familyi={H\bibinitperiod},
+         given={Geoffrey},
+         giveni={G\bibinitperiod},
+      }}%
+    }
+    \strng{namehash}{LYBYHG1}
+    \strng{fullhash}{LYBYHG1}
+    \field{labelnamesource}{author}
+    \field{labeltitlesource}{title}
+    \field{sortinit}{L}
+    \field{sortinithash}{L}
+    \field{pages}{436\bibrangedash 444}
+    \field{title}{Deep learning}
+    \field{volume}{521}
+    \field{journaltitle}{Nature}
+    \field{year}{2015}
+  \endentry
+
+  \entry{def:rnn}{article}{}
+    \name{author}{3}{}{%
+      {{hash=LP}{%
+         family={Liu},
+         familyi={L\bibinitperiod},
+         given={Pengfei},
+         giveni={P\bibinitperiod},
+      }}%
+      {{hash=QX}{%
+         family={Qiu},
+         familyi={Q\bibinitperiod},
+         given={Xipeng},
+         giveni={X\bibinitperiod},
+      }}%
+      {{hash=HX}{%
+         family={Huang},
+         familyi={H\bibinitperiod},
+         given={Xuanjing},
+         giveni={X\bibinitperiod},
+      }}%
+    }
+    \strng{namehash}{LPQXHX1}
+    \strng{fullhash}{LPQXHX1}
+    \field{labelnamesource}{author}
+    \field{labeltitlesource}{title}
+    \field{sortinit}{L}
+    \field{sortinithash}{L}
+    \field{title}{Recurrent neural network for text classification with
+  multi-task learning}
+    \field{journaltitle}{arXiv preprint arXiv:1605.05101}
+    \field{year}{2016}
+  \endentry
+
+  \entry{motivation:external-knowledge}{article}{}
+    \name{author}{4}{}{%
+      {{hash=MK}{%
+         family={Marino},
+         familyi={M\bibinitperiod},
+         given={Kenneth},
+         giveni={K\bibinitperiod},
+      }}%
+      {{hash=RM}{%
+         family={Rastegari},
+         familyi={R\bibinitperiod},
+         given={Mohammad},
+         giveni={M\bibinitperiod},
+      }}%
+      {{hash=FA}{%
+         family={Farhadi},
+         familyi={F\bibinitperiod},
+         given={Ali},
+         giveni={A\bibinitperiod},
+      }}%
+      {{hash=MR}{%
+         family={Mottaghi},
+         familyi={M\bibinitperiod},
+         given={Roozbeh},
+         giveni={R\bibinitperiod},
+      }}%
+    }
+    \strng{namehash}{MK+1}
+    \strng{fullhash}{MKRMFAMR1}
+    \field{labelnamesource}{author}
+    \field{labeltitlesource}{title}
+    \field{sortinit}{M}
+    \field{sortinithash}{M}
+    \verb{eprint}
+    \verb 1906.00067
+    \endverb
+    \field{title}{{OK-VQA:} {A} Visual Question Answering Benchmark Requiring
+  External Knowledge}
+    \verb{url}
+    \verb http://arxiv.org/abs/1906.00067
+    \endverb
+    \field{volume}{abs/1906.00067}
+    \field{journaltitle}{CoRR}
+    \field{eprinttype}{arXiv}
+    \field{year}{2019}
+  \endentry
+
+  \entry{ED-uses:cardiac}{inbook}{}
+    \name{author}{7}{}{%
+      {{hash=QR}{%
+         family={Quiniou},
+         familyi={Q\bibinitperiod},
+         given={René},
+         giveni={R\bibinitperiod},
+      }}%
+      {{hash=CL}{%
+         family={Callens},
+         familyi={C\bibinitperiod},
+         given={Lucie},
+         giveni={L\bibinitperiod},
+      }}%
+      {{hash=CG}{%
+         family={Carrault},
+         familyi={C\bibinitperiod},
+         given={Guy},
+         giveni={G\bibinitperiod},
+      }}%
+      {{hash=CMO}{%
+         family={Cordier},
+         familyi={C\bibinitperiod},
+         given={Marie-Odile},
+         giveni={M\bibinitperiod-O\bibinitperiod},
+      }}%
+      {{hash=FE}{%
+         family={Fromont},
+         familyi={F\bibinitperiod},
+         given={Elisa},
+         giveni={E\bibinitperiod},
+      }}%
+      {{hash=MP}{%
+         family={Mabo},
+         familyi={M\bibinitperiod},
+         given={Philippe},
+         giveni={P\bibinitperiod},
+      }}%
+      {{hash=PF}{%
+         family={Portet},
+         familyi={P\bibinitperiod},
+         given={Fran{\c{c}}ois},
+         giveni={F\bibinitperiod},
+      }}%
+    }
+    \name{editor}{4}{}{%
+      {{hash=BI}{%
+         family={Bichindaritz},
+         familyi={B\bibinitperiod},
+         given={Isabelle},
+         giveni={I\bibinitperiod},
+      }}%
+      {{hash=VS}{%
+         family={Vaidya},
+         familyi={V\bibinitperiod},
+         given={Sachin},
+         giveni={S\bibinitperiod},
+      }}%
+      {{hash=JA}{%
+         family={Jain},
+         familyi={J\bibinitperiod},
+         given={Ashlesha},
+         giveni={A\bibinitperiod},
+      }}%
+      {{hash=JLC}{%
+         family={Jain},
+         familyi={J\bibinitperiod},
+         given={Lakhmi\bibnamedelima C.},
+         giveni={L\bibinitperiod\bibinitdelim C\bibinitperiod},
+      }}%
+    }
+    \list{publisher}{1}{%
+      {Springer Berlin Heidelberg}%
+    }
+    \strng{namehash}{QR+1}
+    \strng{fullhash}{QRCLCGCMOFEMPPF1}
+    \field{labelnamesource}{author}
+    \field{labeltitlesource}{title}
+    \field{sortinit}{Q}
+    \field{sortinithash}{Q}
+    \field{booktitle}{Computational Intelligence in Healthcare 4: Advanced
+  Methodologies}
+    \verb{doi}
+    \verb 10.1007/978-3-642-14464-6_15
+    \endverb
+    \field{isbn}{978-3-642-14464-6}
+    \field{pages}{329\bibrangedash 346}
+    \field{title}{Intelligent Adaptive Monitoring for Cardiac Surveillance}
+    \verb{url}
+    \verb https://doi.org/10.1007/978-3-642-14464-6_15
+    \endverb
+    \list{location}{1}{%
+      {Berlin, Heidelberg}%
+    }
+    \field{year}{2010}
+  \endentry
+
+  \entry{cnn-uses:yolo-v3}{article}{}
+    \name{author}{2}{}{%
+      {{hash=RJ}{%
+         family={Redmon},
+         familyi={R\bibinitperiod},
+         given={Joseph},
+         giveni={J\bibinitperiod},
+      }}%
+      {{hash=FA}{%
+         family={Farhadi},
+         familyi={F\bibinitperiod},
+         given={Ali},
+         giveni={A\bibinitperiod},
+      }}%
+    }
+    \strng{namehash}{RJFA1}
+    \strng{fullhash}{RJFA1}
+    \field{labelnamesource}{author}
+    \field{labeltitlesource}{title}
+    \field{sortinit}{R}
+    \field{sortinithash}{R}
+    \field{title}{Yolov3: An incremental improvement}
+    \field{journaltitle}{arXiv preprint arXiv:1804.02767}
+    \field{year}{2018}
+  \endentry
+
+  \entry{cnn-uses:faster-r-cnn}{inproceedings}{}
+    \name{author}{4}{}{%
+      {{hash=RS}{%
+         family={Ren},
+         familyi={R\bibinitperiod},
+         given={Shaoqing},
+         giveni={S\bibinitperiod},
+      }}%
+      {{hash=HK}{%
+         family={He},
+         familyi={H\bibinitperiod},
+         given={Kaiming},
+         giveni={K\bibinitperiod},
+      }}%
+      {{hash=GR}{%
+         family={Girshick},
+         familyi={G\bibinitperiod},
+         given={Ross},
+         giveni={R\bibinitperiod},
+      }}%
+      {{hash=SJ}{%
+         family={Sun},
+         familyi={S\bibinitperiod},
+         given={Jian},
+         giveni={J\bibinitperiod},
+      }}%
+    }
+    \strng{namehash}{RS+1}
+    \strng{fullhash}{RSHKGRSJ1}
+    \field{labelnamesource}{author}
+    \field{labeltitlesource}{title}
+    \field{sortinit}{R}
+    \field{sortinithash}{R}
+    \field{booktitle}{Advances in neural information processing systems}
+    \field{pages}{91\bibrangedash 99}
+    \field{title}{Faster r-cnn: Towards real-time object detection with region
+  proposal networks}
+    \field{year}{2015}
+  \endentry
+
+  \entry{ED-uses:fraud}{inproceedings}{}
+    \name{author}{3}{}{%
+      {{hash=SMNP}{%
+         family={Schultz-M\o{}ller},
+         familyi={S\bibinitperiod-M\bibinitperiod},
+         given={Nicholas\bibnamedelima Poul},
+         giveni={N\bibinitperiod\bibinitdelim P\bibinitperiod},
+      }}%
+      {{hash=MM}{%
+         family={Migliavacca},
+         familyi={M\bibinitperiod},
+         given={Matteo},
+         giveni={M\bibinitperiod},
+      }}%
+      {{hash=PP}{%
+         family={Pietzuch},
+         familyi={P\bibinitperiod},
+         given={Peter},
+         giveni={P\bibinitperiod},
+      }}%
+    }
+    \list{publisher}{1}{%
+      {Association for Computing Machinery}%
+    }
+    \strng{namehash}{SMNPMMPP1}
+    \strng{fullhash}{SMNPMMPP1}
+    \field{labelnamesource}{author}
+    \field{labeltitlesource}{title}
+    \field{sortinit}{S}
+    \field{sortinithash}{S}
+    \field{booktitle}{Proceedings of the Third ACM International Conference on
+  Distributed Event-Based Systems}
+    \verb{doi}
+    \verb 10.1145/1619258.1619264
+    \endverb
+    \field{isbn}{9781605586656}
+    \field{series}{DEBS ’09}
+    \field{title}{Distributed Complex Event Processing with Query Rewriting}
+    \verb{url}
+    \verb https://doi.org/10.1145/1619258.1619264
+    \endverb
+    \list{location}{1}{%
+      {New York, NY, USA}%
+    }
+    \field{year}{2009}
+  \endentry
+\endsortlist
 \endinput

@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.14159265-2.6-1.40.18 (TeX Live 2017) (preloaded format=pdflatex 2017.10.22)  12 JAN 2020 23:20
+This is pdfTeX, Version 3.14159265-2.6-1.40.18 (TeX Live 2017) (preloaded format=pdflatex 2017.10.22)  14 JAN 2020 12:00
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
@@ -330,18 +330,18 @@ File: english.lbx 2016/12/05 v3.7 biblatex localization (PK/JW/AB)
 (./interim.aux)
 \openout1 = `interim.aux'.
 
-LaTeX Font Info:    Checking defaults for OML/cmm/m/it on input line 12.
-LaTeX Font Info:    ... okay on input line 12.
-LaTeX Font Info:    Checking defaults for T1/cmr/m/n on input line 12.
-LaTeX Font Info:    ... okay on input line 12.
-LaTeX Font Info:    Checking defaults for OT1/cmr/m/n on input line 12.
-LaTeX Font Info:    ... okay on input line 12.
-LaTeX Font Info:    Checking defaults for OMS/cmsy/m/n on input line 12.
-LaTeX Font Info:    ... okay on input line 12.
-LaTeX Font Info:    Checking defaults for OMX/cmex/m/n on input line 12.
-LaTeX Font Info:    ... okay on input line 12.
-LaTeX Font Info:    Checking defaults for U/cmr/m/n on input line 12.
-LaTeX Font Info:    ... okay on input line 12.
+LaTeX Font Info:    Checking defaults for OML/cmm/m/it on input line 13.
+LaTeX Font Info:    ... okay on input line 13.
+LaTeX Font Info:    Checking defaults for T1/cmr/m/n on input line 13.
+LaTeX Font Info:    ... okay on input line 13.
+LaTeX Font Info:    Checking defaults for OT1/cmr/m/n on input line 13.
+LaTeX Font Info:    ... okay on input line 13.
+LaTeX Font Info:    Checking defaults for OMS/cmsy/m/n on input line 13.
+LaTeX Font Info:    ... okay on input line 13.
+LaTeX Font Info:    Checking defaults for OMX/cmex/m/n on input line 13.
+LaTeX Font Info:    ... okay on input line 13.
+LaTeX Font Info:    Checking defaults for U/cmr/m/n on input line 13.
+LaTeX Font Info:    ... okay on input line 13.
 
 (/usr/local/texlive/2017/texmf-dist/tex/context/base/mkii/supp-pdf.mkii
 [Loading MPS to PDF converter (version 2006.09.02).]
@@ -389,34 +389,82 @@ Package biblatex Info: Trying to load bibliographic data...
 Package biblatex Info: ... file 'interim.bbl' found.
 
 (./interim.bbl)
-Package biblatex Info: Reference section=0 on input line 12.
-Package biblatex Info: Reference segment=0 on input line 12.
+Package biblatex Info: Reference section=0 on input line 13.
+Package biblatex Info: Reference segment=0 on input line 13.
+ (./interim.toc
+LaTeX Font Info:    External font `cmex10' loaded for size
+(Font)              <10.95> on input line 5.
+LaTeX Font Info:    External font `cmex10' loaded for size
+(Font)              <8> on input line 5.
+LaTeX Font Info:    External font `cmex10' loaded for size
+(Font)              <6> on input line 5.
+)
+\tf@toc=\write5
+\openout5 = `interim.toc'.
+
+ [1
+
+{/usr/local/texlive/2017/texmf-var/fonts/map/pdftex/updmap/pdftex.map}] (./sect
+ions/intro.tex [2] [3])
+(./sections/background.tex [4]
+<figures/cnn-example.jpg, id=18, 1259.70625pt x 425.59pt>
+File: figures/cnn-example.jpg Graphic file (type jpg)
+
+<use figures/cnn-example.jpg>
+Package pdftex.def Info: figures/cnn-example.jpg used on input line 21.
+(pdftex.def)             Requested size: 288.0011pt x 97.29918pt.
+) [5 <./figures/cnn-example.jpg>]
+Overfull \hbox (3.58421pt too wide) in paragraph at lines 29--29
+[]\OT1/cmr/m/n/10.95 Kenneth Marino et al. ``OK-VQA: A Vi-sual Ques-tion An-swe
+r-ing Bench-
+ []
 
 
-LaTeX Warning: Empty bibliography on input line 26.
+Overfull \hbox (8.22937pt too wide) in paragraph at lines 29--29
+\OT1/cmr/m/n/10.95 mark Re-quir-ing Ex-ter-nal Knowl-edge''. In: \OT1/cmr/m/it/
+10.95 CoRR \OT1/cmr/m/n/10.95 abs/1906.00067 (2019).
+ []
 
-[1
+Missing character: There is no Ã in font cmr10!
+Missing character: There is no © in font cmr10!
 
-{/usr/local/texlive/2017/texmf-var/fonts/map/pdftex/updmap/pdftex.map}]
-(./interim.aux)
+Overfull \hbox (5.28148pt too wide) in paragraph at lines 29--29
+[]\OT1/cmr/m/n/10.95 Ren Quin-iou et al. ``In-tel-li-gent Adap-tive Mon-i-tor-i
+ng for Car-diac Surveil-
+ []
+
+
+Overfull \hbox (11.1792pt too wide) in paragraph at lines 29--29
+\OT1/cmr/m/n/10.95 lance''. In: \OT1/cmr/m/it/10.95 Com-pu-ta-tional In-tel-li-
+gence in Health-care 4: Ad-vanced Method-
+ []
+
+Missing character: There is no â in font cmr10!
+Missing character: There is no € in font cmr10!
+Missing character: There is no ™ in font cmr10!
+[6] [7] (./interim.aux)
 Package logreq Info: Writing requests to 'interim.run.xml'.
 \openout1 = `interim.run.xml'.
 
  ) 
 Here is how much of TeX's memory you used:
- 7751 strings out of 492995
- 135730 string characters out of 6132703
- 381506 words of memory out of 5000000
- 11251 multiletter control sequences out of 15000+600000
- 4545 words of font info for 17 fonts, out of 8000000 for 9000
+ 8013 strings out of 492995
+ 141084 string characters out of 6132703
+ 388506 words of memory out of 5000000
+ 11490 multiletter control sequences out of 15000+600000
+ 8712 words of font info for 31 fonts, out of 8000000 for 9000
  1141 hyphenation exceptions out of 8191
- 35i,4n,37p,796b,698s stack positions out of 5000i,500n,10000p,200000b,80000s
-</usr/local/texlive/2017/texmf-dist/fonts/type1/public/amsfonts/cm/cmbx12.pfb
-></usr/local/texlive/2017/texmf-dist/fonts/type1/public/amsfonts/cm/cmr10.pfb>
-Output written on interim.pdf (1 page, 16658 bytes).
+ 44i,5n,45p,1095b,1170s stack positions out of 5000i,500n,10000p,200000b,80000s
+</usr/local/texlive/2017/texmf-dist/fonts/type1/public/amsfonts/cm/cmbx10.pfb
+></usr/local/texlive/2017/texmf-dist/fonts/type1/public/amsfonts/cm/cmbx12.pfb>
+</usr/local/texlive/2017/texmf-dist/fonts/type1/public/amsfonts/cm/cmcsc10.pfb>
+</usr/local/texlive/2017/texmf-dist/fonts/type1/public/amsfonts/cm/cmr10.pfb></
+usr/local/texlive/2017/texmf-dist/fonts/type1/public/amsfonts/cm/cmti10.pfb></u
+sr/local/texlive/2017/texmf-dist/fonts/type1/public/amsfonts/cm/cmtt10.pfb>
+Output written on interim.pdf (7 pages, 200843 bytes).
 PDF statistics:
- 16 PDF objects out of 1000 (max. 8388607)
- 10 compressed objects within 1 object stream
+ 53 PDF objects out of 1000 (max. 8388607)
+ 36 compressed objects within 1 object stream
  0 named destinations out of 1000 (max. 500000)
- 1 words of extra memory for PDF output out of 10000 (max. 10000000)
+ 6 words of extra memory for PDF output out of 10000 (max. 10000000)
 
