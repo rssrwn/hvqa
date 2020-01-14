@@ -4,6 +4,7 @@
 
 \begin{document}
 
+
 \section{Background}
 
 This section introduces some technical background which will likely be required as part of the project. It includes an introduction to neural networks and CNNs, a comparison of some existing object tracking and object detection algorithms and a discussion on knowledge representation and reasoning and symbolic rule learning.
@@ -28,6 +29,26 @@ CNNs have proven to be adept at a number of tasks involving images, including im
 
 \subsection{Image Processing}
 \label{section:image-proc}
+
+\subsubsection{Object Detection}
+
+The object detection task could formally be defined as designing a model which, when given an image, can produce a rough localisation of objects of interest in the image (in the form of a bounding box) and classify eac of these objects into a set of predefined classes. In this section we introduce two well known object detection algorithms, Faster R-CNN\cite{cnn-uses:faster-r-cnn} and You Only Look Once (YOLO)\cite{cnnn-uses:yolo-v3}.
+
+Faster R-CNN is an evolution of previous object detection algorithms, R-CNN\cite{r-cnn} and Fast R-CNN\cite{fast-r-cnn}. Faster R-CNN builds on its predecessors by adding a region proposal network (RPN) - a neural network which takes an image and produces a set of region of interest (RoI) proposals. This method of region proposal is much faster than previous algorithms (such as those used in \cite{r-cnn} and \cite{fast-r-cnn}) since it is able to make use of the GPU, as opposed to requiring the CPU. Faster R-CNN then uses a similar classifier and bounding box regressor as Fast R-CNN at the output; this section of the network also receives the feature maps from the final layer of the RPN, in this sense the initial layers of the network are shared between the region proposal section and the classifier/regressor section.
+
+
+\subsubsection{Object Tracking}
+
+
+\subsection{Knowledge Representation and Reasoning}
+
+\subsubsection{The Event Calculus}
+
+\subsubsection{Answer Set Programming}
+
+\subsubsection{Symbolic Rule Learning}
+
+\subsubsection{Ontologies}
 
 
 \end{document}
