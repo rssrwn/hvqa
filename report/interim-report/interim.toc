@@ -20,16 +20,16 @@
 \defcounter {refsection}{0}\relax 
 \contentsline {subsubsection}{\numberline {2.2.2}Commonly Used Metrics}{6}
 \defcounter {refsection}{0}\relax 
-\contentsline {subsubsection}{\numberline {2.2.3}Object Tracking}{7}
+\contentsline {subsubsection}{\numberline {2.2.3}Object Tracking}{8}
 \defcounter {refsection}{0}\relax 
-\contentsline {subsection}{\numberline {2.3}Knowledge Representation and Reasoning}{7}
+\contentsline {subsection}{\numberline {2.3}Knowledge Representation and Reasoning}{8}
 \defcounter {refsection}{0}\relax 
-\contentsline {subsubsection}{\numberline {2.3.1}The Event Calculus}{7}
+\contentsline {subsubsection}{\numberline {2.3.1}The Event Calculus}{8}
 \defcounter {refsection}{0}\relax 
-\contentsline {subsubsection}{\numberline {2.3.2}Answer Set Programming}{7}
+\contentsline {subsubsection}{\numberline {2.3.2}Answer Set Programming}{8}
 \defcounter {refsection}{0}\relax 
-\contentsline {subsubsection}{\numberline {2.3.3}Symbolic Rule Learning}{7}
+\contentsline {subsubsection}{\numberline {2.3.3}Symbolic Rule Learning}{8}
 \defcounter {refsection}{0}\relax 
-\contentsline {section}{\numberline {3}Related Work}{7}
+\contentsline {section}{\numberline {3}Related Work}{8}
 \defcounter {refsection}{0}\relax 
-\contentsline {section}{References}{8}
+\contentsline {section}{References}{9}

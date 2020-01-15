@@ -718,6 +718,34 @@
     \field{year}{2015}
   \endentry
 
+  \entry{iou-image}{online}{}
+    \name{author}{1}{}{%
+      {{hash=RA}{%
+         family={Rosebrock},
+         familyi={R\bibinitperiod},
+         given={Adrian},
+         giveni={A\bibinitperiod},
+      }}%
+    }
+    \strng{namehash}{RA1}
+    \strng{fullhash}{RA1}
+    \field{labelnamesource}{author}
+    \field{labeltitlesource}{title}
+    \field{sortinit}{R}
+    \field{sortinithash}{R}
+    \field{title}{Intersection over Union (IoU) for object detection}
+    \verb{url}
+    \verb https://www.pyimagesearch.com/2016/11/07/intersection-over-union-iou-
+    \verb for-object-detection
+    \endverb
+    \field{day}{07}
+    \field{month}{11}
+    \field{year}{2016}
+    \field{urlday}{15}
+    \field{urlmonth}{01}
+    \field{urlyear}{2020}
+  \endentry
+
   \entry{ED-uses:fraud}{inproceedings}{}
     \name{author}{3}{}{%
       {{hash=SMNP}{%

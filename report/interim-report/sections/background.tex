@@ -73,12 +73,21 @@ Each object detector model will output a confidence score for each object classi
 
 \begin{figure}
   \centering
-  \includegraphics[width=0.6\textwidth]{prec-recall.png}
-  \caption{Example precision-recall curves for various object detection models. Image from \cite{yolo}.}
-  \label{fig:prec-recall}
+  \begin{subfigure}{0.48\textwidth}
+    \includegraphics[width=\textwidth]{prec-recall.png}
+    \caption{Example precision-recall curves for various object detection models. Image from \cite{yolo}.}
+    \label{fig:prec-recall}
+  \end{subfigure}
+  \hfill
+  \begin{subfigure}{0.48\textwidth}
+    \includegraphics[width=\textwidth]{iou-image.png}
+    \caption{Visual explanation of the intersection over union metric. Image from \cite{iou-image}.}
+    \label{fig:iou}
+  \end{subfigure}
+  \caption{Precision-recall curves and definition of intersection over union}
 \end{figure}
 
-For object detection tasks, where a bounding box is produced as a rough localisation of an object's position, metrics which measure the accuracy of the localisation of an object are required. One very common metric is the Average Precision (AP), which is roughly defined as the area under the precision-recall curve (estimates of this value are usually used for competition datasets).
+For object detection tasks, where a bounding box is produced as a rough localisation of an object's position, metrics which measure the accuracy of the localisation of an object are required. One very common metric is the Average Precision (AP), which is roughly defined as the area under the precision-recall curve (estimates of this value are usually used for competition datasets). In order to assess how well a model localises an object in an image the Interesection over Union (IoU) metric is commonly used. Figure~\ref{fig:iou} gives a visualisation on how IoU is calculated. Each IoU threshold will produce its own precision-recall curve.
 
 
 \subsubsection{Object Tracking}
