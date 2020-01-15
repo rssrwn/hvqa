@@ -30,8 +30,6 @@
 \defcounter {refsection}{0}\relax 
 \contentsline {subsubsection}{\numberline {2.3.3}Symbolic Rule Learning}{7}
 \defcounter {refsection}{0}\relax 
-\contentsline {subsubsection}{\numberline {2.3.4}Ontologies}{7}
-\defcounter {refsection}{0}\relax 
 \contentsline {section}{\numberline {3}Related Work}{7}
 \defcounter {refsection}{0}\relax 
 \contentsline {section}{References}{8}

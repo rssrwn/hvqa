@@ -17,6 +17,31 @@
 \endgroup
 
 \sortlist[entry]{nty/global/}
+  \entry{obj-detection-examples}{online}{}
+    \name{author}{1}{}{%
+      {{hash=AW}{%
+         family={Abdulla},
+         familyi={A\bibinitperiod},
+         given={W.},
+         giveni={W\bibinitperiod},
+      }}%
+    }
+    \strng{namehash}{AW1}
+    \strng{fullhash}{AW1}
+    \field{labelnamesource}{author}
+    \field{labeltitlesource}{title}
+    \field{sortinit}{A}
+    \field{sortinithash}{A}
+    \field{title}{Mask R-CNN for object detection and instance segmentation on
+  Keras and TensorFlow}
+    \verb{url}
+    \verb https://github.com/matterport/Mask_RCNN
+    \endverb
+    \field{urlday}{15}
+    \field{urlmonth}{01}
+    \field{urlyear}{2020}
+  \endentry
+
   \entry{def:ai-complete}{article}{}
     \name{author}{3}{}{%
       {{hash=AS}{%
@@ -238,7 +263,7 @@
     \field{labeltitlesource}{title}
     \field{sortinit}{D}
     \field{sortinithash}{D}
-    \field{booktitle}{In IJCAI}
+    \field{booktitle}{IJCAI}
     \field{pages}{324\bibrangedash 329}
     \field{title}{Chronicle Recognition Improvement Using Temporal Focusing and
   Hierarchization}

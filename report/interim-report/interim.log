@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.14159265-2.6-1.40.18 (TeX Live 2017) (preloaded format=pdflatex 2017.10.22)  15 JAN 2020 15:23
+This is pdfTeX, Version 3.14159265-2.6-1.40.18 (TeX Live 2017) (preloaded format=pdflatex 2017.10.22)  15 JAN 2020 21:28
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
@@ -421,14 +421,34 @@ File: figures/faster-r-cnn.png Graphic file (type png)
 Package pdftex.def Info: figures/faster-r-cnn.png used on input line 41.
 (pdftex.def)             Requested size: 143.9978pt x 141.35489pt.
  [5 <./figures/cnn-example.jpg>]
-LaTeX Font Info:    Try loading font information for OMS+cmr on input line 54.
+<figures/bounding-boxes.png, id=24, 748.7975pt x 496.85625pt>
+File: figures/bounding-boxes.png Graphic file (type png)
+
+<use figures/bounding-boxes.png>
+Package pdftex.def Info: figures/bounding-boxes.png used on input line 50.
+(pdftex.def)             Requested size: 288.0011pt x 191.09691pt.
+LaTeX Font Info:    Try loading font information for OMS+cmr on input line 61.
 
 (/usr/local/texlive/2017/texmf-dist/tex/latex/base/omscmr.fd
 File: omscmr.fd 2014/09/29 v2.5h Standard LaTeX font definitions
 )
 LaTeX Font Info:    Font shape `OMS/cmr/m/n' in size <10.95> not available
-(Font)              Font shape `OMS/cmsy/m/n' tried instead on input line 54.
-) [6 <./figures/faster-r-cnn.png>] [7]
+(Font)              Font shape `OMS/cmsy/m/n' tried instead on input line 61.
+ [6 <./figures/faster-r-cnn.png>] <figures/prec-recall.png, id=34, 702.625pt x 
+547.04375pt>
+File: figures/prec-recall.png Graphic file (type png)
+
+<use figures/prec-recall.png>
+Package pdftex.def Info: figures/prec-recall.png used on input line 76.
+(pdftex.def)             Requested size: 216.0022pt x 168.17113pt.
+) [7 <./figures/bounding-boxes.png>]
+Overfull \hbox (12.66936pt too wide) in paragraph at lines 29--29
+\OT1/cmr/m/it/10.95 tion on Keras and Ten-sor-Flow\OT1/cmr/m/n/10.95 . \OT1/cmr
+/m/sc/10.95 url\OT1/cmr/m/n/10.95 : $\OT1/cmtt/m/n/10.95 https : / / github . c
+om / matterport /
+ []
+
+[8 <./figures/prec-recall.png>]
 Overfull \hbox (3.58421pt too wide) in paragraph at lines 29--29
 []\OT1/cmr/m/n/10.95 Kenneth Marino et al. ``OK-VQA: A Vi-sual Ques-tion An-swe
 r-ing Bench-
@@ -454,20 +474,19 @@ Overfull \hbox (11.1792pt too wide) in paragraph at lines 29--29
 gence in Health-care 4: Ad-vanced Method-
  []
 
-[8]
 Missing character: There is no â in font cmr10!
 Missing character: There is no € in font cmr10!
 Missing character: There is no ™ in font cmr10!
- [9] (./interim.aux)
+[9] (./interim.aux)
 Package logreq Info: Writing requests to 'interim.run.xml'.
 \openout1 = `interim.run.xml'.
 
  ) 
 Here is how much of TeX's memory you used:
- 8043 strings out of 492995
- 141733 string characters out of 6132703
- 388506 words of memory out of 5000000
- 11515 multiletter control sequences out of 15000+600000
+ 8058 strings out of 492995
+ 142147 string characters out of 6132703
+ 386506 words of memory out of 5000000
+ 11528 multiletter control sequences out of 15000+600000
  8712 words of font info for 31 fonts, out of 8000000 for 9000
  1141 hyphenation exceptions out of 8191
  44i,5n,45p,1095b,1285s stack positions out of 5000i,500n,10000p,200000b,80000s
@@ -482,10 +501,10 @@ cal/texlive/2017/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy10.pfb></usr/loc
 al/texlive/2017/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy8.pfb></usr/local
 /texlive/2017/texmf-dist/fonts/type1/public/amsfonts/cm/cmti10.pfb></usr/local/
 texlive/2017/texmf-dist/fonts/type1/public/amsfonts/cm/cmtt10.pfb>
-Output written on interim.pdf (9 pages, 472991 bytes).
+Output written on interim.pdf (9 pages, 1696301 bytes).
 PDF statistics:
- 82 PDF objects out of 1000 (max. 8388607)
+ 86 PDF objects out of 1000 (max. 8388607)
  56 compressed objects within 1 object stream
  0 named destinations out of 1000 (max. 500000)
- 11 words of extra memory for PDF output out of 10000 (max. 10000000)
+ 21 words of extra memory for PDF output out of 10000 (max. 10000000)
 
