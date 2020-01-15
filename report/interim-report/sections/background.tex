@@ -34,7 +34,7 @@ CNNs have proven to be adept at a number of tasks involving images, including im
 
 The object detection task could formally be defined as designing a model which, when given an image, can produce a rough localisation of objects of interest in the image (in the form of a bounding box) and classify eac of these objects into a set of predefined classes. In this section we introduce two well known object detection algorithms, Faster R-CNN\cite{cnn-uses:faster-r-cnn} and You Only Look Once (YOLO)\cite{cnn-uses:yolo-v3}.
 
-Faster R-CNN is an evolution of previous object detection algorithms, R-CNN\cite{r-cnn} and Fast R-CNN\cite{fast-r-cnn}. Faster R-CNN builds on its predecessors by adding a region proposal network (RPN) - a neural network which takes an image and produces a set of region of interest (RoI) proposals. This method of region proposal is much faster than previous algorithms (such as those used in \cite{r-cnn} and \cite{fast-r-cnn}) since it is able to make use of the GPU, as opposed to requiring the CPU. Faster R-CNN then uses a similar classifier and bounding box regressor as Fast R-CNN at the output; this section of the network also receives the feature maps from the final layer of the RPN, in this sense the initial layers of the network are shared between the region proposal section and the classifier/regressor section.
+Faster R-CNN is an evolution of previous object detection algorithms, R-CNN\cite{r-cnn} and Fast R-CNN\cite{fast-r-cnn}. Faster R-CNN builds on its predecessors by adding a region proposal network (RPN) - a neural network which takes an image and produces a set of region of interest (RoI) proposals. This method of region proposal is much faster than previous algorithms (such as those used in \cite{r-cnn} and \cite{fast-r-cnn}) since it is able to make use of the GPU, as opposed to requiring the CPU. Faster R-CNN then uses a similar classifier and bounding box regressor as Fast R-CNN at the output; this section of the network also receives the feature maps from the final layer of the RPN, in this sense the initial layers of the network are shared between the region proposal section and the classifier/regressor section. A diagram of the Faster R-CNN architecture is shown in Figure~\ref{fig:faster-r-cnn}.
 
 \begin{figure}
   \centering
@@ -46,6 +46,23 @@ Faster R-CNN is an evolution of previous object detection algorithms, R-CNN\cite
 The three object detection algorithms mentioned above all work by first producing region proposals, then producing a more accurate localisation and a score for each region and finally removing any low-scoring or redundant regions. This requires the algorithm to `look' at the image multiple times (around 2000 times for R-CNN). You Only Look Once (YOLO) is a significantly more time-efficient algorithm which, as the name suggests, takes a single look at the image. A convolutional neural network is used to simultaneously predict multiple bounding boxes and the class probabilities for each box. As well as being very fast, YOLO makes fewer than half the number of background errors (where the algorithm mistakes background patches for objects) as Fast R-CNN \cite{yolo}. YOLO is, however, slightly less accurate than some of the slower methods for object detection\cite{cnn-uses:yolo-v3}.
 
 \subsubsection{Commonly Used Metrics}
+
+In this section we present some commonly used metrics for classification and object detection tasks. We use TP, TN, FP and FN to mean True Positive, True Negative, False Positive and False Negative, respectively.
+
+Firstly, for classification tasks the following terminology is commonly used:
+\begin{itemize}
+  \item $Accuracy = \frac{TP + TN}{TP + TN + FP + FN}$. The accuracy is the ratio of correct predictions to the total number of predictions.
+
+  \item $Precision = \frac{TP}{TP + FP}$. The precision is the ability of a classifier to not label the negative data as positive.
+
+  \item $Recall = \frac{TP}{TP + FN}$. The recall is the ability of the classifier to find the positively-labelled data.
+
+  \item $F_1 = 2 \frac{precision * recall}{precision + recall}$. The $F_1$ score is a way of combining the precision and recall scores.
+\end{itemize}
+
+% TODO precision-recall curve, AP, IoU
+
+%For object detection tasks, where a bounding box is produced as a rough localisation of an object's position,
 
 
 \subsubsection{Object Tracking}
