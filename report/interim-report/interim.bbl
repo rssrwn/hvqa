@@ -404,6 +404,90 @@
     \field{year}{2007}
   \endentry
 
+  \entry{asp-primer}{inbook}{}
+    \name{author}{3}{}{%
+      {{hash=ET}{%
+         family={Eiter},
+         familyi={E\bibinitperiod},
+         given={Thomas},
+         giveni={T\bibinitperiod},
+      }}%
+      {{hash=IG}{%
+         family={Ianni},
+         familyi={I\bibinitperiod},
+         given={Giovambattista},
+         giveni={G\bibinitperiod},
+      }}%
+      {{hash=KT}{%
+         family={Krennwallner},
+         familyi={K\bibinitperiod},
+         given={Thomas},
+         giveni={T\bibinitperiod},
+      }}%
+    }
+    \name{editor}{7}{}{%
+      {{hash=TS}{%
+         family={Tessaris},
+         familyi={T\bibinitperiod},
+         given={Sergio},
+         giveni={S\bibinitperiod},
+      }}%
+      {{hash=FE}{%
+         family={Franconi},
+         familyi={F\bibinitperiod},
+         given={Enrico},
+         giveni={E\bibinitperiod},
+      }}%
+      {{hash=ET}{%
+         family={Eiter},
+         familyi={E\bibinitperiod},
+         given={Thomas},
+         giveni={T\bibinitperiod},
+      }}%
+      {{hash=GC}{%
+         family={Gutierrez},
+         familyi={G\bibinitperiod},
+         given={Claudio},
+         giveni={C\bibinitperiod},
+      }}%
+      {{hash=HS}{%
+         family={Handschuh},
+         familyi={H\bibinitperiod},
+         given={Siegfried},
+         giveni={S\bibinitperiod},
+      }}%
+      {{hash=RMC}{%
+         family={Rousset},
+         familyi={R\bibinitperiod},
+         given={Marie-Christine},
+         giveni={M\bibinitperiod-C\bibinitperiod},
+      }}%
+      {{hash=SRA}{%
+         family={Schmidt},
+         familyi={S\bibinitperiod},
+         given={Renate\bibnamedelima A.},
+         giveni={R\bibinitperiod\bibinitdelim A\bibinitperiod},
+      }}%
+    }
+    \list{publisher}{1}{%
+      {Springer Berlin Heidelberg}%
+    }
+    \strng{namehash}{ETIGKT1}
+    \strng{fullhash}{ETIGKT1}
+    \field{labelnamesource}{author}
+    \field{labeltitlesource}{title}
+    \field{sortinit}{E}
+    \field{sortinithash}{E}
+    \field{booktitle}{Reasoning Web. Semantic Technologies for Information
+  Systems: 5th International Summer School 2009}
+    \field{pages}{40\bibrangedash 110}
+    \field{title}{Answer Set Programming: A Primer}
+    \list{location}{1}{%
+      {Berlin, Heidelberg}%
+    }
+    \field{year}{2009}
+  \endentry
+
   \entry{fast-r-cnn}{inproceedings}{}
     \name{author}{1}{}{%
       {{hash=GR}{%

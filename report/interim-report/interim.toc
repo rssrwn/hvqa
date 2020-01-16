@@ -26,10 +26,10 @@
 \defcounter {refsection}{0}\relax 
 \contentsline {subsubsection}{\numberline {2.3.1}Answer Set Programming}{8}
 \defcounter {refsection}{0}\relax 
-\contentsline {subsubsection}{\numberline {2.3.2}The Event Calculus}{8}
+\contentsline {subsubsection}{\numberline {2.3.2}The Event Calculus}{9}
 \defcounter {refsection}{0}\relax 
-\contentsline {subsubsection}{\numberline {2.3.3}Symbolic Rule Learning}{8}
+\contentsline {subsubsection}{\numberline {2.3.3}Symbolic Rule Learning}{9}
 \defcounter {refsection}{0}\relax 
-\contentsline {section}{\numberline {3}Related Work}{8}
+\contentsline {section}{\numberline {3}Related Work}{9}
 \defcounter {refsection}{0}\relax 
-\contentsline {section}{References}{9}
+\contentsline {section}{References}{10}
