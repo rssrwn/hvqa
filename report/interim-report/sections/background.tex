@@ -37,20 +37,23 @@ The object detection task could formally be defined as designing a model which, 
 Faster R-CNN is an evolution of previous object detection algorithms, R-CNN\cite{r-cnn} and Fast R-CNN\cite{fast-r-cnn}. Faster R-CNN builds on its predecessors by adding a region proposal network (RPN) - a neural network which takes an image and produces a set of region of interest (RoI) proposals. This method of region proposal is much faster than previous algorithms (such as those used in \cite{r-cnn} and \cite{fast-r-cnn}) since it is able to make use of the GPU, as opposed to requiring the CPU. Faster R-CNN then uses a similar classifier and bounding box regressor as Fast R-CNN at the output; this section of the network also receives the feature maps from the final layer of the RPN, in this sense the initial layers of the network are shared between the region proposal section and the classifier/regressor section. A diagram of the Faster R-CNN architecture is shown in figure~\ref{fig:fasterrcnn}.
 
 \begin{figure}
-  \centering
-  \includegraphics[width=0.4\textwidth]{faster-r-cnn.png}
-  \caption{Diagram of the Faster R-CNN architecture. One part of the network produces region proposals and another part handles bounding box regression and object classification. Figure from \cite{cnn-uses:faster-r-cnn}.}
-  \label{fig:fasterrcnn}
+  \begin{subfigure}{0.4\textwidth}
+    \centering
+    \includegraphics[width=\textwidth]{faster-r-cnn.png}
+    \caption{Diagram of the Faster R-CNN architecture. Figure from \cite{cnn-uses:faster-r-cnn}.}
+    \label{fig:fasterrcnn}
+  \end{subfigure}
+  \hfill
+  \begin{subfigure}{0.55\textwidth}
+    \centering
+    \includegraphics[width=\textwidth]{bounding-boxes.png}
+    \caption{An example of the bounding boxes and confidence scores produced by an object detection algorithm. Image from \cite{obj-detection-examples}.}
+    \label{fig:bounding-boxes}
+  \end{subfigure}
+  \caption{ }
 \end{figure}
 
 The three object detection algorithms mentioned above all work by first producing region proposals, then producing a more accurate localisation and a score for each region and finally removing any low-scoring or redundant regions. This requires the algorithm to `look' at the image multiple times (around 2000 times for R-CNN). You Only Look Once (YOLO) is a significantly more time-efficient algorithm which, as the name suggests, takes a single look at the image. A convolutional neural network is used to simultaneously predict multiple bounding boxes and the class probabilities for each box. As well as being very fast, YOLO makes fewer than half the number of background errors (where the algorithm mistakes background patches for objects) as Fast R-CNN \cite{yolo}. YOLO is, however, slightly less accurate than some of the slower methods for object detection\cite{cnn-uses:yolo-v3}.
-
-\begin{figure}
-  \centering
-  \includegraphics[width=0.8\textwidth]{bounding-boxes.png}
-  \caption{An example of the bounding boxes and confidence scores produced by an object detection algorithm. Image from \cite{obj-detection-examples}.}
-  \label{fig:bounding-boxes}
-\end{figure}
 
 \subsubsection{Commonly Used Metrics}
 
@@ -66,8 +69,6 @@ Firstly, for classification tasks the following terminology is commonly used:
 
   \item $F_1 = 2 * \frac{precision * recall}{precision + recall}$. The $F_1$ score is a way of combining the precision and recall scores.
 \end{itemize}
-
-% TODO precision-recall curve, AP, IoU
 
 Each object detector model will output a confidence score for each object classification it makes. We can then set a threshold value which determines what is counted as a classification of an object. Altering this threshold value will give different precision and recall values for the model, which can then be plotted on a precision-recall graph. Example precision-recall curves are shown in figure~\ref{fig:prec-recall}.
 
@@ -90,7 +91,20 @@ Each object detector model will output a confidence score for each object classi
 For object detection tasks, where a bounding box is produced as a rough localisation of an object's position, metrics which measure the accuracy of the localisation of an object are required. One very common metric is the Average Precision (AP), which is roughly defined as the area under the precision-recall curve (estimates of this value are usually used for competition datasets). In order to assess how well a model localises an object in an image the Interesection over Union (IoU) metric is commonly used. Figure~\ref{fig:iou} gives a visualisation on how IoU is calculated. Each IoU threshold will produce its own precision-recall curve.
 
 
-\subsubsection{Object Tracking}
+\subsubsection{Multiple Object Tracking}
+
+Multiple Object Tracking (MOT) is a computer vision task that aims to identify and track objects from a sequence of images, without any prior knowledge about the appearance or number of targets\cite{obj-tracking-survey}. Most object tracking methods share a very similar pipeline\cite{obj-tracking-survey}, as follows:
+\begin{itemize}
+  \item \textbf{Detection}. Each input frame is analysed to identify objects using bounding boxes.
+
+  \item \textbf{Feature Extraction}. Algorithms extract appearance, motion and/or interaction features from objects.
+
+  \item \textbf{Affinity Computation}. Features are used to compute a similarity score between objects.
+
+  \item \textbf{Association}. Similarity scores are used to associate detections and compute the object trajectories.
+\end{itemize}
+
+The Simple Online and Realtime Tracking (SORT)\cite{sort-obj-tracking} algorithm is one of the best performers\cite{obj-tracking-survey}. It makes use of Faster R-CNN for object detection, the Kalman filter\cite{kalman-filter} framework for predicting object motion, IoU as a similarity function and the Hungarian algorithm association\cite{hungarian-algo}. SORT attempts to track objects using motion prediction, however other algorithms focus on extracting key-point features from objects, such as Histogram of Orientated Gradients (HOG)\cite{hog-features}, and using these features to match objects in successor frames.
 
 
 \subsection{Knowledge Representation and Reasoning}

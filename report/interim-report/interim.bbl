@@ -236,6 +236,140 @@
     \field{year}{2019}
   \endentry
 
+  \entry{sort-obj-tracking}{inproceedings}{}
+    \name{author}{5}{}{%
+      {{hash=BA}{%
+         family={Bewley},
+         familyi={B\bibinitperiod},
+         given={Alex},
+         giveni={A\bibinitperiod},
+      }}%
+      {{hash=GZ}{%
+         family={Ge},
+         familyi={G\bibinitperiod},
+         given={Zongyuan},
+         giveni={Z\bibinitperiod},
+      }}%
+      {{hash=OL}{%
+         family={Ott},
+         familyi={O\bibinitperiod},
+         given={Lionel},
+         giveni={L\bibinitperiod},
+      }}%
+      {{hash=RF}{%
+         family={Ramos},
+         familyi={R\bibinitperiod},
+         given={Fabio},
+         giveni={F\bibinitperiod},
+      }}%
+      {{hash=UB}{%
+         family={Upcroft},
+         familyi={U\bibinitperiod},
+         given={Ben},
+         giveni={B\bibinitperiod},
+      }}%
+    }
+    \list{organization}{1}{%
+      {IEEE}%
+    }
+    \strng{namehash}{BA+1}
+    \strng{fullhash}{BAGZOLRFUB1}
+    \field{labelnamesource}{author}
+    \field{labeltitlesource}{title}
+    \field{sortinit}{B}
+    \field{sortinithash}{B}
+    \field{booktitle}{2016 IEEE International Conference on Image Processing
+  (ICIP)}
+    \field{pages}{3464\bibrangedash 3468}
+    \field{title}{Simple online and realtime tracking}
+    \field{year}{2016}
+  \endentry
+
+  \entry{obj-tracking-survey}{article}{}
+    \name{author}{6}{}{%
+      {{hash=CG}{%
+         family={Ciaparrone},
+         familyi={C\bibinitperiod},
+         given={Gioele},
+         giveni={G\bibinitperiod},
+      }}%
+      {{hash=SFL}{%
+         family={S{\'a}nchez},
+         familyi={S\bibinitperiod},
+         given={Francisco\bibnamedelima Luque},
+         giveni={F\bibinitperiod\bibinitdelim L\bibinitperiod},
+      }}%
+      {{hash=TS}{%
+         family={Tabik},
+         familyi={T\bibinitperiod},
+         given={Siham},
+         giveni={S\bibinitperiod},
+      }}%
+      {{hash=TL}{%
+         family={Troiano},
+         familyi={T\bibinitperiod},
+         given={Luigi},
+         giveni={L\bibinitperiod},
+      }}%
+      {{hash=TR}{%
+         family={Tagliaferri},
+         familyi={T\bibinitperiod},
+         given={Roberto},
+         giveni={R\bibinitperiod},
+      }}%
+      {{hash=HF}{%
+         family={Herrera},
+         familyi={H\bibinitperiod},
+         given={Francisco},
+         giveni={F\bibinitperiod},
+      }}%
+    }
+    \list{publisher}{1}{%
+      {Elsevier}%
+    }
+    \strng{namehash}{CG+1}
+    \strng{fullhash}{CGSFLTSTLTRHF1}
+    \field{labelnamesource}{author}
+    \field{labeltitlesource}{title}
+    \field{sortinit}{C}
+    \field{sortinithash}{C}
+    \field{title}{Deep learning in video multi-object tracking: A survey}
+    \field{journaltitle}{Neurocomputing}
+    \field{year}{2019}
+  \endentry
+
+  \entry{hog-features}{inproceedings}{}
+    \name{author}{2}{}{%
+      {{hash=DN}{%
+         family={Dalal},
+         familyi={D\bibinitperiod},
+         given={Navneet},
+         giveni={N\bibinitperiod},
+      }}%
+      {{hash=TB}{%
+         family={Triggs},
+         familyi={T\bibinitperiod},
+         given={Bill},
+         giveni={B\bibinitperiod},
+      }}%
+    }
+    \list{publisher}{1}{%
+      {{IEEE Computer Society}}%
+    }
+    \strng{namehash}{DNTB1}
+    \strng{fullhash}{DNTB1}
+    \field{labelnamesource}{author}
+    \field{labeltitlesource}{title}
+    \field{sortinit}{D}
+    \field{sortinithash}{D}
+    \field{booktitle}{{International Conference on Computer Vision \& Pattern
+  Recognition (CVPR '05)}}
+    \field{pages}{886\bibrangedash 893}
+    \field{title}{{Histograms of Oriented Gradients for Human Detection}}
+    \field{volume}{1}
+    \field{year}{2005}
+  \endentry
+
   \entry{ED-uses:networks}{inproceedings}{}
     \name{author}{3}{}{%
       {{hash=DC}{%
@@ -333,6 +467,31 @@
     \field{year}{2014}
   \endentry
 
+  \entry{kalman-filter}{article}{}
+    \true{moreauthor}
+    \name{author}{1}{}{%
+      {{hash=KRE}{%
+         family={Kalman},
+         familyi={K\bibinitperiod},
+         given={Rudolph\bibnamedelima Emil},
+         giveni={R\bibinitperiod\bibinitdelim E\bibinitperiod},
+      }}%
+    }
+    \strng{namehash}{KRE+1}
+    \strng{fullhash}{KRE+1}
+    \field{labelnamesource}{author}
+    \field{labeltitlesource}{title}
+    \field{sortinit}{K}
+    \field{sortinithash}{K}
+    \field{number}{1}
+    \field{pages}{35\bibrangedash 45}
+    \field{title}{A new approach to linear filtering and prediction problems
+  [J]}
+    \field{volume}{82}
+    \field{journaltitle}{Journal of basic Engineering}
+    \field{year}{1960}
+  \endentry
+
   \entry{cnn-uses:classification}{incollection}{}
     \name{author}{3}{}{%
       {{hash=KA}{%
@@ -399,6 +558,32 @@
     \verb nvolutional-neural-networks.pdf
     \endverb
     \field{year}{2012}
+  \endentry
+
+  \entry{hungarian-algo}{article}{}
+    \name{author}{1}{}{%
+      {{hash=KHW}{%
+         family={Kuhn},
+         familyi={K\bibinitperiod},
+         given={Harold\bibnamedelima W},
+         giveni={H\bibinitperiod\bibinitdelim W\bibinitperiod},
+      }}%
+    }
+    \list{publisher}{1}{%
+      {Wiley Online Library}%
+    }
+    \strng{namehash}{KHW1}
+    \strng{fullhash}{KHW1}
+    \field{labelnamesource}{author}
+    \field{labeltitlesource}{title}
+    \field{sortinit}{K}
+    \field{sortinithash}{K}
+    \field{number}{1-2}
+    \field{pages}{83\bibrangedash 97}
+    \field{title}{The Hungarian method for the assignment problem}
+    \field{volume}{2}
+    \field{journaltitle}{Naval research logistics quarterly}
+    \field{year}{1955}
   \endentry
 
   \entry{deep-learning-intro}{article}{}
