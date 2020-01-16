@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.14159265-2.6-1.40.18 (TeX Live 2017) (preloaded format=pdflatex 2017.10.22)  16 JAN 2020 12:57
+This is pdfTeX, Version 3.14159265-2.6-1.40.18 (TeX Live 2017) (preloaded format=pdflatex 2017.10.22)  16 JAN 2020 13:06
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
@@ -451,26 +451,26 @@ File: figures/bounding-boxes.png Graphic file (type png)
 Package pdftex.def Info: figures/bounding-boxes.png used on input line 49.
 (pdftex.def)             Requested size: 198.0011pt x 131.37817pt.
  [5 <./figures/cnn-example.jpg>]
-LaTeX Font Info:    Try loading font information for OMS+cmr on input line 71.
+LaTeX Font Info:    Try loading font information for OMS+cmr on input line 64.
 
 (/usr/local/texlive/2017/texmf-dist/tex/latex/base/omscmr.fd
 File: omscmr.fd 2014/09/29 v2.5h Standard LaTeX font definitions
 )
 LaTeX Font Info:    Font shape `OMS/cmr/m/n' in size <10.95> not available
-(Font)              Font shape `OMS/cmsy/m/n' tried instead on input line 71.
+(Font)              Font shape `OMS/cmsy/m/n' tried instead on input line 64.
  [6 <./figures/faster-r-cnn.png> <./figures/bounding-boxes.png>]
 <figures/prec-recall.png, id=35, 702.625pt x 547.04375pt>
 File: figures/prec-recall.png Graphic file (type png)
 
 <use figures/prec-recall.png>
-Package pdftex.def Info: figures/prec-recall.png used on input line 85.
+Package pdftex.def Info: figures/prec-recall.png used on input line 78.
 (pdftex.def)             Requested size: 172.79846pt x 134.53189pt.
 
 <figures/iou-image.png, id=36, 602.25pt x 469.755pt>
 File: figures/iou-image.png Graphic file (type png)
 
 <use figures/iou-image.png>
-Package pdftex.def Info: figures/iou-image.png used on input line 91.
+Package pdftex.def Info: figures/iou-image.png used on input line 84.
 (pdftex.def)             Requested size: 172.79846pt x 134.78471pt.
  [7 <./figures/prec-recall.png> <./figures/iou-image.png>]) [8]
 Overfull \hbox (12.66936pt too wide) in paragraph at lines 32--32
@@ -532,7 +532,7 @@ cal/texlive/2017/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy10.pfb></usr/loc
 al/texlive/2017/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy8.pfb></usr/local
 /texlive/2017/texmf-dist/fonts/type1/public/amsfonts/cm/cmti10.pfb></usr/local/
 texlive/2017/texmf-dist/fonts/type1/public/amsfonts/cm/cmtt10.pfb>
-Output written on interim.pdf (10 pages, 1709373 bytes).
+Output written on interim.pdf (10 pages, 1709476 bytes).
 PDF statistics:
  91 PDF objects out of 1000 (max. 8388607)
  58 compressed objects within 1 object stream

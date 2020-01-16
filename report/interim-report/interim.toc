@@ -24,9 +24,9 @@
 \defcounter {refsection}{0}\relax 
 \contentsline {subsection}{\numberline {2.3}Knowledge Representation and Reasoning}{8}
 \defcounter {refsection}{0}\relax 
-\contentsline {subsubsection}{\numberline {2.3.1}The Event Calculus}{8}
+\contentsline {subsubsection}{\numberline {2.3.1}Answer Set Programming}{8}
 \defcounter {refsection}{0}\relax 
-\contentsline {subsubsection}{\numberline {2.3.2}Answer Set Programming}{8}
+\contentsline {subsubsection}{\numberline {2.3.2}The Event Calculus}{8}
 \defcounter {refsection}{0}\relax 
 \contentsline {subsubsection}{\numberline {2.3.3}Symbolic Rule Learning}{8}
 \defcounter {refsection}{0}\relax 
