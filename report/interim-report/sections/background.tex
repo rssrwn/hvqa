@@ -111,15 +111,16 @@ The Simple Online and Realtime Tracking (SORT) \cite{sort-obj-tracking} algorith
 
 \subsubsection{Answer Set Programming}
 
-Answer Set Programming (ASP) is a form of declarative logic programming that can be used to solve difficult search problems. Whereas imperative programs define an algorithm for finding a solution to a problem, logic programs simply define a problem, it is then the job of logic program solvers to find a solution to the problem. ASP also differs from Prolog, another popular logic programming language, in that ASP programs are purely declarative. This means that reordering rules or atoms within rules has no effect on the output of the solver\cite{asp-primer}.
+Answer Set Programming (ASP) is a form of declarative logic programming that can be used to solve difficult search problems. Whereas imperative programs define an algorithm for finding a solution to a problem, logic programs simply define a problem, it is then the job of logic program solvers to find a solution to the problem. ASP also differs from Prolog, another popular logic programming language, in that ASP programs are purely declarative. This means that reordering rules or atoms within rules has no effect on the output of the solver\cite{asp-primer}. ASP solvers work by finding the answer sets of the program, where each rule in the program imposes restrictions on what can be an answer set. An answer set can be thought of as a set of ground atoms which satisfies every rule of the program (although the full definition of an answer set is too in-depth for this discussion).
 
-The following templates are a subset of the possible rules in an ASP program:
+The following templates are a some of the possible forms of rules in an ASP program:
 \begin{align}
   a \text{ :- }& b_1, ..., b_k, not \text{ } b_{k+1}, ..., not \text{ } b_m. \label{asp-rule:normal}\\
   \{c_1,...,c_n\} \text{ :- }& b_1,...,b_k, not \text{ } b_{k+1}, ..., not \text{ } b_m. \label{asp-rule:choice}\\
   \text{:- }& b_1,...,b_k, not \text{ } b_{k+1}, ..., not \text{ } b_m. \label{asp-rule:constraint}
 \end{align}
-Where each $a$, $b_i$ and $c_i$ are atoms in first-order logic. The left hand side of the rule is known as the head, and the right hand side is known as the body. The $not$ in the rule body stands for negation-as-failure, which means that $not$ $b_i$ will be satisfied when $b_i$ cannot be proved. Each rule requires that when the body is satisfied (every member of the body is satisfied) the head must be satisfied. Rule~\ref{asp-rule:choice} is known as a choice rule, the head of a choice rule can be satisfied by any subset of the atoms inside the brackets. % TODO constraint explanation
+
+Where each $a$, $b_i$ and $c_i$ are atoms in first-order logic. The left hand side of the rule is known as the head, and the right hand side is known as the body. The $not$ in the rule body stands for negation-as-failure, which means that $not$ $b_i$ will be satisfied when $b_i$ cannot be proved. Each rule requires that when the body is satisfied - that is, when every member of the body is satisfied - the head must be satisfied. Rule~\ref{asp-rule:choice} is known as a choice rule. The head of a choice rule can be satisfied by any subset of the atoms inside the brackets (including the empty set); in effect, a choice rule creates possible answer sets. Finally, rule~\ref{asp-rule:constraint} is known as a contsraint. The body of a constraint must not be satisfied; intuitively, a constraint rules out answer sets.
 
 \subsubsection{The Event Calculus}
 
