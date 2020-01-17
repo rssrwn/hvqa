@@ -122,7 +122,18 @@ The following templates are a some of the possible forms of rules in an ASP prog
 
 Where each $a$, $b_i$ and $c_i$ are atoms in first-order logic. The left hand side of the rule is known as the head, and the right hand side is known as the body. The $not$ in the rule body stands for negation-as-failure, which means that $not$ $b_i$ will be satisfied when $b_i$ cannot be proved. Each rule requires that when the body is satisfied - that is, when every member of the body is satisfied - the head must be satisfied. Rule~\ref{asp-rule:choice} is known as a choice rule. The head of a choice rule can be satisfied by any subset of the atoms inside the brackets (including the empty set); in effect, a choice rule creates possible answer sets. Finally, rule~\ref{asp-rule:constraint} is known as a contsraint. The body of a constraint must not be satisfied; intuitively, a constraint rules out answer sets.
 
-\subsubsection{The Event Calculus}
+\subsubsection{The Action Language $\mathcal{AL}$}
+
+Action languages are formal models for describing the behaviour of dynamic systems. In this section we present the version of $\mathcal{AL}$ given in \cite{krr-asp-book}. $\mathcal{AL}$'s signature contains three special sorts: \textit{statics}, \textit{fluents} and \textit{actions}. Fluents are partitioned into two sorts: \textit{inertial} and \textit{defined}. Statics and fluents are both referred to as `domain properties'. A `domain literal' is a domain property or its negation. Statements in $\mathcal{AL}$ can be of the following form:
+\begin{gather}
+  a \textbf{ causes } l_{in} \textbf{ if } p_0,...,p_m \label{al:causal} \\
+  l \textbf{ if } p_0,...,p_m \label{al:constraint} \\
+  \textbf{impossible } a_0,...,a_k \textbf{ if } p_0,...,p_m \label{al:exec}
+\end{gather}
+
+Where $a$ is an action, $l$ and $p_0,...,p_m$ are domain literals and $l_{in}$ is a literal formed by an inertial fluent. Statement~\ref{al:causal} is known as a \textit{causal law}, \ref{al:constraint} as a \textit{state constraint} and \ref{al:exec} as an \textit{executibility condition}. A collection of $\mathcal{AL}$ statements is known as a `system decription'. An $\mathcal{AL}$ system description can be used to model the behaviour of dynamic systems with discrete states; each state can be seen as the set of fluents which are true and transitions between states are caused by actions.
+
+It also possible to encode a given $\mathcal{AL}$ system description, along with a number of `domain-independent' axioms, in ASP. The method for creating this encoding is given in Appendix TODO ref. % TODO create appendix.
 
 \subsubsection{Symbolic Rule Learning}
 

@@ -488,6 +488,35 @@
     \field{year}{2009}
   \endentry
 
+  \entry{krr-asp-book}{book}{}
+    \name{author}{2}{}{%
+      {{hash=GM}{%
+         family={Gelfond},
+         familyi={G\bibinitperiod},
+         given={Michael},
+         giveni={M\bibinitperiod},
+      }}%
+      {{hash=KY}{%
+         family={Kahl},
+         familyi={K\bibinitperiod},
+         given={Yulia},
+         giveni={Y\bibinitperiod},
+      }}%
+    }
+    \list{publisher}{1}{%
+      {Cambridge University Press}%
+    }
+    \strng{namehash}{GMKY1}
+    \strng{fullhash}{GMKY1}
+    \field{labelnamesource}{author}
+    \field{labeltitlesource}{title}
+    \field{sortinit}{G}
+    \field{sortinithash}{G}
+    \field{title}{Knowledge representation, reasoning, and the design of
+  intelligent agents: The answer-set programming approach}
+    \field{year}{2014}
+  \endentry
+
   \entry{fast-r-cnn}{inproceedings}{}
     \name{author}{1}{}{%
       {{hash=GR}{%
