@@ -109,6 +109,8 @@ The Simple Online and Realtime Tracking (SORT) \cite{sort-obj-tracking} algorith
 
 \subsection{Knowledge Representation and Reasoning}
 
+Knowledge Representation and Reasoning (KRR) is concerned with how intelligent agents store and manipulate their knowledge. In this section we discuss Answer Set Programming, a logic programming framework, action languages, which can be used to define the behaviour of a system, and methods for learning logical rules inductively.
+
 \subsubsection{Answer Set Programming}
 
 Answer Set Programming (ASP) is a form of declarative logic programming that can be used to solve difficult search problems. Whereas imperative programs define an algorithm for finding a solution to a problem, logic programs simply define a problem, it is then the job of logic program solvers to find a solution to the problem. ASP also differs from Prolog, another popular logic programming language, in that ASP programs are purely declarative. This means that reordering rules or atoms within rules has no effect on the output of the solver\cite{asp-primer}. ASP solvers work by finding the answer sets of the program, where each rule in the program imposes restrictions on what can be an answer set. An answer set can be thought of as a set of ground atoms which satisfies every rule of the program (although the full definition of an answer set is too in-depth for this discussion).
