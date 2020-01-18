@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.14159265-2.6-1.40.18 (TeX Live 2017) (preloaded format=pdflatex 2017.10.22)  17 JAN 2020 22:28
+This is pdfTeX, Version 3.14159265-2.6-1.40.18 (TeX Live 2017) (preloaded format=pdflatex 2017.10.22)  18 JAN 2020 17:13
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
@@ -143,6 +143,16 @@ LaTeX Font Info:    Redeclaring font encoding OMS on input line 713.
 LaTeX Info: Redefining \[ on input line 2817.
 LaTeX Info: Redefining \] on input line 2818.
 )
+(/usr/local/texlive/2017/texmf-dist/tex/latex/amsfonts/amssymb.sty
+Package: amssymb 2013/01/14 v3.01 AMS font symbols
+
+(/usr/local/texlive/2017/texmf-dist/tex/latex/amsfonts/amsfonts.sty
+Package: amsfonts 2013/01/14 v3.01 Basic AMSFonts support
+\symAMSa=\mathgroup4
+\symAMSb=\mathgroup5
+LaTeX Font Info:    Overwriting math alphabet `\mathfrak' in version `bold'
+(Font)                  U/euf/m/n --> U/euf/b/n on input line 106.
+))
 (/usr/local/texlive/2017/texmf-dist/tex/latex/biblatex/biblatex.sty
 Package: biblatex 2016/12/05 v3.7 programmable bibliographies (PK/JW/AB)
 
@@ -409,18 +419,18 @@ File: english.lbx 2016/12/05 v3.7 biblatex localization (PK/JW/AB)
 (./interim.aux)
 \openout1 = `interim.aux'.
 
-LaTeX Font Info:    Checking defaults for OML/cmm/m/it on input line 18.
-LaTeX Font Info:    ... okay on input line 18.
-LaTeX Font Info:    Checking defaults for T1/cmr/m/n on input line 18.
-LaTeX Font Info:    ... okay on input line 18.
-LaTeX Font Info:    Checking defaults for OT1/cmr/m/n on input line 18.
-LaTeX Font Info:    ... okay on input line 18.
-LaTeX Font Info:    Checking defaults for OMS/cmsy/m/n on input line 18.
-LaTeX Font Info:    ... okay on input line 18.
-LaTeX Font Info:    Checking defaults for OMX/cmex/m/n on input line 18.
-LaTeX Font Info:    ... okay on input line 18.
-LaTeX Font Info:    Checking defaults for U/cmr/m/n on input line 18.
-LaTeX Font Info:    ... okay on input line 18.
+LaTeX Font Info:    Checking defaults for OML/cmm/m/it on input line 19.
+LaTeX Font Info:    ... okay on input line 19.
+LaTeX Font Info:    Checking defaults for T1/cmr/m/n on input line 19.
+LaTeX Font Info:    ... okay on input line 19.
+LaTeX Font Info:    Checking defaults for OT1/cmr/m/n on input line 19.
+LaTeX Font Info:    ... okay on input line 19.
+LaTeX Font Info:    Checking defaults for OMS/cmsy/m/n on input line 19.
+LaTeX Font Info:    ... okay on input line 19.
+LaTeX Font Info:    Checking defaults for OMX/cmex/m/n on input line 19.
+LaTeX Font Info:    ... okay on input line 19.
+LaTeX Font Info:    Checking defaults for U/cmr/m/n on input line 19.
+LaTeX Font Info:    ... okay on input line 19.
 
 (/usr/local/texlive/2017/texmf-dist/tex/context/base/mkii/supp-pdf.mkii
 [Loading MPS to PDF converter (version 2006.09.02).]
@@ -470,17 +480,26 @@ Package biblatex Info: Trying to load bibliographic data...
 Package biblatex Info: ... file 'interim.bbl' found.
 
 (./interim.bbl)
-Package biblatex Info: Reference section=0 on input line 18.
-Package biblatex Info: Reference segment=0 on input line 18.
- (./interim.toc)
+Package biblatex Info: Reference section=0 on input line 19.
+Package biblatex Info: Reference segment=0 on input line 19.
+ (./interim.toc
+LaTeX Font Info:    Try loading font information for U+msa on input line 5.
+
+(/usr/local/texlive/2017/texmf-dist/tex/latex/amsfonts/umsa.fd
+File: umsa.fd 2013/01/14 v3.01 AMS symbols A
+)
+LaTeX Font Info:    Try loading font information for U+msb on input line 5.
+
+(/usr/local/texlive/2017/texmf-dist/tex/latex/amsfonts/umsb.fd
+File: umsb.fd 2013/01/14 v3.01 AMS symbols B
+))
 \tf@toc=\write5
 \openout5 = `interim.toc'.
 
  [1
 
-{/usr/local/texlive/2017/texmf-var/fonts/map/pdftex/updmap/pdftex.map}] (./sect
-ions/intro.tex [2] [3])
-(./sections/background.tex [4]
+{/usr/local/texlive/2017/texmf-var/fonts/map/pdftex/updmap/pdftex.map}]
+(./sections/intro.tex [2] [3]) (./sections/background.tex [4]
 <figures/cnn-example.jpg, id=19, 1259.70625pt x 425.59pt>
 File: figures/cnn-example.jpg Graphic file (type jpg)
 
@@ -523,27 +542,27 @@ File: figures/iou-image.png Graphic file (type png)
 <use figures/iou-image.png>
 Package pdftex.def Info: figures/iou-image.png used on input line 84.
 (pdftex.def)             Requested size: 172.79846pt x 134.78471pt.
- [7 <./figures/prec-recall.png> <./figures/iou-image.png>] [8]) [9]
-Overfull \hbox (12.66936pt too wide) in paragraph at lines 34--34
+ [7 <./figures/prec-recall.png> <./figures/iou-image.png>] [8] [9]) [10]
+Overfull \hbox (12.66936pt too wide) in paragraph at lines 35--35
 \OT1/cmr/m/it/10.95 tion on Keras and Ten-sor-Flow\OT1/cmr/m/n/10.95 . \OT1/cmr
 /m/sc/10.95 url\OT1/cmr/m/n/10.95 : $\OT1/cmtt/m/n/10.95 https : / / github . c
 om / matterport /
  []
 
 
-Overfull \hbox (1.11967pt too wide) in paragraph at lines 34--34
+Overfull \hbox (1.11967pt too wide) in paragraph at lines 35--35
 \OT1/cmr/m/n/10.95 swer Set Pro-gram-ming: A Primer''. In: \OT1/cmr/m/it/10.95 
 Rea-son-ing Web. Se-man-tic Tech-
  []
 
-[10]
-Overfull \hbox (3.58421pt too wide) in paragraph at lines 34--34
+[11]
+Overfull \hbox (3.58421pt too wide) in paragraph at lines 35--35
 []\OT1/cmr/m/n/10.95 Kenneth Marino et al. ``OK-VQA: A Vi-sual Ques-tion An-swe
 r-ing Bench-
  []
 
 
-Overfull \hbox (8.22937pt too wide) in paragraph at lines 34--34
+Overfull \hbox (8.22937pt too wide) in paragraph at lines 35--35
 \OT1/cmr/m/n/10.95 mark Re-quir-ing Ex-ter-nal Knowl-edge''. In: \OT1/cmr/m/it/
 10.95 CoRR \OT1/cmr/m/n/10.95 abs/1906.00067 (2019).
  []
@@ -551,31 +570,32 @@ Overfull \hbox (8.22937pt too wide) in paragraph at lines 34--34
 Missing character: There is no Ã in font cmr10!
 Missing character: There is no © in font cmr10!
 
-Overfull \hbox (5.28148pt too wide) in paragraph at lines 34--34
+Overfull \hbox (5.28148pt too wide) in paragraph at lines 35--35
 []\OT1/cmr/m/n/10.95 Ren Quin-iou et al. ``In-tel-li-gent Adap-tive Mon-i-tor-i
 ng for Car-diac Surveil-
  []
 
 
-Overfull \hbox (11.1792pt too wide) in paragraph at lines 34--34
+Overfull \hbox (11.1792pt too wide) in paragraph at lines 35--35
 \OT1/cmr/m/n/10.95 lance''. In: \OT1/cmr/m/it/10.95 Com-pu-ta-tional In-tel-li-
 gence in Health-care 4: Ad-vanced Method-
  []
 
+[12]
 Missing character: There is no â in font cmr10!
 Missing character: There is no € in font cmr10!
 Missing character: There is no ™ in font cmr10!
-[11] [12] (./interim.aux)
+ [13] (./interim.aux)
 Package logreq Info: Writing requests to 'interim.run.xml'.
 \openout1 = `interim.run.xml'.
 
  ) 
 Here is how much of TeX's memory you used:
- 9824 strings out of 492995
- 170367 string characters out of 6132703
- 420191 words of memory out of 5000000
- 13265 multiletter control sequences out of 15000+600000
- 10007 words of font info for 36 fonts, out of 8000000 for 9000
+ 10123 strings out of 492995
+ 174010 string characters out of 6132703
+ 420678 words of memory out of 5000000
+ 13545 multiletter control sequences out of 15000+600000
+ 11943 words of font info for 44 fonts, out of 8000000 for 9000
  1141 hyphenation exceptions out of 8191
  44i,10n,47p,1095b,1556s stack positions out of 5000i,500n,10000p,200000b,80000s
 </usr/local/texlive/2017/texmf-dist/fonts/type1/public/amsfonts/cm/cmbx10.pfb
@@ -588,11 +608,12 @@ sr/local/texlive/2017/texmf-dist/fonts/type1/public/amsfonts/cm/cmr10.pfb></usr
 cal/texlive/2017/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy10.pfb></usr/loc
 al/texlive/2017/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy8.pfb></usr/local
 /texlive/2017/texmf-dist/fonts/type1/public/amsfonts/cm/cmti10.pfb></usr/local/
-texlive/2017/texmf-dist/fonts/type1/public/amsfonts/cm/cmtt10.pfb>
-Output written on interim.pdf (12 pages, 1717490 bytes).
+texlive/2017/texmf-dist/fonts/type1/public/amsfonts/cm/cmtt10.pfb></usr/local/t
+exlive/2017/texmf-dist/fonts/type1/public/amsfonts/symbols/msbm10.pfb>
+Output written on interim.pdf (13 pages, 1725985 bytes).
 PDF statistics:
- 97 PDF objects out of 1000 (max. 8388607)
- 62 compressed objects within 1 object stream
+ 105 PDF objects out of 1000 (max. 8388607)
+ 68 compressed objects within 1 object stream
  0 named destinations out of 1000 (max. 500000)
  26 words of extra memory for PDF output out of 10000 (max. 10000000)
 

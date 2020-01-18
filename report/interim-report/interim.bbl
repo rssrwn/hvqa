@@ -666,10 +666,6 @@
     \field{pages}{1097\bibrangedash 1105}
     \field{title}{ImageNet Classification with Deep Convolutional Neural
   Networks}
-    \verb{url}
-    \verb http://papers.nips.cc/paper/4824-imagenet-classification-with-deep-co
-    \verb nvolutional-neural-networks.pdf
-    \endverb
     \field{year}{2012}
   \endentry
 
@@ -697,6 +693,184 @@
     \field{volume}{2}
     \field{journaltitle}{Naval research logistics quarterly}
     \field{year}{1955}
+  \endentry
+
+  \entry{ilasp-1}{inproceedings}{}
+    \name{author}{3}{}{%
+      {{hash=LM}{%
+         family={Law},
+         familyi={L\bibinitperiod},
+         given={Mark},
+         giveni={M\bibinitperiod},
+      }}%
+      {{hash=RA}{%
+         family={Russo},
+         familyi={R\bibinitperiod},
+         given={Alessandra},
+         giveni={A\bibinitperiod},
+      }}%
+      {{hash=BK}{%
+         family={Broda},
+         familyi={B\bibinitperiod},
+         given={Krysia},
+         giveni={K\bibinitperiod},
+      }}%
+    }
+    \list{publisher}{1}{%
+      {Springer International Publishing}%
+    }
+    \strng{namehash}{LMRABK1}
+    \strng{fullhash}{LMRABK1}
+    \field{labelnamesource}{author}
+    \field{labeltitlesource}{title}
+    \field{sortinit}{L}
+    \field{sortinithash}{L}
+    \field{booktitle}{Logics in Artificial Intelligence}
+    \field{pages}{311\bibrangedash 325}
+    \field{title}{Inductive Learning of Answer Set Programs}
+    \field{year}{2014}
+  \endentry
+
+  \entry{ilasp-noisy}{article}{}
+    \name{author}{3}{}{%
+      {{hash=LM}{%
+         family={Law},
+         familyi={L\bibinitperiod},
+         given={Mark},
+         giveni={M\bibinitperiod},
+      }}%
+      {{hash=RA}{%
+         family={Russo},
+         familyi={R\bibinitperiod},
+         given={Alessandra},
+         giveni={A\bibinitperiod},
+      }}%
+      {{hash=BK}{%
+         family={Broda},
+         familyi={B\bibinitperiod},
+         given={Krysia},
+         giveni={K\bibinitperiod},
+      }}%
+    }
+    \strng{namehash}{LMRABK1}
+    \strng{fullhash}{LMRABK1}
+    \field{labelnamesource}{author}
+    \field{labeltitlesource}{title}
+    \field{sortinit}{L}
+    \field{sortinithash}{L}
+    \field{title}{Inductive learning of answer set programs from noisy
+  examples}
+    \field{journaltitle}{arXiv preprint arXiv:1808.08441}
+    \field{year}{2018}
+  \endentry
+
+  \entry{ilasp-cde}{article}{}
+    \name{author}{3}{}{%
+      {{hash=LM}{%
+         family={Law},
+         familyi={L\bibinitperiod},
+         given={Mark},
+         giveni={M\bibinitperiod},
+      }}%
+      {{hash=RA}{%
+         family={Russo},
+         familyi={R\bibinitperiod},
+         given={Alessandra},
+         giveni={A\bibinitperiod},
+      }}%
+      {{hash=BK}{%
+         family={Broda},
+         familyi={B\bibinitperiod},
+         given={Krysia},
+         giveni={K\bibinitperiod},
+      }}%
+    }
+    \list{publisher}{1}{%
+      {Cambridge University Press}%
+    }
+    \strng{namehash}{LMRABK1}
+    \strng{fullhash}{LMRABK1}
+    \field{labelnamesource}{author}
+    \field{labeltitlesource}{title}
+    \field{sortinit}{L}
+    \field{sortinithash}{L}
+    \field{number}{5-6}
+    \field{pages}{834\bibrangedash 848}
+    \field{title}{Iterative learning of answer set programs from context
+  dependent examples}
+    \field{volume}{16}
+    \field{journaltitle}{Theory and Practice of Logic Programming}
+    \field{year}{2016}
+  \endentry
+
+  \entry{ilasp-wc}{article}{}
+    \name{author}{3}{}{%
+      {{hash=LM}{%
+         family={Law},
+         familyi={L\bibinitperiod},
+         given={Mark},
+         giveni={M\bibinitperiod},
+      }}%
+      {{hash=RA}{%
+         family={Russo},
+         familyi={R\bibinitperiod},
+         given={Alessandra},
+         giveni={A\bibinitperiod},
+      }}%
+      {{hash=BK}{%
+         family={Broda},
+         familyi={B\bibinitperiod},
+         given={Krysia},
+         giveni={K\bibinitperiod},
+      }}%
+    }
+    \list{publisher}{1}{%
+      {Cambridge University Press}%
+    }
+    \strng{namehash}{LMRABK1}
+    \strng{fullhash}{LMRABK1}
+    \field{labelnamesource}{author}
+    \field{labeltitlesource}{title}
+    \field{sortinit}{L}
+    \field{sortinithash}{L}
+    \field{number}{4-5}
+    \field{pages}{511\bibrangedash 525}
+    \field{title}{Learning weak constraints in answer set programming}
+    \field{volume}{15}
+    \field{journaltitle}{Theory and Practice of Logic Programming}
+    \field{year}{2015}
+  \endentry
+
+  \entry{ilasp-system}{misc}{}
+    \name{author}{3}{}{%
+      {{hash=LM}{%
+         family={Law},
+         familyi={L\bibinitperiod},
+         given={Mark},
+         giveni={M\bibinitperiod},
+      }}%
+      {{hash=RA}{%
+         family={Russo},
+         familyi={R\bibinitperiod},
+         given={Alessandra},
+         giveni={A\bibinitperiod},
+      }}%
+      {{hash=BK}{%
+         family={Broda},
+         familyi={B\bibinitperiod},
+         given={Krysia},
+         giveni={K\bibinitperiod},
+      }}%
+    }
+    \strng{namehash}{LMRABK1}
+    \strng{fullhash}{LMRABK1}
+    \field{labelnamesource}{author}
+    \field{labeltitlesource}{title}
+    \field{sortinit}{L}
+    \field{sortinithash}{L}
+    \field{howpublished}{\url{www.ilasp.com}}
+    \field{title}{The {ILASP} system for learning Answer Set Programs}
+    \field{year}{2015}
   \endentry
 
   \entry{deep-learning-intro}{article}{}
@@ -804,13 +978,36 @@
     \endverb
     \field{title}{{OK-VQA:} {A} Visual Question Answering Benchmark Requiring
   External Knowledge}
-    \verb{url}
-    \verb http://arxiv.org/abs/1906.00067
-    \endverb
     \field{volume}{abs/1906.00067}
     \field{journaltitle}{CoRR}
     \field{eprinttype}{arXiv}
     \field{year}{2019}
+  \endentry
+
+  \entry{ilp-intro}{article}{}
+    \name{author}{1}{}{%
+      {{hash=MS}{%
+         family={Muggleton},
+         familyi={M\bibinitperiod},
+         given={Stephen},
+         giveni={S\bibinitperiod},
+      }}%
+    }
+    \list{publisher}{1}{%
+      {Springer}%
+    }
+    \strng{namehash}{MS1}
+    \strng{fullhash}{MS1}
+    \field{labelnamesource}{author}
+    \field{labeltitlesource}{title}
+    \field{sortinit}{M}
+    \field{sortinithash}{M}
+    \field{number}{4}
+    \field{pages}{295\bibrangedash 318}
+    \field{title}{Inductive logic programming}
+    \field{volume}{8}
+    \field{journaltitle}{New generation computing}
+    \field{year}{1991}
   \endentry
 
   \entry{ED-uses:cardiac}{inbook}{}
@@ -895,15 +1092,8 @@
     \field{sortinithash}{Q}
     \field{booktitle}{Computational Intelligence in Healthcare 4: Advanced
   Methodologies}
-    \verb{doi}
-    \verb 10.1007/978-3-642-14464-6_15
-    \endverb
-    \field{isbn}{978-3-642-14464-6}
     \field{pages}{329\bibrangedash 346}
     \field{title}{Intelligent Adaptive Monitoring for Cardiac Surveillance}
-    \verb{url}
-    \verb https://doi.org/10.1007/978-3-642-14464-6_15
-    \endverb
     \list{location}{1}{%
       {Berlin, Heidelberg}%
     }
@@ -1076,15 +1266,8 @@
     \field{sortinithash}{S}
     \field{booktitle}{Proceedings of the Third ACM International Conference on
   Distributed Event-Based Systems}
-    \verb{doi}
-    \verb 10.1145/1619258.1619264
-    \endverb
-    \field{isbn}{9781605586656}
     \field{series}{DEBS ’09}
     \field{title}{Distributed Complex Event Processing with Query Rewriting}
-    \verb{url}
-    \verb https://doi.org/10.1145/1619258.1619264
-    \endverb
     \list{location}{1}{%
       {New York, NY, USA}%
     }
