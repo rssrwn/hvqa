@@ -5,6 +5,8 @@
 
 \usepackage{subfiles}
 
+\usepackage{appendix}
+
 \usepackage{caption}
 \usepackage{subcaption}
 
@@ -25,16 +27,19 @@
 
 \subfile{sections/background}
 
-\section{Related Work} \label{section:related}  % TODO move to subfile
-%\subfile{sections/related}
+\subfile{sections/related}
 
-%\subfile{sections/plan}
+\subfile{sections/plan}
 
 \newpage
-
 \printbibliography[heading=bibintoc, title={References}]
 
-% TODO create appendix.
+\newpage
+\appendixtitleon
+\appendixtitletocon
+\begin{appendices}
+\subfile{sections/appendix}
+\end{appendices}
 
 
 \end{document}

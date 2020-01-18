@@ -32,4 +32,8 @@
 \defcounter {refsection}{0}\relax 
 \contentsline {section}{\numberline {3}Related Work}{10}
 \defcounter {refsection}{0}\relax 
+\contentsline {section}{\numberline {4}Project Plan}{10}
+\defcounter {refsection}{0}\relax 
 \contentsline {section}{References}{11}
+\defcounter {refsection}{0}\relax 
+\contentsline {section}{Appendix \numberline {A}ASP encoding of $\mathcal {AL}$}{14}
