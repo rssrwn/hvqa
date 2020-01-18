@@ -6,5 +6,86 @@
 
 \section{ASP encoding of $\mathcal{AL}$} \label{appendix-al}
 
+In this appendix we present a method for encoding an $\mathcal{AL}$ system description in ASP, as described in~\cite{krr-asp-book}. We need to encode three different parts of the system description: the signature, the $\mathcal{AL}$ statements and some domain-independent axioms.
+
+\noindent
+We encode the signature of the system description, $sig(SD)$, as follows:
+\begin{itemize}
+  \item For each constant symbol $c$ of sort $sort\_name$ other than $fluent$, $static$ or $action$, $sig(SD)$ contains \begin{align} sort\_name(c). \end{align}
+
+  \item For every static $g$ of SD, $sig(SD)$ contains \begin{align} static(g). \end{align}
+
+  \item For every intertial fluent $f$ of SD, $sig(SD)$ contains \begin{align} fluent(inertial, f). \end{align}
+
+  \item For every defined fluent $f$ of SD, $sig(SD)$ contains \begin{align} fluent(defined, f). \end{align}
+
+  \item For every action $a$ of SD, $sig(SD)$ contains \begin{align} action(a). \end{align}
+\end{itemize}
+
+In the following we refer to the ASP encoding of the $\mathcal{AL}$ system description as $\Pi(SD)$, where $\Pi(SD)$ includes $sig(SD)$. We introduce a relation $holds(f, i)$ which says that fluent $f$ is true at timepoint $i$. We also introduce the notation $h(l, i)$ where $l$ is a domain literal and $i$ is a step, which will not be used in the ASP program, but will instead be replaced by either $holds(f, i)$ if $l = f$, or by $\neg holds(f, i)$ if $l = \neg f$.
+
+\noindent
+We encode the $\mathcal{AL}$ statements as follows:
+\begin{itemize}
+  \item If the maximum number of steps is $<max>$, then $\Pi(SD)$ includes \begin{gather}
+    \#const \text{ } n = \text{} <max>. \\
+    step(0..n).
+  \end{gather}
+
+  \item For every causal law, $a$ \textbf{causes} $l$ \textbf{if} $p_0,...,p_m$ $\Pi(SD)$ contains
+  \begin{equation}
+    h(l, I+1) \text{ :- } h(p_0, I),..., h(p_m, I), occurs(a, I), I < n.
+  \end{equation}
+
+  \item For every state constraint, $l$ \textbf{if} $p_0,...,p_m$ $\Pi(SD)$ contains
+  \begin{equation}
+    h(l, I) \text{ :- } h(p_0, I), ..., h(p_m, I).
+  \end{equation}
+
+  \item For every executability condition, \textbf{impossible} $a_0,...,a_k$ \textbf{if} $p_0,...,p_m$ $\Pi(SD)$ contains
+  \begin{equation}
+    \neg occurs(a_0, I) ; ... ; \neg occurs(a_k, I) \text{ :- } h(p_0, I),..., h(p_m, I).
+    \label{eqn:exec-cond-asp}
+  \end{equation}
+\end{itemize}
+
+The $;$ in the head of rule~\ref{eqn:exec-cond-asp} stands for logical disjunction and can be read as meaning at least one of $a_0,...,a_k$ must not occur at timepoint $I$.
+
+In order to complete our encoding of an $\mathcal{AL}$ system description we need to add a number of domain-independent axioms. These axioms are not specific to any system or task, but rather convey commonsense knowledge that should apply to many systems. It is worth noting, however, that in certain situations some or all of these axioms may not make sense and should not be used.
+
+\noindent
+We encode the domain-independent knowledge as follows:
+\begin{itemize}
+  \item The inertia axiom states that inertial fluents will keep their state unless explicitly changed:
+  \begin{equation}
+    \begin{split}
+      holds(F, I+1) \text{ :- } &fluent(inertial, F), \\
+      &holds(F, I), \\
+      &not \text{ } \neg holds(F, I+1), \\
+      &I < n.
+    \end{split}
+  \end{equation}
+  \begin{equation}
+    \begin{split}
+      \neg holds(F, I+1) \text{ :- } &fluent(inertial, F), \\
+      &\neg holds(F, I), \\
+      &not \text{ } holds(F, I+1), \\
+      &I < n.
+    \end{split}
+  \end{equation}
+
+  \item The closed-world assumption (CWA) for defined fluents states that defined fluents which are not known to be true are assumed to be false.
+  \begin{equation}
+    \neg holds(F, I) \text{ :- } fluent(defined, F), step(I), not \text{ } holds(F, I).
+  \end{equation}
+
+  \item The CWA for actions states that actions that are not known to occur are assumed to not occur.
+  \begin{equation}
+    \neg occurs(A, I) \text{ :- } action(A), step(I), not \text{ } occurs(A, I).
+  \end{equation}
+\end{itemize}
+
+Finally, in order to make use of system description encoding we would include information on which events occured, using the $occurs(A, I)$ predicate, and information on the different states of the system using $holds(F, I)$ and $\neg holds(F, I)$.
+
 
 \end{document}
