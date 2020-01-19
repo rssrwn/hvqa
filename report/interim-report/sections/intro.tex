@@ -24,7 +24,7 @@ Finally, the use of a hydrid model for VideoQA brings with it a nmuber of advant
 
 \subsection{Problem Description}
 
-As mentioned above, the VideoQA problem can be defined as building a model which, when presented with a short video and an open-ended, natural language question about the video, can produce a natural language answer to the given question. In our case we are looking to design a hyrid model for VideoQA. More specifically, convolutional neural networks (CNNs) will be used to extract knowledge from each frame of the video. This knowledge, along with the question to be answered, will be represented in a fashion that is amenable to searching for the answer to the question. This framing of the problem leads us to outline the following sub-problems, which will need to solved in order to produce a satisfactory VideoQA model.
+As mentioned above, the VideoQA problem can be defined as building a model which, when presented with a short video and an open-ended, natural language question about the video, can produce a natural language answer to the given question. In our case we are looking to design a hybrid model for VideoQA. More specifically, convolutional neural networks (CNNs) will be used to extract knowledge from each frame of the video. This knowledge, along with the question to be answered, will be represented in a fashion that is amenable to searching for the answer to the question. This framing of the problem leads us to outline the following sub-problems, which will need to solved in order to produce a satisfactory VideoQA model.
 
 \begin{enumerate}
   \item \textbf{Object Detection}. Given a frame, we need a model which can produce a rough estimate (a bounding box, for example) of the location of an object in the frame. We will also need a model which can classify each detected object into a set of predefined classes.
@@ -42,11 +42,11 @@ As mentioned above, the VideoQA problem can be defined as building a model which
 A lot of research has been conducted on building end-to-end neural network models to solve VideoQA tasks (see section~\ref{section:related} for examples), but very little prior work has been done on hybrid models. The main aim of this project, therefore, is to explore the possibility of adding logical representation of knowledge to existing deep learning techniques. The following are the primary objectives of the project:
 
 \begin{enumerate}
-  \item Construct a hyrid VideoQA model which allows injection of background knowledge and helps to increase the explainability of the model.
+  \item Construct a hybrid VideoQA model which allows injection of background knowledge and helps to increase the explainability of the model.
 
   \item Find a challenging dataset for training the model (or construct a dataset if none are suitable)
 
-  \item Compare qualitatively (and quantitatively, if possible) existing approaches to our own hyrid model.
+  \item Compare qualitatively (and quantitatively, if possible) existing approaches to our own hybrid model.
 
   \item Investigate the possibility of learning domain-dependent logical rules, rather than having to have them hard coded for each environment.
 \end{enumerate}

@@ -32,8 +32,10 @@
 \defcounter {refsection}{0}\relax 
 \contentsline {section}{\numberline {3}Related Work}{10}
 \defcounter {refsection}{0}\relax 
-\contentsline {section}{\numberline {4}Project Plan}{10}
+\contentsline {subsection}{\numberline {3.1}VideoQA Datasets}{10}
 \defcounter {refsection}{0}\relax 
-\contentsline {section}{References}{11}
+\contentsline {section}{\numberline {4}Project Plan}{11}
 \defcounter {refsection}{0}\relax 
-\contentsline {section}{Appendix \numberline {A}ASP encoding of $\mathcal {AL}$}{14}
+\contentsline {section}{References}{12}
+\defcounter {refsection}{0}\relax 
+\contentsline {section}{Appendix \numberline {A}ASP encoding of $\mathcal {AL}$}{15}

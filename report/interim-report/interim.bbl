@@ -580,6 +580,53 @@
     \field{year}{2014}
   \endentry
 
+  \entry{dataset:tgif-qa}{inproceedings}{}
+    \name{author}{5}{}{%
+      {{hash=JY}{%
+         family={Jang},
+         familyi={J\bibinitperiod},
+         given={Yunseok},
+         giveni={Y\bibinitperiod},
+      }}%
+      {{hash=SY}{%
+         family={Song},
+         familyi={S\bibinitperiod},
+         given={Yale},
+         giveni={Y\bibinitperiod},
+      }}%
+      {{hash=YY}{%
+         family={Yu},
+         familyi={Y\bibinitperiod},
+         given={Youngjae},
+         giveni={Y\bibinitperiod},
+      }}%
+      {{hash=KY}{%
+         family={Kim},
+         familyi={K\bibinitperiod},
+         given={Youngjin},
+         giveni={Y\bibinitperiod},
+      }}%
+      {{hash=KG}{%
+         family={Kim},
+         familyi={K\bibinitperiod},
+         given={Gunhee},
+         giveni={G\bibinitperiod},
+      }}%
+    }
+    \strng{namehash}{JY+1}
+    \strng{fullhash}{JYSYYYKYKG1}
+    \field{labelnamesource}{author}
+    \field{labeltitlesource}{title}
+    \field{sortinit}{J}
+    \field{sortinithash}{J}
+    \field{booktitle}{Proceedings of the IEEE Conference on Computer Vision and
+  Pattern Recognition}
+    \field{pages}{2758\bibrangedash 2766}
+    \field{title}{Tgif-qa: Toward spatio-temporal reasoning in visual question
+  answering}
+    \field{year}{2017}
+  \endentry
+
   \entry{kalman-filter}{article}{}
     \true{moreauthor}
     \name{author}{1}{}{%
@@ -905,6 +952,65 @@
     \field{volume}{521}
     \field{journaltitle}{Nature}
     \field{year}{2015}
+  \endentry
+
+  \entry{dataset:tgif}{inproceedings}{}
+    \name{author}{7}{}{%
+      {{hash=LY}{%
+         family={Li},
+         familyi={L\bibinitperiod},
+         given={Yuncheng},
+         giveni={Y\bibinitperiod},
+      }}%
+      {{hash=SY}{%
+         family={Song},
+         familyi={S\bibinitperiod},
+         given={Yale},
+         giveni={Y\bibinitperiod},
+      }}%
+      {{hash=CL}{%
+         family={Cao},
+         familyi={C\bibinitperiod},
+         given={Liangliang},
+         giveni={L\bibinitperiod},
+      }}%
+      {{hash=TJ}{%
+         family={Tetreault},
+         familyi={T\bibinitperiod},
+         given={Joel},
+         giveni={J\bibinitperiod},
+      }}%
+      {{hash=GL}{%
+         family={Goldberg},
+         familyi={G\bibinitperiod},
+         given={Larry},
+         giveni={L\bibinitperiod},
+      }}%
+      {{hash=JA}{%
+         family={Jaimes},
+         familyi={J\bibinitperiod},
+         given={Alejandro},
+         giveni={A\bibinitperiod},
+      }}%
+      {{hash=LJ}{%
+         family={Luo},
+         familyi={L\bibinitperiod},
+         given={Jiebo},
+         giveni={J\bibinitperiod},
+      }}%
+    }
+    \strng{namehash}{LY+1}
+    \strng{fullhash}{LYSYCLTJGLJALJ1}
+    \field{labelnamesource}{author}
+    \field{labeltitlesource}{title}
+    \field{sortinit}{L}
+    \field{sortinithash}{L}
+    \field{booktitle}{Proceedings of the IEEE Conference on Computer Vision and
+  Pattern Recognition}
+    \field{pages}{4641\bibrangedash 4650}
+    \field{title}{TGIF: A new dataset and benchmark on animated GIF
+  description}
+    \field{year}{2016}
   \endentry
 
   \entry{def:rnn}{article}{}
@@ -1272,6 +1378,115 @@
       {New York, NY, USA}%
     }
     \field{year}{2009}
+  \endentry
+
+  \entry{dataset:movie-qa}{article}{}
+    \name{author}{6}{}{%
+      {{hash=TM}{%
+         family={Tapaswi},
+         familyi={T\bibinitperiod},
+         given={Makarand},
+         giveni={M\bibinitperiod},
+      }}%
+      {{hash=ZY}{%
+         family={Zhu},
+         familyi={Z\bibinitperiod},
+         given={Yukun},
+         giveni={Y\bibinitperiod},
+      }}%
+      {{hash=SR}{%
+         family={Stiefelhagen},
+         familyi={S\bibinitperiod},
+         given={Rainer},
+         giveni={R\bibinitperiod},
+      }}%
+      {{hash=TA}{%
+         family={Torralba},
+         familyi={T\bibinitperiod},
+         given={Antonio},
+         giveni={A\bibinitperiod},
+      }}%
+      {{hash=UR}{%
+         family={Urtasun},
+         familyi={U\bibinitperiod},
+         given={Raquel},
+         giveni={R\bibinitperiod},
+      }}%
+      {{hash=FS}{%
+         family={Fidler},
+         familyi={F\bibinitperiod},
+         given={Sanja},
+         giveni={S\bibinitperiod},
+      }}%
+    }
+    \strng{namehash}{TM+1}
+    \strng{fullhash}{TMZYSRTAURFS1}
+    \field{labelnamesource}{author}
+    \field{labeltitlesource}{title}
+    \field{sortinit}{T}
+    \field{sortinithash}{T}
+    \field{pages}{4631\bibrangedash 4640}
+    \field{title}{MovieQA: Understanding Stories in Movies through
+  Question-Answering}
+    \field{journaltitle}{2016 IEEE Conference on Computer Vision and Pattern
+  Recognition (CVPR)}
+    \field{year}{2015}
+  \endentry
+
+  \entry{dataset:zeng}{inproceedings}{}
+    \name{author}{6}{}{%
+      {{hash=ZKH}{%
+         family={Zeng},
+         familyi={Z\bibinitperiod},
+         given={Kuo-Hao},
+         giveni={K\bibinitperiod-H\bibinitperiod},
+      }}%
+      {{hash=CTH}{%
+         family={Chen},
+         familyi={C\bibinitperiod},
+         given={Tseng-Hung},
+         giveni={T\bibinitperiod-H\bibinitperiod},
+      }}%
+      {{hash=CCY}{%
+         family={Chuang},
+         familyi={C\bibinitperiod},
+         given={Ching-Yao},
+         giveni={C\bibinitperiod-Y\bibinitperiod},
+      }}%
+      {{hash=LYH}{%
+         family={Liao},
+         familyi={L\bibinitperiod},
+         given={Yuan-Hong},
+         giveni={Y\bibinitperiod-H\bibinitperiod},
+      }}%
+      {{hash=NJC}{%
+         family={Niebles},
+         familyi={N\bibinitperiod},
+         given={Juan\bibnamedelima Carlos},
+         giveni={J\bibinitperiod\bibinitdelim C\bibinitperiod},
+      }}%
+      {{hash=SM}{%
+         family={Sun},
+         familyi={S\bibinitperiod},
+         given={Min},
+         giveni={M\bibinitperiod},
+      }}%
+    }
+    \list{publisher}{1}{%
+      {AAAI Press}%
+    }
+    \strng{namehash}{ZKH+1}
+    \strng{fullhash}{ZKHCTHCCYLYHNJCSM1}
+    \field{labelnamesource}{author}
+    \field{labeltitlesource}{title}
+    \field{sortinit}{Z}
+    \field{sortinithash}{Z}
+    \field{booktitle}{Proceedings of the Thirty-First AAAI Conference on
+  Artificial Intelligence}
+    \field{pages}{4334–4340}
+    \field{title}{Leveraging Video Descriptions to Learn Video Question
+  Answering}
+    \field{year}{2017}
   \endentry
 \endsortlist
 \endinput
