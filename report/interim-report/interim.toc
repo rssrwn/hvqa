@@ -38,4 +38,4 @@
 \defcounter {refsection}{0}\relax 
 \contentsline {section}{References}{13}
 \defcounter {refsection}{0}\relax 
-\contentsline {section}{Appendix \numberline {A}ASP encoding of $\mathcal {AL}$}{16}
+\contentsline {section}{Appendix \numberline {A}ASP encoding of $\mathcal {AL}$}{17}

@@ -69,14 +69,8 @@
     \field{labeltitlesource}{title}
     \field{sortinit}{A}
     \field{sortinithash}{A}
-    \verb{eprint}
-    \verb 1803.08896
-    \endverb
     \field{title}{Explicit Reasoning over End-to-End Neural Architectures for
   Visual Question Answering}
-    \verb{url}
-    \verb http://arxiv.org/abs/1803.08896
-    \endverb
     \field{volume}{abs/1803.08896}
     \field{journaltitle}{CoRR}
     \field{eprinttype}{arXiv}
@@ -285,6 +279,37 @@
     \field{year}{2016}
   \endentry
 
+  \entry{dataset:msvd}{inproceedings}{}
+    \name{author}{2}{}{%
+      {{hash=CDL}{%
+         family={Chen},
+         familyi={C\bibinitperiod},
+         given={David\bibnamedelima L},
+         giveni={D\bibinitperiod\bibinitdelim L\bibinitperiod},
+      }}%
+      {{hash=DWB}{%
+         family={Dolan},
+         familyi={D\bibinitperiod},
+         given={William\bibnamedelima B},
+         giveni={W\bibinitperiod\bibinitdelim B\bibinitperiod},
+      }}%
+    }
+    \list{organization}{1}{%
+      {Association for Computational Linguistics}%
+    }
+    \strng{namehash}{CDLDWB1}
+    \strng{fullhash}{CDLDWB1}
+    \field{labelnamesource}{author}
+    \field{labeltitlesource}{title}
+    \field{sortinit}{C}
+    \field{sortinithash}{C}
+    \field{booktitle}{Proceedings of the 49th Annual Meeting of the Association
+  for Computational Linguistics: Human Language Technologies-Volume 1}
+    \field{pages}{190\bibrangedash 200}
+    \field{title}{Collecting highly parallel data for paraphrase evaluation}
+    \field{year}{2011}
+  \endentry
+
   \entry{obj-tracking-survey}{article}{}
     \name{author}{6}{}{%
       {{hash=CG}{%
@@ -482,9 +507,6 @@
   Systems: 5th International Summer School 2009}
     \field{pages}{40\bibrangedash 110}
     \field{title}{Answer Set Programming: A Primer}
-    \list{location}{1}{%
-      {Berlin, Heidelberg}%
-    }
     \field{year}{2009}
   \endentry
 
@@ -600,6 +622,65 @@
     \field{title}{Rich feature hierarchies for accurate object detection and
   semantic segmentation}
     \field{year}{2014}
+  \endentry
+
+  \entry{dataset:youtube2text}{inproceedings}{}
+    \name{author}{7}{}{%
+      {{hash=GS}{%
+         family={Guadarrama},
+         familyi={G\bibinitperiod},
+         given={Sergio},
+         giveni={S\bibinitperiod},
+      }}%
+      {{hash=KN}{%
+         family={Krishnamoorthy},
+         familyi={K\bibinitperiod},
+         given={Niveda},
+         giveni={N\bibinitperiod},
+      }}%
+      {{hash=MG}{%
+         family={Malkarnenkar},
+         familyi={M\bibinitperiod},
+         given={Girish},
+         giveni={G\bibinitperiod},
+      }}%
+      {{hash=VS}{%
+         family={Venugopalan},
+         familyi={V\bibinitperiod},
+         given={Subhashini},
+         giveni={S\bibinitperiod},
+      }}%
+      {{hash=MR}{%
+         family={Mooney},
+         familyi={M\bibinitperiod},
+         given={Raymond},
+         giveni={R\bibinitperiod},
+      }}%
+      {{hash=DT}{%
+         family={Darrell},
+         familyi={D\bibinitperiod},
+         given={Trevor},
+         giveni={T\bibinitperiod},
+      }}%
+      {{hash=SK}{%
+         family={Saenko},
+         familyi={S\bibinitperiod},
+         given={Kate},
+         giveni={K\bibinitperiod},
+      }}%
+    }
+    \strng{namehash}{GS+1}
+    \strng{fullhash}{GSKNMGVSMRDTSK1}
+    \field{labelnamesource}{author}
+    \field{labeltitlesource}{title}
+    \field{sortinit}{G}
+    \field{sortinithash}{G}
+    \field{booktitle}{Proceedings of the IEEE international conference on
+  computer vision}
+    \field{pages}{2712\bibrangedash 2719}
+    \field{title}{Youtube2text: Recognizing and describing arbitrary activities
+  using semantic hierarchies and zero-shot recognition}
+    \field{year}{2013}
   \endentry
 
   \entry{dataset:tgif-qa}{inproceedings}{}
@@ -1101,9 +1182,6 @@
     \field{labeltitlesource}{title}
     \field{sortinit}{M}
     \field{sortinithash}{M}
-    \verb{eprint}
-    \verb 1906.00067
-    \endverb
     \field{title}{{OK-VQA:} {A} Visual Question Answering Benchmark Requiring
   External Knowledge}
     \field{volume}{abs/1906.00067}
@@ -1222,9 +1300,6 @@
   Methodologies}
     \field{pages}{329\bibrangedash 346}
     \field{title}{Intelligent Adaptive Monitoring for Cardiac Surveillance}
-    \list{location}{1}{%
-      {Berlin, Heidelberg}%
-    }
     \field{year}{2010}
   \endentry
 
@@ -1394,11 +1469,7 @@
     \field{sortinithash}{S}
     \field{booktitle}{Proceedings of the Third ACM International Conference on
   Distributed Event-Based Systems}
-    \field{series}{DEBS ’09}
     \field{title}{Distributed Complex Event Processing with Query Rewriting}
-    \list{location}{1}{%
-      {New York, NY, USA}%
-    }
     \field{year}{2009}
   \endentry
 
@@ -1455,6 +1526,161 @@
     \field{year}{2015}
   \endentry
 
+  \entry{dataset:xu}{inproceedings}{}
+    \name{author}{7}{}{%
+      {{hash=XD}{%
+         family={Xu},
+         familyi={X\bibinitperiod},
+         given={Dejing},
+         giveni={D\bibinitperiod},
+      }}%
+      {{hash=ZZ}{%
+         family={Zhao},
+         familyi={Z\bibinitperiod},
+         given={Zhou},
+         giveni={Z\bibinitperiod},
+      }}%
+      {{hash=XJ}{%
+         family={Xiao},
+         familyi={X\bibinitperiod},
+         given={Jun},
+         giveni={J\bibinitperiod},
+      }}%
+      {{hash=WF}{%
+         family={Wu},
+         familyi={W\bibinitperiod},
+         given={Fei},
+         giveni={F\bibinitperiod},
+      }}%
+      {{hash=ZH}{%
+         family={Zhang},
+         familyi={Z\bibinitperiod},
+         given={Hanwang},
+         giveni={H\bibinitperiod},
+      }}%
+      {{hash=HX}{%
+         family={He},
+         familyi={H\bibinitperiod},
+         given={Xiangnan},
+         giveni={X\bibinitperiod},
+      }}%
+      {{hash=ZY}{%
+         family={Zhuang},
+         familyi={Z\bibinitperiod},
+         given={Yueting},
+         giveni={Y\bibinitperiod},
+      }}%
+    }
+    \strng{namehash}{XD+1}
+    \strng{fullhash}{XDZZXJWFZHHXZY1}
+    \field{labelnamesource}{author}
+    \field{labeltitlesource}{title}
+    \field{sortinit}{X}
+    \field{sortinithash}{X}
+    \field{booktitle}{MM '17}
+    \field{title}{Video Question Answering via Gradually Refined Attention over
+  Appearance and Motion}
+    \field{year}{2017}
+  \endentry
+
+  \entry{dataset:msr-vtt}{inproceedings}{}
+    \name{author}{4}{}{%
+      {{hash=XJ}{%
+         family={Xu},
+         familyi={X\bibinitperiod},
+         given={Jun},
+         giveni={J\bibinitperiod},
+      }}%
+      {{hash=MT}{%
+         family={Mei},
+         familyi={M\bibinitperiod},
+         given={Tao},
+         giveni={T\bibinitperiod},
+      }}%
+      {{hash=YT}{%
+         family={Yao},
+         familyi={Y\bibinitperiod},
+         given={Ting},
+         giveni={T\bibinitperiod},
+      }}%
+      {{hash=RY}{%
+         family={Rui},
+         familyi={R\bibinitperiod},
+         given={Yong},
+         giveni={Y\bibinitperiod},
+      }}%
+    }
+    \list{publisher}{2}{%
+      {IEEE International Conference on Computer Vision}%
+      {Pattern Recognition (CVPR)}%
+    }
+    \strng{namehash}{XJ+1}
+    \strng{fullhash}{XJMTYTRY1}
+    \field{labelnamesource}{author}
+    \field{labeltitlesource}{title}
+    \field{sortinit}{X}
+    \field{sortinithash}{X}
+    \field{title}{MSR-VTT: A Large Video Description Dataset for Bridging Video
+  and Language}
+    \field{year}{2016}
+  \endentry
+
+  \entry{dataset:youtube2text-qa}{inproceedings}{}
+    \name{author}{6}{}{%
+      {{hash=YY}{%
+         family={Ye},
+         familyi={Y\bibinitperiod},
+         given={Yunan},
+         giveni={Y\bibinitperiod},
+      }}%
+      {{hash=ZZ}{%
+         family={Zhao},
+         familyi={Z\bibinitperiod},
+         given={Zhou},
+         giveni={Z\bibinitperiod},
+      }}%
+      {{hash=LY}{%
+         family={Li},
+         familyi={L\bibinitperiod},
+         given={Yimeng},
+         giveni={Y\bibinitperiod},
+      }}%
+      {{hash=CL}{%
+         family={Chen},
+         familyi={C\bibinitperiod},
+         given={Long},
+         giveni={L\bibinitperiod},
+      }}%
+      {{hash=XJ}{%
+         family={Xiao},
+         familyi={X\bibinitperiod},
+         given={Jun},
+         giveni={J\bibinitperiod},
+      }}%
+      {{hash=ZY}{%
+         family={Zhuang},
+         familyi={Z\bibinitperiod},
+         given={Yueting},
+         giveni={Y\bibinitperiod},
+      }}%
+    }
+    \list{organization}{1}{%
+      {ACM}%
+    }
+    \strng{namehash}{YY+1}
+    \strng{fullhash}{YYZZLYCLXJZY1}
+    \field{labelnamesource}{author}
+    \field{labeltitlesource}{title}
+    \field{sortinit}{Y}
+    \field{sortinithash}{Y}
+    \field{booktitle}{Proceedings of the 40th International ACM SIGIR
+  Conference on Research and Development in Information Retrieval}
+    \field{pages}{829\bibrangedash 832}
+    \field{title}{Video question answering via attribute-augmented attention
+  network learning}
+    \field{year}{2017}
+  \endentry
+
   \entry{dataset:zeng}{inproceedings}{}
     \name{author}{6}{}{%
       {{hash=ZKH}{%
@@ -1505,7 +1731,7 @@
     \field{sortinithash}{Z}
     \field{booktitle}{Proceedings of the Thirty-First AAAI Conference on
   Artificial Intelligence}
-    \field{pages}{4334–4340}
+    \field{pages}{4334–\bibrangedash 4340}
     \field{title}{Leveraging Video Descriptions to Learn Video Question
   Answering}
     \field{year}{2017}
