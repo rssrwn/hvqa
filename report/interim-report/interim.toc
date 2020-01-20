@@ -32,10 +32,14 @@
 \defcounter {refsection}{0}\relax 
 \contentsline {section}{\numberline {3}Related Work}{10}
 \defcounter {refsection}{0}\relax 
-\contentsline {subsection}{\numberline {3.1}VideoQA Datasets}{10}
+\contentsline {subsection}{\numberline {3.1}Datasets for VideoQA}{10}
 \defcounter {refsection}{0}\relax 
-\contentsline {section}{\numberline {4}Project Plan}{13}
+\contentsline {subsection}{\numberline {3.2}VideoQA Implementations}{13}
 \defcounter {refsection}{0}\relax 
-\contentsline {section}{References}{14}
+\contentsline {subsection}{\numberline {3.3}Hybrid Models for VQA}{14}
 \defcounter {refsection}{0}\relax 
-\contentsline {section}{Appendix \numberline {A}ASP encoding of $\mathcal {AL}$}{18}
+\contentsline {section}{\numberline {4}Project Plan}{14}
+\defcounter {refsection}{0}\relax 
+\contentsline {section}{References}{15}
+\defcounter {refsection}{0}\relax 
+\contentsline {section}{Appendix \numberline {A}ASP encoding of $\mathcal {AL}$}{20}

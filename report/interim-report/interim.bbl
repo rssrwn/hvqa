@@ -532,6 +532,100 @@
     \field{year}{2019}
   \endentry
 
+  \entry{videoqa:mm-att}{inproceedings}{}
+    \name{author}{6}{}{%
+      {{hash=FC}{%
+         family={Fan},
+         familyi={F\bibinitperiod},
+         given={Chenyou},
+         giveni={C\bibinitperiod},
+      }}%
+      {{hash=ZX}{%
+         family={Zhang},
+         familyi={Z\bibinitperiod},
+         given={Xiaofan},
+         giveni={X\bibinitperiod},
+      }}%
+      {{hash=ZS}{%
+         family={Zhang},
+         familyi={Z\bibinitperiod},
+         given={Shu},
+         giveni={S\bibinitperiod},
+      }}%
+      {{hash=WW}{%
+         family={Wang},
+         familyi={W\bibinitperiod},
+         given={Wensheng},
+         giveni={W\bibinitperiod},
+      }}%
+      {{hash=ZC}{%
+         family={Zhang},
+         familyi={Z\bibinitperiod},
+         given={Chi},
+         giveni={C\bibinitperiod},
+      }}%
+      {{hash=HH}{%
+         family={Huang},
+         familyi={H\bibinitperiod},
+         given={Heng},
+         giveni={H\bibinitperiod},
+      }}%
+    }
+    \strng{namehash}{FC+1}
+    \strng{fullhash}{FCZXZSWWZCHH1}
+    \field{labelnamesource}{author}
+    \field{labeltitlesource}{title}
+    \field{sortinit}{F}
+    \field{sortinithash}{F}
+    \field{booktitle}{Proceedings of the IEEE Conference on Computer Vision and
+  Pattern Recognition}
+    \field{pages}{1999\bibrangedash 2007}
+    \field{title}{Heterogeneous Memory Enhanced Multimodal Attention Model for
+  Video Question Answering}
+    \field{year}{2019}
+  \endentry
+
+  \entry{videoqa:co-mem}{inproceedings}{}
+    \name{author}{4}{}{%
+      {{hash=GJ}{%
+         family={Gao},
+         familyi={G\bibinitperiod},
+         given={Jiyang},
+         giveni={J\bibinitperiod},
+      }}%
+      {{hash=GR}{%
+         family={Ge},
+         familyi={G\bibinitperiod},
+         given={Runzhou},
+         giveni={R\bibinitperiod},
+      }}%
+      {{hash=CK}{%
+         family={Chen},
+         familyi={C\bibinitperiod},
+         given={Kan},
+         giveni={K\bibinitperiod},
+      }}%
+      {{hash=NR}{%
+         family={Nevatia},
+         familyi={N\bibinitperiod},
+         given={Ram},
+         giveni={R\bibinitperiod},
+      }}%
+    }
+    \strng{namehash}{GJ+1}
+    \strng{fullhash}{GJGRCKNR1}
+    \field{labelnamesource}{author}
+    \field{labeltitlesource}{title}
+    \field{sortinit}{G}
+    \field{sortinithash}{G}
+    \field{booktitle}{Proceedings of the IEEE Conference on Computer Vision and
+  Pattern Recognition}
+    \field{pages}{6576\bibrangedash 6585}
+    \field{title}{Motion-appearance co-memory networks for video question
+  answering}
+    \field{year}{2018}
+  \endentry
+
   \entry{krr-asp-book}{book}{}
     \name{author}{2}{}{%
       {{hash=GM}{%
@@ -681,6 +775,46 @@
     \field{title}{Youtube2text: Recognizing and describing arbitrary activities
   using semantic hierarchies and zero-shot recognition}
     \field{year}{2013}
+  \endentry
+
+  \entry{resnet}{inproceedings}{}
+    \name{author}{4}{}{%
+      {{hash=HK}{%
+         family={He},
+         familyi={H\bibinitperiod},
+         given={Kaiming},
+         giveni={K\bibinitperiod},
+      }}%
+      {{hash=ZX}{%
+         family={Zhang},
+         familyi={Z\bibinitperiod},
+         given={Xiangyu},
+         giveni={X\bibinitperiod},
+      }}%
+      {{hash=RS}{%
+         family={Ren},
+         familyi={R\bibinitperiod},
+         given={Shaoqing},
+         giveni={S\bibinitperiod},
+      }}%
+      {{hash=SJ}{%
+         family={Sun},
+         familyi={S\bibinitperiod},
+         given={Jian},
+         giveni={J\bibinitperiod},
+      }}%
+    }
+    \strng{namehash}{HK+1}
+    \strng{fullhash}{HKZXRSSJ1}
+    \field{labelnamesource}{author}
+    \field{labeltitlesource}{title}
+    \field{sortinit}{H}
+    \field{sortinithash}{H}
+    \field{booktitle}{Proceedings of the IEEE conference on computer vision and
+  pattern recognition}
+    \field{pages}{770\bibrangedash 778}
+    \field{title}{Deep residual learning for image recognition}
+    \field{year}{2016}
   \endentry
 
   \entry{dataset:tgif-qa}{inproceedings}{}
@@ -1317,6 +1451,40 @@
     \field{year}{2019}
   \endentry
 
+  \entry{visual-attention}{inproceedings}{}
+    \true{moreauthor}
+    \name{author}{3}{}{%
+      {{hash=MV}{%
+         family={Mnih},
+         familyi={M\bibinitperiod},
+         given={Volodymyr},
+         giveni={V\bibinitperiod},
+      }}%
+      {{hash=HN}{%
+         family={Heess},
+         familyi={H\bibinitperiod},
+         given={Nicolas},
+         giveni={N\bibinitperiod},
+      }}%
+      {{hash=GA}{%
+         family={Graves},
+         familyi={G\bibinitperiod},
+         given={Alex},
+         giveni={A\bibinitperiod},
+      }}%
+    }
+    \strng{namehash}{MVHNGA+1}
+    \strng{fullhash}{MVHNGA+1}
+    \field{labelnamesource}{author}
+    \field{labeltitlesource}{title}
+    \field{sortinit}{M}
+    \field{sortinithash}{M}
+    \field{booktitle}{Advances in neural information processing systems}
+    \field{pages}{2204\bibrangedash 2212}
+    \field{title}{Recurrent models of visual attention}
+    \field{year}{2014}
+  \endentry
+
   \entry{ilp-intro}{article}{}
     \name{author}{1}{}{%
       {{hash=MS}{%
@@ -1600,6 +1768,127 @@
     \field{year}{2009}
   \endentry
 
+  \entry{vgg}{article}{}
+    \name{author}{2}{}{%
+      {{hash=SK}{%
+         family={Simonyan},
+         familyi={S\bibinitperiod},
+         given={Karen},
+         giveni={K\bibinitperiod},
+      }}%
+      {{hash=ZA}{%
+         family={Zisserman},
+         familyi={Z\bibinitperiod},
+         given={Andrew},
+         giveni={A\bibinitperiod},
+      }}%
+    }
+    \strng{namehash}{SKZA1}
+    \strng{fullhash}{SKZA1}
+    \field{labelnamesource}{author}
+    \field{labeltitlesource}{title}
+    \field{sortinit}{S}
+    \field{sortinithash}{S}
+    \field{title}{Very deep convolutional networks for large-scale image
+  recognition}
+    \field{journaltitle}{arXiv preprint arXiv:1409.1556}
+    \field{year}{2014}
+  \endentry
+
+  \entry{videoqa:strr}{thesis}{}
+    \name{author}{1}{}{%
+      {{hash=SG}{%
+         family={Singh},
+         familyi={S\bibinitperiod},
+         given={Gursimran},
+         giveni={G\bibinitperiod},
+      }}%
+    }
+    \strng{namehash}{SG1}
+    \strng{fullhash}{SG1}
+    \field{labelnamesource}{author}
+    \field{labeltitlesource}{title}
+    \field{sortinit}{S}
+    \field{sortinithash}{S}
+    \field{title}{Spatio-temporal relational reasoning for video question
+  answering}
+    \list{institution}{1}{%
+      {University of British Columbia}%
+    }
+    \field{type}{phdthesis}
+    \field{year}{2019}
+  \endentry
+
+  \entry{googlenet}{inproceedings}{}
+    \name{author}{9}{}{%
+      {{hash=SC}{%
+         family={Szegedy},
+         familyi={S\bibinitperiod},
+         given={Christian},
+         giveni={C\bibinitperiod},
+      }}%
+      {{hash=LW}{%
+         family={Liu},
+         familyi={L\bibinitperiod},
+         given={Wei},
+         giveni={W\bibinitperiod},
+      }}%
+      {{hash=JY}{%
+         family={Jia},
+         familyi={J\bibinitperiod},
+         given={Yangqing},
+         giveni={Y\bibinitperiod},
+      }}%
+      {{hash=SP}{%
+         family={Sermanet},
+         familyi={S\bibinitperiod},
+         given={Pierre},
+         giveni={P\bibinitperiod},
+      }}%
+      {{hash=RS}{%
+         family={Reed},
+         familyi={R\bibinitperiod},
+         given={Scott},
+         giveni={S\bibinitperiod},
+      }}%
+      {{hash=AD}{%
+         family={Anguelov},
+         familyi={A\bibinitperiod},
+         given={Dragomir},
+         giveni={D\bibinitperiod},
+      }}%
+      {{hash=ED}{%
+         family={Erhan},
+         familyi={E\bibinitperiod},
+         given={Dumitru},
+         giveni={D\bibinitperiod},
+      }}%
+      {{hash=VV}{%
+         family={Vanhoucke},
+         familyi={V\bibinitperiod},
+         given={Vincent},
+         giveni={V\bibinitperiod},
+      }}%
+      {{hash=RA}{%
+         family={Rabinovich},
+         familyi={R\bibinitperiod},
+         given={Andrew},
+         giveni={A\bibinitperiod},
+      }}%
+    }
+    \strng{namehash}{SC+1}
+    \strng{fullhash}{SCLWJYSPRSADEDVVRA1}
+    \field{labelnamesource}{author}
+    \field{labeltitlesource}{title}
+    \field{sortinit}{S}
+    \field{sortinithash}{S}
+    \field{booktitle}{Proceedings of the IEEE conference on computer vision and
+  pattern recognition}
+    \field{pages}{1\bibrangedash 9}
+    \field{title}{Going deeper with convolutions}
+    \field{year}{2015}
+  \endentry
+
   \entry{dataset:movie-qa}{article}{}
     \name{author}{6}{}{%
       {{hash=TM}{%
@@ -1650,6 +1939,53 @@
   Question-Answering}
     \field{journaltitle}{2016 IEEE Conference on Computer Vision and Pattern
   Recognition (CVPR)}
+    \field{year}{2015}
+  \endentry
+
+  \entry{c3d}{inproceedings}{}
+    \name{author}{5}{}{%
+      {{hash=TD}{%
+         family={Tran},
+         familyi={T\bibinitperiod},
+         given={Du},
+         giveni={D\bibinitperiod},
+      }}%
+      {{hash=BL}{%
+         family={Bourdev},
+         familyi={B\bibinitperiod},
+         given={Lubomir},
+         giveni={L\bibinitperiod},
+      }}%
+      {{hash=FR}{%
+         family={Fergus},
+         familyi={F\bibinitperiod},
+         given={Rob},
+         giveni={R\bibinitperiod},
+      }}%
+      {{hash=TL}{%
+         family={Torresani},
+         familyi={T\bibinitperiod},
+         given={Lorenzo},
+         giveni={L\bibinitperiod},
+      }}%
+      {{hash=PM}{%
+         family={Paluri},
+         familyi={P\bibinitperiod},
+         given={Manohar},
+         giveni={M\bibinitperiod},
+      }}%
+    }
+    \strng{namehash}{TD+1}
+    \strng{fullhash}{TDBLFRTLPM1}
+    \field{labelnamesource}{author}
+    \field{labeltitlesource}{title}
+    \field{sortinit}{T}
+    \field{sortinithash}{T}
+    \field{booktitle}{Proceedings of the IEEE international conference on
+  computer vision}
+    \field{pages}{4489\bibrangedash 4497}
+    \field{title}{Learning spatiotemporal features with 3d convolutional
+  networks}
     \field{year}{2015}
   \endentry
 
@@ -1806,6 +2142,47 @@
     \field{title}{Video question answering via attribute-augmented attention
   network learning}
     \field{year}{2017}
+  \endentry
+
+  \entry{videoqa:cwd}{article}{}
+    \name{author}{4}{}{%
+      {{hash=YY}{%
+         family={Yu},
+         familyi={Y\bibinitperiod},
+         given={Youngjae},
+         giveni={Y\bibinitperiod},
+      }}%
+      {{hash=KH}{%
+         family={Ko},
+         familyi={K\bibinitperiod},
+         given={Hyungjin},
+         giveni={H\bibinitperiod},
+      }}%
+      {{hash=CJ}{%
+         family={Choi},
+         familyi={C\bibinitperiod},
+         given={Jongwook},
+         giveni={J\bibinitperiod},
+      }}%
+      {{hash=KG}{%
+         family={Kim},
+         familyi={K\bibinitperiod},
+         given={Gunhee},
+         giveni={G\bibinitperiod},
+      }}%
+    }
+    \strng{namehash}{YY+2}
+    \strng{fullhash}{YYKHCJKG1}
+    \field{labelnamesource}{author}
+    \field{labeltitlesource}{title}
+    \field{sortinit}{Y}
+    \field{sortinithash}{Y}
+    \field{pages}{3261\bibrangedash 3269}
+    \field{title}{End-to-End Concept Word Detection for Video Captioning,
+  Retrieval, and Question Answering}
+    \field{journaltitle}{2017 IEEE Conference on Computer Vision and Pattern
+  Recognition (CVPR)}
+    \field{year}{2016}
   \endentry
 
   \entry{dataset:zeng}{inproceedings}{}

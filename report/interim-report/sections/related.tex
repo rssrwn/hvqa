@@ -5,7 +5,7 @@
 
 \section{Related Work} \label{section:related}
 
-\subsection{VideoQA Datasets}
+\subsection{Datasets for VideoQA}
 
 A number of datasets are available for the VideoQA problem, in this section we discuss each of the available datasets. A comparison of all the datasets discussed in this section is shown in Table~\ref{table:datasets}.
 
@@ -41,31 +41,55 @@ The PororoQA dataset~\cite{dataset:pororo-qa} is created from video clips and su
 Finally, the MovieFIB dataset~\cite{dataset:movie-fib} is a large-scale fill-in the blank style dataset generated from movie descriptions. The dataset contains 128,085 video clips and 348,998 QA pairs. The questions concern entities, actions and objects; answering these questions therefore implies that a model has some level of visual understanding of the scene, rather than being able to answer based purely on the given sentence. Answers are open-ended (not multiple choice) but each answer is only a single word.
 
 \begin{center}
-\begin{table}
-\begin{tabular}{ |l|c c c c c| }
-  \hline
-  \textbf{Dataset} & \textbf{\#Videos} & \textbf{\#QA pairs} & \textbf{MC} & \textbf{FIB} & \textbf{Source} \\
-  \hline
-  \hline
-  MovieQA         & 408$^1$        & 14,944  & Y  & N & Movies \\
-  Zeng et al.     & 18,100     & 175,076 & N  & N & Online videos \\
-  TGIF-QA         & 71,741     & 165,165 & Y$^2$  & N & Online videos \\
-  Zhu  et al.     & $>$100,000 & 400,000 & Y  & Y & Various \\
-  EgoVQA          & 16         & 581     & Y  & N & First-person videos \\
-  MSVD-QA         & 1,970      & 50,505  & N  & N & Video desc. corpus \\
-  MSRVTT-QA       & 10,000     & 243,680 & N  & N & Video desc. corpus \\
-  Youtube2Text-QA & 1,970      & 99,421  & Y  & N & YouTube videos \\
-  TVQA            & 21,793     & 152,545 & Y  & N & TV shows \\
-  PororoQA        & 16,066     & 8,913   & Y  & N & Cartoon series \\
-  MovieFIB        & 128,085    & 348,998 & N  & Y & Movie description \\
-  \hline
-\end{tabular}
-\caption{Comparison of discussed VideoQA datasets. \newline $^1$ Some of the QAs come with movie timestamps \newline $^2$ FrameQA questions (53,083 QA pairs) are not MC}
-\label{table:datasets}
-\end{table}
+\begin{threeparttable}
+  \caption{Comparison of discussed VideoQA datasets. Each row contains data on: the number of videos/clips, the number of QA pairs, whether the uses multiple-choice questions, whether the dataset uses fill-in the blank questions and the video source.}
+  \label{table:datasets}
+  \begin{tabular}{ |l|c c c c c| }
+    \hline
+    \textbf{Dataset} & \textbf{\#Videos} & \textbf{\#QA pairs} & \textbf{MC} & \textbf{FIB} & \textbf{Source} \\
+    \hline
+    MovieQA         & 408$^1$        & 14,944  & Y  & N & Movies \\
+    Zeng et al.     & 18,100     & 175,076 & N  & N & Online videos \\
+    TGIF-QA         & 71,741     & 165,165 & Y$^2$  & N & Online videos \\
+    Zhu  et al.     & $>$100,000 & 400,000 & Y  & Y & Various \\
+    EgoVQA          & 16         & 581     & Y  & N & First-person videos \\
+    MSVD-QA         & 1,970      & 50,505  & N  & N & Video desc. corpus \\
+    MSRVTT-QA       & 10,000     & 243,680 & N  & N & Video desc. corpus \\
+    Youtube2Text-QA & 1,970      & 99,421  & Y  & N & YouTube videos \\
+    TVQA            & 21,793     & 152,545 & Y  & N & TV shows \\
+    PororoQA        & 16,066     & 8,913   & Y  & N & Cartoon series \\
+    MovieFIB        & 128,085    & 348,998 & N  & Y & Movie description \\
+    \hline
+  \end{tabular}
+  \begin{tablenotes}
+    {\footnotesize \item[1] Full length movies. Some of the QAs come with timestamps, allowing more video clips.}
+    {\footnotesize \item[2] FrameQA questions (53,083 QA pairs) are not MC.}
+  \end{tablenotes}
+\end{threeparttable}
 \end{center}
 
-%\footnote{Some of the QAs come with movie timestamps}
-%\footnote{FrameQA questions (53,083 QA pairs) are not MC}
+
+\subsection{VideoQA Implementations}
+
+All of the datasets described in the section above (except~\cite{dataset:ego-vqa}) were presented along with original neural network models for solving the VideoQA task. This section attempts to summarise some of these approaches, along with a few others~\cite{videoqa:co-mem, videoqa:cwd, videoqa:mm-att, videoqa:strr}. However, since the focus of our approach will not be an end-to-end neural architecture, so we do not give detailed descriptions. An example of a typical VideoQA neural architecture is given in figure~\ref{fig:video-qa-arch}.
+
+All previous work presented here contains a video encoder for extracting features from frames of the video. These usually include both appearance and motion features. These are extracted from pre-trained networks such as ResNet~\cite{resnet}, VGG~\cite{vgg} or GoogLeNet~\cite{googlenet}, for appearance, and C3D~\cite{c3d}, for motion. The extracted features from each frame are then usually passed into LSTM or GRU networks to obtain encodings for the whole video.
+
+Questions are often encoded by generating word embeddings for each word of the sentences (along with basic preprocessing such as tokenisation) and then passing the list of words to a sentence encoder, such as the LSTM or GRU architectures.
+
+Visual attention~\cite{visual-attention} is used to help neural networks focus on the most relevent areas of an image or video (and decrease the amount of computation required). Applying attention mechanisms to associate a question with its most relevant frames (or areas within frames) has become a key part of more recent VideoQA models~\cite{dataset:tgif-qa, dataset:xu, dataset:youtube2text-qa, dataset:tvqa, videoqa:co-mem, videoqa:cwd, videoqa:mm-att, dataset:pororo-qa}. Temporal attention is commonly applied to help the model focus on the most salient frames of the video, however,~\cite{dataset:tgif-qa} applies both temporal and spatial attention, which also allows the model to attend to the most relevant regions of a frame.
+
+Additional modules can be added to the overall network to improve performance; for example, the architectures from~\cite{videoqa:mm-att, dataset:zeng, videoqa:co-mem} all make use of external memory to allows multiple iterations of inference. Furthermore,~\cite{videoqa:mm-att} adds an additional external memory module and a multimodal fusion layer which can combine features from questions and images.
+
+\begin{figure}
+  \centering
+  \includegraphics[width=0.9\textwidth]{video-qa-arch.png}
+  \caption{Typical VideoQA architecture. Figure from~\cite{dataset:ego-vqa}.}
+  \label{fig:video-qa-arch}
+\end{figure}
+
+
+\subsection{Hybrid Models for VQA}
+
 
 \end{document}
