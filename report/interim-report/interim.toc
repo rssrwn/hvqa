@@ -34,8 +34,8 @@
 \defcounter {refsection}{0}\relax 
 \contentsline {subsection}{\numberline {3.1}VideoQA Datasets}{10}
 \defcounter {refsection}{0}\relax 
-\contentsline {section}{\numberline {4}Project Plan}{12}
+\contentsline {section}{\numberline {4}Project Plan}{13}
 \defcounter {refsection}{0}\relax 
-\contentsline {section}{References}{13}
+\contentsline {section}{References}{14}
 \defcounter {refsection}{0}\relax 
-\contentsline {section}{Appendix \numberline {A}ASP encoding of $\mathcal {AL}$}{17}
+\contentsline {section}{Appendix \numberline {A}ASP encoding of $\mathcal {AL}$}{18}

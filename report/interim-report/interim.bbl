@@ -755,6 +755,48 @@
     \field{year}{1960}
   \endentry
 
+  \entry{dataset:pororo-qa}{inproceedings}{}
+    \name{author}{4}{}{%
+      {{hash=KKM}{%
+         family={Kim},
+         familyi={K\bibinitperiod},
+         given={Kyung-Min},
+         giveni={K\bibinitperiod-M\bibinitperiod},
+      }}%
+      {{hash=HMO}{%
+         family={Heo},
+         familyi={H\bibinitperiod},
+         given={Min-Oh},
+         giveni={M\bibinitperiod-O\bibinitperiod},
+      }}%
+      {{hash=CSH}{%
+         family={Choi},
+         familyi={C\bibinitperiod},
+         given={Seong-Ho},
+         giveni={S\bibinitperiod-H\bibinitperiod},
+      }}%
+      {{hash=ZBT}{%
+         family={Zhang},
+         familyi={Z\bibinitperiod},
+         given={Byoung-Tak},
+         giveni={B\bibinitperiod-T\bibinitperiod},
+      }}%
+    }
+    \list{publisher}{1}{%
+      {AAAI Press}%
+    }
+    \strng{namehash}{KKM+1}
+    \strng{fullhash}{KKMHMOCSHZBT1}
+    \field{labelnamesource}{author}
+    \field{labeltitlesource}{title}
+    \field{sortinit}{K}
+    \field{sortinithash}{K}
+    \field{pages}{2016–2022}
+    \field{series}{IJCAI’17}
+    \field{title}{DeepStory: Video Story QA by Deep Embedded Memory Networks}
+    \field{year}{2017}
+  \endentry
+
   \entry{cnn-uses:classification}{incollection}{}
     \name{author}{3}{}{%
       {{hash=KA}{%
@@ -1057,6 +1099,44 @@
     \field{year}{2015}
   \endentry
 
+  \entry{dataset:tvqa}{article}{}
+    \name{author}{4}{}{%
+      {{hash=LJ}{%
+         family={Lei},
+         familyi={L\bibinitperiod},
+         given={Jie},
+         giveni={J\bibinitperiod},
+      }}%
+      {{hash=YL}{%
+         family={Yu},
+         familyi={Y\bibinitperiod},
+         given={Licheng},
+         giveni={L\bibinitperiod},
+      }}%
+      {{hash=BM}{%
+         family={Bansal},
+         familyi={B\bibinitperiod},
+         given={Mohit},
+         giveni={M\bibinitperiod},
+      }}%
+      {{hash=BTL}{%
+         family={Berg},
+         familyi={B\bibinitperiod},
+         given={Tamara\bibnamedelima L},
+         giveni={T\bibinitperiod\bibinitdelim L\bibinitperiod},
+      }}%
+    }
+    \strng{namehash}{LJ+1}
+    \strng{fullhash}{LJYLBMBTL1}
+    \field{labelnamesource}{author}
+    \field{labeltitlesource}{title}
+    \field{sortinit}{L}
+    \field{sortinithash}{L}
+    \field{title}{Tvqa: Localized, compositional video question answering}
+    \field{journaltitle}{arXiv preprint arXiv:1809.01696}
+    \field{year}{2018}
+  \endentry
+
   \entry{dataset:tgif}{inproceedings}{}
     \name{author}{7}{}{%
       {{hash=LY}{%
@@ -1146,6 +1226,53 @@
     \field{title}{Recurrent neural network for text classification with
   multi-task learning}
     \field{journaltitle}{arXiv preprint arXiv:1605.05101}
+    \field{year}{2016}
+  \endentry
+
+  \entry{dataset:movie-fib}{article}{}
+    \name{author}{5}{}{%
+      {{hash=MT}{%
+         family={Maharaj},
+         familyi={M\bibinitperiod},
+         given={Tegan},
+         giveni={T\bibinitperiod},
+      }}%
+      {{hash=BN}{%
+         family={Ballas},
+         familyi={B\bibinitperiod},
+         given={Nicolas},
+         giveni={N\bibinitperiod},
+      }}%
+      {{hash=RA}{%
+         family={Rohrbach},
+         familyi={R\bibinitperiod},
+         given={Anna},
+         giveni={A\bibinitperiod},
+      }}%
+      {{hash=CAC}{%
+         family={Courville},
+         familyi={C\bibinitperiod},
+         given={Aaron\bibnamedelima C.},
+         giveni={A\bibinitperiod\bibinitdelim C\bibinitperiod},
+      }}%
+      {{hash=PCJ}{%
+         family={Pal},
+         familyi={P\bibinitperiod},
+         given={Christopher\bibnamedelima Joseph},
+         giveni={C\bibinitperiod\bibinitdelim J\bibinitperiod},
+      }}%
+    }
+    \strng{namehash}{MT+1}
+    \strng{fullhash}{MTBNRACACPCJ1}
+    \field{labelnamesource}{author}
+    \field{labeltitlesource}{title}
+    \field{sortinit}{M}
+    \field{sortinithash}{M}
+    \field{pages}{7359\bibrangedash 7368}
+    \field{title}{A Dataset and Exploration of Models for Understanding Video
+  Data through Fill-in-the-Blank Question-Answering}
+    \field{journaltitle}{2017 IEEE Conference on Computer Vision and Pattern
+  Recognition (CVPR)}
     \field{year}{2016}
   \endentry
 
