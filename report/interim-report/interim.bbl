@@ -488,6 +488,28 @@
     \field{year}{2009}
   \endentry
 
+  \entry{dataset:ego-vqa}{inproceedings}{}
+    \name{author}{1}{}{%
+      {{hash=FC}{%
+         family={Fan},
+         familyi={F\bibinitperiod},
+         given={Chenyou},
+         giveni={C\bibinitperiod},
+      }}%
+    }
+    \strng{namehash}{FC1}
+    \strng{fullhash}{FC1}
+    \field{labelnamesource}{author}
+    \field{labeltitlesource}{title}
+    \field{sortinit}{F}
+    \field{sortinithash}{F}
+    \field{booktitle}{The IEEE International Conference on Computer Vision
+  (ICCV) Workshops}
+    \field{title}{EgoVQA - An Egocentric Video Question Answering Benchmark
+  Dataset}
+    \field{year}{2019}
+  \endentry
+
   \entry{krr-asp-book}{book}{}
     \name{author}{2}{}{%
       {{hash=GM}{%
@@ -1486,6 +1508,50 @@
     \field{pages}{4334–4340}
     \field{title}{Leveraging Video Descriptions to Learn Video Question
   Answering}
+    \field{year}{2017}
+  \endentry
+
+  \entry{dataset:zhu}{article}{}
+    \name{author}{4}{}{%
+      {{hash=ZL}{%
+         family={Zhu},
+         familyi={Z\bibinitperiod},
+         given={Linchao},
+         giveni={L\bibinitperiod},
+      }}%
+      {{hash=XZ}{%
+         family={Xu},
+         familyi={X\bibinitperiod},
+         given={Zhongwen},
+         giveni={Z\bibinitperiod},
+      }}%
+      {{hash=YY}{%
+         family={Yang},
+         familyi={Y\bibinitperiod},
+         given={Yi},
+         giveni={Y\bibinitperiod},
+      }}%
+      {{hash=HAG}{%
+         family={Hauptmann},
+         familyi={H\bibinitperiod},
+         given={Alexander\bibnamedelima G},
+         giveni={A\bibinitperiod\bibinitdelim G\bibinitperiod},
+      }}%
+    }
+    \list{publisher}{1}{%
+      {Springer}%
+    }
+    \strng{namehash}{ZL+1}
+    \strng{fullhash}{ZLXZYYHAG1}
+    \field{labelnamesource}{author}
+    \field{labeltitlesource}{title}
+    \field{sortinit}{Z}
+    \field{sortinithash}{Z}
+    \field{number}{3}
+    \field{pages}{409\bibrangedash 421}
+    \field{title}{Uncovering the temporal context for video question answering}
+    \field{volume}{124}
+    \field{journaltitle}{International Journal of Computer Vision}
     \field{year}{2017}
   \endentry
 \endsortlist
