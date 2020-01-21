@@ -42,6 +42,39 @@
     \field{urlyear}{2020}
   \endentry
 
+  \entry{explicit-reasoning-vqa}{inproceedings}{}
+    \name{author}{3}{}{%
+      {{hash=AS}{%
+         family={Aditya},
+         familyi={A\bibinitperiod},
+         given={Somak},
+         giveni={S\bibinitperiod},
+      }}%
+      {{hash=YY}{%
+         family={Yang},
+         familyi={Y\bibinitperiod},
+         given={Yezhou},
+         giveni={Y\bibinitperiod},
+      }}%
+      {{hash=BC}{%
+         family={Baral},
+         familyi={B\bibinitperiod},
+         given={Chitta},
+         giveni={C\bibinitperiod},
+      }}%
+    }
+    \strng{namehash}{ASYYBC1}
+    \strng{fullhash}{ASYYBC1}
+    \field{labelnamesource}{author}
+    \field{labeltitlesource}{title}
+    \field{sortinit}{A}
+    \field{sortinithash}{A}
+    \field{booktitle}{Thirty-Second AAAI Conference on Artificial Intelligence}
+    \field{title}{Explicit reasoning over end-to-end neural architectures for
+  visual question answering}
+    \field{year}{2018}
+  \endentry
+
   \entry{def:ai-complete}{article}{}
     \name{author}{3}{}{%
       {{hash=AS}{%
@@ -228,6 +261,60 @@
     \field{eprinttype}{arXiv}
     \field{eprintclass}{cs.AI}
     \field{year}{2019}
+  \endentry
+
+  \entry{kb:dbpedia}{incollection}{}
+    \name{author}{6}{}{%
+      {{hash=AS}{%
+         family={Auer},
+         familyi={A\bibinitperiod},
+         given={S{\"o}ren},
+         giveni={S\bibinitperiod},
+      }}%
+      {{hash=BC}{%
+         family={Bizer},
+         familyi={B\bibinitperiod},
+         given={Christian},
+         giveni={C\bibinitperiod},
+      }}%
+      {{hash=KG}{%
+         family={Kobilarov},
+         familyi={K\bibinitperiod},
+         given={Georgi},
+         giveni={G\bibinitperiod},
+      }}%
+      {{hash=LJ}{%
+         family={Lehmann},
+         familyi={L\bibinitperiod},
+         given={Jens},
+         giveni={J\bibinitperiod},
+      }}%
+      {{hash=CR}{%
+         family={Cyganiak},
+         familyi={C\bibinitperiod},
+         given={Richard},
+         giveni={R\bibinitperiod},
+      }}%
+      {{hash=IZ}{%
+         family={Ives},
+         familyi={I\bibinitperiod},
+         given={Zachary},
+         giveni={Z\bibinitperiod},
+      }}%
+    }
+    \list{publisher}{1}{%
+      {Springer}%
+    }
+    \strng{namehash}{AS+1}
+    \strng{fullhash}{ASBCKGLJCRIZ1}
+    \field{labelnamesource}{author}
+    \field{labeltitlesource}{title}
+    \field{sortinit}{A}
+    \field{sortinithash}{A}
+    \field{booktitle}{The semantic web}
+    \field{pages}{722\bibrangedash 735}
+    \field{title}{Dbpedia: A nucleus for a web of open data}
+    \field{year}{2007}
   \endentry
 
   \entry{sort-obj-tracking}{inproceedings}{}
@@ -1410,6 +1497,47 @@
     \field{year}{2016}
   \endentry
 
+  \entry{dataset:ok-vqa}{inproceedings}{}
+    \name{author}{4}{}{%
+      {{hash=MK}{%
+         family={Marino},
+         familyi={M\bibinitperiod},
+         given={Kenneth},
+         giveni={K\bibinitperiod},
+      }}%
+      {{hash=RM}{%
+         family={Rastegari},
+         familyi={R\bibinitperiod},
+         given={Mohammad},
+         giveni={M\bibinitperiod},
+      }}%
+      {{hash=FA}{%
+         family={Farhadi},
+         familyi={F\bibinitperiod},
+         given={Ali},
+         giveni={A\bibinitperiod},
+      }}%
+      {{hash=MR}{%
+         family={Mottaghi},
+         familyi={M\bibinitperiod},
+         given={Roozbeh},
+         giveni={R\bibinitperiod},
+      }}%
+    }
+    \strng{namehash}{MK+1}
+    \strng{fullhash}{MKRMFAMR1}
+    \field{labelnamesource}{author}
+    \field{labeltitlesource}{title}
+    \field{sortinit}{M}
+    \field{sortinithash}{M}
+    \field{booktitle}{Proceedings of the IEEE Conference on Computer Vision and
+  Pattern Recognition}
+    \field{pages}{3195\bibrangedash 3204}
+    \field{title}{Ok-vqa: A visual question answering benchmark requiring
+  external knowledge}
+    \field{year}{2019}
+  \endentry
+
   \entry{motivation:external-knowledge}{article}{}
     \name{author}{4}{}{%
       {{hash=MK}{%
@@ -1819,6 +1947,39 @@
     \field{year}{2019}
   \endentry
 
+  \entry{kb:conceptnet}{inproceedings}{}
+    \name{author}{3}{}{%
+      {{hash=SR}{%
+         family={Speer},
+         familyi={S\bibinitperiod},
+         given={Robyn},
+         giveni={R\bibinitperiod},
+      }}%
+      {{hash=CJ}{%
+         family={Chin},
+         familyi={C\bibinitperiod},
+         given={Joshua},
+         giveni={J\bibinitperiod},
+      }}%
+      {{hash=HC}{%
+         family={Havasi},
+         familyi={H\bibinitperiod},
+         given={Catherine},
+         giveni={C\bibinitperiod},
+      }}%
+    }
+    \strng{namehash}{SRCJHC1}
+    \strng{fullhash}{SRCJHC1}
+    \field{labelnamesource}{author}
+    \field{labeltitlesource}{title}
+    \field{sortinit}{S}
+    \field{sortinithash}{S}
+    \field{booktitle}{Thirty-First AAAI Conference on Artificial Intelligence}
+    \field{title}{Conceptnet 5.5: An open multilingual graph of general
+  knowledge}
+    \field{year}{2017}
+  \endentry
+
   \entry{googlenet}{inproceedings}{}
     \name{author}{9}{}{%
       {{hash=SC}{%
@@ -1987,6 +2148,107 @@
     \field{title}{Learning spatiotemporal features with 3d convolutional
   networks}
     \field{year}{2015}
+  \endentry
+
+  \entry{dataset:kb-vqa}{inproceedings}{}
+    \name{author}{5}{}{%
+      {{hash=WP}{%
+         family={Wang},
+         familyi={W\bibinitperiod},
+         given={Peng},
+         giveni={P\bibinitperiod},
+      }}%
+      {{hash=WQ}{%
+         family={Wu},
+         familyi={W\bibinitperiod},
+         given={Qi},
+         giveni={Q\bibinitperiod},
+      }}%
+      {{hash=SC}{%
+         family={Shen},
+         familyi={S\bibinitperiod},
+         given={Chunhua},
+         giveni={C\bibinitperiod},
+      }}%
+      {{hash=DA}{%
+         family={Dick},
+         familyi={D\bibinitperiod},
+         given={Anthony},
+         giveni={A\bibinitperiod},
+      }}%
+      {{hash=vdHA}{%
+         prefix={van\bibnamedelima den},
+         prefixi={v\bibinitperiod\bibinitdelim d\bibinitperiod},
+         family={Hengel},
+         familyi={H\bibinitperiod},
+         given={Anton},
+         giveni={A\bibinitperiod},
+      }}%
+    }
+    \strng{namehash}{WP+1}
+    \strng{fullhash}{WPWQSCDAHAvd1}
+    \field{labelnamesource}{author}
+    \field{labeltitlesource}{title}
+    \field{sortinit}{W}
+    \field{sortinithash}{W}
+    \field{booktitle}{IJCAI-17}
+    \field{pages}{1290\bibrangedash 1296}
+    \field{title}{Explicit Knowledge-based Reasoning for Visual Question
+  Answering}
+    \field{year}{2017}
+  \endentry
+
+  \entry{dataset:fvqa}{article}{}
+    \name{author}{5}{}{%
+      {{hash=WP}{%
+         family={Wang},
+         familyi={W\bibinitperiod},
+         given={Peng},
+         giveni={P\bibinitperiod},
+      }}%
+      {{hash=WQ}{%
+         family={Wu},
+         familyi={W\bibinitperiod},
+         given={Qi},
+         giveni={Q\bibinitperiod},
+      }}%
+      {{hash=SC}{%
+         family={Shen},
+         familyi={S\bibinitperiod},
+         given={Chunhua},
+         giveni={C\bibinitperiod},
+      }}%
+      {{hash=DA}{%
+         family={Dick},
+         familyi={D\bibinitperiod},
+         given={Anthony},
+         giveni={A\bibinitperiod},
+      }}%
+      {{hash=vdHA}{%
+         prefix={van\bibnamedelima den},
+         prefixi={v\bibinitperiod\bibinitdelim d\bibinitperiod},
+         family={Hengel},
+         familyi={H\bibinitperiod},
+         given={Anton},
+         giveni={A\bibinitperiod},
+      }}%
+    }
+    \list{publisher}{1}{%
+      {IEEE}%
+    }
+    \strng{namehash}{WP+1}
+    \strng{fullhash}{WPWQSCDAHAvd1}
+    \field{labelnamesource}{author}
+    \field{labeltitlesource}{title}
+    \field{sortinit}{W}
+    \field{sortinithash}{W}
+    \field{number}{10}
+    \field{pages}{2413\bibrangedash 2427}
+    \field{title}{Fvqa: Fact-based visual question answering}
+    \field{volume}{40}
+    \field{journaltitle}{IEEE transactions on pattern analysis and machine
+  intelligence}
+    \field{year}{2018}
   \endentry
 
   \entry{dataset:xu}{inproceedings}{}

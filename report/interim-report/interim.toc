@@ -36,10 +36,10 @@
 \defcounter {refsection}{0}\relax 
 \contentsline {subsection}{\numberline {3.2}VideoQA Implementations}{13}
 \defcounter {refsection}{0}\relax 
-\contentsline {subsection}{\numberline {3.3}Hybrid Models for VQA}{14}
+\contentsline {subsection}{\numberline {3.3}External Knowledge for VQA}{14}
 \defcounter {refsection}{0}\relax 
-\contentsline {section}{\numberline {4}Project Plan}{14}
+\contentsline {section}{\numberline {4}Project Plan}{15}
 \defcounter {refsection}{0}\relax 
-\contentsline {section}{References}{15}
+\contentsline {section}{References}{16}
 \defcounter {refsection}{0}\relax 
-\contentsline {section}{Appendix \numberline {A}ASP encoding of $\mathcal {AL}$}{20}
+\contentsline {section}{Appendix \numberline {A}ASP encoding of $\mathcal {AL}$}{21}
