@@ -6,24 +6,41 @@
 \begin{document}
 
 %% Titlepage
-%\input{titlepage}
+\input{titlepage}
 
-%% Contents
-\tableofcontents
-% \listoffigures
-% \listoftables
-\newpage
+%% Page number for initial contents sections
+% \pagenumbering{roman}
+% \clearpage{\pagestyle{empty}\cleardoublepage}
+% \setcounter{page}{1}
+% \pagestyle{fancy}
 
 %% Abstract
 % \begin{abstract}
 % Your abstract goes here
 % \end{abstract}
 
+% \cleardoublepage
+
 %% Acknowledgements
 % \renewcommand{\abstractname}{Acknowledgements}
 % \begin{abstract}
 % Thanks mum!
 % \end{abstract}
+
+% \clearpage{\pagestyle{empty}\cleardoublepage}
+
+%% Contents
+\fancyhead[RE,LO]{\sffamily {Table of Contents}}
+\tableofcontents
+% \listoffigures
+% \listoftables
+
+%% Page numbering for chapters
+% \clearpage{\pagestyle{empty}\cleardoublepage}
+\pagenumbering{arabic}
+\setcounter{page}{1}
+\fancyhead[LE,RO]{\slshape \rightmark}
+\fancyhead[LO,RE]{\slshape \leftmark}
 
 %% Chapters
 \subfile{chapters/intro}

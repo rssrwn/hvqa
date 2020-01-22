@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.14159265-2.6-1.40.18 (TeX Live 2017) (preloaded format=pdflatex 2017.10.22)  22 JAN 2020 14:07
+This is pdfTeX, Version 3.14159265-2.6-1.40.18 (TeX Live 2017) (preloaded format=pdflatex 2017.10.22)  22 JAN 2020 14:46
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
@@ -1044,9 +1044,19 @@ LaTeX Info: Redefining \nameref on input line 6.
 \@outlinefile=\write6
 \openout6 = `interim.out'.
 
+ (./titlepage.tex
+<figures/imperial-crest.pdf, id=95, 1606.0pt x 1712.79903pt>
+File: figures/imperial-crest.pdf Graphic file (type pdf)
+
+<use figures/imperial-crest.pdf>
+Package pdftex.def Info: figures/imperial-crest.pdf used on input line 7.
+(pdftex.def)             Requested size: 113.81102pt x 121.37175pt.
 LaTeX Font Info:    Font shape `OT1/bch/bx/n' in size <24.88> not available
-(Font)              Font shape `OT1/bch/b/n' tried instead on input line 12.
- (./interim.toc
+(Font)              Font shape `OT1/bch/b/n' tried instead on input line 18.
+ [1
+
+{/usr/local/texlive/2017/texmf-var/fonts/map/pdftex/updmap/pdftex.map} <./figur
+es/imperial-crest.pdf>]) (./interim.toc
 LaTeX Font Info:    Font shape `OT1/bch/bx/n' in size <12> not available
 (Font)              Font shape `OT1/bch/b/n' tried instead on input line 5.
 LaTeX Font Info:    Try loading font information for U+msa on input line 7.
@@ -1062,11 +1072,10 @@ File: umsb.fd 2013/01/14 v3.01 AMS symbols B
 \tf@toc=\write7
 \openout7 = `interim.toc'.
 
- [1
 
+(./chapters/intro.tex [1
 
-{/usr/local/texlive/2017/texmf-var/fonts/map/pdftex/updmap/pdftex.map}]
-(./chapters/intro.tex
+]
 Chapter 1.
 LaTeX Font Info:    Font shape `OT1/bch/bx/n' in size <17.28> not available
 (Font)              Font shape `OT1/bch/b/n' tried instead on input line 16.
@@ -1076,7 +1085,7 @@ LaTeX Font Info:    Font shape `OT1/bch/bx/n' in size <17.28> not available
 Chapter 2.
 LaTeX Font Info:    Font shape `OT1/bch/bx/n' in size <14.4> not available
 (Font)              Font shape `OT1/bch/b/n' tried instead on input line 15.
-<figures/cnn-example.jpg, id=167, 1259.70625pt x 425.59pt>
+<figures/cnn-example.jpg, id=179, 1259.70625pt x 425.59pt>
 File: figures/cnn-example.jpg Graphic file (type jpg)
 
 <use figures/cnn-example.jpg>
@@ -1087,14 +1096,14 @@ LaTeX Font Info:    Font shape `OT1/bch/bx/n' in size <10.95> not available
  [5
 
 ]
-<figures/faster-r-cnn.png, id=186, 601.24625pt x 590.205pt>
+<figures/faster-r-cnn.png, id=198, 601.24625pt x 590.205pt>
 File: figures/faster-r-cnn.png Graphic file (type png)
 
 <use figures/faster-r-cnn.png>
 Package pdftex.def Info: figures/faster-r-cnn.png used on input line 41.
 (pdftex.def)             Requested size: 170.71393pt x 167.57976pt.
 
-<figures/bounding-boxes.png, id=190, 748.7975pt x 496.85625pt>
+<figures/bounding-boxes.png, id=202, 748.7975pt x 496.85625pt>
 File: figures/bounding-boxes.png Graphic file (type png)
 
 <use figures/bounding-boxes.png>
@@ -1114,7 +1123,7 @@ Overfull \hbox (1.8334pt too wide) in paragraph at lines 67--68
 s the abil-ity of the clas-si-fier to find the positively-
  []
 
-<figures/prec-recall.png, id=206, 702.625pt x 547.04375pt>
+<figures/prec-recall.png, id=219, 702.625pt x 547.04375pt>
 File: figures/prec-recall.png Graphic file (type png)
 
 <use figures/prec-recall.png>
@@ -1126,7 +1135,7 @@ Underfull \hbox (badness 1762) in paragraph at lines 78--78
 for
  []
 
-<figures/iou-image.png, id=209, 602.25pt x 469.755pt>
+<figures/iou-image.png, id=222, 602.25pt x 469.755pt>
 File: figures/iou-image.png Graphic file (type png)
 
 <use figures/iou-image.png>
@@ -1152,7 +1161,7 @@ h back-ground knowl-
 Chapter 3.
 [12
 
-] [13] [14] <figures/video-qa-arch.png, id=365, 872.25874pt x 574.145pt>
+] [13] [14] <figures/video-qa-arch.png, id=376, 872.25874pt x 574.145pt>
 File: figures/video-qa-arch.png Graphic file (type png)
 
 <use figures/video-qa-arch.png>
@@ -1164,7 +1173,7 @@ Chapter 4.
 ) [17
 
 ]
-Overfull \hbox (0.57487pt too wide) in paragraph at lines 36--36
+Overfull \hbox (0.57487pt too wide) in paragraph at lines 53--53
 \OT1/bch/m/n/12 to-end neu-ral ar-chi-tec-tures for vi-sual ques-tion an-swer-i
 ng''. In: \OT1/bch/m/it/12 Thirty-Second
  []
@@ -1179,13 +1188,13 @@ Missing character: There is no â in font bchr7t!
 Missing character: There is no € in font bchr7t!
 Missing character: There is no “ in font bchr7t!
  [19]
-Overfull \hbox (5.81888pt too wide) in paragraph at lines 36--36
+Overfull \hbox (5.81888pt too wide) in paragraph at lines 53--53
 \OT1/bch/m/n/12 swer set pro-grams from noisy ex-am-ples''. In: \OT1/bch/m/it/1
 2 arXiv preprint arXiv:1808.08441
  []
 
 
-Overfull \hbox (36.67082pt too wide) in paragraph at lines 36--36
+Overfull \hbox (36.67082pt too wide) in paragraph at lines 53--53
 \OT1/bch/m/n/12 for text clas-si-fi-ca-tion with multi-task learn-ing''. In: \O
 T1/bch/m/it/12 arXiv preprint arXiv:1605.05101
  []
@@ -1193,19 +1202,19 @@ T1/bch/m/it/12 arXiv preprint arXiv:1605.05101
 Missing character: There is no Ã in font bchr7t!
 Missing character: There is no © in font bchr7t!
 [20]
-Overfull \hbox (0.93698pt too wide) in paragraph at lines 36--36
+Overfull \hbox (0.93698pt too wide) in paragraph at lines 53--53
 \OT1/bch/m/n/12 2016. \OT1/bch/m/sc/12 url\OT1/bch/m/n/12 : [][]$\OT1/cmtt/m/n/
 12 https : / / www . pyimagesearch . com / 2016 / 11 / 07 / intersection -[]
  []
 
 
-Overfull \hbox (8.11089pt too wide) in paragraph at lines 36--36
+Overfull \hbox (8.11089pt too wide) in paragraph at lines 53--53
 []\OT1/bch/m/n/12 Makarand Tapaswi et al. ``MovieQA: Un-der-stand-ing Sto-ries 
 in Movies through
  []
 
 
-Overfull \hbox (23.598pt too wide) in paragraph at lines 36--36
+Overfull \hbox (23.598pt too wide) in paragraph at lines 53--53
 \OT1/bch/m/it/12 trans-ac-tions on pat-tern anal-y-sis and ma-chine in-tel-li-g
 ence \OT1/bch/m/n/12 40.10 (2018), pp. 2413{
  []
@@ -1215,7 +1224,7 @@ Missing character: There is no â in font bchr7t!
 Missing character: There is no € in font bchr7t!
 Missing character: There is no “ in font bchr7t!
 
-Overfull \hbox (6.14691pt too wide) in paragraph at lines 36--36
+Overfull \hbox (6.14691pt too wide) in paragraph at lines 53--53
 \OT1/bch/m/n/12 swer-ing''. In: \OT1/bch/m/it/12 In-ter-na-tional Jour-nal of C
 om-puter Vi-sion \OT1/bch/m/n/12 124.3 (2017), pp. 409{
  []
@@ -1233,11 +1242,11 @@ Package hyperref Warning: Token not allowed in a PDF string (PDFDocEncoding):
 [23
 
 ]) [24]
-Package atveryend Info: Empty hook `BeforeClearDocument' on input line 47.
-Package atveryend Info: Empty hook `AfterLastShipout' on input line 47.
+Package atveryend Info: Empty hook `BeforeClearDocument' on input line 64.
+Package atveryend Info: Empty hook `AfterLastShipout' on input line 64.
  (./interim.aux)
-Package atveryend Info: Executing hook `AtVeryEndDocument' on input line 47.
-Package atveryend Info: Executing hook `AtEndAfterFileList' on input line 47.
+Package atveryend Info: Executing hook `AtVeryEndDocument' on input line 64.
+Package atveryend Info: Executing hook `AtEndAfterFileList' on input line 64.
 Package rerunfilecheck Info: File `interim.out' has not changed.
 (rerunfilecheck)             Checksum: 3738BE8BE6B02DF8A5F024C26681C6EE;1463.
 Package logreq Info: Writing requests to 'interim.run.xml'.
@@ -1245,13 +1254,13 @@ Package logreq Info: Writing requests to 'interim.run.xml'.
 
  ) 
 Here is how much of TeX's memory you used:
- 25493 strings out of 492995
- 472024 string characters out of 6132703
+ 25513 strings out of 492995
+ 472341 string characters out of 6132703
  878225 words of memory out of 5000000
- 28436 multiletter control sequences out of 15000+600000
- 44361 words of font info for 99 fonts, out of 8000000 for 9000
+ 28445 multiletter control sequences out of 15000+600000
+ 53282 words of font info for 108 fonts, out of 8000000 for 9000
  1141 hyphenation exceptions out of 8191
- 64i,17n,79p,1096b,2709s stack positions out of 5000i,500n,10000p,200000b,80000s
+ 64i,17n,79p,1096b,2711s stack positions out of 5000i,500n,10000p,200000b,80000s
 {/usr/local/texlive/2017/texmf-dist/fonts/enc/dvips/base/8r.enc}</usr/local/t
 exlive/2017/texmf-dist/fonts/type1/bitstrea/charter/bchb8a.pfb></usr/local/texl
 ive/2017/texmf-dist/fonts/type1/bitstrea/charter/bchr8a.pfb></usr/local/texlive
@@ -1265,10 +1274,10 @@ ist/fonts/type1/public/amsfonts/cm/cmsy10.pfb></usr/local/texlive/2017/texmf-di
 st/fonts/type1/public/amsfonts/cm/cmsy8.pfb></usr/local/texlive/2017/texmf-dist
 /fonts/type1/public/amsfonts/cm/cmtt12.pfb></usr/local/texlive/2017/texmf-dist/
 fonts/type1/public/amsfonts/symbols/msbm10.pfb>
-Output written on interim.pdf (24 pages, 2181703 bytes).
+Output written on interim.pdf (25 pages, 2849681 bytes).
 PDF statistics:
- 520 PDF objects out of 1000 (max. 8388607)
- 461 compressed objects within 5 object streams
- 143 named destinations out of 1000 (max. 500000)
- 219 words of extra memory for PDF output out of 10000 (max. 10000000)
+ 532 PDF objects out of 1000 (max. 8388607)
+ 469 compressed objects within 5 object streams
+ 144 named destinations out of 1000 (max. 500000)
+ 224 words of extra memory for PDF output out of 10000 (max. 10000000)
 
