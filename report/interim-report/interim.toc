@@ -44,6 +44,12 @@
 \defcounter {refsection}{0}\relax 
 \contentsline {chapter}{\numberline {4}Project Plan}{17}{chapter.48}
 \defcounter {refsection}{0}\relax 
-\contentsline {chapter}{Bibliography}{18}{chapter*.49}
+\contentsline {section}{\numberline {4.1}Completed Work}{17}{section.49}
 \defcounter {refsection}{0}\relax 
-\contentsline {chapter}{Appendix \numberline {A}ASP encoding of $\mathcal {AL}$}{23}{Appendix.50}
+\contentsline {section}{\numberline {4.2}Implementation Plan}{19}{section.51}
+\defcounter {refsection}{0}\relax 
+\contentsline {section}{\numberline {4.3}Evaluation Plan}{19}{section.52}
+\defcounter {refsection}{0}\relax 
+\contentsline {chapter}{Bibliography}{20}{chapter*.53}
+\defcounter {refsection}{0}\relax 
+\contentsline {chapter}{Appendix \numberline {A}ASP encoding of $\mathcal {AL}$}{25}{Appendix.54}
