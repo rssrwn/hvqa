@@ -6,7 +6,7 @@
 
 \chapter{Background}
 
-This section introduces some technical background which will likely be required as part of the project. It includes an introduction to neural networks and CNNs, a comparison of some existing object tracking and object detection algorithms and a discussion on knowledge representation and reasoning and symbolic rule learning.
+This chapter introduces some technical background which will likely be required as part of the project. It includes an introduction to neural networks and CNNs, a comparison of some existing object tracking and object detection algorithms and a discussion on knowledge representation and reasoning and symbolic rule learning.
 
 \section{Deep Learning}
 
@@ -14,11 +14,11 @@ Deep neural networks (DNNs) have emerged as a very successful algorithm for mach
 
 \subsection{Convolutional Neural Networks}
 
-CNNs contain three types of layers: convolution, pooling and fully connected. Units (artificial neurons) in a convolution layer are organised into feature maps. The inputs to each unit in a feature map come from the outputs of the units in a small region of the previous layer, the output of the unit is then calculated by passing the weighted sum of its inputs through an activation function such as ReLU. The set of weights, also known as a filter or kernel, is the part of the layer which is learned through backpropagation. Every unit in a feature map has the same kernel. Each feature map in a layer has its own kernel. Pooling layers reduce the size of the input by merging multiple units into one. A typical pooling operation is max-pooling, which computes the maximum of a local patch of units. Finally, in fully-connected layers (which are typically placed at the output of the CNN) every unit in a layer is connected to every unit in the previous layer. An example CNN architecture is shown in figure~\ref{fig:example-cnn}.
+CNNs contain three types of layers: convolution, pooling and fully connected. Units (artificial neurons) in a convolution layer are organised into feature maps. The inputs to each unit in a feature map come from the outputs of the units in a small region of the previous layer, the output of the unit is then calculated by passing the weighted sum of its inputs through an activation function such as ReLU. The set of weights, also known as a filter or kernel, is the part of the layer which is learned through backpropagation. Every unit in a feature map has the same kernel. Each feature map in a layer has its own kernel. Pooling layers reduce the size of the input by merging multiple units into one. A typical pooling operation is max-pooling, which computes the maximum of a local patch of units. Finally, in fully-connected layers (which are typically placed at the output of the CNN) every unit in a layer is connected to every unit in the previous layer. An example CNN architecture is shown in Figure~\ref{fig:example-cnn}.
 
 \begin{figure}
   \centering
-  \includegraphics[width=0.8\textwidth]{cnn-example.jpg}
+  \includegraphics[width=\textwidth]{cnn-example.jpg}
   \caption{An example of a CNN architecture. The input image is passed through a series of convolution and pooling layers before being flattened into a one-dimensional layer and passed through one final fully connected layer. The softmax classification function is then applied at the output.}
   \label{fig:example-cnn}
 \end{figure}
@@ -31,9 +31,9 @@ CNNs have proven to be adept at a number of tasks involving images, including im
 
 \subsection{Object Detection}
 
-The object detection task could formally be defined as designing a model which, when given an image, can produce a rough localisation of objects of interest in the image (in the form of a bounding box) and classify eac of these objects into a set of predefined classes. In this section we introduce two well known object detection algorithms, Faster R-CNN~\cite{cnn-uses:faster-r-cnn} and You Only Look Once (YOLO)~\cite{cnn-uses:yolo-v3}.
+The object detection task could formally be defined as designing a model which, when given an image, can produce a rough localisation of objects of interest in the image (in the form of a bounding box) and classify each of these objects into a set of predefined classes. In this section we introduce two well known object detection algorithms, Faster R-CNN~\cite{cnn-uses:faster-r-cnn} and You Only Look Once (YOLO)~\cite{cnn-uses:yolo-v3}.
 
-Faster R-CNN is an evolution of previous object detection algorithms, R-CNN~\cite{r-cnn} and Fast R-CNN~\cite{fast-r-cnn}. Faster R-CNN builds on its predecessors by adding a region proposal network (RPN) - a neural network which takes an image and produces a set of region of interest (RoI) proposals. This method of region proposal is much faster than previous algorithms (such as those used in~\cite{r-cnn} and~\cite{fast-r-cnn}) since it is able to make use of the GPU, as opposed to requiring the CPU. Faster R-CNN then uses a similar classifier and bounding box regressor as Fast R-CNN at the output; this section of the network also receives the feature maps from the final layer of the RPN, in this sense the initial layers of the network are shared between the region proposal section and the classifier/regressor section. A diagram of the Faster R-CNN architecture is shown in figure~\ref{fig:fasterrcnn}.
+Faster R-CNN is an evolution of previous object detection algorithms, R-CNN~\cite{r-cnn} and Fast R-CNN~\cite{fast-r-cnn}. Faster R-CNN builds on its predecessors by adding a region proposal network (RPN) - a neural network which takes an image and produces a set of region of interest (RoI) proposals. This method of region proposal is much faster than previous algorithms (such as those used in~\cite{r-cnn} and~\cite{fast-r-cnn}) since it is able to make use of the GPU, as opposed to requiring the CPU. Faster R-CNN then uses a similar classifier and bounding box regressor as Fast R-CNN at the output; this section of the network also receives the feature maps from the final layer of the RPN, in this sense the initial layers of the network are shared between the region proposal section and the classifier/regressor section. A diagram of the Faster R-CNN architecture is shown in Figure~\ref{fig:fasterrcnn}.
 
 \begin{figure}
   \begin{subfigure}{0.4\textwidth}
@@ -69,7 +69,7 @@ Firstly, for classification tasks the following terminology is commonly used:
   \item $F_1 = 2 * \frac{precision * recall}{precision + recall}$. The $F_1$ score is a way of combining the precision and recall scores.
 \end{itemize}
 
-Each object detector model will output a confidence score for each object classification it makes. We can then set a threshold value which determines what is counted as a classification of an object. Altering this threshold value will give different precision and recall values for the model, which can then be plotted on a precision-recall graph. Example precision-recall curves are shown in figure~\ref{fig:prec-recall}.
+Each object detector model will output a confidence score for each object classification it makes. We can then set a threshold value which determines what is counted as a classification of an object. Altering this threshold value will give different precision and recall values for the model, which can then be plotted on a precision-recall graph. Example precision-recall curves are shown in Figure~\ref{fig:prec-recall}.
 
 \begin{figure}
   \centering
@@ -103,7 +103,7 @@ Multiple Object Tracking (MOT) is a computer vision task that aims to identify a
   \item \textbf{Association}. Similarity scores are used to associate detections and compute the object trajectories.
 \end{itemize}
 
-The Simple Online and Realtime Tracking (SORT)~\cite{sort-obj-tracking} algorithm is one of the best performers~\cite{obj-tracking-survey}. It makes use of Faster R-CNN for object detection, the Kalman filter~\cite{kalman-filter} framework for predicting object motion, IoU as a similarity function and the Hungarian algorithm~\cite{hungarian-algo} for association. SORT attempts to track objects using motion prediction, other algorithms, however, focus on extracting features from objects, such as Histogram of Orientated Gradients (HOG)~\cite{hog-features} features, and using these to match objects in successor frames. More recent methods tend to use features extracted directly from a CNN.
+The Simple Online and Realtime Tracking (SORT)~\cite{sort-obj-tracking} algorithm is one of the best performers~\cite{obj-tracking-survey}. It makes use of Faster R-CNN for object detection, the Kalman filter~\cite{kalman-filter} framework for predicting object motion, IoU as a similarity function and the Hungarian algorithm~\cite{hungarian-algo} for association. Whereas SORT attempts to track objects using motion prediction, other algorithms focus on extracting features from objects and using these to match objects in successor frames. Commonly used features include Histogram of Orientated Gradients (HOG)~\cite{hog-features}, Scale Invariant Feature Transform (SIFT)~\cite{sift} descriptors and Speeded-Up Robust Features (SURF)~\cite{surf} descriptors. More recent methods tend to use features extracted directly from a CNN.
 
 
 \section{Knowledge Representation and Reasoning}
@@ -114,16 +114,18 @@ Knowledge Representation and Reasoning (KRR) is concerned with how intelligent a
 
 Answer Set Programming (ASP) is a form of declarative logic programming that can be used to solve difficult search problems. Whereas imperative programs define an algorithm for finding a solution to a problem, logic programs simply define a problem, it is then the job of logic program solvers to find a solution to the problem. ASP also differs from Prolog, another popular logic programming language, in that ASP programs are purely declarative. This means that reordering rules or atoms within rules has no effect on the output of the solver~\cite{asp-primer}. ASP solvers work by finding the answer sets of the program, where each rule in the program imposes restrictions on what can be an answer set. An answer set can be thought of as a set of ground atoms which satisfies every rule of the program (although the full definition of an answer set is too in-depth for this discussion).
 
-The following templates are a some of the possible forms of rules in an ASP program:
+The following templates are some of the possible forms of rules in an ASP program:
 \begin{align}
   a \text{ :- }& b_1, ..., b_k, not \text{ } b_{k+1}, ..., not \text{ } b_m. \label{asp-rule:normal}\\
-  \{c_1;...;c_n\} \text{ :- }& b_1,...,b_k, not \text{ } b_{k+1}, ..., not \text{ } b_m. \label{asp-rule:choice}\\
+  l \{c_1;...;c_n\} u \text{ :- }& b_1,...,b_k, not \text{ } b_{k+1}, ..., not \text{ } b_m. \label{asp-rule:choice}\\
   \text{:- }& b_1,...,b_k, not \text{ } b_{k+1}, ..., not \text{ } b_m. \label{asp-rule:constraint}
 \end{align}
+\noindent
+{\footnotesize Where $a$ and each $b_i$ and $c_i$ are atoms in first-order logic, $l$ and $u$ are integers} \\
 
-Where each $a$, $b_i$ and $c_i$ are atoms in first-order logic. The left hand side of the rule is known as the head, and the right hand side is known as the body. The $not$ in the rule body stands for negation-as-failure, which means that $not$ $b_i$ will be satisfied when $b_i$ cannot be proved. Each rule requires that when the body is satisfied - that is, when every member of the body is satisfied - the head must be satisfied. Rule~\ref{asp-rule:choice} is known as a choice rule. The head of a choice rule can be satisfied by any subset of the atoms inside the brackets (including the empty set); in effect, a choice rule creates possible answer sets. Finally, rule~\ref{asp-rule:constraint} is known as a constraint. The body of a constraint must not be satisfied; intuitively, a constraint rules out answer sets.
+The left hand side of the rule is known as the head, and the right hand side is known as the body. The $not$ in the rule body stands for negation-as-failure, which means that $not$ $b_i$ will be satisfied when $b_i$ cannot be proved. Each rule requires that when the body is satisfied - that is, when every member of the body is satisfied - the head must be satisfied. Rule~\ref{asp-rule:choice} is known as a choice rule. The head of a choice rule can be satisfied by any subset, $S$, of the atoms inside the brackets, provided $l \leq |S| \leq u$; in effect, a choice rule creates possible answer sets. Finally, rule~\ref{asp-rule:constraint} is known as a constraint. The body of a constraint must not be satisfied; intuitively, a constraint rules out answer sets.
 
-As well as negation as failure, ASP also has a notion of `strong negation'. The strong negation of an atom $p$ is written $\neg p$. Strong negation can be thought of as logical negation, although it does not always have the same properties. In practice, ASP solvers implement strong negation by treating $\neg p$ as an additional atom, and enforce that no answer set can contain both $p$ and $\neg p$.
+As well as negation as failure, ASP also has a notion of `strong negation'. The strong negation of an atom $p$ is written $\neg p$. Strong negation can be thought of as classical negation, although it does not always have the same properties. In practice, ASP solvers implement strong negation by treating $\neg p$ as an additional atom, and enforce that no answer set can contain both $p$ and $\neg p$.
 
 \subsection{The Action Language $\mathcal{AL}$}
 
@@ -133,10 +135,18 @@ Action languages are formal models for describing the behaviour of dynamic syste
   l \textbf{ if } p_0,...,p_m \label{al:constraint} \\
   \textbf{impossible } a_0,...,a_k \textbf{ if } p_0,...,p_m \label{al:exec}
 \end{gather}
+\noindent
+{\footnotesize Where:
+\vspace{-0.8em}
+\renewcommand{\labelitemi}{$\textendash$}
+\begin{itemize}
+  \setlength\itemsep{-0.5em}
+  \item $a$ is an action
+  \item $l$ and $p_0,...,p_m$ are domain literals
+  \item $l_{in}$ is a literal formed by an inertial fluent \\
+\end{itemize}}
 
-Where $a$ is an action, $l$ and $p_0,...,p_m$ are domain literals and $l_{in}$ is a literal formed by an inertial fluent. Statement~\ref{al:causal} is known as a \textit{causal law}, \ref{al:constraint} as a \textit{state constraint} and \ref{al:exec} as an \textit{executability condition}. A collection of $\mathcal{AL}$ statements is known as a `system decription'. An $\mathcal{AL}$ system description can be used to model the behaviour of dynamic systems with discrete states; each state can be seen as the set of fluents which are true and transitions between states are caused by actions.
-
-It also possible to encode a given $\mathcal{AL}$ system description, along with a number of `domain-independent' axioms, in ASP. The method for creating this encoding is given in Appendix~\ref{appendix-al}.
+Statement~\ref{al:causal} is known as a \textit{causal law}, \ref{al:constraint} as a \textit{state constraint} and \ref{al:exec} as an \textit{executability condition}. A collection of $\mathcal{AL}$ statements is known as a `system decription'. An $\mathcal{AL}$ system description can be used to model the behaviour of dynamic systems with discrete states; each state can be seen as the set of fluents which are true and transitions between states are caused by actions. It is possible to encode a given $\mathcal{AL}$ system description, along with a number of `domain-independent' axioms, in ASP. The method for creating this encoding is given in Appendix~\ref{appendix-al}.
 
 \subsection{Symbolic Rule Learning}
 
@@ -148,11 +158,9 @@ The authors of~\cite{ilasp-1} define the \textit{Learning from Answer Sets} ($IL
   \item $\forall e^+ \in E^+ \text{ } \exists A \in AS(B \cup H) \textit{ such that } A \textit{ extends } e^+$
   \item $\forall e^- \in E^- \text{ } \nexists A \in AS(B \cup H) \textit{ such that } A \textit{ extends } e^-$
 \end{enumerate}
-
 \noindent
-Where $AS(P)$ refers to the answer sets of a program $P$.
+{\footnotesize Where $AS(P)$ refers to the answer sets of a program $P$.} \\
 
-\vspace{3mm}
 Later versions of ILASP are capable of solving more complex tasks, including learning weak constraints~\cite{ilasp-wc} (a method for specifying preferences in ASP), learning from context dependent examples~\cite{ilasp-cde} and learning from noisy examples~\cite{ilasp-noisy}.
 
 \end{document}

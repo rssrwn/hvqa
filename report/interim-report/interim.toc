@@ -36,12 +36,12 @@
 \defcounter {refsection}{0}\relax 
 \contentsline {section}{\numberline {3.1}Datasets for VideoQA}{12}{section.41}
 \defcounter {refsection}{0}\relax 
-\contentsline {section}{\numberline {3.2}VideoQA Implementations}{14}{section.43}
+\contentsline {section}{\numberline {3.2}VideoQA Implementations}{14}{section.44}
 \defcounter {refsection}{0}\relax 
-\contentsline {section}{\numberline {3.3}External Knowledge for VQA}{15}{section.45}
+\contentsline {section}{\numberline {3.3}External Knowledge for VQA}{15}{section.46}
 \defcounter {refsection}{0}\relax 
-\contentsline {chapter}{\numberline {4}Project Plan}{17}{chapter.46}
+\contentsline {chapter}{\numberline {4}Project Plan}{17}{chapter.47}
 \defcounter {refsection}{0}\relax 
-\contentsline {chapter}{Bibliography}{18}{chapter*.47}
+\contentsline {chapter}{Bibliography}{18}{chapter*.48}
 \defcounter {refsection}{0}\relax 
-\contentsline {chapter}{Appendix \numberline {A}ASP encoding of $\mathcal {AL}$}{23}{Appendix.48}
+\contentsline {chapter}{Appendix \numberline {A}ASP encoding of $\mathcal {AL}$}{23}{Appendix.49}

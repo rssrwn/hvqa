@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.14159265-2.6-1.40.18 (TeX Live 2017) (preloaded format=pdflatex 2017.10.22)  22 JAN 2020 14:46
+This is pdfTeX, Version 3.14159265-2.6-1.40.18 (TeX Live 2017) (preloaded format=pdflatex 2017.10.22)  22 JAN 2020 16:55
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
@@ -1078,7 +1078,7 @@ File: umsb.fd 2013/01/14 v3.01 AMS symbols B
 ]
 Chapter 1.
 LaTeX Font Info:    Font shape `OT1/bch/bx/n' in size <17.28> not available
-(Font)              Font shape `OT1/bch/b/n' tried instead on input line 16.
+(Font)              Font shape `OT1/bch/b/n' tried instead on input line 18.
 [2
 
 ] [3]) (./chapters/background.tex [4]
@@ -1090,7 +1090,7 @@ File: figures/cnn-example.jpg Graphic file (type jpg)
 
 <use figures/cnn-example.jpg>
 Package pdftex.def Info: figures/cnn-example.jpg used on input line 21.
-(pdftex.def)             Requested size: 341.43437pt x 115.35242pt.
+(pdftex.def)             Requested size: 426.79135pt x 144.19214pt.
 LaTeX Font Info:    Font shape `OT1/bch/bx/n' in size <10.95> not available
 (Font)              Font shape `OT1/bch/b/n' tried instead on input line 22.
  [5
@@ -1142,31 +1142,62 @@ File: figures/iou-image.png Graphic file (type png)
 Package pdftex.def Info: figures/iou-image.png used on input line 83.
 (pdftex.def)             Requested size: 204.85802pt x 159.78627pt.
  [7 <./figures/faster-r-cnn.png> <./figures/bounding-boxes.png>] [8 <./figures/
-prec-recall.png> <./figures/iou-image.png>] [9]
+prec-recall.png> <./figures/iou-image.png>]
+Underfull \hbox (badness 10000) in paragraph at lines 122--125
+
+ []
+
+[9]
 
 Package hyperref Warning: Token not allowed in a PDF string (PDFDocEncoding):
-(hyperref)                removing `math shift' on input line 128.
+(hyperref)                removing `math shift' on input line 130.
 
 
 Package hyperref Warning: Token not allowed in a PDF string (PDFDocEncoding):
-(hyperref)                removing `math shift' on input line 128.
+(hyperref)                removing `math shift' on input line 130.
 
 
-Overfull \hbox (7.99692pt too wide) in paragraph at lines 143--144
+LaTeX Warning: Command \textendash invalid in math mode on input line 144.
+
+
+LaTeX Warning: Command \textendash invalid in math mode on input line 145.
+
+
+LaTeX Warning: Command \textendash invalid in math mode on input line 146.
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 146--147
+
+ []
+
+
+Overfull \hbox (7.99692pt too wide) in paragraph at lines 153--154
 \OT1/bch/m/n/12 cerned with learn-ing sym-bolic rules which, when com-bined wit
 h back-ground knowl-
  []
 
-[10]) (./chapters/related.tex [11]
-Chapter 3.
-[12
+[10]
+Underfull \hbox (badness 10000) in paragraph at lines 161--163
 
-] [13] [14] <figures/video-qa-arch.png, id=376, 872.25874pt x 574.145pt>
+ []
+
+) (./chapters/related.tex [11]
+Chapter 3.
+<figures/tgif-qa-example.png, id=316, 1192.455pt x 332.24126pt>
+File: figures/tgif-qa-example.png Graphic file (type png)
+
+<use figures/tgif-qa-example.png>
+Package pdftex.def Info: figures/tgif-qa-example.png used on input line 29.
+(pdftex.def)             Requested size: 426.79135pt x 118.91222pt.
+ [12
+
+] [13 <./figures/tgif-qa-example.png>]
+[14] <figures/video-qa-arch.png, id=381, 872.25874pt x 574.145pt>
 File: figures/video-qa-arch.png Graphic file (type png)
 
 <use figures/video-qa-arch.png>
-Package pdftex.def Info: figures/video-qa-arch.png used on input line 84.
-(pdftex.def)             Requested size: 384.1096pt x 252.82608pt.
+Package pdftex.def Info: figures/video-qa-arch.png used on input line 91.
+(pdftex.def)             Requested size: 341.43437pt x 224.73915pt.
  [15 <./figures/video-qa-arch.png>])
 (./chapters/plan.tex [16]
 Chapter 4.
@@ -1248,16 +1279,16 @@ Package atveryend Info: Empty hook `AfterLastShipout' on input line 64.
 Package atveryend Info: Executing hook `AtVeryEndDocument' on input line 64.
 Package atveryend Info: Executing hook `AtEndAfterFileList' on input line 64.
 Package rerunfilecheck Info: File `interim.out' has not changed.
-(rerunfilecheck)             Checksum: 3738BE8BE6B02DF8A5F024C26681C6EE;1463.
+(rerunfilecheck)             Checksum: C5D61321FDBA66B1046B3353F31C667E;1463.
 Package logreq Info: Writing requests to 'interim.run.xml'.
 \openout1 = `interim.run.xml'.
 
  ) 
 Here is how much of TeX's memory you used:
- 25513 strings out of 492995
- 472341 string characters out of 6132703
+ 25526 strings out of 492995
+ 472663 string characters out of 6132703
  878225 words of memory out of 5000000
- 28445 multiletter control sequences out of 15000+600000
+ 28454 multiletter control sequences out of 15000+600000
  53282 words of font info for 108 fonts, out of 8000000 for 9000
  1141 hyphenation exceptions out of 8191
  64i,17n,79p,1096b,2711s stack positions out of 5000i,500n,10000p,200000b,80000s
@@ -1266,18 +1297,22 @@ exlive/2017/texmf-dist/fonts/type1/bitstrea/charter/bchb8a.pfb></usr/local/texl
 ive/2017/texmf-dist/fonts/type1/bitstrea/charter/bchr8a.pfb></usr/local/texlive
 /2017/texmf-dist/fonts/type1/bitstrea/charter/bchr8a.pfb></usr/local/texlive/20
 17/texmf-dist/fonts/type1/bitstrea/charter/bchri8a.pfb></usr/local/texlive/2017
-/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi12.pfb></usr/local/texlive/2017/
-texmf-dist/fonts/type1/public/amsfonts/cm/cmmi8.pfb></usr/local/texlive/2017/te
-xmf-dist/fonts/type1/public/amsfonts/cm/cmr12.pfb></usr/local/texlive/2017/texm
-f-dist/fonts/type1/public/amsfonts/cm/cmr8.pfb></usr/local/texlive/2017/texmf-d
-ist/fonts/type1/public/amsfonts/cm/cmsy10.pfb></usr/local/texlive/2017/texmf-di
-st/fonts/type1/public/amsfonts/cm/cmsy8.pfb></usr/local/texlive/2017/texmf-dist
-/fonts/type1/public/amsfonts/cm/cmtt12.pfb></usr/local/texlive/2017/texmf-dist/
-fonts/type1/public/amsfonts/symbols/msbm10.pfb>
-Output written on interim.pdf (25 pages, 2849681 bytes).
+/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi10.pfb></usr/local/texlive/2017/
+texmf-dist/fonts/type1/public/amsfonts/cm/cmmi12.pfb></usr/local/texlive/2017/t
+exmf-dist/fonts/type1/public/amsfonts/cm/cmmi7.pfb></usr/local/texlive/2017/tex
+mf-dist/fonts/type1/public/amsfonts/cm/cmmi8.pfb></usr/local/texlive/2017/texmf
+-dist/fonts/type1/public/amsfonts/cm/cmr10.pfb></usr/local/texlive/2017/texmf-d
+ist/fonts/type1/public/amsfonts/cm/cmr12.pfb></usr/local/texlive/2017/texmf-dis
+t/fonts/type1/public/amsfonts/cm/cmr7.pfb></usr/local/texlive/2017/texmf-dist/f
+onts/type1/public/amsfonts/cm/cmr8.pfb></usr/local/texlive/2017/texmf-dist/font
+s/type1/public/amsfonts/cm/cmsy10.pfb></usr/local/texlive/2017/texmf-dist/fonts
+/type1/public/amsfonts/cm/cmsy8.pfb></usr/local/texlive/2017/texmf-dist/fonts/t
+ype1/public/amsfonts/cm/cmtt12.pfb></usr/local/texlive/2017/texmf-dist/fonts/ty
+pe1/public/amsfonts/symbols/msbm10.pfb>
+Output written on interim.pdf (25 pages, 4713983 bytes).
 PDF statistics:
- 532 PDF objects out of 1000 (max. 8388607)
- 469 compressed objects within 5 object streams
- 144 named destinations out of 1000 (max. 500000)
- 224 words of extra memory for PDF output out of 10000 (max. 10000000)
+ 559 PDF objects out of 1000 (max. 8388607)
+ 489 compressed objects within 5 object streams
+ 147 named destinations out of 1000 (max. 500000)
+ 229 words of extra memory for PDF output out of 10000 (max. 10000000)
 

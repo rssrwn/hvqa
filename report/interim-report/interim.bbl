@@ -317,6 +317,50 @@
     \field{year}{2007}
   \endentry
 
+  \entry{surf}{article}{}
+    \name{author}{4}{}{%
+      {{hash=BH}{%
+         family={Bay},
+         familyi={B\bibinitperiod},
+         given={Herbert},
+         giveni={H\bibinitperiod},
+      }}%
+      {{hash=EA}{%
+         family={Ess},
+         familyi={E\bibinitperiod},
+         given={Andreas},
+         giveni={A\bibinitperiod},
+      }}%
+      {{hash=TT}{%
+         family={Tuytelaars},
+         familyi={T\bibinitperiod},
+         given={Tinne},
+         giveni={T\bibinitperiod},
+      }}%
+      {{hash=VGL}{%
+         family={Van\bibnamedelima Gool},
+         familyi={V\bibinitperiod\bibinitdelim G\bibinitperiod},
+         given={Luc},
+         giveni={L\bibinitperiod},
+      }}%
+    }
+    \list{publisher}{1}{%
+      {Elsevier}%
+    }
+    \strng{namehash}{BH+1}
+    \strng{fullhash}{BHEATTVGL1}
+    \field{labelnamesource}{author}
+    \field{labeltitlesource}{title}
+    \field{sortinit}{B}
+    \field{sortinithash}{B}
+    \field{number}{3}
+    \field{pages}{346\bibrangedash 359}
+    \field{title}{Speeded-up robust features (SURF)}
+    \field{volume}{110}
+    \field{journaltitle}{Computer vision and image understanding}
+    \field{year}{2008}
+  \endentry
+
   \entry{sort-obj-tracking}{inproceedings}{}
     \name{author}{5}{}{%
       {{hash=BA}{%
@@ -1448,6 +1492,32 @@
   multi-task learning}
     \field{journaltitle}{arXiv preprint arXiv:1605.05101}
     \field{year}{2016}
+  \endentry
+
+  \entry{sift}{article}{}
+    \name{author}{1}{}{%
+      {{hash=LDG}{%
+         family={Lowe},
+         familyi={L\bibinitperiod},
+         given={David\bibnamedelima G},
+         giveni={D\bibinitperiod\bibinitdelim G\bibinitperiod},
+      }}%
+    }
+    \list{publisher}{1}{%
+      {Springer}%
+    }
+    \strng{namehash}{LDG1}
+    \strng{fullhash}{LDG1}
+    \field{labelnamesource}{author}
+    \field{labeltitlesource}{title}
+    \field{sortinit}{L}
+    \field{sortinithash}{L}
+    \field{number}{2}
+    \field{pages}{91\bibrangedash 110}
+    \field{title}{Distinctive image features from scale-invariant keypoints}
+    \field{volume}{60}
+    \field{journaltitle}{International journal of computer vision}
+    \field{year}{2004}
   \endentry
 
   \entry{dataset:movie-fib}{article}{}
