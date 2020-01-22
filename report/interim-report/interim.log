@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.14159265-2.6-1.40.18 (TeX Live 2017) (preloaded format=pdflatex 2017.10.22)  22 JAN 2020 16:55
+This is pdfTeX, Version 3.14159265-2.6-1.40.18 (TeX Live 2017) (preloaded format=pdflatex 2017.10.22)  22 JAN 2020 18:02
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
@@ -1058,13 +1058,13 @@ LaTeX Font Info:    Font shape `OT1/bch/bx/n' in size <24.88> not available
 {/usr/local/texlive/2017/texmf-var/fonts/map/pdftex/updmap/pdftex.map} <./figur
 es/imperial-crest.pdf>]) (./interim.toc
 LaTeX Font Info:    Font shape `OT1/bch/bx/n' in size <12> not available
-(Font)              Font shape `OT1/bch/b/n' tried instead on input line 5.
-LaTeX Font Info:    Try loading font information for U+msa on input line 7.
+(Font)              Font shape `OT1/bch/b/n' tried instead on input line 7.
+LaTeX Font Info:    Try loading font information for U+msa on input line 9.
 
 (/usr/local/texlive/2017/texmf-dist/tex/latex/amsfonts/umsa.fd
 File: umsa.fd 2013/01/14 v3.01 AMS symbols A
 )
-LaTeX Font Info:    Try loading font information for U+msb on input line 7.
+LaTeX Font Info:    Try loading font information for U+msb on input line 9.
 
 (/usr/local/texlive/2017/texmf-dist/tex/latex/amsfonts/umsb.fd
 File: umsb.fd 2013/01/14 v3.01 AMS symbols B
@@ -1096,14 +1096,14 @@ LaTeX Font Info:    Font shape `OT1/bch/bx/n' in size <10.95> not available
  [5
 
 ]
-<figures/faster-r-cnn.png, id=198, 601.24625pt x 590.205pt>
+<figures/faster-r-cnn.png, id=197, 601.24625pt x 590.205pt>
 File: figures/faster-r-cnn.png Graphic file (type png)
 
 <use figures/faster-r-cnn.png>
 Package pdftex.def Info: figures/faster-r-cnn.png used on input line 41.
 (pdftex.def)             Requested size: 170.71393pt x 167.57976pt.
 
-<figures/bounding-boxes.png, id=202, 748.7975pt x 496.85625pt>
+<figures/bounding-boxes.png, id=201, 748.7975pt x 496.85625pt>
 File: figures/bounding-boxes.png Graphic file (type png)
 
 <use figures/bounding-boxes.png>
@@ -1123,7 +1123,8 @@ Overfull \hbox (1.8334pt too wide) in paragraph at lines 67--68
 s the abil-ity of the clas-si-fier to find the positively-
  []
 
-<figures/prec-recall.png, id=219, 702.625pt x 547.04375pt>
+[7 <./figures/faster-r-cnn.png> <./figures/bounding-boxes.png>]
+<figures/prec-recall.png, id=232, 702.625pt x 547.04375pt>
 File: figures/prec-recall.png Graphic file (type png)
 
 <use figures/prec-recall.png>
@@ -1135,14 +1136,13 @@ Underfull \hbox (badness 1762) in paragraph at lines 78--78
 for
  []
 
-<figures/iou-image.png, id=222, 602.25pt x 469.755pt>
+<figures/iou-image.png, id=235, 602.25pt x 469.755pt>
 File: figures/iou-image.png Graphic file (type png)
 
 <use figures/iou-image.png>
 Package pdftex.def Info: figures/iou-image.png used on input line 83.
 (pdftex.def)             Requested size: 204.85802pt x 159.78627pt.
- [7 <./figures/faster-r-cnn.png> <./figures/bounding-boxes.png>] [8 <./figures/
-prec-recall.png> <./figures/iou-image.png>]
+ [8 <./figures/prec-recall.png> <./figures/iou-image.png>]
 Underfull \hbox (badness 10000) in paragraph at lines 122--125
 
  []
@@ -1183,16 +1183,16 @@ Underfull \hbox (badness 10000) in paragraph at lines 161--163
 
 ) (./chapters/related.tex [11]
 Chapter 3.
-<figures/tgif-qa-example.png, id=316, 1192.455pt x 332.24126pt>
+[12
+
+] <figures/tgif-qa-example.png, id=327, 1192.455pt x 332.24126pt>
 File: figures/tgif-qa-example.png Graphic file (type png)
 
 <use figures/tgif-qa-example.png>
 Package pdftex.def Info: figures/tgif-qa-example.png used on input line 29.
 (pdftex.def)             Requested size: 426.79135pt x 118.91222pt.
- [12
-
-] [13 <./figures/tgif-qa-example.png>]
-[14] <figures/video-qa-arch.png, id=381, 872.25874pt x 574.145pt>
+ [13 <./figures/tgif-qa-example.png>] [14]
+<figures/video-qa-arch.png, id=380, 872.25874pt x 574.145pt>
 File: figures/video-qa-arch.png Graphic file (type png)
 
 <use figures/video-qa-arch.png>
@@ -1272,7 +1272,7 @@ Package hyperref Warning: Token not allowed in a PDF string (PDFDocEncoding):
 
 [23
 
-]) [24]
+]) [24] [25]
 Package atveryend Info: Empty hook `BeforeClearDocument' on input line 64.
 Package atveryend Info: Empty hook `AfterLastShipout' on input line 64.
  (./interim.aux)
@@ -1285,9 +1285,9 @@ Package logreq Info: Writing requests to 'interim.run.xml'.
 
  ) 
 Here is how much of TeX's memory you used:
- 25526 strings out of 492995
- 472663 string characters out of 6132703
- 878225 words of memory out of 5000000
+ 25527 strings out of 492995
+ 472670 string characters out of 6132703
+ 878243 words of memory out of 5000000
  28454 multiletter control sequences out of 15000+600000
  53282 words of font info for 108 fonts, out of 8000000 for 9000
  1141 hyphenation exceptions out of 8191
@@ -1309,10 +1309,10 @@ s/type1/public/amsfonts/cm/cmsy10.pfb></usr/local/texlive/2017/texmf-dist/fonts
 /type1/public/amsfonts/cm/cmsy8.pfb></usr/local/texlive/2017/texmf-dist/fonts/t
 ype1/public/amsfonts/cm/cmtt12.pfb></usr/local/texlive/2017/texmf-dist/fonts/ty
 pe1/public/amsfonts/symbols/msbm10.pfb>
-Output written on interim.pdf (25 pages, 4713983 bytes).
+Output written on interim.pdf (26 pages, 4714437 bytes).
 PDF statistics:
- 559 PDF objects out of 1000 (max. 8388607)
- 489 compressed objects within 5 object streams
- 147 named destinations out of 1000 (max. 500000)
+ 563 PDF objects out of 1000 (max. 8388607)
+ 492 compressed objects within 5 object streams
+ 148 named destinations out of 1000 (max. 500000)
  229 words of extra memory for PDF output out of 10000 (max. 10000000)
 

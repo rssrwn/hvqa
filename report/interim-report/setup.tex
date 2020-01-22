@@ -47,6 +47,8 @@
 
 %% Default settings (page layout)
 \setlength{\parindent}{0em}  % indentation of paragraph
+\setlength{\parskip}{0.5em plus 0.3em minus 0.3em}  % para spacing
+\AtBeginDocument{\addtocontents{toc}{\protect\setlength{\parskip}{0pt}}}  % save toc
 \setlength{\headheight}{14.5pt}
 \pagestyle{fancy}
 \renewcommand{\chaptermark}[1]{\markboth{\chaptername\ \thechapter.\ #1}{}}
