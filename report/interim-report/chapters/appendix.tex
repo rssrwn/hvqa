@@ -87,5 +87,70 @@ We encode the domain-independent knowledge as follows:
 
 Finally, in order to make use of system description encoding we would include information on which events occured, using the $occurs(A, I)$ predicate, and information on the different states of the system using $holds(F, I)$ and $\neg holds(F, I)$.
 
+\vspace{1cm}
+{\large \textbf{Briefcase Example}}
+
+We now consider a simple, example domain: a briefcase with two clasps (from~\cite{krr-asp-book}). There is a single action, toggle, which moves a given clasp into the up position if it is down, and vice-versa. If both clasp are up the briefcase is open, otherwise, it is closed.
+
+The signature of the domain consists of sort clasp, which can take value $1$ or $2$, inertial fluent $up(C)$, defined fluent $open$ and action $toggle(C)$, where $C$ is one of the clasps.
+
+A schema for the system description is as follows:
+\begin{gather}
+  toggle(C) \textbf{  causes  } up(C) \textbf{  if  } \neg up(C) \\
+  toggle(C) \textbf{  causes  } \neg up(C) \textbf{  if  } up(C) \\
+  open \textbf{  if  } up(1), up(2)
+\end{gather}
+
+This is known as a schema for a system description since it contains variables. Individual rules can be obtained by grounding the variables. So each of the first two schema rules would produce two ground rules, one where $C=1$ and another where $C=2$.
+
+Following the procedure outlined above, we would encode this system description into the following ASP program:
+\begin{verbatim}
+% Possible timesteps
+#const n = 1.
+step(0..n).
+
+% Signature
+clasp(1).
+clasp(2).
+
+fluent(inertial, up(C)) :- clasp(C).
+fluent(defined, open).
+action(toggle(C)) :- clasp(C).
+\end{verbatim}
+
+\begin{verbatim}
+% Domain dependent rules
+holds(up(C), I+1) :- occurs(toggle(C), I),
+                     -holds(up(C), I),
+                     I<n.
+
+-holds(up(C), I+1) :- occurs(toggle(C), I),
+                      holds(up(C), I),
+                      I<n.
+
+holds(open, I) :- holds(up(C), I), holds(up(2), I).
+\end{verbatim}
+
+\begin{verbatim}
+% Domain independent rules
+holds(F, I+1) :- fluent(inertial, F),
+                 holds(F, I),
+                 not -holds(F, I+1),
+                 I<n.
+
+-holds(F, I+1) :- fluent(inertial, F),
+                  -holds(F, I),
+                  not holds(F, I+1),
+                  I<n.
+
+-holds(F, I) :- fluent(defined, F), step(I),
+                not holds(F, I).
+
+-occurs(A, I) :- action(A), step(I),
+                 not occurs(A, I).
+\end{verbatim}
+
+In a similar fashion to system description schemas, ASP programs allow variables. ASP solvers will first ground the program by computing the the \textit{relevant grounding} - the set of ground rules which could be used by the program. The relevant grounding can be infinite so care needs to taken to ensure that it can be computed.
+
 
 \end{document}
