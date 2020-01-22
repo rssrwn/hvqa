@@ -1,0 +1,57 @@
+%% Language and font encodings
+\usepackage[english]{babel}
+% \usepackage[utf8x]{inputenc}
+% \usepackage[T1]{fontenc}
+
+%% Sets page size and margins
+\usepackage[a4paper,hmargin=3cm,vmargin=2.0cm,includeheadfoot]{geometry}
+
+%% Packages
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{graphicx}
+\usepackage{dsfont}
+\usepackage{textpos}
+\usepackage{fncylab} %formatting of labels
+\usepackage{fancyhdr} % page layout
+\usepackage{url} % URLs
+\usepackage{caption}
+\usepackage{subcaption}
+\usepackage[colorinlistoftodos]{todonotes}
+\usepackage[backend=bibtex, style=numeric]{biblatex}
+\usepackage{subfiles}
+\usepackage{appendix}
+\usepackage[flushleft]{threeparttable}
+\usepackage[colorlinks,allcolors=blue,pdftex,hypertexnames=false]{hyperref}
+\usepackage[all]{hypcap}
+
+%% Setup
+\graphicspath{{figures/}{../figures/}}
+\bibliography{interim}
+
+\hypersetup{pdftitle={},
+  pdfsubject={},
+  pdfauthor={},
+  pdfkeywords={},
+  pdfstartview=FitH,
+  pdfpagemode={UseOutlines},% None, FullScreen, UseOutlines
+  bookmarksnumbered=true, bookmarksopen=true, colorlinks,
+    citecolor=blue,%
+    filecolor=black,%
+    linkcolor=black,%
+    urlcolor=black}
+
+%% Default fonts
+\renewcommand*{\rmdefault}{bch}
+\renewcommand*{\ttdefault}{cmtt}
+
+%% Default settings (page layout)
+\setlength{\parindent}{0em}  % indentation of paragraph
+\setlength{\headheight}{14.5pt}
+\pagestyle{fancy}
+\renewcommand{\chaptermark}[1]{\markboth{\chaptername\ \thechapter.\ #1}{}}
+\fancyfoot[ER,OL]{\thepage}%Page no. in the left on odd pages and on right on even pages
+\fancyfoot[OC,EC]{\sffamily}
+\renewcommand{\headrulewidth}{0.1pt}
+\renewcommand{\footrulewidth}{0.1pt}
+\captionsetup{margin=10pt,font=small,labelfont=bf}
