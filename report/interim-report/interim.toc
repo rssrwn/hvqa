@@ -2,46 +2,46 @@
 \defcounter {refsection}{0}\relax 
 \select@language {english}
 \defcounter {refsection}{0}\relax 
-\contentsline {section}{\numberline {0.1}Introduction}{2}{section.2}
+\contentsline {chapter}{\numberline {1}Introduction}{2}{chapter.2}
 \defcounter {refsection}{0}\relax 
-\contentsline {subsection}{\numberline {0.1.1}Motivation}{2}{subsection.3}
+\contentsline {section}{\numberline {1.1}Motivation}{2}{section.3}
 \defcounter {refsection}{0}\relax 
-\contentsline {subsection}{\numberline {0.1.2}Problem Description}{2}{subsection.4}
+\contentsline {section}{\numberline {1.2}Problem Description}{3}{section.4}
 \defcounter {refsection}{0}\relax 
-\contentsline {subsection}{\numberline {0.1.3}Objectives}{3}{subsection.9}
+\contentsline {section}{\numberline {1.3}Objectives}{4}{section.9}
 \defcounter {refsection}{0}\relax 
-\contentsline {section}{\numberline {0.2}Background}{4}{section.14}
+\contentsline {chapter}{\numberline {2}Background}{5}{chapter.14}
 \defcounter {refsection}{0}\relax 
-\contentsline {subsection}{\numberline {0.2.1}Deep Learning}{4}{subsection.15}
+\contentsline {section}{\numberline {2.1}Deep Learning}{5}{section.15}
 \defcounter {refsection}{0}\relax 
-\contentsline {subsubsection}{Convolutional Neural Networks}{4}{section*.16}
+\contentsline {subsection}{\numberline {2.1.1}Convolutional Neural Networks}{5}{subsection.16}
 \defcounter {refsection}{0}\relax 
-\contentsline {subsection}{\numberline {0.2.2}Image Processing}{5}{subsection.18}
+\contentsline {section}{\numberline {2.2}Image Processing}{6}{section.18}
 \defcounter {refsection}{0}\relax 
-\contentsline {subsubsection}{Object Detection}{5}{section*.19}
+\contentsline {subsection}{\numberline {2.2.1}Object Detection}{6}{subsection.19}
 \defcounter {refsection}{0}\relax 
-\contentsline {subsubsection}{Commonly Used Metrics}{6}{section*.21}
+\contentsline {subsection}{\numberline {2.2.2}Commonly Used Metrics}{7}{subsection.21}
 \defcounter {refsection}{0}\relax 
-\contentsline {subsubsection}{Multiple Object Tracking}{7}{section*.23}
+\contentsline {subsection}{\numberline {2.2.3}Multiple Object Tracking}{8}{subsection.23}
 \defcounter {refsection}{0}\relax 
-\contentsline {subsection}{\numberline {0.2.3}Knowledge Representation and Reasoning}{8}{subsection.24}
+\contentsline {section}{\numberline {2.3}Knowledge Representation and Reasoning}{9}{section.24}
 \defcounter {refsection}{0}\relax 
-\contentsline {subsubsection}{Answer Set Programming}{8}{section*.25}
+\contentsline {subsection}{\numberline {2.3.1}Answer Set Programming}{9}{subsection.25}
 \defcounter {refsection}{0}\relax 
-\contentsline {subsubsection}{The Action Language $\mathcal {AL}$}{8}{section*.29}
+\contentsline {subsection}{\numberline {2.3.2}The Action Language $\mathcal {AL}$}{10}{subsection.29}
 \defcounter {refsection}{0}\relax 
-\contentsline {subsubsection}{Symbolic Rule Learning}{9}{section*.36}
+\contentsline {subsection}{\numberline {2.3.3}Symbolic Rule Learning}{10}{subsection.36}
 \defcounter {refsection}{0}\relax 
-\contentsline {section}{\numberline {0.3}Related Work}{10}{section.40}
+\contentsline {chapter}{\numberline {3}Related Work}{12}{chapter.40}
 \defcounter {refsection}{0}\relax 
-\contentsline {subsection}{\numberline {0.3.1}Datasets for VideoQA}{10}{subsection.41}
+\contentsline {section}{\numberline {3.1}Datasets for VideoQA}{12}{section.41}
 \defcounter {refsection}{0}\relax 
-\contentsline {subsection}{\numberline {0.3.2}VideoQA Implementations}{12}{subsection.43}
+\contentsline {section}{\numberline {3.2}VideoQA Implementations}{14}{section.43}
 \defcounter {refsection}{0}\relax 
-\contentsline {subsection}{\numberline {0.3.3}External Knowledge for VQA}{13}{subsection.45}
+\contentsline {section}{\numberline {3.3}External Knowledge for VQA}{15}{section.45}
 \defcounter {refsection}{0}\relax 
-\contentsline {section}{\numberline {0.4}Project Plan}{14}{section.46}
+\contentsline {chapter}{\numberline {4}Project Plan}{17}{chapter.46}
 \defcounter {refsection}{0}\relax 
-\contentsline {chapter}{Bibliography}{15}{chapter*.47}
+\contentsline {chapter}{Bibliography}{18}{chapter*.47}
 \defcounter {refsection}{0}\relax 
-\contentsline {section}{\numberline {.1}ASP encoding of $\mathcal {AL}$}{20}{section.48}
+\contentsline {chapter}{Appendix \numberline {A}ASP encoding of $\mathcal {AL}$}{23}{Appendix.48}

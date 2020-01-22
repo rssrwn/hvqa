@@ -3,9 +3,9 @@
 
 \begin{document}
 
-\section{Related Work} \label{section:related}
+\chapter{Related Work} \label{section:related}
 
-\subsection{Datasets for VideoQA}
+\section{Datasets for VideoQA}
 
 A number of datasets are available for the VideoQA problem, in this section we discuss each of the available datasets. A comparison of all the datasets discussed in this section is shown in Table~\ref{table:datasets}.
 
@@ -69,7 +69,7 @@ Finally, the MovieFIB dataset~\cite{dataset:movie-fib} is a large-scale fill-in-
 \end{center}
 
 
-\subsection{VideoQA Implementations}
+\section{VideoQA Implementations}
 
 All of the datasets described in the section above (except~\cite{dataset:ego-vqa}) were presented along with original neural network models for solving the VideoQA task. This section attempts to summarise some of these approaches, along with a few others~\cite{videoqa:co-mem, videoqa:cwd, videoqa:mm-att, videoqa:strr}. However, since the focus of our approach will not be an end-to-end neural architecture, we do not give detailed descriptions. An example of a typical VideoQA neural architecture is given in figure~\ref{fig:video-qa-arch}.
 
@@ -87,7 +87,7 @@ Visual attention~\cite{visual-attention} is used to help neural networks focus o
 \end{figure}
 
 
-\subsection{External Knowledge for VQA}
+\section{External Knowledge for VQA}
 
 While VideoQA research has focused on end-to-end neural network architectures, some recent research in VQA (single frame setting) has experimented with using explicit reasoning layers and integrating external knowledge. A number of VQA datasets which require some form of external `commonsense' reasoning have been proposed recently~\cite{dataset:ok-vqa, dataset:fvqa, dataset:kb-vqa}. It has been shown that end-to-end neural networks which do not attempt to make use of knowledge which is external to the training data perform poorly on some of these datasets~\cite{dataset:ok-vqa}. This section discusses some of the attempts that have been made to integrate external knowledge into VQA systems.
 
