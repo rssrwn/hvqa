@@ -1,3 +1,4 @@
+# Helper classes and definitions
 
 
 class UnknownObjectType(BaseException):

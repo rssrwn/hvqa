@@ -1,7 +1,7 @@
 import random
 
-from dataset.creation.frame_object import FrameObject
-from dataset.creation.definitions import *
+from frame_object import FrameObject
+from definitions import *
 
 
 class Frame:

@@ -1,6 +1,6 @@
 import numpy as np
 
-from dataset.creation.definitions import *
+from definitions import *
 
 
 class Drawer:

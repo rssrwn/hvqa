@@ -1,5 +1,5 @@
-from dataset.creation.frame import Frame
-from dataset.creation.definitions import *
+from frame import Frame
+from definitions import *
 
 
 class Video:

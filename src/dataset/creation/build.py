@@ -1,9 +1,9 @@
 import json
 from PIL import Image
 
-from dataset.creation.video import Video
-from dataset.creation.draw import Drawer
-from dataset.creation.definitions import *
+from video import Video
+from draw import Drawer
+from definitions import *
 
 
 # Create video

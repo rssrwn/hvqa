@@ -1,6 +1,6 @@
 import random
 
-from dataset.creation.definitions import *
+from definitions import *
 
 
 class FrameObject:
