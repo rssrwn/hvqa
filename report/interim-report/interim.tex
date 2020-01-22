@@ -1,46 +1,53 @@
-\documentclass[11pt,a4paper]{article}
+\documentclass[12pt,a4paper,twoside]{report}
 
+%% Language and font encodings
+% \usepackage[english]{babel}
+% \usepackage[utf8x]{inputenc}
+% \usepackage[T1]{fontenc}
+
+%% Sets page size and margins
+\usepackage[a4paper,top=3cm,bottom=3cm,left=3cm,right=3cm,marginparwidth=1.75cm]{geometry}
+
+%% Packages
 \usepackage{graphicx}
-\graphicspath{{figures/}{../figures/}}
-
 \usepackage{subfiles}
-
 \usepackage{appendix}
-
 \usepackage{caption}
 \usepackage{subcaption}
-
 \usepackage[flushleft]{threeparttable}
-
 \usepackage{amsmath}
 \usepackage{amssymb}
-
 \usepackage[backend=bibtex, style=numeric]{biblatex}
+\usepackage[colorinlistoftodos]{todonotes}
+\usepackage[colorlinks=true, allcolors=black]{hyperref}
 
+%% Steup
+\graphicspath{{figures/}{../figures/}}
 \bibliography{interim}
 
 
 \begin{document}
 
 \tableofcontents
+% \listoffigures
+% \listoftables
 \newpage
 
-\subfile{sections/intro}
+%% Chapters
+\subfile{chapters/intro}
+\subfile{chapters/background}
+\subfile{chapters/related}
+\subfile{chapters/plan}
 
-\subfile{sections/background}
-
-\subfile{sections/related}
-
-\subfile{sections/plan}
-
+% Bibliography
 \newpage
-\printbibliography[heading=bibintoc, title={References}]
+\printbibliography[heading=bibintoc]
 
 \newpage
 \appendixtitleon
 \appendixtitletocon
 \begin{appendices}
-\subfile{sections/appendix}
+\subfile{chapters/appendix}
 \end{appendices}
 
 
