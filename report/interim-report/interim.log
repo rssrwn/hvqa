@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.14159265-2.6-1.40.18 (TeX Live 2017) (preloaded format=pdflatex 2017.10.22)  22 JAN 2020 18:02
+This is pdfTeX, Version 3.14159265-2.6-1.40.18 (TeX Live 2017) (preloaded format=pdflatex 2017.10.22)  22 JAN 2020 19:36
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
@@ -1150,34 +1150,29 @@ Underfull \hbox (badness 10000) in paragraph at lines 122--125
 [9]
 
 Package hyperref Warning: Token not allowed in a PDF string (PDFDocEncoding):
-(hyperref)                removing `math shift' on input line 130.
+(hyperref)                removing `math shift' on input line 146.
 
 
 Package hyperref Warning: Token not allowed in a PDF string (PDFDocEncoding):
-(hyperref)                removing `math shift' on input line 130.
+(hyperref)                removing `math shift' on input line 146.
 
 
-LaTeX Warning: Command \textendash invalid in math mode on input line 144.
+LaTeX Warning: Command \textendash invalid in math mode on input line 160.
 
 
-LaTeX Warning: Command \textendash invalid in math mode on input line 145.
+LaTeX Warning: Command \textendash invalid in math mode on input line 161.
 
 
-LaTeX Warning: Command \textendash invalid in math mode on input line 146.
+LaTeX Warning: Command \textendash invalid in math mode on input line 162.
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 146--147
-
- []
-
-
-Overfull \hbox (7.99692pt too wide) in paragraph at lines 153--154
+Overfull \hbox (7.99692pt too wide) in paragraph at lines 169--170
 \OT1/bch/m/n/12 cerned with learn-ing sym-bolic rules which, when com-bined wit
 h back-ground knowl-
  []
 
 [10]
-Underfull \hbox (badness 10000) in paragraph at lines 161--163
+Underfull \hbox (badness 10000) in paragraph at lines 177--179
 
  []
 
@@ -1185,14 +1180,14 @@ Underfull \hbox (badness 10000) in paragraph at lines 161--163
 Chapter 3.
 [12
 
-] <figures/tgif-qa-example.png, id=327, 1192.455pt x 332.24126pt>
+] <figures/tgif-qa-example.png, id=329, 1192.455pt x 332.24126pt>
 File: figures/tgif-qa-example.png Graphic file (type png)
 
 <use figures/tgif-qa-example.png>
 Package pdftex.def Info: figures/tgif-qa-example.png used on input line 29.
 (pdftex.def)             Requested size: 426.79135pt x 118.91222pt.
  [13 <./figures/tgif-qa-example.png>] [14]
-<figures/video-qa-arch.png, id=380, 872.25874pt x 574.145pt>
+<figures/video-qa-arch.png, id=382, 872.25874pt x 574.145pt>
 File: figures/video-qa-arch.png Graphic file (type png)
 
 <use figures/video-qa-arch.png>
@@ -1279,14 +1274,14 @@ Package atveryend Info: Empty hook `AfterLastShipout' on input line 64.
 Package atveryend Info: Executing hook `AtVeryEndDocument' on input line 64.
 Package atveryend Info: Executing hook `AtEndAfterFileList' on input line 64.
 Package rerunfilecheck Info: File `interim.out' has not changed.
-(rerunfilecheck)             Checksum: C5D61321FDBA66B1046B3353F31C667E;1463.
+(rerunfilecheck)             Checksum: 5FF8DD00C3B1F4BF4848935CCE77B1EB;1463.
 Package logreq Info: Writing requests to 'interim.run.xml'.
 \openout1 = `interim.run.xml'.
 
  ) 
 Here is how much of TeX's memory you used:
- 25527 strings out of 492995
- 472670 string characters out of 6132703
+ 25528 strings out of 492995
+ 472681 string characters out of 6132703
  878243 words of memory out of 5000000
  28454 multiletter control sequences out of 15000+600000
  53282 words of font info for 108 fonts, out of 8000000 for 9000
@@ -1297,22 +1292,23 @@ exlive/2017/texmf-dist/fonts/type1/bitstrea/charter/bchb8a.pfb></usr/local/texl
 ive/2017/texmf-dist/fonts/type1/bitstrea/charter/bchr8a.pfb></usr/local/texlive
 /2017/texmf-dist/fonts/type1/bitstrea/charter/bchr8a.pfb></usr/local/texlive/20
 17/texmf-dist/fonts/type1/bitstrea/charter/bchri8a.pfb></usr/local/texlive/2017
-/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi10.pfb></usr/local/texlive/2017/
-texmf-dist/fonts/type1/public/amsfonts/cm/cmmi12.pfb></usr/local/texlive/2017/t
-exmf-dist/fonts/type1/public/amsfonts/cm/cmmi7.pfb></usr/local/texlive/2017/tex
-mf-dist/fonts/type1/public/amsfonts/cm/cmmi8.pfb></usr/local/texlive/2017/texmf
--dist/fonts/type1/public/amsfonts/cm/cmr10.pfb></usr/local/texlive/2017/texmf-d
-ist/fonts/type1/public/amsfonts/cm/cmr12.pfb></usr/local/texlive/2017/texmf-dis
-t/fonts/type1/public/amsfonts/cm/cmr7.pfb></usr/local/texlive/2017/texmf-dist/f
-onts/type1/public/amsfonts/cm/cmr8.pfb></usr/local/texlive/2017/texmf-dist/font
-s/type1/public/amsfonts/cm/cmsy10.pfb></usr/local/texlive/2017/texmf-dist/fonts
-/type1/public/amsfonts/cm/cmsy8.pfb></usr/local/texlive/2017/texmf-dist/fonts/t
-ype1/public/amsfonts/cm/cmtt12.pfb></usr/local/texlive/2017/texmf-dist/fonts/ty
-pe1/public/amsfonts/symbols/msbm10.pfb>
-Output written on interim.pdf (26 pages, 4714437 bytes).
+/texmf-dist/fonts/type1/public/amsfonts/cm/cmex10.pfb></usr/local/texlive/2017/
+texmf-dist/fonts/type1/public/amsfonts/cm/cmmi10.pfb></usr/local/texlive/2017/t
+exmf-dist/fonts/type1/public/amsfonts/cm/cmmi12.pfb></usr/local/texlive/2017/te
+xmf-dist/fonts/type1/public/amsfonts/cm/cmmi7.pfb></usr/local/texlive/2017/texm
+f-dist/fonts/type1/public/amsfonts/cm/cmmi8.pfb></usr/local/texlive/2017/texmf-
+dist/fonts/type1/public/amsfonts/cm/cmr10.pfb></usr/local/texlive/2017/texmf-di
+st/fonts/type1/public/amsfonts/cm/cmr12.pfb></usr/local/texlive/2017/texmf-dist
+/fonts/type1/public/amsfonts/cm/cmr7.pfb></usr/local/texlive/2017/texmf-dist/fo
+nts/type1/public/amsfonts/cm/cmr8.pfb></usr/local/texlive/2017/texmf-dist/fonts
+/type1/public/amsfonts/cm/cmsy10.pfb></usr/local/texlive/2017/texmf-dist/fonts/
+type1/public/amsfonts/cm/cmsy8.pfb></usr/local/texlive/2017/texmf-dist/fonts/ty
+pe1/public/amsfonts/cm/cmtt12.pfb></usr/local/texlive/2017/texmf-dist/fonts/typ
+e1/public/amsfonts/symbols/msbm10.pfb>
+Output written on interim.pdf (26 pages, 4722675 bytes).
 PDF statistics:
- 563 PDF objects out of 1000 (max. 8388607)
- 492 compressed objects within 5 object streams
- 148 named destinations out of 1000 (max. 500000)
+ 568 PDF objects out of 1000 (max. 8388607)
+ 496 compressed objects within 5 object streams
+ 149 named destinations out of 1000 (max. 500000)
  229 words of extra memory for PDF output out of 10000 (max. 10000000)
 

@@ -30,20 +30,20 @@
 \defcounter {refsection}{0}\relax 
 \contentsline {subsection}{\numberline {2.3.1}Answer Set Programming}{9}{subsection.25}
 \defcounter {refsection}{0}\relax 
-\contentsline {subsection}{\numberline {2.3.2}The Action Language $\mathcal {AL}$}{10}{subsection.29}
+\contentsline {subsection}{\numberline {2.3.2}The Action Language $\mathcal {AL}$}{10}{subsection.30}
 \defcounter {refsection}{0}\relax 
-\contentsline {subsection}{\numberline {2.3.3}Symbolic Rule Learning}{10}{subsection.36}
+\contentsline {subsection}{\numberline {2.3.3}Symbolic Rule Learning}{11}{subsection.37}
 \defcounter {refsection}{0}\relax 
-\contentsline {chapter}{\numberline {3}Related Work}{12}{chapter.40}
+\contentsline {chapter}{\numberline {3}Related Work}{12}{chapter.41}
 \defcounter {refsection}{0}\relax 
-\contentsline {section}{\numberline {3.1}Datasets for VideoQA}{12}{section.41}
+\contentsline {section}{\numberline {3.1}Datasets for VideoQA}{12}{section.42}
 \defcounter {refsection}{0}\relax 
-\contentsline {section}{\numberline {3.2}VideoQA Implementations}{15}{section.44}
+\contentsline {section}{\numberline {3.2}VideoQA Implementations}{15}{section.45}
 \defcounter {refsection}{0}\relax 
-\contentsline {section}{\numberline {3.3}External Knowledge for VQA}{16}{section.46}
+\contentsline {section}{\numberline {3.3}External Knowledge for VQA}{16}{section.47}
 \defcounter {refsection}{0}\relax 
-\contentsline {chapter}{\numberline {4}Project Plan}{17}{chapter.47}
+\contentsline {chapter}{\numberline {4}Project Plan}{17}{chapter.48}
 \defcounter {refsection}{0}\relax 
-\contentsline {chapter}{Bibliography}{18}{chapter*.48}
+\contentsline {chapter}{Bibliography}{18}{chapter*.49}
 \defcounter {refsection}{0}\relax 
-\contentsline {chapter}{Appendix \numberline {A}ASP encoding of $\mathcal {AL}$}{23}{Appendix.49}
+\contentsline {chapter}{Appendix \numberline {A}ASP encoding of $\mathcal {AL}$}{23}{Appendix.50}
