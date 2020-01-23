@@ -48,8 +48,8 @@
 \defcounter {refsection}{0}\relax 
 \contentsline {section}{\numberline {4.2}Implementation Plan}{19}{section.51}
 \defcounter {refsection}{0}\relax 
-\contentsline {section}{\numberline {4.3}Evaluation Plan}{19}{section.52}
+\contentsline {section}{\numberline {4.3}Evaluation Plan}{20}{section.62}
 \defcounter {refsection}{0}\relax 
-\contentsline {chapter}{Bibliography}{20}{chapter*.53}
+\contentsline {chapter}{Bibliography}{21}{chapter*.63}
 \defcounter {refsection}{0}\relax 
-\contentsline {chapter}{Appendix \numberline {A}ASP encoding of $\mathcal {AL}$}{25}{Appendix.54}
+\contentsline {chapter}{Appendix \numberline {A}ASP encoding of $\mathcal {AL}$}{26}{Appendix.64}

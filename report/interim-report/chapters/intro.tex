@@ -33,7 +33,7 @@ As mentioned above, the VideoQA problem can be defined as building a model which
 
   \item \textbf{Property Extraction}. Given an object, which is the output of the `object detection' model above, we need an algorithm which can produce a set of values for that object for some set of predefined properties. For example, we might need to give a value for the colour, size or shape of an object.
 
-  \item \textbf{Event Detection}. Given two sequential frames, we need a model which can classify the event(s) which occurred between the two frames into a set of predefined classes (possibly including a catch-all `no event' class). This model will also be required to list objects involved in the event and what their role in the event was. This will require some level of object tracking so that it is clear how objects are related between frames.
+  \item \textbf{Event Detection}. Given two sequential frames, we need a model which can classify the event(s) which occurred between the two frames into a set of predefined classes (possibly including a catch-all `no event' class). This model will also be required to list all objects involved in the event and what their role in the event was. This will require some level of object tracking so that it is clear how objects are related between frames.
 
   \item \textbf{Question and Knowledge Representation}. Given the outputs of the models above and the natural language question, we need a way of representing the background knowledge, the question and the knowledge contained in the frames of the video. These must be represented in a manner that allows an answer to the question to be found.
 \end{enumerate}
