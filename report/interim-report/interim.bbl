@@ -1062,6 +1062,34 @@
     \field{year}{2017}
   \endentry
 
+  \entry{event-calc}{article}{}
+    \name{author}{2}{}{%
+      {{hash=KRA}{%
+         family={Kowalski},
+         familyi={K\bibinitperiod},
+         given={Robert\bibnamedelima A.},
+         giveni={R\bibinitperiod\bibinitdelim A\bibinitperiod},
+      }}%
+      {{hash=SMJ}{%
+         family={Sergot},
+         familyi={S\bibinitperiod},
+         given={Marek\bibnamedelima J.},
+         giveni={M\bibinitperiod\bibinitdelim J\bibinitperiod},
+      }}%
+    }
+    \strng{namehash}{KRASMJ1}
+    \strng{fullhash}{KRASMJ1}
+    \field{labelnamesource}{author}
+    \field{labeltitlesource}{title}
+    \field{sortinit}{K}
+    \field{sortinithash}{K}
+    \field{pages}{67\bibrangedash 95}
+    \field{title}{A logic-based calculus of events}
+    \field{volume}{4}
+    \field{journaltitle}{New Generation Computing}
+    \field{year}{1985}
+  \endentry
+
   \entry{cnn-uses:classification}{incollection}{}
     \name{author}{3}{}{%
       {{hash=KA}{%

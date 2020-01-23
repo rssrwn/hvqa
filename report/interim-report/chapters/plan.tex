@@ -35,7 +35,7 @@ An example sequence of frames from the current version of the dataset is shown i
     \centering
     \includegraphics[width=\textwidth]{frame_4.png}
   \end{subfigure}
-  \caption{An example sequence of frames from the initial version of the dataset.}
+  \caption{An example sequence of frames from the initial version of the dataset. The octopus first rotates, then moves towards the fish and eats it.}
   \label{fig:dataset-frames}
 \end{figure}
 
@@ -110,7 +110,7 @@ With this in mind, we outline the following possible extensions to the VideoQA m
 
 Finally, this section outlines some evaluation strategies which could help to provide an insight into the performance of our model.
 
-Firstly, throughout model construction we will want to ensure that each subcomponent is performing well. For this reason, it will be useful to compare quantitatively possible subcomponent implementations. For example, we will want to compare different object tracking methods, as well different neural network implementations. The metrics described in Chapter~\ref{chapter:background} will he helpful for this.
+Firstly, throughout model construction we will want to ensure that each subcomponent is performing well. For this reason, it will be useful to compare quantitatively possible subcomponent implementations. For example, we will want to compare different object tracking methods, as well different neural network implementations. The metrics described in Chapter~\ref{chapter:background} will he helpful for this. It will also be important to evaluate the runtime of the ASP programs which use $\mathcal{AL}$ encodings. Since these programs ground the rules first, which can be very slow, it may be worth comparing the performance of $\mathcal{AL}$ with other frameworks used for reasoning about the dynamics of a system, such as the Event Calculus~\cite{event-calc}.
 
 When we have a complete model we can use traditional VideoQA metrics, such as accuracy, to evaluate its performance. To do this we will firstly need to split the dataset into training and testing subsets, and ensure that none of the testing data is used for training or tuning the model. We can then apply the testing data to the model and record the number of correct and incorrect answers. It may also be helpful to train some of the end-to-end VideoQA models on our dataset and compare their performance to ours. It is worth noting, however, that, because it makes use of the templates for questions, our model has a significant advantage over any model which does not use this pre-defined information. We could still use these evaluations as baselines.
 
