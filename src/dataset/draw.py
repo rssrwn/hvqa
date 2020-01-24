@@ -21,7 +21,6 @@ class Drawer:
 
         # Draw objects
         for obj in frame_dict["objects"]:
-            print(obj)
             obj_type = obj["class"]
             if obj_type == "octopus":
                 Drawer._draw_octopus(img, obj)

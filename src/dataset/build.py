@@ -40,7 +40,7 @@ def create_videos(out_dir, verbose):
     num_frames_total = 0
     num_videos = 0
     for video_dir in video_dirs:
-        json_file = basepath / video_dir / "video.json"
+        json_file = video_dir / "video.json"
         if json_file.exists():
             with json_file.open() as f:
                 json_text = f.read()
@@ -50,7 +50,7 @@ def create_videos(out_dir, verbose):
             for i in range(NUM_FRAMES):
                 frame = video_dict["frames"][i]
                 img = create_frame(frame)
-                img.save(f"{out_dir}/{video_dir}/frame_{i}.png")
+                img.save(f"{video_dir}/frame_{i}.png")
                 num_frames_total += 1
                 num_frames_video += 1
 
@@ -61,7 +61,7 @@ def create_videos(out_dir, verbose):
                 print(f"Processing video {num_videos}")
 
         else:
-            print(f"No 'video.json' file found for {basepath}/{video_dir}/")
+            print(f"No 'video.json' file found for {video_dir}/")
 
         num_videos += 1
 
@@ -75,24 +75,32 @@ def create_frame(frame):
 
 
 def delete_directory(name):
-    try:
-        shutil.rmtree(name)
-    except OSError as e:
-        print("Error while deleting directory: %s - %s." % (e.filename, e.strerror))
-
-
-def main(out_dir, json_only, frames_only, verbose):
-    response = input(f"About to delete {out_dir} directory. Are you sure you want to continue? [y]")
+    response = input(f"About to delete {name} directory. Are you sure you want to continue? [y/n]")
     if response != "y":
         print("Exiting...")
         exit()
 
-    delete_directory(out_dir)
+    directory = Path(f"./{name}")
+    if directory.exists():
+        try:
+            shutil.rmtree(name)
+        except OSError as e:
+            print("Error while deleting directory: %s - %s." % (e.filename, e.strerror))
 
+
+def main(out_dir, json_only, frames_only, verbose):
     if not frames_only:
+        delete_directory(out_dir)
+        os.mkdir(f"./{out_dir}")
         write_json(out_dir)
 
     if not json_only:
+        response = input(f"About to create frames. This could overwrite old frames. "
+                         f"Are you sure you want to continue? [y/n]")
+        if response != "y":
+            print("Exiting...")
+            exit()
+
         create_videos(out_dir, verbose)
 
 
