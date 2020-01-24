@@ -92,7 +92,7 @@ class Frame:
         If the octopus is close to a bag, both objects disappear
         If the octopus is close to a rock, the octopus changes colour to the rock's colour
 
-        :return: List of events ('disappear' or 'colour change')
+        :return: List of events
         """
 
         events = []
@@ -101,16 +101,16 @@ class Frame:
             if self.close_to_octopus(obj):
                 if obj.obj_type == "fish":
                     self.static_objects.remove(obj)
-                    events.append('disappear')
+                    events.append("eat fish")
 
                 elif obj.obj_type == "bag":
                     self.static_objects.remove(obj)
                     remove_octopus = True
-                    events.append('disappear')
+                    events.append("eat bag")
 
                 elif obj.obj_type == "rock":
+                    events.append(f"change colour from {self.octopus.colour} to {obj.colour}")
                     self.octopus.colour = obj.colour
-                    events.append('colour change')
 
                 else:
                     raise UnknownObjectType()
