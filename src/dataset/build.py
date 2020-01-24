@@ -1,6 +1,7 @@
 import os
 import json
 import argparse
+import shutil
 from PIL import Image
 from pathlib import Path
 
@@ -30,13 +31,14 @@ def write_json(out_dir):
     print("Written json to file successfully")
 
 
-def create_videos(out_dir):
+def create_videos(out_dir, verbose):
     basepath = Path(out_dir)
     video_dirs = basepath.iterdir()
 
     print("Creating frames from json...")
 
     num_frames_total = 0
+    num_videos = 0
     for video_dir in video_dirs:
         json_file = basepath / video_dir / "video.json"
         if json_file.exists():
@@ -55,8 +57,13 @@ def create_videos(out_dir):
             if num_frames_video != NUM_FRAMES:
                 print(f"Only {num_frames_video} created for video directory {video_dir}")
 
+            if verbose and num_videos % 100 == 0:
+                print(f"Processing video {num_videos}")
+
         else:
             print(f"No 'video.json' file found for {basepath}/{video_dir}/")
+
+        num_videos += 1
 
     print(f"Successfully created {num_frames_total} frames")
 
@@ -67,42 +74,33 @@ def create_frame(frame):
     return img
 
 
-def main(out_dir, json_only, frames_only):
-    if json_only and frames_only:
-        print("There is nothing to do... Check your arguments.")
+def delete_directory(name):
+    try:
+        shutil.rmtree(name)
+    except OSError as e:
+        print("Error while deleting directory: %s - %s." % (e.filename, e.strerror))
 
-    if json_only:
-        response = input(f"About to create json files. "
-                         f"This will overwrite existing json files in {out_dir}. "
-                         f"Are you sure? [y]")
-        if response != "y":
-            print("Exiting...")
 
-    if frames_only:
-        response = input(f"About to create the frames from json files. "
-                         f"This will overwrite existing frames in {out_dir}. "
-                         f"Are you sure? [y]")
-        if response != "y":
-            print("Exiting...")
+def main(out_dir, json_only, frames_only, verbose):
+    response = input(f"About to delete {out_dir} directory. Are you sure you want to continue? [y]")
+    if response != "y":
+        print("Exiting...")
+        exit()
 
-    if not json_only and not frames_only:
-        response = input(f"About to create json files and frames. "
-                         f"This will overwrite existing files in {out_dir}. "
-                         f"Are you sure? [y]")
-        if response != "y":
-            print("Exiting...")
+    delete_directory(out_dir)
 
     if not frames_only:
         write_json(out_dir)
 
     if not json_only:
-        create_videos(out_dir)
+        create_videos(out_dir, verbose)
 
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description="Script for building dataset")
     parser.add_argument("-j", "--json", action="store_true", default=False)
-    parser.add_argument("-v", "--video", action="store_true", default=False)
+    parser.add_argument("-f", "--frames", action="store_true", default=False)
+    parser.add_argument("-v", "--verbose", action="store_true", default=False)
     parser.add_argument("out_dir", type=str)
     args = parser.parse_args()
-    main(args.out_dir, args.json, args.video)
+    main(args.out_dir, args.json, args.frames, args.verbose)
