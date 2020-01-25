@@ -15,13 +15,13 @@ class UnknownPropertyException(BaseException):
 
 ROTATIONS = [0, 1, 2, 3]
 
-OCTOPUS = (11, 11)
+OCTOPUS = (17, 17)
 FISH = (5, 7)
 BAG = (5, 7)
 ROCK = (7, 7)
 
 NUM_FRAMES = 32
-NUM_VIDEOS = 1000
+NUM_VIDEOS = 10
 
 FRAME_SIZE = 128
 NUM_SEGMENTS = 4
@@ -30,7 +30,7 @@ EDGE = 3
 CLOSE_OCTO = 5
 
 ROT_PROB = 0.1
-MOVE_PIXELS = 12
+MOVE_PIXELS = 8
 
 
 # *** Number of objects ***

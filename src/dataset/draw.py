@@ -45,30 +45,47 @@ class Drawer:
         octo_rgb = Drawer._get_obj_colour(octopus)
 
         # Body
-        for i in range(x1 + 4, x1 + 7):
+        for i in range(x1 + 6, x1 + 11):
+            Drawer._draw_pixel(img, i, y1, octo_rgb, rotation, x_centre, y_centre)
+
+        for i in range(x1 + 5, x1 + 12):
             Drawer._draw_pixel(img, i, y1 + 1, octo_rgb, rotation, x_centre, y_centre)
 
-        for i in range(x1 + 3, x1 + 8):
-            for j in range(y1 + 2, y1 + 7):
+        for i in range(x1 + 4, x1 + 13):
+            for j in range(y1 + 2, y1 + 12):
                 Drawer._draw_pixel(img, i, j, octo_rgb, rotation, x_centre, y_centre)
 
-        # Arms
-        for i in range(x1 + 1, x1 + 10):
-            Drawer._draw_pixel(img, i, y1 + 5, octo_rgb, rotation, x_centre, y_centre)
+        # Outer three arms on either side
+        for i in range(4):
+            Drawer._draw_pixel(img, x1 + i, y1 + 12 - i, octo_rgb, rotation, x_centre, y_centre)
+            Drawer._draw_pixel(img, x1 + 16 - i, y1 + 12 - i, octo_rgb, rotation, x_centre, y_centre)
 
-        Drawer._draw_pixel(img, x1, y1 + 6, octo_rgb, rotation, x_centre, y_centre)
-        Drawer._draw_pixel(img, x1 + 10, y1 + 6, octo_rgb, rotation, x_centre, y_centre)
-        Drawer._draw_pixel(img, x1 + 2, y1 + 7, octo_rgb, rotation, x_centre, y_centre)
-        Drawer._draw_pixel(img, x1 + 1, y1 + 8, octo_rgb, rotation, x_centre, y_centre)
-        Drawer._draw_pixel(img, x1 + 9, y1 + 8, octo_rgb, rotation, x_centre, y_centre)
-        Drawer._draw_pixel(img, x1 + 8, y1 + 7, octo_rgb, rotation, x_centre, y_centre)
-        Drawer._draw_pixel(img, x1 + 5, y1 + 7, octo_rgb, rotation, x_centre, y_centre)
-        Drawer._draw_pixel(img, x1 + 4, y1 + 8, octo_rgb, rotation, x_centre, y_centre)
-        Drawer._draw_pixel(img, x1 + 6, y1 + 8, octo_rgb, rotation, x_centre, y_centre)
+            Drawer._draw_pixel(img, x1 + i, y1 + 15 - i, octo_rgb, rotation, x_centre, y_centre)
+            Drawer._draw_pixel(img, x1 + 16 - i, y1 + 15 - i, octo_rgb, rotation, x_centre, y_centre)
+
+            Drawer._draw_pixel(img, x1 + 2 + i, y1 + 16 - i, octo_rgb, rotation, x_centre, y_centre)
+            Drawer._draw_pixel(img, x1 + 14 - i, y1 + 16 - i, octo_rgb, rotation, x_centre, y_centre)
+
+        # Inner arms
+        for i in range(3):
+            Drawer._draw_pixel(img, x1 + 5 + i, y1 + 16 - i, octo_rgb, rotation, x_centre, y_centre)
+            Drawer._draw_pixel(img, x1 + 11 - i, y1 + 16 - i, octo_rgb, rotation, x_centre, y_centre)
+
+        Drawer._draw_pixel(img, x1 + 3, y1 + 10, octo_rgb, rotation, x_centre, y_centre)
+        Drawer._draw_pixel(img, x1 + 13, y1 + 10, octo_rgb, rotation, x_centre, y_centre)
+
+        Drawer._draw_pixel(img, x1 + 5, y1 + 12, octo_rgb, rotation, x_centre, y_centre)
+        Drawer._draw_pixel(img, x1 + 11, y1 + 12, octo_rgb, rotation, x_centre, y_centre)
+        Drawer._draw_pixel(img, x1 + 8, y1 + 12, octo_rgb, rotation, x_centre, y_centre)
+
+        Drawer._draw_pixel(img, x1 + 7, y1 + 13, octo_rgb, rotation, x_centre, y_centre)
+        Drawer._draw_pixel(img, x1 + 9, y1 + 13, octo_rgb, rotation, x_centre, y_centre)
 
         # Eyes
-        Drawer._draw_pixel(img, x1 + 4, y1 + 3, BLACK_RGB, rotation, x_centre, y_centre)
-        Drawer._draw_pixel(img, x1 + 6, y1 + 3, BLACK_RGB, rotation, x_centre, y_centre)
+        Drawer._draw_pixel(img, x1 + 6, y1 + 4, BLACK_RGB, rotation, x_centre, y_centre)
+        Drawer._draw_pixel(img, x1 + 7, y1 + 4, BLACK_RGB, rotation, x_centre, y_centre)
+        Drawer._draw_pixel(img, x1 + 9, y1 + 4, BLACK_RGB, rotation, x_centre, y_centre)
+        Drawer._draw_pixel(img, x1 + 10, y1 + 4, BLACK_RGB, rotation, x_centre, y_centre)
 
     @staticmethod
     def _draw_fish(img, fish):
