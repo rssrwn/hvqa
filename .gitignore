@@ -2,4 +2,6 @@
 */.DS_Store
 .idea/
 src/dataset/__pycache__/
+data/
+example-data/
 

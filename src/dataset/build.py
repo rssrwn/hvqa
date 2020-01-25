@@ -12,6 +12,8 @@ from definitions import *
 
 def write_json(out_dir):
     print("Writing json to file...")
+
+    num_videos = 0
     for video_num in range(NUM_VIDEOS):
         # Create video
         video_builder = Video()
@@ -28,7 +30,9 @@ def write_json(out_dir):
         file.write(text)
         file.close()
 
-    print("Written json to file successfully")
+        num_videos += 1
+
+    print(f"Successfully written {num_videos} json files")
 
 
 def create_videos(out_dir, verbose):
