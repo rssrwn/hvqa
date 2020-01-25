@@ -1,7 +1,9 @@
 # Helper classes and definitions
 
 
-class UnknownObjectType(BaseException):
+# *** Exceptions ***
+
+class UnknownObjectTypeException(BaseException):
     pass
 
 
@@ -9,11 +11,9 @@ class UnknownPropertyException(BaseException):
     pass
 
 
+# *** Image and video definitions ***
+
 ROTATIONS = [0, 1, 2, 3]
-ROCK_COLOURS = ["brown", "blue", "purple", "green"]
-OCTO_COLOUR = "red"
-FISH_COLOUR = "silver"
-BAG_COLOUR = "white"
 
 OCTOPUS = (11, 11)
 FISH = (5, 7)
@@ -29,13 +29,27 @@ SEGMENT_SIZE = FRAME_SIZE / NUM_SEGMENTS
 EDGE = 3
 CLOSE_OCTO = 5
 
-MIN_OBJ = 2
-MAX_OBJ = 4
-
-ROT_PROB = 0.33
+ROT_PROB = 0.1
 MOVE_PIXELS = 12
 
+
+# *** Number of objects ***
+MIN_FISH = 2
+MAX_FISH = 4
+
+MIN_BAG = 1
+MAX_BAG = 2
+
+MIN_ROCK = 2
+MAX_ROCK = 4
+
+
 # *** Colour definitions ***
+
+ROCK_COLOURS = ["brown", "blue", "purple", "green"]
+OCTO_COLOUR = "red"
+FISH_COLOUR = "silver"
+BAG_COLOUR = "white"
 
 BLACK_RGB = (0, 0, 0)
 

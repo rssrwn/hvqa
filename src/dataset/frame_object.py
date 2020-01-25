@@ -36,7 +36,7 @@ class FrameObject:
         elif obj_type == "rock":
             self._init_rock()
         else:
-            raise UnknownObjectType()
+            raise UnknownObjectTypeException()
 
     def _init_octopus(self):
         rot = random.choice(ROTATIONS)
@@ -74,7 +74,7 @@ class FrameObject:
     def rotate(self):
         """
         Rotate the object left or right with equal probability
-        Note: We assume the octopus is square and so do not update the position
+        Note: We assume the octopus is square
         """
 
         rand = random.random()
@@ -100,7 +100,7 @@ class FrameObject:
 
         :param move_pixels: Number of pixels the octopus is moved by
         :param frame_size: Max length of frame
-        :return: Event which occurred ('move' or 'rotate')
+        :return: Event which occurred (only 'move' or 'rotate')
         """
 
         x1, y1, x2, y2 = self.position

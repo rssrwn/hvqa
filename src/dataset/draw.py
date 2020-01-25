@@ -31,7 +31,7 @@ class Drawer:
             elif obj_type == "rock":
                 Drawer._draw_rock(img, obj)
             else:
-                raise UnknownObjectType()
+                raise UnknownObjectTypeException()
 
         return img
 

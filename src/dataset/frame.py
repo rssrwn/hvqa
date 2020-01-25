@@ -52,7 +52,15 @@ class Frame:
         self._gen_static_objects("rock")
 
     def _gen_static_objects(self, obj_type):
-        num_objs = random.randint(MIN_OBJ, MAX_OBJ)
+        if obj_type == "fish":
+            num_objs = random.randint(MIN_FISH, MAX_FISH)
+        elif obj_type == "rock":
+            num_objs = random.randint(MIN_ROCK, MAX_ROCK)
+        elif obj_type == "bag":
+            num_objs = random.randint(MIN_BAG, MAX_BAG)
+        else:
+            raise UnknownObjectTypeException(f"Unknown static object: {obj_type}")
+
         for _ in range(num_objs):
             obj = FrameObject(self)
             obj.random_obj(obj_type)
@@ -87,7 +95,7 @@ class Frame:
 
     def update_frame(self):
         """
-        Update the frame to account for the object getting close to an object
+        Update the frame to account for the octopus getting close to an object
         If the octopus is close to a fish, the fish disappears
         If the octopus is close to a bag, both objects disappear
         If the octopus is close to a rock, the octopus changes colour to the rock's colour
@@ -113,7 +121,7 @@ class Frame:
                     self.octopus.colour = obj.colour
 
                 else:
-                    raise UnknownObjectType()
+                    raise UnknownObjectTypeException()
 
         if remove_octopus:
             self.octopus = None
