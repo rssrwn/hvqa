@@ -1,6 +1,7 @@
 import numpy as np
 
-from definitions import *
+from hvqa.dataset.definitions import *
+from hvqa.util import *
 
 
 class Drawer:

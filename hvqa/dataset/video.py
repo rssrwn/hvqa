@@ -1,5 +1,5 @@
-from frame import Frame
-from definitions import *
+from hvqa.dataset.frame import Frame
+from hvqa.dataset.definitions import *
 
 
 class Video:

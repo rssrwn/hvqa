@@ -5,9 +5,9 @@ import shutil
 from PIL import Image
 from pathlib import Path
 
-from video import Video
-from draw import Drawer
-from definitions import *
+from hvqa.dataset.video import Video
+from hvqa.dataset.draw import Drawer
+from hvqa.dataset.definitions import *
 
 
 def write_json(out_dir):
@@ -52,14 +52,11 @@ def create_videos(out_dir, verbose):
             video_dict = json.loads(json_text)
             num_frames_video = 0
             frames = video_dict["frames"]
-            for frame in frames:
+            for i, frame in enumerate(frames):
                 img = create_frame(frame)
                 img.save(f"{video_dir}/frame_{i}.png")
                 num_frames_total += 1
                 num_frames_video += 1
-
-            # if num_frames_video != NUM_FRAMES:
-            #     print(f"Only {num_frames_video} created for video directory {video_dir}")
 
             if verbose and num_videos % 100 == 0:
                 print(f"Processing video {num_videos}")

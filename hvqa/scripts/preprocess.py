@@ -5,15 +5,7 @@ from pathlib import Path
 import numpy as np
 import pickle
 
-# import helpers
-
-
-class UnknownObjectTypeException(BaseException):
-    pass
-
-
-class UnknownPropertyException(BaseException):
-    pass
+from hvqa.util import *
 
 
 IMAGE_SIZE = 128
@@ -46,7 +38,6 @@ def write_detection_outputs(data_dir):
 
     num_videos = 0
     for video_dir in video_dirs:
-        print(video_dir)
         json_file = video_dir / "video.json"
         if json_file.exists():
             with json_file.open() as f:
