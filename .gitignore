@@ -1,9 +1,10 @@
 .DS_Store
 */.DS_Store
 .idea/
-src/dataset/__pycache__/
 data/
 example-data/
-src/__pycache__/
-src/detection/__pycache__/
+hvqa/__pycache__/
+hvqa/dataset/__pycache__/
+hvqa/detection/__pycache__/
+hvqa/scripts/__pycache__/
 

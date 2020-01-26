@@ -12,9 +12,8 @@ class DetectionDataset(torch.utils.data.Dataset):
         basepath = Path(data_dir)
         video_dirs = basepath.iterdir()
 
-        print("Writing detection outputs for frames...")
-
-        num_videos = 0
+        frames_arr = []
+        outputs_arr = []
         for video_dir in video_dirs:
             json_file = video_dir / "video.json"
             if json_file.exists():
@@ -23,14 +22,21 @@ class DetectionDataset(torch.utils.data.Dataset):
 
                 video_dict = json.loads(json_text)
                 frames = video_dict["frames"]
+                for i, frame in enumerate(frames):
+                    outputs_arr.append(cls._collect_frame_output(frame))
+                    frames_arr.append(cls._collect_frame(video_dir, i))
 
-                outputs = []
-                for frame in frames:
-                    output_tensor = cls._collect_frame_output(frame)
+        frames_tensor = torch.stack(frames_arr)
+        outputs_tensor = torch.stack(outputs_arr)
+        return frames_tensor, outputs_tensor
 
-    @classmethod
-    def _collect_frame_output(cls, frame):
-        return 3
+    @staticmethod
+    def _collect_frame_output(frame):
+        pass
+
+    @staticmethod
+    def _collect_frame(video_dir, frame_idx):
+        pass
 
     def __getitem__(self, item):
         pass
