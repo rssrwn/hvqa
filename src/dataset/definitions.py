@@ -1,16 +1,6 @@
 # Helper classes and definitions
 
 
-# *** Exceptions ***
-
-class UnknownObjectTypeException(BaseException):
-    pass
-
-
-class UnknownPropertyException(BaseException):
-    pass
-
-
 # *** Image and video definitions ***
 
 ROTATIONS = [0, 1, 2, 3]

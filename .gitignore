@@ -4,4 +4,6 @@
 src/dataset/__pycache__/
 data/
 example-data/
+src/__pycache__/
+src/detection/__pycache__/
 

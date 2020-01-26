@@ -51,15 +51,15 @@ def create_videos(out_dir, verbose):
 
             video_dict = json.loads(json_text)
             num_frames_video = 0
-            for i in range(NUM_FRAMES):
-                frame = video_dict["frames"][i]
+            frames = video_dict["frames"]
+            for frame in frames:
                 img = create_frame(frame)
                 img.save(f"{video_dir}/frame_{i}.png")
                 num_frames_total += 1
                 num_frames_video += 1
 
-            if num_frames_video != NUM_FRAMES:
-                print(f"Only {num_frames_video} created for video directory {video_dir}")
+            # if num_frames_video != NUM_FRAMES:
+            #     print(f"Only {num_frames_video} created for video directory {video_dir}")
 
             if verbose and num_videos % 100 == 0:
                 print(f"Processing video {num_videos}")
