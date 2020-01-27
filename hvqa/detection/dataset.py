@@ -20,6 +20,7 @@ class DetectionDataset(torch.utils.data.Dataset):
         self.img_size = img_size
         self.num_regions = num_regions
         self.region_size = int(self.img_size / self.num_regions)
+
         self.frames, self.outputs, self.ids = self._collect_frames()
 
         assert(self.frames.shape[0] == self.outputs.shape[0] == len(self.ids),
@@ -104,8 +105,7 @@ class DetectionDataset(torch.utils.data.Dataset):
     @staticmethod
     def _collect_frame(video_dir, frame_idx):
         """
-        Produce a torch Tensor of an image
-        Note: Image is not normalised
+        Produce a torch Tensor of an image, normalised between 0 and 1
 
         :param video_dir: Path object of directory image is stored in
         :param frame_idx: Frame index with video directory
@@ -115,7 +115,7 @@ class DetectionDataset(torch.utils.data.Dataset):
         img_file = video_dir / f"frame_{frame_idx}.png"
         if img_file.exists():
             img = Image.open(img_file)
-            img_arr = np.transpose(np.asarray(img), (2, 0, 1))
+            img_arr = np.transpose(np.asarray(img, dtype=np.float32) / 255, (2, 0, 1))
             img_tensor = torch.from_numpy(img_arr)
             img.close()
         else:
