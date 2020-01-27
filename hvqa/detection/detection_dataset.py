@@ -29,6 +29,11 @@ class DetectionDataset(torch.utils.data.Dataset):
         outputs_arr = []
         names_arr = []
 
+        num_videos = 0
+        num_frames = 0
+
+        print("Collecting training data from videos...")
+
         # Iterate through videos
         for video_dir in video_dirs:
             video_num = int(str(video_dir).split("/")[-1])
@@ -45,6 +50,11 @@ class DetectionDataset(torch.utils.data.Dataset):
                     frames_arr.append(self._collect_frame(video_dir, frame_num))
                     outputs_arr.append(self._collect_frame_output(frame))
                     names_arr.append((video_num, frame_num))
+                    num_frames += 1
+
+            num_videos += 1
+
+        print(f"Successfully collected training data from {num_videos} videos and {num_frames} frames")
 
         # Stack arrays together so that zeroth dimension is the frame idx (out of all frames, not just a single video)
         frames_tensor = torch.stack(frames_arr)
