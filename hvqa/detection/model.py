@@ -5,12 +5,13 @@ import torch.nn.functional as F
 OUTPUT_SHAPE = (9, 8, 8)
 
 
-class DetectionModel(nn.module):
+class DetectionModel(nn.Module):
     def __init__(self):
         super().__init__()
 
         self.leaky_slope = 0.1
 
+        # Setup model
         self.conv1 = nn.Conv2d(3, 32, kernel_size=3, stride=1, padding=1)
         self.conv2 = nn.Conv2d(32, 32, kernel_size=3, stride=1, padding=1)
         self.pool1 = nn.MaxPool2d(kernel_size=2, stride=2)
@@ -25,6 +26,16 @@ class DetectionModel(nn.module):
 
         self.fc1 = nn.Linear(8 * 8 * 128, 1024)
         self.fc2 = nn.Linear(1024, 8 * 8 * 9)
+
+        # Weight initialisation
+        nn.init.kaiming_normal_(self.conv1.weight)
+        nn.init.kaiming_normal_(self.conv2.weight)
+        nn.init.kaiming_normal_(self.conv3.weight)
+        nn.init.kaiming_normal_(self.conv4.weight)
+        nn.init.kaiming_normal_(self.conv5.weight)
+        nn.init.kaiming_normal_(self.conv6.weight)
+        nn.init.kaiming_normal_(self.fc1.weight)
+        nn.init.kaiming_normal_(self.fc2.weight)
 
     def forward(self, img):
         out = F.leaky_relu(self.conv1(img), self.leaky_slope)
@@ -50,6 +61,6 @@ class DetectionModel(nn.module):
 
     @staticmethod
     def _output_tensor(vec):
-        batch = vec[0]
+        batch = vec.shape[0]
         c, h, w = OUTPUT_SHAPE
         return vec.view(batch, c, h, w)
