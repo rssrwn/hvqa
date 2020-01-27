@@ -7,14 +7,13 @@ from pathlib import Path
 
 from hvqa.dataset.video import Video
 from hvqa.dataset.draw import Drawer
-from hvqa.dataset.definitions import *
 
 
-def write_json(out_dir):
+def write_json(out_dir, num_videos):
     print("Writing json to file...")
 
-    num_videos = 0
-    for video_num in range(NUM_VIDEOS):
+    num_videos_written = 0
+    for video_num in range(num_videos):
         # Create video
         video_builder = Video()
         video_builder.random_video()
@@ -30,19 +29,19 @@ def write_json(out_dir):
         file.write(text)
         file.close()
 
-        num_videos += 1
+        num_videos_written += 1
 
-    print(f"Successfully written {num_videos} json files")
+    print(f"Successfully written {num_videos_written} json files")
 
 
-def create_videos(out_dir, verbose):
+def create_videos(out_dir):
     basepath = Path(out_dir)
     video_dirs = basepath.iterdir()
 
     print("Creating frames from json...")
 
+    num_videos_total = 0
     num_frames_total = 0
-    num_videos = 0
     for video_dir in video_dirs:
         json_file = video_dir / "video.json"
         if json_file.exists():
@@ -50,23 +49,18 @@ def create_videos(out_dir, verbose):
                 json_text = f.read()
 
             video_dict = json.loads(json_text)
-            num_frames_video = 0
             frames = video_dict["frames"]
             for i, frame in enumerate(frames):
                 img = create_frame(frame)
                 img.save(f"{video_dir}/frame_{i}.png")
                 num_frames_total += 1
-                num_frames_video += 1
-
-            if verbose and num_videos % 100 == 0:
-                print(f"Processing video {num_videos}")
 
         else:
             print(f"No 'video.json' file found for {video_dir}/")
 
-        num_videos += 1
+        num_videos_total += 1
 
-    print(f"Successfully created {num_frames_total} frames")
+    print(f"Successfully created {num_videos_total} videos with {num_frames_total} total frames")
 
 
 def create_frame(frame):
@@ -89,11 +83,11 @@ def delete_directory(name):
             print("Error while deleting directory: %s - %s." % (e.filename, e.strerror))
 
 
-def main(out_dir, json_only, frames_only, verbose):
+def main(out_dir, num_videos, json_only, frames_only):
     if not frames_only:
         delete_directory(out_dir)
         os.mkdir(f"./{out_dir}")
-        write_json(out_dir)
+        write_json(out_dir, num_videos)
 
     if not json_only:
         response = input(f"About to create frames. This could overwrite old frames. "
@@ -102,14 +96,14 @@ def main(out_dir, json_only, frames_only, verbose):
             print("Exiting...")
             exit()
 
-        create_videos(out_dir, verbose)
+        create_videos(out_dir)
 
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description="Script for building dataset")
     parser.add_argument("-j", "--json", action="store_true", default=False)
     parser.add_argument("-f", "--frames", action="store_true", default=False)
-    parser.add_argument("-v", "--verbose", action="store_true", default=False)
     parser.add_argument("out_dir", type=str)
+    parser.add_argument("num_videos", type=int)
     args = parser.parse_args()
-    main(args.out_dir, args.json, args.frames, args.verbose)
+    main(args.out_dir, args.num_videos, args.json, args.frames)
