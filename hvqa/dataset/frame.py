@@ -1,4 +1,5 @@
 import random
+import math
 
 from hvqa.dataset.frame_object import FrameObject
 from hvqa.dataset.definitions import *
@@ -106,7 +107,17 @@ class Frame:
 
         events = []
         remove_octopus = False
-        for obj in self.static_objects:
+
+        rock_dist = None
+        closest_rock_idx = None
+        for idx, obj in enumerate(self.static_objects):
+            if self.close_to_octopus(obj) and obj["class"] == "rock":
+                dist = self.distance(obj, self.octopus)
+                if rock_dist is None or dist < rock_dist:
+                    rock_dist = dist
+                    closest_rock_idx = idx
+
+        for idx, obj in enumerate(self.static_objects):
             if self.close_to_octopus(obj):
                 if obj.obj_type == "fish":
                     self.static_objects.remove(obj)
@@ -117,7 +128,7 @@ class Frame:
                     remove_octopus = True
                     events.append("eat bag")
 
-                elif obj.obj_type == "rock":
+                elif obj.obj_type == "rock" and idx == closest_rock_idx:
                     events.append(f"change colour from {self.octopus.colour} to {obj.colour}")
                     self.octopus.colour = obj.colour
 
@@ -128,6 +139,18 @@ class Frame:
             self.octopus = None
 
         return events
+
+    @staticmethod
+    def distance(obj1, obj2):
+        [obj1_x1, obj1_y1, obj1_x2, obj1_y2] = obj1.position
+        [obj2_x1, obj2_y1, obj2_x2, obj2_y2] = obj2.position
+
+        obj1_x_centre = (obj1_x1 + obj1_x2) / 2
+        obj1_y_centre = (obj1_y1 + obj1_y2) / 2
+        obj2_x_centre = (obj2_x1 + obj2_x2) / 2
+        obj2_y_centre = (obj2_y1 + obj2_y2) / 2
+
+        return math.sqrt(((obj1_x_centre - obj2_x_centre) ** 2) + ((obj1_y_centre - obj2_y_centre) ** 2))
 
     def close_to_octopus(self, obj):
         """
