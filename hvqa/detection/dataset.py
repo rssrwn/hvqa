@@ -15,11 +15,17 @@ class DetectionDataset(torch.utils.data.Dataset):
     """
 
     def __init__(self, data_dir, img_size, num_regions):
+        super().__init__()
         self.data_dir = data_dir
         self.img_size = img_size
         self.num_regions = num_regions
         self.region_size = int(self.img_size / self.num_regions)
         self.frames, self.outputs, self.ids = self._collect_frames()
+
+        assert(self.frames.shape[0] == self.outputs.shape[0] == len(self.ids),
+               "The number of frames must be the same as the number of outputs")
+
+        self.id_map = {_id: idx for idx, _id in enumerate(self.ids)}
 
     def _collect_frames(self):
         basepath = Path(self.data_dir)
@@ -135,7 +141,7 @@ class DetectionDataset(torch.utils.data.Dataset):
         return vec
 
     def __getitem__(self, item):
-        pass
+        return self.frames[item, :, :, :], self.outputs[item, :, :, :]
 
     def __len__(self):
-        pass
+        return self.frames.shape[0]
