@@ -81,12 +81,12 @@ class DetectionDataset(torch.utils.data.Dataset):
         :return: Frame output as a 9x8x8 torch Tensor (Note: outputs x height x width)
         """
 
-        output = torch.zeros([9, 8, 8], dtype=torch.float16)
+        output = torch.zeros([9, 8, 8], dtype=torch.float32)
         objects = frame["objects"]
         for obj in objects:
             [x1, y1, x2, y2] = obj["position"]
             class_vec = self._create_class_vec(obj)
-            normalised_coords = torch.from_numpy(np.array([x1, y1, x2, y2], dtype=np.float16) / self.img_size)
+            normalised_coords = torch.from_numpy(np.array([x1, y1, x2, y2], dtype=np.float32) / self.img_size)
 
             centre_x = (x1 + x2) // 2
             centre_y = (y1 + y2) // 2
@@ -96,7 +96,7 @@ class DetectionDataset(torch.utils.data.Dataset):
                 for j in range(0, self.num_regions):
                     r_s = self.region_size
                     if (i * r_s) <= centre_x < (i + 1) * r_s and (j * r_s) <= centre_y < (j + 1) * r_s:
-                        one = torch.ones([1], dtype=torch.float16)
+                        one = torch.ones([1], dtype=torch.float32)
                         vec = torch.cat((normalised_coords, one, class_vec))
                         output[:, j, i] = vec
 
@@ -115,7 +115,7 @@ class DetectionDataset(torch.utils.data.Dataset):
         img_file = video_dir / f"frame_{frame_idx}.png"
         if img_file.exists():
             img = Image.open(img_file)
-            img_arr = np.transpose(np.asarray(img, dtype=np.float16) / 255, (2, 0, 1))
+            img_arr = np.transpose(np.asarray(img, dtype=np.float32) / 255, (2, 0, 1))
             img_tensor = torch.from_numpy(img_arr)
             img.close()
         else:
@@ -125,7 +125,7 @@ class DetectionDataset(torch.utils.data.Dataset):
 
     @staticmethod
     def _create_class_vec(obj):
-        vec = torch.zeros([4], dtype=torch.float16)
+        vec = torch.zeros([4], dtype=torch.float32)
         obj_type = obj["class"]
         if obj_type == "octopus":
             vec[0] = 1

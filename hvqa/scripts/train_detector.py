@@ -17,7 +17,7 @@ BATCH_SIZE = 48
 LEARNING_RATE = 0.001
 
 USE_GPU = True
-DTYPE = torch.float16
+DTYPE = torch.float32
 
 PRINT_BATCHES = 100
 
