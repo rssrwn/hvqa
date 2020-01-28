@@ -1,4 +1,5 @@
 import argparse
+from pathlib import Path
 import torch
 import torch.nn as nn
 import torch.optim as optim
@@ -38,6 +39,7 @@ def train_model(train_loader, model, optimiser, model_save, scheduler=None, epoc
 
     loss_func = nn.MSELoss()
 
+    current_save = None
     model = model.to(device=device)
     for e in range(epochs):
         for t, (x, y) in enumerate(train_loader):
@@ -58,9 +60,10 @@ def train_model(train_loader, model, optimiser, model_save, scheduler=None, epoc
             scheduler.step()
 
         # Save a temp model every epoch
-        torch.save(model.state_dict(), f"{model_save}/detection_model_after_{e}_epochs.pt")
+        current_save = f"{model_save}/yolo_detection_model_after_{e}_epochs.pt"
+        torch.save(model.state_dict(), current_save)
 
-    print("Completed training")
+    print(f"Completed training, final model saved to {current_save}")
 
 
 def main(train_dir, model_save_dir):
@@ -68,6 +71,10 @@ def main(train_dir, model_save_dir):
     model = DetectionModel()
     optimiser = optim.Adam(model.parameters(), lr=LEARNING_RATE)
     scheduler = optim.lr_scheduler.StepLR(optimiser, 1)
+
+    # Create model save path, just in case
+    path = Path(f"./{model_save_dir}")
+    path.mkdir(parents=True, exist_ok=True)
 
     train_model(loader, model, optimiser, model_save_dir, scheduler)
 
