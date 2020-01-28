@@ -111,7 +111,7 @@ class Frame:
         rock_dist = None
         closest_rock_idx = None
         for idx, obj in enumerate(self.static_objects):
-            if self.close_to_octopus(obj) and obj["class"] == "rock":
+            if self.close_to_octopus(obj) and obj.obj_type == "rock":
                 dist = self.distance(obj, self.octopus)
                 if rock_dist is None or dist < rock_dist:
                     rock_dist = dist
@@ -128,12 +128,14 @@ class Frame:
                     remove_octopus = True
                     events.append("eat bag")
 
-                elif obj.obj_type == "rock" and idx == closest_rock_idx:
-                    events.append(f"change colour from {self.octopus.colour} to {obj.colour}")
-                    self.octopus.colour = obj.colour
+                # Need nested check so we can throw UnknownObjectType
+                elif obj.obj_type == "rock":
+                    if idx == closest_rock_idx:
+                        events.append(f"change colour from {self.octopus.colour} to {obj.colour}")
+                        self.octopus.colour = obj.colour
 
                 else:
-                    raise UnknownObjectTypeException()
+                    raise UnknownObjectTypeException(f"Unknown static object type {obj.obj_type}")
 
         if remove_octopus:
             self.octopus = None

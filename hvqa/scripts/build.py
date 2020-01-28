@@ -1,4 +1,3 @@
-import os
 import json
 import argparse
 import shutil
@@ -23,7 +22,7 @@ def write_json(out_dir, num_videos):
         text = json.dumps(video)
         video_dir = Path(f"./{out_dir}/{video_num}")
         if not video_dir.exists():
-            os.mkdir(f"./{out_dir}/{video_num}")
+            video_dir.mkdir(parents=True, exist_ok=False)
 
         file = open(f"./{out_dir}/{video_num}/video.json", "w")
         file.write(text)
@@ -70,13 +69,12 @@ def create_frame(frame):
 
 
 def delete_directory(name):
-    response = input(f"About to delete {name} directory. Are you sure you want to continue? [y/n]")
-    if response != "y":
-        print("Exiting...")
-        exit()
-
     directory = Path(f"./{name}")
     if directory.exists():
+        response = input(f"About to delete {name} directory. Are you sure you want to continue? [y/n]")
+        if response != "y":
+            print("Exiting...")
+            exit()
         try:
             shutil.rmtree(name)
         except OSError as e:
@@ -86,7 +84,8 @@ def delete_directory(name):
 def main(out_dir, num_videos, json_only, frames_only):
     if not frames_only:
         delete_directory(out_dir)
-        os.mkdir(f"./{out_dir}")
+        path = Path(f"./{out_dir}")
+        path.mkdir(parents=True, exist_ok=False)
         write_json(out_dir, num_videos)
 
     if not json_only:

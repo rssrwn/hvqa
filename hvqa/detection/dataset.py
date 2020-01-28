@@ -23,8 +23,8 @@ class DetectionDataset(torch.utils.data.Dataset):
 
         self.frames, self.outputs, self.ids = self._collect_frames()
 
-        assert(self.frames.shape[0] == self.outputs.shape[0] == len(self.ids),
-               "The number of frames must be the same as the number of outputs")
+        assert self.frames.shape[0] == self.outputs.shape[0] == len(self.ids), \
+            "The number of frames must be the same as the number of outputs"
 
         self.id_map = {_id: idx for idx, _id in enumerate(self.ids)}
 
