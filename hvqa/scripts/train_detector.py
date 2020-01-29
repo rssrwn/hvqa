@@ -7,6 +7,7 @@ from torch.utils.data.dataloader import DataLoader
 from torch.utils.data.sampler import SubsetRandomSampler
 
 from hvqa.detection.dataset import DetectionDataset
+from hvqa.detection.batch_dataset import DetectionBatchDataset
 from hvqa.detection.model import DetectionModel
 
 
@@ -23,7 +24,7 @@ PRINT_BATCHES = 100
 
 
 def build_data_loader(dataset_dir):
-    dataset = DetectionDataset(dataset_dir, IMG_SIZE, NUM_REGIONS)
+    dataset = DetectionBatchDataset(dataset_dir, IMG_SIZE, NUM_REGIONS)
     num_samples = len(dataset)
     loader = DataLoader(dataset, batch_size=BATCH_SIZE, sampler=SubsetRandomSampler(range(num_samples)))
     return loader
