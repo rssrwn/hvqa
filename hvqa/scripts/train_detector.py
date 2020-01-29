@@ -6,8 +6,7 @@ import torch.optim as optim
 from torch.utils.data.dataloader import DataLoader
 from torch.utils.data.sampler import SubsetRandomSampler
 
-from hvqa.detection.dataset import DetectionDataset
-from hvqa.detection.batch_dataset import DetectionBatchDataset
+from hvqa.detection.dataset import DetectionBatchDataset
 from hvqa.detection.model import DetectionModel
 
 

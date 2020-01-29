@@ -7,11 +7,9 @@ from PIL import Image
 from hvqa.util import *
 
 
-class DetectionDataset(torch.utils.data.Dataset):
+class _AbsDetectionDataset(torch.utils.data.Dataset):
     """
-    A class for storing the dataset of frames
-    Stores all frames in one large bank in memory, along with YOLO-style output training Tensor
-    Note: For object detection we do not care which video the frames came from so all frames are stored together
+    Abstract class for finding the dataset for object detection
     """
 
     def __init__(self, data_dir, img_size, num_regions):
@@ -21,54 +19,7 @@ class DetectionDataset(torch.utils.data.Dataset):
         self.num_regions = num_regions
         self.region_size = int(self.img_size / self.num_regions)
 
-        self.frames, self.outputs, self.ids = self._collect_frames()
-
-        assert self.frames.shape[0] == self.outputs.shape[0] == len(self.ids), \
-            "The number of frames must be the same as the number of outputs"
-
-        self.id_map = {_id: idx for idx, _id in enumerate(self.ids)}
-
-    def _collect_frames(self):
-        basepath = Path(self.data_dir)
-        video_dirs = basepath.iterdir()
-
-        frames_arr = []
-        outputs_arr = []
-        names_arr = []
-
-        num_videos = 0
-        num_frames = 0
-
-        print("Collecting training data from videos...")
-
-        # Iterate through videos
-        for video_dir in video_dirs:
-            video_num = int(str(video_dir).split("/")[-1])
-            json_file = video_dir / "video.json"
-            if json_file.exists():
-                with json_file.open() as f:
-                    json_text = f.read()
-
-                video_dict = json.loads(json_text)
-                frames = video_dict["frames"]
-
-                # Iterate through frames in current video
-                for frame_num, frame in enumerate(frames):
-                    frames_arr.append(self._collect_frame(video_dir, frame_num))
-                    outputs_arr.append(self._collect_frame_output(frame))
-                    names_arr.append((video_num, frame_num))
-                    num_frames += 1
-
-            num_videos += 1
-
-        print(f"Successfully collected training data from {num_videos} videos and {num_frames} frames")
-
-        # Stack arrays together so that zeroth dimension is the frame idx (out of all frames, not just a single video)
-        frames_tensor = torch.stack(frames_arr)
-        outputs_tensor = torch.stack(outputs_arr)
-        return frames_tensor, outputs_tensor, names_arr
-
-    def _collect_frame_output(self, frame):
+    def _collect_frame_output(self, frame_dict):
         """
         Build frame output for YOLO-style training
         For each region of the image we produce a vector with 9 numbers:
@@ -77,12 +28,12 @@ class DetectionDataset(torch.utils.data.Dataset):
         Probabilities and confidence are either 0 or 1
         Coords in output are normalised between 0 and 1
 
-        :param frame: Frame dictionary (as in json file of dataset)
+        :param frame_dict: Frame dictionary (as in json file of dataset)
         :return: Frame output as a 9x8x8 torch Tensor (Note: outputs x height x width)
         """
 
         output = torch.zeros([9, 8, 8], dtype=torch.float32)
-        objects = frame["objects"]
+        objects = frame_dict["objects"]
         for obj in objects:
             [x1, y1, x2, y2] = obj["position"]
             class_vec = self._create_class_vec(obj)
@@ -140,8 +91,120 @@ class DetectionDataset(torch.utils.data.Dataset):
 
         return vec
 
+
+class DetectionDataset(_AbsDetectionDataset):
+    """
+    A class for storing the dataset of frames
+    Stores all frames in one large bank in memory, along with YOLO-style output training Tensor
+    Note: For object detection we do not care which video the frames came from so all frames are stored together
+    """
+
+    def __init__(self, data_dir, img_size, num_regions):
+        super().__init__(data_dir, img_size, num_regions)
+
+        self.frames, self.outputs, self.ids = self._collect_frames()
+
+        assert self.frames.shape[0] == self.outputs.shape[0] == len(self.ids), \
+            "The number of frames must be the same as the number of outputs"
+
+    def _collect_frames(self):
+        basepath = Path(self.data_dir)
+        video_dirs = basepath.iterdir()
+
+        frames_arr = []
+        outputs_arr = []
+        names_arr = []
+
+        num_videos = 0
+        num_frames = 0
+
+        print("Collecting training data from videos...")
+
+        # Iterate through videos
+        for video_dir in video_dirs:
+            video_num = int(str(video_dir).split("/")[-1])
+            json_file = video_dir / "video.json"
+            if json_file.exists():
+                with json_file.open() as f:
+                    json_text = f.read()
+
+                video_dict = json.loads(json_text)
+                frames = video_dict["frames"]
+
+                # Iterate through frames in current video
+                for frame_num, frame in enumerate(frames):
+                    frames_arr.append(self._collect_frame(video_dir, frame_num))
+                    outputs_arr.append(self._collect_frame_output(frame))
+                    names_arr.append((video_num, frame_num))
+                    num_frames += 1
+
+            num_videos += 1
+
+        print(f"Successfully collected training data from {num_videos} videos and {num_frames} frames")
+
+        # Stack arrays together so that zeroth dimension is the frame idx (out of all frames, not just a single video)
+        frames_tensor = torch.stack(frames_arr)
+        outputs_tensor = torch.stack(outputs_arr)
+        return frames_tensor, outputs_tensor, names_arr
+
     def __getitem__(self, item):
         return self.frames[item, :, :, :], self.outputs[item, :, :, :]
 
     def __len__(self):
         return self.frames.shape[0]
+
+
+class DetectionBatchDataset(_AbsDetectionDataset):
+    """
+    A class for storing the dataset of frames
+    Generates tensors for frames and outputs on the fly
+    Note: For object detection we do not care which video the frames came from so all frames are stored together
+    """
+
+    def __init__(self, data_dir, img_size, num_regions):
+        super().__init__(data_dir, img_size, num_regions)
+        self.ids, self.frame_dicts = self._find_frames()
+
+    def _find_frames(self):
+        basepath = Path(self.data_dir)
+        video_dirs = basepath.iterdir()
+
+        ids = []
+        frame_dicts = []
+
+        num_videos = 0
+        num_frames = 0
+
+        print("Searching videos for training data...")
+
+        # Iterate through videos
+        for video_dir in video_dirs:
+            video_num = int(str(video_dir).split("/")[-1])
+            json_file = video_dir / "video.json"
+            if json_file.exists():
+                with json_file.open() as f:
+                    json_text = f.read()
+
+                video_dict = json.loads(json_text)
+                frames = video_dict["frames"]
+
+                # Iterate through frames in current video
+                for frame_num, frame in enumerate(frames):
+                    ids.append((video_num, frame_num))
+                    frame_dicts.append(frame)
+                    num_frames += 1
+
+            num_videos += 1
+
+        print(f"Found training data from {num_videos} videos and {num_frames} frames")
+
+        return ids, frame_dicts
+
+    def __getitem__(self, item):
+        video_num, frame_num = self.ids[item]
+        frame_dict = self.frame_dicts[item]
+        video_dir = Path(f"{self.data_dir}/{video_num}")
+        return self._collect_frame(video_dir, frame_num), self._collect_frame_output(frame_dict)
+
+    def __len__(self):
+        return len(self.ids)
