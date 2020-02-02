@@ -1,5 +1,4 @@
 import argparse
-from pathlib import Path
 import torch.nn as nn
 import torch.optim as optim
 
@@ -11,6 +10,14 @@ from hvqa.detection.dataset import DetectionBatchDataset
 
 PRINT_BATCHES = 100
 
+_mse_func = nn.MSELoss(reduction="none")
+
+
+def calc_loss(pred, actual):
+    mse = _mse_func(pred, actual)
+    mse = mse[:, 0:4, :, :] * COORD_MULT
+    return torch.sum(mse)
+
 
 def train_model(train_loader, model, optimiser, model_save, scheduler=None, epochs=100):
     if USE_GPU and torch.cuda.is_available():
@@ -20,7 +27,7 @@ def train_model(train_loader, model, optimiser, model_save, scheduler=None, epoc
 
     print(f"Training model using device: {device}")
 
-    loss_func = nn.MSELoss()
+    loss_func = calc_loss
 
     current_save = None
     model = model.to(device=device)
@@ -30,9 +37,9 @@ def train_model(train_loader, model, optimiser, model_save, scheduler=None, epoc
             x = x.to(device=device, dtype=DTYPE)
             y = y.to(device=device, dtype=DTYPE)
 
+            optimiser.zero_grad()
             output = model(x)
             loss = loss_func(output, y)
-            optimiser.zero_grad()
             loss.backward()
             optimiser.step()
 
@@ -53,13 +60,13 @@ def main(train_dir, model_save_dir):
     loader = build_data_loader(DetectionBatchDataset, train_dir, BATCH_SIZE)
     model = DetectionModel()
     optimiser = optim.Adam(model.parameters(), lr=LEARNING_RATE)
-    scheduler = optim.lr_scheduler.StepLR(optimiser, 1)
+    # scheduler = optim.lr_scheduler.StepLR(optimiser, 1)
 
     # Create model save path, just in case
     path = Path(f"./{model_save_dir}")
     path.mkdir(parents=True, exist_ok=True)
 
-    train_model(loader, model, optimiser, model_save_dir, scheduler)
+    train_model(loader, model, optimiser, model_save_dir)
 
 
 if __name__ == '__main__':
