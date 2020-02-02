@@ -12,7 +12,7 @@ def main(test_dir, model_file, visualise):
     if visualise:
         evaluator.visualise(model_file, CONF_THRESHOLD)
 
-    evaluator.eval_model(model_file, CONF_THRESHOLD)
+    # evaluator.eval_model(model_file, CONF_THRESHOLD)
 
 
 if __name__ == '__main__':

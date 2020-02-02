@@ -3,14 +3,15 @@ import torch.nn as nn
 import torch.nn.functional as F
 
 
-OUTPUT_SHAPE = (5, 8, 8)
+OUTPUT_SHAPE = (9, 8, 8)
+TOTAL_OUTPUT_SIZE = OUTPUT_SHAPE[0] * OUTPUT_SHAPE[1] * OUTPUT_SHAPE[2]
 
 
 class DetectionModel(nn.Module):
     def __init__(self):
         super().__init__()
 
-        self.leaky_slope = 0.1
+        self.leaky_slope = 0.01
 
         # Setup model
         self.conv1 = nn.Conv2d(3, 32, kernel_size=3, stride=1, padding=1)
@@ -30,7 +31,7 @@ class DetectionModel(nn.Module):
         self.pool4 = nn.MaxPool2d(kernel_size=2, stride=2)
 
         self.fc1 = nn.Linear(8 * 8 * 256, 2048)
-        self.fc2 = nn.Linear(2048, 5 * 8 * 8)
+        self.fc2 = nn.Linear(2048, TOTAL_OUTPUT_SIZE)
 
         # Weight initialisation
         nn.init.kaiming_normal_(self.conv1.weight)
@@ -62,8 +63,9 @@ class DetectionModel(nn.Module):
         out = self.pool4(out)
 
         out = self.fc1(self._flatten(out))
+        out = F.relu(out)
         out = self.fc2(out)
-        out = torch.sigmoid(out)
+        out = F.relu(out)
         return self._output_tensor(out)
 
     @staticmethod
