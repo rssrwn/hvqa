@@ -1,32 +1,15 @@
 import argparse
 from pathlib import Path
-import torch
 import torch.nn as nn
 import torch.optim as optim
-from torch.utils.data.dataloader import DataLoader
-from torch.utils.data.sampler import SubsetRandomSampler
 
-from hvqa.detection.dataset import DetectionBatchDataset
+from hvqa.util import *
+from hvqa.detection.hyperparameters import *
 from hvqa.detection.model import DetectionModel
+from hvqa.detection.dataset import DetectionBatchDataset
 
-
-IMG_SIZE = 128
-NUM_REGIONS = 8
-
-BATCH_SIZE = 48
-LEARNING_RATE = 0.001
-
-USE_GPU = True
-DTYPE = torch.float32
 
 PRINT_BATCHES = 100
-
-
-def build_data_loader(dataset_dir):
-    dataset = DetectionBatchDataset(dataset_dir, IMG_SIZE, NUM_REGIONS)
-    num_samples = len(dataset)
-    loader = DataLoader(dataset, batch_size=BATCH_SIZE, sampler=SubsetRandomSampler(range(num_samples)))
-    return loader
 
 
 def train_model(train_loader, model, optimiser, model_save, scheduler=None, epochs=100):
@@ -67,7 +50,7 @@ def train_model(train_loader, model, optimiser, model_save, scheduler=None, epoc
 
 
 def main(train_dir, model_save_dir):
-    loader = build_data_loader(train_dir)
+    loader = build_data_loader(DetectionBatchDataset, train_dir, BATCH_SIZE)
     model = DetectionModel()
     optimiser = optim.Adam(model.parameters(), lr=LEARNING_RATE)
     scheduler = optim.lr_scheduler.StepLR(optimiser, 1)
