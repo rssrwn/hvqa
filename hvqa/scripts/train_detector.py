@@ -44,7 +44,7 @@ def train_model(train_loader, model, optimiser, model_save, scheduler=None, epoc
             optimiser.step()
 
             if t % PRINT_BATCHES == 0:
-                print(f"Epoch {e:4d}, batch {t:4d} -- Loss = {loss.item():.4f}, lr = {optimiser.param_groups[0]['lr']:.4f}")
+                print(f"Epoch {e:4d}, batch {t:4d} -- Loss = {loss.item():.4f}, lr = {optimiser.param_groups[0]['lr']:.6f}")
 
         if scheduler is not None:
             scheduler.step()
