@@ -3,7 +3,7 @@ import torch.nn as nn
 import torch.nn.functional as F
 
 
-OUTPUT_SHAPE = (9, 8, 8)
+OUTPUT_SHAPE = (5, 8, 8)
 
 
 class DetectionModel(nn.Module):
@@ -30,7 +30,7 @@ class DetectionModel(nn.Module):
         self.pool4 = nn.MaxPool2d(kernel_size=2, stride=2)
 
         self.fc1 = nn.Linear(8 * 8 * 256, 2048)
-        self.fc2 = nn.Linear(2048, 8 * 8 * 9)
+        self.fc2 = nn.Linear(2048, 5 * 8 * 8)
 
         # Weight initialisation
         nn.init.kaiming_normal_(self.conv1.weight)

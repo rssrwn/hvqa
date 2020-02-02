@@ -32,7 +32,7 @@ class _AbsDetectionDataset(torch.utils.data.Dataset):
         :return: Frame output as a 9x8x8 torch Tensor (Note: outputs x height x width)
         """
 
-        output = torch.zeros([9, 8, 8], dtype=torch.float32)
+        output = torch.zeros([5, 8, 8], dtype=torch.float32)
         objects = frame_dict["objects"]
         for obj in objects:
             [x1, y1, x2, y2] = obj["position"]
@@ -48,7 +48,8 @@ class _AbsDetectionDataset(torch.utils.data.Dataset):
                     r_s = self.region_size
                     if (i * r_s) <= centre_x < (i + 1) * r_s and (j * r_s) <= centre_y < (j + 1) * r_s:
                         one = torch.ones([1], dtype=torch.float32)
-                        vec = torch.cat((normalised_coords, one, class_vec))
+                        # vec = torch.cat((normalised_coords, one, class_vec))
+                        vec = torch.cat((normalised_coords, one))
                         output[:, j, i] = vec
 
         return output

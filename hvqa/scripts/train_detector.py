@@ -38,9 +38,9 @@ def train_model(train_loader, model, optimiser, model_save, scheduler=None, epoc
             x = x.to(device=device, dtype=DTYPE)
             y = y.to(device=device, dtype=DTYPE)
 
-            optimiser.zero_grad()
             output = model(x)
             loss = loss_func(output, y)
+            optimiser.zero_grad()
             loss.backward()
             optimiser.step()
 
@@ -61,7 +61,7 @@ def main(train_dir, model_save_dir):
     loader = build_data_loader(DetectionDataset, train_dir, BATCH_SIZE)
     model = DetectionModel()
     optimiser = optim.Adam(model.parameters(), lr=LEARNING_RATE)
-    # scheduler = optim.lr_scheduler.StepLR(optimiser, 1)
+    # scheduler = optim.lr_scheduler.StepLR(optimiser, 10)
 
     # Create model save path, just in case
     path = Path(f"./{model_save_dir}")
