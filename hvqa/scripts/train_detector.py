@@ -5,7 +5,7 @@ import torch.optim as optim
 from hvqa.util import *
 from hvqa.detection.hyperparameters import *
 from hvqa.detection.model import DetectionModel
-from hvqa.detection.dataset import DetectionBatchDataset
+from hvqa.detection.dataset import DetectionDataset
 
 
 PRINT_BATCHES = 100
@@ -16,7 +16,8 @@ _mse_func = nn.MSELoss(reduction="none")
 def calc_loss(pred, actual):
     mse = _mse_func(pred, actual)
     mse = mse[:, 0:4, :, :] * COORD_MULT
-    return torch.sum(mse)
+    loss_sum = torch.sum(mse, [1, 2, 3])
+    return torch.mean(loss_sum)
 
 
 def train_model(train_loader, model, optimiser, model_save, scheduler=None, epochs=100):
@@ -50,14 +51,14 @@ def train_model(train_loader, model, optimiser, model_save, scheduler=None, epoc
             scheduler.step()
 
         # Save a temp model every epoch
-        current_save = f"{model_save}/yolo_detection_model_after_{e}_epochs.pt"
+        current_save = f"{model_save}/yolo_detection_model_after_{e+1}_epochs.pt"
         torch.save(model.state_dict(), current_save)
 
     print(f"Completed training, final model saved to {current_save}")
 
 
 def main(train_dir, model_save_dir):
-    loader = build_data_loader(DetectionBatchDataset, train_dir, BATCH_SIZE)
+    loader = build_data_loader(DetectionDataset, train_dir, BATCH_SIZE)
     model = DetectionModel()
     optimiser = optim.Adam(model.parameters(), lr=LEARNING_RATE)
     # scheduler = optim.lr_scheduler.StepLR(optimiser, 1)

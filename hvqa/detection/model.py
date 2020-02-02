@@ -1,3 +1,4 @@
+import torch
 import torch.nn as nn
 import torch.nn.functional as F
 
@@ -62,6 +63,7 @@ class DetectionModel(nn.Module):
 
         out = self.fc1(self._flatten(out))
         out = self.fc2(out)
+        out = torch.sigmoid(out)
         return self._output_tensor(out)
 
     @staticmethod

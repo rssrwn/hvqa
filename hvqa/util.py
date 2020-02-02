@@ -4,7 +4,6 @@ import json
 from pathlib import Path
 import torch
 from torch.utils.data.dataloader import DataLoader
-from torch.utils.data.sampler import SubsetRandomSampler
 
 
 # *** Exceptions ***
@@ -39,8 +38,7 @@ def build_data_loader(dataset_class, dataset_dir, batch_size):
     """
 
     dataset = dataset_class(dataset_dir, IMG_SIZE, NUM_REGIONS)
-    num_samples = len(dataset)
-    loader = DataLoader(dataset, batch_size=batch_size, sampler=SubsetRandomSampler(range(num_samples)))
+    loader = DataLoader(dataset, batch_size=batch_size, shuffle=True)
     return loader
 
 
