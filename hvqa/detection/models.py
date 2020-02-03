@@ -64,7 +64,7 @@ class DetectionModel(nn.Module):
                                  rpn_anchor_generator=anchor_generator,
                                  box_roi_pool=roi_pooler)
 
-    def forward(self, img, target):
+    def forward(self, img, target=None):
         # out = F.leaky_relu(self.conv1(img), self.leaky_slope)
         # out = F.leaky_relu(self.conv2(out), self.leaky_slope)
         # out = self.pool1(out)

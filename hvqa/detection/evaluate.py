@@ -14,7 +14,8 @@ def eval_detector(evaluator, model_file, threshold, visualise):
     if visualise:
         evaluator.visualise(model_file, threshold)
 
-    evaluator.eval_model(model_file, threshold)
+    # TODO uncomment
+    # evaluator.eval_model(model_file, threshold)
 
 
 def main(test_dir, model_file, threshold, classifier, visualise):
@@ -27,7 +28,7 @@ def main(test_dir, model_file, threshold, classifier, visualise):
         eval_classifier(evaluator, model_file, threshold)
     else:
         print("Evaluating detector performance...")
-        evaluator = DetectionEvaluator(test_dir)
+        evaluator = DetectionEvaluator(test_dir, "saved-models/resnet-classifier-v1/after_10_epochs.pt")
         eval_detector(evaluator, model_file, threshold, visualise)
 
 

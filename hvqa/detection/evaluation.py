@@ -8,7 +8,7 @@ import numpy as np
 
 from hvqa.util import load_model, extract_bbox_and_class, NUM_YOLO_REGIONS
 from hvqa.detection.dataset import DetectionDataset, ClassificationDataset
-from hvqa.detection.models import DetectionModel, ClassifierModel
+from hvqa.detection.models import DetectionModel, ClassifierModel, DetectionBackbone
 
 
 class _AbsEvaluator:
@@ -30,14 +30,17 @@ class _AbsEvaluator:
 
 
 class DetectionEvaluator(_AbsEvaluator):
-    def __init__(self, test_data_dir):
+    def __init__(self, test_data_dir, backbone_file):
         super(DetectionEvaluator, self).__init__(test_data_dir)
         batch_size = 1
         dataset = DetectionDataset(test_data_dir, NUM_YOLO_REGIONS)
         self.test_loader = DataLoader(dataset, batch_size=batch_size, shuffle=True)
 
+        pretrained = load_model(ClassifierModel, backbone_file)
+        self.backbone = DetectionBackbone(pretrained)
+
     def eval_model(self, model_file, threshold=0.5):
-        model = load_model(DetectionModel, Path(model_file))
+        model = load_model(DetectionModel, Path(model_file), self.backbone)
         model.eval()
 
         ious = []
@@ -87,17 +90,25 @@ class DetectionEvaluator(_AbsEvaluator):
         draw = ImageDraw.Draw(img)
         self._add_bboxs(draw, [obj["position"] for obj in frame_dict["objects"]])
 
-        model = load_model(DetectionModel, Path(model_file))
+        model = load_model(DetectionModel, Path(model_file), self.backbone)
         model.eval()
 
+        # TODO use transforms
         img_arr = np.transpose(np.asarray(img, dtype=np.float32) / 255, (2, 0, 1))
         img_tensor = torch.from_numpy(img_arr)
 
         with torch.no_grad():
             net_out = model(img_tensor[None, :, :, :])
 
-        preds = extract_bbox_and_class(net_out[0, :, :, :], conf_threshold)
-        DetectionEvaluator._add_bboxs(draw, [pred[0] for pred in preds], ground_truth=False)
+        # TODO make work with batch (atm assume single elem in list)
+        scores = net_out[0]["scores"]
+        idxs = scores > conf_threshold
+
+        boxes = list(net_out[0]["boxes"][idxs, :].numpy())
+        labels = list(net_out[0]["labels"][idxs].numpy())
+
+        # preds = extract_bbox_and_class(net_out[0, :, :, :], conf_threshold)
+        DetectionEvaluator._add_bboxs(draw, boxes, ground_truth=False)
 
         img.show()
 
@@ -106,10 +117,10 @@ class DetectionEvaluator(_AbsEvaluator):
         colour = "blue" if ground_truth else "red"
         for position in positions:
             x1, y1, x2, y2 = position
-            x1 -= 1
-            y1 -= 1
-            x2 += 1
-            y2 += 1
+            x1 = round(x1) - 1
+            y1 = round(y1) - 1
+            x2 = round(x2) + 1
+            y2 = round(y2) + 1
             drawer.rectangle((x1, y1, x2, y2), fill=None, outline=colour)
 
 
