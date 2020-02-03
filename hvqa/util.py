@@ -46,15 +46,15 @@ def load_model(model_class, path):
     :return: Model object
     """
 
-    if USE_GPU and torch.cuda.is_available():
-        device = torch.device('cuda:0')
-    else:
-        device = torch.device('cpu')
-
+    device = get_device()
     model = model_class()
     model.load_state_dict(torch.load(path, map_location=device))
     model.eval()
     return model
+
+
+def get_device():
+    return torch.device("cuda:0") if USE_GPU and torch.cuda.is_available() else torch.device("cpu")
 
 
 def extract_bbox_and_class(img_out, conf_threshold):

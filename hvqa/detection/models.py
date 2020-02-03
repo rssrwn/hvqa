@@ -1,6 +1,10 @@
+from pathlib import Path
+import torch
 import torch.nn as nn
 import torch.nn.functional as F
 from torchvision.models.resnet import ResNet, BasicBlock
+
+from hvqa.util import get_device
 
 
 OUTPUT_SHAPE = (9, 8, 8)
@@ -87,4 +91,14 @@ class ClassifierModel(nn.Module):
         self.resnet = ResNet(BasicBlock, [2, 2, 2, 2], num_classes=4)
 
     def forward(self, img):
-        return self.resnet(img)
+        resnet_out = self.resnet(img)
+        out = torch.sigmoid(resnet_out)
+        return out
+
+    @staticmethod
+    def load(model_path):
+        device = get_device()
+        model = ClassifierModel()
+        model.load_state_dict(torch.load(Path(model_path), map_location=device))
+        print(f"Loaded classification model with device: {device}")
+        return model

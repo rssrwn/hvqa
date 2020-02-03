@@ -1,9 +1,11 @@
 import argparse
+from pathlib import Path
+import torch
 import torch.nn as nn
 import torch.optim as optim
 from torch.utils.data import DataLoader
 
-from hvqa.util import *
+from hvqa.util import get_device, DTYPE, NUM_YOLO_REGIONS
 from hvqa.detection.hyperparameters import *
 from hvqa.detection.models import DetectionModel, ClassifierModel
 from hvqa.detection.dataset import DetectionDataset, ClassificationDataset
@@ -28,7 +30,7 @@ def calc_loss_classifiction(pred, actual):
 
 
 def train_model(train_loader, model, optimiser, model_save, loss_func, scheduler=None, epochs=100):
-    device = torch.device("cuda:0") if USE_GPU and torch.cuda.is_available() else torch.device("cpu")
+    device = get_device()
 
     print(f"Training model using device: {device}")
 
