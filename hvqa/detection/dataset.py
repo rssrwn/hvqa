@@ -8,17 +8,124 @@ from torch.utils.data import Dataset
 from hvqa.util import UnknownObjectTypeException
 
 
-class _AbsDetectionDataset(Dataset):
+IMG_SIZE = 128
+
+
+class _AbsHVQADataset(Dataset):
     """
-    Abstract class for finding the dataset for object detection
+    Abstract class for datasets for both classification and detection tasks
     """
 
-    def __init__(self, data_dir, img_size, num_regions):
-        super(_AbsDetectionDataset, self).__init__()
+    def __init__(self, data_dir):
+        super(_AbsHVQADataset, self).__init__()
+
         self.data_dir = data_dir
-        self.img_size = img_size
+        self.img_size = IMG_SIZE
+        self.ids, self.frame_dicts = self._find_frames()
+
+    def __getitem__(self, item):
+        raise NotImplementedError("Cannot call this method on an abstract class")
+
+    def __len__(self):
+        return len(self.ids)
+
+    def _find_frames(self):
+        basepath = Path(self.data_dir)
+        video_dirs = basepath.iterdir()
+
+        ids = []
+        frame_dicts = []
+
+        num_videos = 0
+        num_frames = 0
+
+        print("Searching videos for training data...")
+
+        # Iterate through videos
+        for video_dir in video_dirs:
+            video_num = int(str(video_dir).split("/")[-1])
+            json_file = video_dir / "video.json"
+            if json_file.exists():
+                with json_file.open() as f:
+                    json_text = f.read()
+
+                video_dict = json.loads(json_text)
+                frames = video_dict["frames"]
+
+                # Iterate through frames in current video
+                for frame_num, frame in enumerate(frames):
+                    ids.append((video_num, frame_num))
+                    frame_dicts.append(frame)
+                    num_frames += 1
+
+            num_videos += 1
+
+        print(f"Found training data from {num_videos} videos and {num_frames} frames")
+
+        return ids, frame_dicts
+
+    @staticmethod
+    def _collect_frame(video_dir, frame_idx):
+        """
+        Produce a torch Tensor of an image, normalised between 0 and 1
+
+        :param video_dir: Path object of directory image is stored in
+        :param frame_idx: Frame index with video directory
+        :return: Image as a torch Tensor (3 x height x width)
+        """
+
+        img_file = video_dir / f"frame_{frame_idx}.png"
+        if img_file.exists():
+            img = Image.open(img_file)
+            img_arr = np.transpose(np.asarray(img, dtype=np.float32) / 255, (2, 0, 1))
+            img_tensor = torch.from_numpy(img_arr)
+            img.close()
+        else:
+            raise FileNotFoundError(f"Could not find image: {img_file}")
+
+        return img_tensor
+
+    def get_image(self, item):
+        """
+        Get a PIL Image of the frame and frame_dict for that image
+        Note: The item is the number stored in the dataset, not the index in a video
+
+        :param item: Frame number
+        :return: PIL Image, frame_dict
+        """
+
+        video_num, frame_num = self.ids[item]
+        img_path = Path(f"{self.data_dir}/{video_num}/frame_{frame_num}.png")
+        json_file = Path(self.data_dir) / str(video_num) / "video.json"
+        if json_file.exists():
+            with json_file.open() as f:
+                json_text = f.read()
+
+            video_dict = json.loads(json_text)
+            frames = video_dict["frames"]
+        else:
+            raise FileNotFoundError(f"{json_file} does not exist")
+
+        return Image.open(img_path), frames[frame_num]
+
+
+class DetectionDataset(_AbsHVQADataset):
+    """
+    A class for storing the dataset of frames
+    Generates tensors for frames and outputs on the fly
+    Note: For object detection we do not care which video the frames came from so all frames are stored together
+    """
+
+    def __init__(self, data_dir, num_regions):
+        super(DetectionDataset, self).__init__(data_dir)
         self.num_regions = num_regions
         self.region_size = int(self.img_size / self.num_regions)
+
+    def __getitem__(self, item):
+        video_num, frame_num = self.ids[item]
+        frame_dict = self.frame_dicts[item]
+        video_dir = Path(f"{self.data_dir}/{video_num}")
+        return self._collect_frame(video_dir, frame_num), self._collect_frame_output(frame_dict)
 
     def _collect_frame_output(self, frame_dict):
         """
@@ -55,27 +162,6 @@ class _AbsDetectionDataset(Dataset):
         return output
 
     @staticmethod
-    def _collect_frame(video_dir, frame_idx):
-        """
-        Produce a torch Tensor of an image, normalised between 0 and 1
-
-        :param video_dir: Path object of directory image is stored in
-        :param frame_idx: Frame index with video directory
-        :return: Image as a torch Tensor (3 x height x width)
-        """
-
-        img_file = video_dir / f"frame_{frame_idx}.png"
-        if img_file.exists():
-            img = Image.open(img_file)
-            img_arr = np.transpose(np.asarray(img, dtype=np.float32) / 255, (2, 0, 1))
-            img_tensor = torch.from_numpy(img_arr)
-            img.close()
-        else:
-            raise FileNotFoundError(f"Could not find image: {img_file}")
-
-        return img_tensor
-
-    @staticmethod
     def _create_class_vec(obj):
         vec = torch.zeros([4], dtype=torch.float32)
         obj_type = obj["class"]
@@ -93,148 +179,9 @@ class _AbsDetectionDataset(Dataset):
         return vec
 
 
-class DetectionDataset(_AbsDetectionDataset):
-    """
-    A class for storing the dataset of frames
-    Generates tensors for frames and outputs on the fly
-    Note: For object detection we do not care which video the frames came from so all frames are stored together
-    """
-
-    def __init__(self, data_dir, img_size, num_regions):
-        super(DetectionDataset, self).__init__(data_dir, img_size, num_regions)
-        self.ids, self.frame_dicts = self._find_frames()
-
-    def _find_frames(self):
-        basepath = Path(self.data_dir)
-        video_dirs = basepath.iterdir()
-
-        ids = []
-        frame_dicts = []
-
-        num_videos = 0
-        num_frames = 0
-
-        print("Searching videos for training data...")
-
-        # Iterate through videos
-        for video_dir in video_dirs:
-            video_num = int(str(video_dir).split("/")[-1])
-            json_file = video_dir / "video.json"
-            if json_file.exists():
-                with json_file.open() as f:
-                    json_text = f.read()
-
-                video_dict = json.loads(json_text)
-                frames = video_dict["frames"]
-
-                # Iterate through frames in current video
-                for frame_num, frame in enumerate(frames):
-                    ids.append((video_num, frame_num))
-                    frame_dicts.append(frame)
-                    num_frames += 1
-
-            num_videos += 1
-
-        print(f"Found training data from {num_videos} videos and {num_frames} frames")
-
-        return ids, frame_dicts
-
-    def get_image(self, item):
-        """
-        Get a PIL Image of the frame and frame_dict for that image
-        Note: The item is the number stored in the dataset, not the index in a video
-
-        :param item: Frame number
-        :return: PIL Image, frame_dict
-        """
-
-        video_num, frame_num = self.ids[item]
-        img_path = Path(f"{self.data_dir}/{video_num}/frame_{frame_num}.png")
-        json_file = Path(self.data_dir) / str(video_num) / "video.json"
-        if json_file.exists():
-            with json_file.open() as f:
-                json_text = f.read()
-
-            video_dict = json.loads(json_text)
-            frames = video_dict["frames"]
-        else:
-            raise FileNotFoundError(f"{json_file} does not exist")
-
-        return Image.open(img_path), frames[frame_num]
-
-    def __getitem__(self, item):
-        video_num, frame_num = self.ids[item]
-        frame_dict = self.frame_dicts[item]
-        video_dir = Path(f"{self.data_dir}/{video_num}")
-        return self._collect_frame(video_dir, frame_num), self._collect_frame_output(frame_dict)
-
-    def __len__(self):
-        return len(self.ids)
-
-
-class ClassifierDataset(Dataset):
-    def __init__(self, data_dir, img_size):
-        super(ClassifierDataset, self).__init__()
-
-        self.data_dir = data_dir
-        self.img_size = img_size
-        self.ids, self.frame_dicts = self._find_frames()
-
-    def _find_frames(self):
-        basepath = Path(self.data_dir)
-        video_dirs = basepath.iterdir()
-
-        ids = []
-        frame_dicts = []
-
-        num_videos = 0
-        num_frames = 0
-
-        print("Searching videos for training data...")
-
-        # Iterate through videos
-        for video_dir in video_dirs:
-            video_num = int(str(video_dir).split("/")[-1])
-            json_file = video_dir / "video.json"
-            if json_file.exists():
-                with json_file.open() as f:
-                    json_text = f.read()
-
-                video_dict = json.loads(json_text)
-                frames = video_dict["frames"]
-
-                # Iterate through frames in current video
-                for frame_num, frame in enumerate(frames):
-                    ids.append((video_num, frame_num))
-                    frame_dicts.append(frame)
-                    num_frames += 1
-
-            num_videos += 1
-
-        print(f"Found training data from {num_videos} videos and {num_frames} frames")
-
-        return ids, frame_dicts
-
-    @staticmethod
-    def _collect_frame(video_dir, frame_idx):
-        """
-        Produce a torch Tensor of an image, normalised between 0 and 1
-
-        :param video_dir: Path object of directory image is stored in
-        :param frame_idx: Frame index with video directory
-        :return: Image as a torch Tensor (3 x height x width)
-        """
-
-        img_file = video_dir / f"frame_{frame_idx}.png"
-        if img_file.exists():
-            img = Image.open(img_file)
-            img_arr = np.transpose(np.asarray(img, dtype=np.float32) / 255, (2, 0, 1))
-            img_tensor = torch.from_numpy(img_arr)
-            img.close()
-        else:
-            raise FileNotFoundError(f"Could not find image: {img_file}")
-
-        return img_tensor
+class ClassificationDataset(_AbsHVQADataset):
+    def __init__(self, data_dir):
+        super(ClassificationDataset, self).__init__(data_dir)
 
     @staticmethod
     def _collect_classifier_output(frame_dict):
@@ -254,34 +201,8 @@ class ClassifierDataset(Dataset):
 
         return output
 
-    def get_image(self, item):
-        """
-        Get a PIL Image of the frame and frame_dict for that image
-        Note: The item is the number stored in the dataset, not the index in a video
-
-        :param item: Frame number
-        :return: PIL Image, frame_dict
-        """
-
-        video_num, frame_num = self.ids[item]
-        img_path = Path(f"{self.data_dir}/{video_num}/frame_{frame_num}.png")
-        json_file = Path(self.data_dir) / str(video_num) / "video.json"
-        if json_file.exists():
-            with json_file.open() as f:
-                json_text = f.read()
-
-            video_dict = json.loads(json_text)
-            frames = video_dict["frames"]
-        else:
-            raise FileNotFoundError(f"{json_file} does not exist")
-
-        return Image.open(img_path), frames[frame_num]
-
     def __getitem__(self, item):
         video_num, frame_num = self.ids[item]
         frame_dict = self.frame_dicts[item]
         video_dir = Path(f"{self.data_dir}/{video_num}")
         return self._collect_frame(video_dir, frame_num), self._collect_classifier_output(frame_dict)
-
-    def __len__(self):
-        return len(self.ids)

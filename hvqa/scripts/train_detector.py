@@ -5,7 +5,7 @@ import torch.optim as optim
 from hvqa.util import *
 from hvqa.detection.hyperparameters import *
 from hvqa.detection.model import DetectionModel, ClassifierModel, ClassifierModel
-from hvqa.detection.dataset import DetectionDataset, ClassifierDataset
+from hvqa.detection.dataset import DetectionDataset, ClassificationDataset
 
 
 PRINT_BATCHES = 100
@@ -59,35 +59,28 @@ def train_model(train_loader, model, optimiser, model_save, loss_func, scheduler
 
 
 def train_detector(train_dir, model_save_dir):
-    loader = build_data_loader(DetectionDataset, train_dir, BATCH_SIZE)
+    dataset = DetectionDataset(train_dir, NUM_YOLO_REGIONS)
+    loader = DataLoader(dataset, batch_size=BATCH_SIZE, shuffle=True)
     model = DetectionModel()
     optimiser = optim.Adam(model.parameters(), lr=LEARNING_RATE)
-    # scheduler = optim.lr_scheduler.StepLR(optimiser, 10)
-
-    # Create model save path, just in case
-    path = Path(f"./{model_save_dir}")
-    path.mkdir(parents=True, exist_ok=True)
-
     train_model(loader, model, optimiser, model_save_dir, calc_loss_detection)
 
 
 def train_classifier(train_dir, model_save_dir):
-    dataset = ClassifierDataset(train_dir, IMG_SIZE)
+    dataset = ClassificationDataset(train_dir)
     loader = DataLoader(dataset, batch_size=BATCH_SIZE, shuffle=True)
     model = ClassifierModel()
     optimiser = optim.Adam(model.parameters(), lr=LEARNING_RATE)
-    # scheduler = optim.lr_scheduler.StepLR(optimiser, 10)
-
-    # Create model save path, just in case
-    path = Path(f"./{model_save_dir}")
-    path.mkdir(parents=True, exist_ok=True)
-
     train_model(loader, model, optimiser, model_save_dir, calc_loss_classifiction)
 
 
 def main(train_dir, model_save_dir):
-    # train_detector(train_dir, model_save_dir)
-    train_classifier(train_dir, model_save_dir)
+    # Create model save path, just in case
+    path = Path(f"./{model_save_dir}")
+    path.mkdir(parents=True, exist_ok=True)
+
+    train_detector(train_dir, model_save_dir)
+    # train_classifier(train_dir, model_save_dir)
 
 
 if __name__ == '__main__':

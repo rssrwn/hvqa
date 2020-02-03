@@ -6,8 +6,8 @@ from shapely.geometry import Polygon
 from PIL import ImageDraw
 import numpy as np
 
-from hvqa.util import build_data_loader, load_model, extract_bbox_and_class
-from hvqa.detection.dataset import DetectionDataset, ClassifierDataset
+from hvqa.util import load_model, extract_bbox_and_class, NUM_YOLO_REGIONS
+from hvqa.detection.dataset import DetectionDataset, ClassificationDataset
 from hvqa.detection.model import DetectionModel, ClassifierModel
 
 
@@ -33,7 +33,8 @@ class DetectionEvaluator(_AbsEvaluator):
     def __init__(self, test_data_dir):
         super(DetectionEvaluator, self).__init__(test_data_dir)
         batch_size = 1
-        self.test_loader = build_data_loader(DetectionDataset, test_data_dir, batch_size)
+        dataset = DetectionDataset(test_data_dir, NUM_YOLO_REGIONS)
+        self.test_loader = DataLoader(dataset, batch_size=batch_size, shuffle=True)
 
     def eval_model(self, model_file, threshold=0.5):
         model = load_model(DetectionModel, Path(model_file))
@@ -115,7 +116,7 @@ class ClassificationEvaluator(_AbsEvaluator):
         super(ClassificationEvaluator, self).__init__(test_data_dir)
         batch_size = 48
         img_size = 128
-        dataset = ClassifierDataset(test_data_dir, img_size)
+        dataset = ClassificationDataset(test_data_dir, img_size)
         self.test_loader = DataLoader(dataset, batch_size=batch_size, shuffle=True)
 
     def eval_model(self, model_file, threshold=0.7):

@@ -3,7 +3,6 @@
 import json
 from pathlib import Path
 import torch
-from torch.utils.data.dataloader import DataLoader
 
 
 # *** Exceptions ***
@@ -19,28 +18,13 @@ class UnknownPropertyException(BaseException):
 # *** Definitions ***
 
 IMG_SIZE = 128
-NUM_REGIONS = 8
+NUM_YOLO_REGIONS = 8
 
 USE_GPU = True
 DTYPE = torch.float32
 
 
 # *** Util functions ***
-
-# TODO Remove
-def build_data_loader(dataset_class, dataset_dir, batch_size):
-    """
-    Builds a DataLoader object from given dataset
-
-    :param dataset_class: Class of dataset to build, must take three init params: dir, img_size and num_regions
-    :param dataset_dir: Path object of dataset directory (stored in hvqa format)
-    :param batch_size: Size of mini-batches to read from dataset
-    :return: DataLoader object which iterates over the dataset
-    """
-
-    dataset = dataset_class(dataset_dir, IMG_SIZE, NUM_REGIONS)
-    loader = DataLoader(dataset, batch_size=batch_size, shuffle=True)
-    return loader
 
 
 def resize_bbox(bbox):
