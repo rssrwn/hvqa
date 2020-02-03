@@ -134,8 +134,8 @@ class DetectionDataset(_AbsHVQADataset):
     Note: For object detection we do not care which video the frames came from so all frames are stored together
     """
 
-    def __init__(self, data_dir, num_regions):
-        super(DetectionDataset, self).__init__(data_dir)
+    def __init__(self, data_dir, num_regions, transforms=None):
+        super(DetectionDataset, self).__init__(data_dir, transforms)
         self.num_regions = num_regions
         self.region_size = int(self.img_size / self.num_regions)
 
@@ -157,7 +157,8 @@ class DetectionDataset(_AbsHVQADataset):
 
         img = self._collect_img(video_dir, frame_num)
         if self.transforms is not None:
-            img, target = self.transforms(img, target)
+            t = self.transforms
+            img = t(img)
 
         return img, target
 
@@ -168,7 +169,7 @@ class DetectionDataset(_AbsHVQADataset):
         areas = torch.zeros(len(objects), dtype=torch.float32)
         for idx, obj in enumerate(frame_dict["objects"]):
             bbox = obj["position"]
-            bboxs[0, :] = torch.tensor(bbox)
+            bboxs[idx, :] = torch.tensor(bbox)
 
             label = self._label(obj)
             labels[idx] = label

@@ -3,9 +3,7 @@
 .idea/
 data/
 example-data/
-hvqa/__pycache__/
-hvqa/dataset/__pycache__/
-hvqa/detection/__pycache__/
-hvqa/scripts/__pycache__/
 saved-models/
+*/__pycache__/
+*/*/__pycache__/
 

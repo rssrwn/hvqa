@@ -55,7 +55,7 @@ class DetectionModel(nn.Module):
         sizes = ((4, 8, 16),)
         ratios = ((0.5, 1, 2.0),)
         anchor_generator = AnchorGenerator(sizes=sizes, aspect_ratios=ratios)
-        roi_pooler = MultiScaleRoIAlign(featmap_names=['0'], output_size=[7], sampling_ratio=2)
+        roi_pooler = MultiScaleRoIAlign(featmap_names=['0'], output_size=7, sampling_ratio=2)
 
         self.f_rcnn = FasterRCNN(backbone,
                                  min_size=128,
@@ -64,7 +64,7 @@ class DetectionModel(nn.Module):
                                  rpn_anchor_generator=anchor_generator,
                                  box_roi_pool=roi_pooler)
 
-    def forward(self, x):
+    def forward(self, img, target):
         # out = F.leaky_relu(self.conv1(img), self.leaky_slope)
         # out = F.leaky_relu(self.conv2(out), self.leaky_slope)
         # out = self.pool1(out)
@@ -87,7 +87,7 @@ class DetectionModel(nn.Module):
         # out = F.relu(out)
         # return self._output_tensor(out)
 
-        return self.f_rcnn(x)
+        return self.f_rcnn(img, target)
 
     @staticmethod
     def _flatten(tensor):
@@ -106,7 +106,7 @@ class ClassifierModel(nn.Module):
         super(ClassifierModel, self).__init__()
 
         self.resnet = ResNet(BasicBlock, [2, 2, 2, 2], num_classes=4)
-        self.out_channels = 512
+        self.out_channels = 256
 
     def forward(self, img):
         resnet_out = self.resnet(img)

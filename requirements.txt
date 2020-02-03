@@ -3,4 +3,7 @@ pillow
 torch
 torchvision
 shapely
+cython
+pycocotools
+matplotlib
 
