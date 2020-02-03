@@ -16,11 +16,12 @@ class _AbsHVQADataset(Dataset):
     Abstract class for datasets for both classification and detection tasks
     """
 
-    def __init__(self, data_dir):
+    def __init__(self, data_dir, transforms=None):
         super(_AbsHVQADataset, self).__init__()
 
         self.data_dir = data_dir
         self.img_size = IMG_SIZE
+        self.transforms = transforms
         self.ids, self.frame_dicts = self._find_frames()
 
     def __getitem__(self, item):
@@ -65,10 +66,27 @@ class _AbsHVQADataset(Dataset):
         return ids, frame_dicts
 
     @staticmethod
+    def _collect_img(video_dir, frame_idx):
+        """
+        Produce a PIL image
+
+        :param video_dir: Path object of directory image is stored in
+        :param frame_idx: Frame index with video directory
+        :return: PIL image
+        """
+
+        img_path = video_dir / f"frame_{frame_idx}.png"
+        if img_path.exists():
+            img = Image.open(img_path).convert("RGB")
+        else:
+            raise FileNotFoundError(f"Could not find image: {img_path}")
+
+        return img
+
+    @staticmethod
     def _collect_frame(video_dir, frame_idx):
         """
         Produce a torch Tensor of an image, normalised between 0 and 1
-
         :param video_dir: Path object of directory image is stored in
         :param frame_idx: Frame index with video directory
         :return: Image as a torch Tensor (3 x height x width)
@@ -125,7 +143,62 @@ class DetectionDataset(_AbsHVQADataset):
         video_num, frame_num = self.ids[item]
         frame_dict = self.frame_dicts[item]
         video_dir = Path(f"{self.data_dir}/{video_num}")
-        return self._collect_frame(video_dir, frame_num), self._collect_frame_output(frame_dict)
+
+        boxes, labels, areas, is_crowd = self._collect_targets(frame_dict)
+        image_id = torch.tensor([item])
+
+        target = {
+            "boxes": boxes,
+            "labels": labels,
+            "image_id": image_id,
+            "area": areas,
+            "iscrowd": is_crowd
+        }
+
+        img = self._collect_img(video_dir, frame_num)
+        if self.transforms is not None:
+            img, target = self.transforms(img, target)
+
+        return img, target
+
+    def _collect_targets(self, frame_dict):
+        objects = frame_dict["objects"]
+        bboxs = torch.zeros((len(objects), 4), dtype=torch.float32)
+        labels = torch.zeros(len(objects), dtype=torch.int64)
+        areas = torch.zeros(len(objects), dtype=torch.float32)
+        for idx, obj in enumerate(frame_dict["objects"]):
+            bbox = obj["position"]
+            bboxs[0, :] = torch.tensor(bbox)
+
+            label = self._label(obj)
+            labels[idx] = label
+
+            area = self._calc_area(bbox)
+            areas[idx] = area
+
+        is_crowd = torch.zeros(len(objects), dtype=torch.uint8)
+        return bboxs, labels, areas, is_crowd
+
+    @staticmethod
+    def _calc_area(bbox):
+        x1, y1, x2, y2 = bbox
+        x_diff = x2 - x1
+        y_diff = y2 - y1
+        return x_diff * y_diff
+
+    @staticmethod
+    def _label(obj):
+        obj_type = obj["class"]
+        if obj_type == "octopus":
+            return 0
+        elif obj_type == "fish":
+            return 1
+        elif obj_type == "bag":
+            return 2
+        elif obj_type == "rock":
+            return 3
+        else:
+            raise UnknownObjectTypeException(f"Unknown object {obj}")
 
     def _collect_frame_output(self, frame_dict):
         """

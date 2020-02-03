@@ -5,9 +5,9 @@ import torch.nn as nn
 import torch.optim as optim
 from torch.utils.data import DataLoader
 
-from hvqa.util import get_device, DTYPE, NUM_YOLO_REGIONS
+from hvqa.util import get_device, load_model, DTYPE, NUM_YOLO_REGIONS
 from hvqa.detection.hyperparameters import *
-from hvqa.detection.models import DetectionModel, ClassifierModel
+from hvqa.detection.models import DetectionModel, ClassifierModel, DetectionBackbone
 from hvqa.detection.dataset import DetectionDataset, ClassificationDataset
 
 
@@ -97,3 +97,15 @@ if __name__ == '__main__':
     parser.add_argument("-c", "--classifier", action="store_true", default=False)
     args = parser.parse_args()
     main(args.train_dir, args.model_save_dir, args.classifier)
+
+
+# if __name__ == '__main__':
+#     parser = argparse.ArgumentParser()
+#     parser.add_argument("dir", type=str)
+#     args = parser.parse_args()
+#
+#     pretrained = load_model(ClassifierModel, args.dir)
+#     model = DetectionBackbone(pretrained)
+#     img = torch.rand(64, 3, 128, 128)
+#     pred = model(img)
+#     print(pred.shape)

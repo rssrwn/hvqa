@@ -36,20 +36,21 @@ def resize_bbox(bbox):
     return x1, y1, x2, y2
 
 
-def load_model(model_class, path):
+def load_model(model_class, path, *model_args):
     """
     Load a model whose state_dict has been saved
     Note: This does work for models whose entire object has been saved
 
     :param model_class: Class of model to load
     :param path: Path to model params
+    :param model_args: Args to pass to model init
     :return: Model object
     """
 
     device = get_device()
-    model = model_class()
+    model = model_class(*model_args)
     model.load_state_dict(torch.load(path, map_location=device))
-    model.eval()
+    print(f"Loaded classification model with device: {device}")
     return model
 
 

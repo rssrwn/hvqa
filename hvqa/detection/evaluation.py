@@ -88,6 +88,8 @@ class DetectionEvaluator(_AbsEvaluator):
         self._add_bboxs(draw, [obj["position"] for obj in frame_dict["objects"]])
 
         model = load_model(DetectionModel, Path(model_file))
+        model.eval()
+
         img_arr = np.transpose(np.asarray(img, dtype=np.float32) / 255, (2, 0, 1))
         img_tensor = torch.from_numpy(img_arr)
 
