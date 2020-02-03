@@ -27,9 +27,10 @@ DTYPE = torch.float32
 
 # *** Util functions ***
 
+# TODO Remove
 def build_data_loader(dataset_class, dataset_dir, batch_size):
     """
-    Builds a DataLoader object from given dataset with a SubsetRandomSampler with the full dataset
+    Builds a DataLoader object from given dataset
 
     :param dataset_class: Class of dataset to build, must take three init params: dir, img_size and num_regions
     :param dataset_dir: Path object of dataset directory (stored in hvqa format)

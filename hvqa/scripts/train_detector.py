@@ -4,8 +4,8 @@ import torch.optim as optim
 
 from hvqa.util import *
 from hvqa.detection.hyperparameters import *
-from hvqa.detection.model import DetectionModel
-from hvqa.detection.dataset import DetectionDataset
+from hvqa.detection.model import DetectionModel, ClassifierModel
+from hvqa.detection.dataset import DetectionDataset, ClassifierDataset
 
 
 PRINT_BATCHES = 100
@@ -13,22 +13,23 @@ PRINT_BATCHES = 100
 _mse_func = nn.MSELoss(reduction="none")
 
 
-def calc_loss(pred, actual):
+def calc_loss_detection(pred, actual):
     mse = _mse_func(pred, actual)
     mse = mse[:, 0:4, :, :] * COORD_MULT
     loss_sum = torch.sum(mse, [1, 2, 3])
     return torch.mean(loss_sum)
 
 
-def train_model(train_loader, model, optimiser, model_save, scheduler=None, epochs=100):
-    if USE_GPU and torch.cuda.is_available():
-        device = torch.device('cuda:0')
-    else:
-        device = torch.device('cpu')
+def calc_loss_classifiction(pred, actual):
+    mse = _mse_func(pred, actual)
+    loss_sum = torch.sum(mse, [1])
+    return torch.mean(loss_sum)
+
+
+def train_model(train_loader, model, optimiser, model_save, loss_func, scheduler=None, epochs=100):
+    device = torch.device("cuda:0") if USE_GPU and torch.cuda.is_available() else torch.device("cpu")
 
     print(f"Training model using device: {device}")
-
-    loss_func = calc_loss
 
     current_save = None
     model = model.to(device=device)
@@ -57,7 +58,7 @@ def train_model(train_loader, model, optimiser, model_save, scheduler=None, epoc
     print(f"Completed training, final model saved to {current_save}")
 
 
-def main(train_dir, model_save_dir):
+def train_detector(train_dir, model_save_dir):
     loader = build_data_loader(DetectionDataset, train_dir, BATCH_SIZE)
     model = DetectionModel()
     optimiser = optim.Adam(model.parameters(), lr=LEARNING_RATE)
@@ -67,7 +68,26 @@ def main(train_dir, model_save_dir):
     path = Path(f"./{model_save_dir}")
     path.mkdir(parents=True, exist_ok=True)
 
-    train_model(loader, model, optimiser, model_save_dir)
+    train_model(loader, model, optimiser, model_save_dir, calc_loss_detection)
+
+
+def train_classifier(train_dir, model_save_dir):
+    dataset = ClassifierDataset(train_dir, IMG_SIZE)
+    loader = DataLoader(dataset, batch_size=BATCH_SIZE, shuffle=True)
+    model = ClassifierModel()
+    optimiser = optim.Adam(model.parameters(), lr=LEARNING_RATE)
+    # scheduler = optim.lr_scheduler.StepLR(optimiser, 10)
+
+    # Create model save path, just in case
+    path = Path(f"./{model_save_dir}")
+    path.mkdir(parents=True, exist_ok=True)
+
+    train_model(loader, model, optimiser, model_save_dir, calc_loss_classifiction)
+
+
+def main(train_dir, model_save_dir):
+    # train_detector(train_dir, model_save_dir)
+    train_classifier(train_dir, model_save_dir)
 
 
 if __name__ == '__main__':
