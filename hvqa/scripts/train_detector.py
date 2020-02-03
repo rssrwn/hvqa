@@ -1,10 +1,11 @@
 import argparse
 import torch.nn as nn
 import torch.optim as optim
+from torch.utils.data import DataLoader
 
 from hvqa.util import *
 from hvqa.detection.hyperparameters import *
-from hvqa.detection.model import DetectionModel, ClassifierModel, ClassifierModel
+from hvqa.detection.models import DetectionModel, ClassifierModel
 from hvqa.detection.dataset import DetectionDataset, ClassificationDataset
 
 
@@ -52,7 +53,7 @@ def train_model(train_loader, model, optimiser, model_save, loss_func, scheduler
             scheduler.step()
 
         # Save a temp model every epoch
-        current_save = f"{model_save}/yolo_detection_model_after_{e+1}_epochs.pt"
+        current_save = f"{model_save}/after_{e+1}_epochs.pt"
         torch.save(model.state_dict(), current_save)
 
     print(f"Completed training, final model saved to {current_save}")
@@ -79,8 +80,8 @@ def main(train_dir, model_save_dir):
     path = Path(f"./{model_save_dir}")
     path.mkdir(parents=True, exist_ok=True)
 
-    train_detector(train_dir, model_save_dir)
-    # train_classifier(train_dir, model_save_dir)
+    # train_detector(train_dir, model_save_dir)
+    train_classifier(train_dir, model_save_dir)
 
 
 if __name__ == '__main__':

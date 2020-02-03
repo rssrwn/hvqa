@@ -8,7 +8,7 @@ import numpy as np
 
 from hvqa.util import load_model, extract_bbox_and_class, NUM_YOLO_REGIONS
 from hvqa.detection.dataset import DetectionDataset, ClassificationDataset
-from hvqa.detection.model import DetectionModel, ClassifierModel
+from hvqa.detection.models import DetectionModel, ClassifierModel
 
 
 class _AbsEvaluator:
@@ -115,8 +115,7 @@ class ClassificationEvaluator(_AbsEvaluator):
     def __init__(self, test_data_dir):
         super(ClassificationEvaluator, self).__init__(test_data_dir)
         batch_size = 48
-        img_size = 128
-        dataset = ClassificationDataset(test_data_dir, img_size)
+        dataset = ClassificationDataset(test_data_dir)
         self.test_loader = DataLoader(dataset, batch_size=batch_size, shuffle=True)
 
     def eval_model(self, model_file, threshold=0.7):
@@ -148,5 +147,5 @@ class ClassificationEvaluator(_AbsEvaluator):
         assert mses.shape[0] == num_correct.shape[0], "Different numbers of images seen"
 
         print(f"Avg MSE: {torch.mean(mses)}")
-        print(f"Avg correct predictions: {torch.mean(num_correct)}")
-        print(f"Avg prediction accuracy: {torch.mean(num_correct) / num_predictions}")
+        print(f"Avg correct predictions: {torch.mean(num_correct)} at threshold {threshold}")
+        print(f"Avg prediction accuracy: {torch.mean(num_correct) / num_predictions} at threshold {threshold}")

@@ -1,6 +1,6 @@
 import argparse
 
-from hvqa.detection.evaluator import DetectionEvaluator, ClassificationEvaluator
+from hvqa.detection.evaluation import DetectionEvaluator, ClassificationEvaluator
 
 
 CONF_THRESHOLD = 0.5
