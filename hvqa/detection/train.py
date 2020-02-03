@@ -75,18 +75,23 @@ def train_classifier(train_dir, model_save_dir):
     train_model(loader, model, optimiser, model_save_dir, calc_loss_classifiction)
 
 
-def main(train_dir, model_save_dir):
+def main(train_dir, model_save_dir, classifier):
     # Create model save path, just in case
     path = Path(f"./{model_save_dir}")
     path.mkdir(parents=True, exist_ok=True)
 
-    # train_detector(train_dir, model_save_dir)
-    train_classifier(train_dir, model_save_dir)
+    if classifier:
+        print("Training classification model...")
+        train_classifier(train_dir, model_save_dir)
+    else:
+        print("Training detection model...")
+        train_detector(train_dir, model_save_dir)
 
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description="Script for training object detector model")
     parser.add_argument("train_dir", type=str)
     parser.add_argument("model_save_dir", type=str)
+    parser.add_argument("-c", "--classifier", action="store_true", default=False)
     args = parser.parse_args()
-    main(args.train_dir, args.model_save_dir)
+    main(args.train_dir, args.model_save_dir, args.classifier)

@@ -122,7 +122,7 @@ class ClassificationEvaluator(_AbsEvaluator):
         model = load_model(ClassifierModel, Path(model_file))
         model.eval()
 
-        print(f"Evaluating model at {model_file} ...")
+        print(f"Evaluating model at {model_file}")
 
         mses = torch.tensor([], dtype=torch.float32)
         num_correct = torch.tensor([], dtype=torch.float32)

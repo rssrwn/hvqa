@@ -14,14 +14,16 @@ def eval_detector(evaluator, model_file, visualise):
     if visualise:
         evaluator.visualise(model_file, CONF_THRESHOLD)
 
-    # evaluator.eval_model(model_file, CONF_THRESHOLD)
+    evaluator.eval_model(model_file, CONF_THRESHOLD)
 
 
 def main(test_dir, model_file, classifier, visualise):
     if classifier:
+        print("Evaluating classifier performance...")
         evaluator = ClassificationEvaluator(test_dir)
         eval_classifier(evaluator, model_file)
     else:
+        print("Evaluating detector performance...")
         evaluator = DetectionEvaluator(test_dir)
         eval_detector(evaluator, model_file, visualise)
 
