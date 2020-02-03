@@ -8,7 +8,7 @@ import numpy as np
 
 from hvqa.util import build_data_loader, load_model, extract_bbox_and_class
 from hvqa.detection.dataset import DetectionDataset, ClassifierDataset
-from hvqa.detection.model import DetectionModel, MyResNet
+from hvqa.detection.model import DetectionModel, ClassifierModel
 
 
 class _AbsEvaluator:
@@ -119,7 +119,7 @@ class ClassificationEvaluator(_AbsEvaluator):
         self.test_loader = DataLoader(dataset, batch_size=batch_size, shuffle=True)
 
     def eval_model(self, model_file, threshold=0.7):
-        model = load_model(MyResNet, Path(model_file))
+        model = load_model(ClassifierModel, Path(model_file))
         model.eval()
 
         print(f"Evaluating model at {model_file} ...")

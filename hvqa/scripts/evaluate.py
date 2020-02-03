@@ -1,5 +1,4 @@
 import argparse
-from pathlib import Path
 
 from hvqa.detection.evaluator import DetectionEvaluator, ClassificationEvaluator
 

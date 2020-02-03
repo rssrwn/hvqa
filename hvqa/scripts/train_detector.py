@@ -4,7 +4,7 @@ import torch.optim as optim
 
 from hvqa.util import *
 from hvqa.detection.hyperparameters import *
-from hvqa.detection.model import DetectionModel, ClassifierModel, MyResNet
+from hvqa.detection.model import DetectionModel, ClassifierModel, ClassifierModel
 from hvqa.detection.dataset import DetectionDataset, ClassifierDataset
 
 
@@ -74,7 +74,7 @@ def train_detector(train_dir, model_save_dir):
 def train_classifier(train_dir, model_save_dir):
     dataset = ClassifierDataset(train_dir, IMG_SIZE)
     loader = DataLoader(dataset, batch_size=BATCH_SIZE, shuffle=True)
-    model = MyResNet()
+    model = ClassifierModel()
     optimiser = optim.Adam(model.parameters(), lr=LEARNING_RATE)
     # scheduler = optim.lr_scheduler.StepLR(optimiser, 10)
 
