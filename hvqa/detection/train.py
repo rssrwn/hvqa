@@ -6,7 +6,7 @@ import torch.optim as optim
 from torch.utils.data import DataLoader
 import torchvision.transforms as T
 
-from hvqa.util import get_device, load_model, DTYPE, NUM_YOLO_REGIONS
+from hvqa.util import get_device, load_model, add_edges, DTYPE, NUM_YOLO_REGIONS
 from hvqa.detection.hyperparameters import *
 from hvqa.detection.models import DetectionModel, ClassifierModel, DetectionBackbone
 from hvqa.detection.dataset import DetectionDataset, ClassificationDataset
@@ -14,20 +14,15 @@ from hvqa.detection.dataset import DetectionDataset, ClassificationDataset
 from lib.vision.engine import train_one_epoch, evaluate
 
 
-PRINT_BATCHES = 100
+PRINT_BATCHES = 10
 
 _mse_func = nn.MSELoss(reduction="none")
 
+
 detector_transforms = T.Compose([
+    # T.Lambda(lambda x: add_edges(x)),
     T.ToTensor(),
 ])
-
-
-def calc_loss_detection(pred, actual):
-    mse = _mse_func(pred, actual)
-    mse = mse[:, 0:4, :, :] * COORD_MULT
-    loss_sum = torch.sum(mse, [1, 2, 3])
-    return torch.mean(loss_sum)
 
 
 def calc_loss_classifiction(pred, actual):
@@ -68,7 +63,7 @@ def train_model(train_loader, model, optimiser, model_save, loss_func, scheduler
     print(f"Completed training, final model saved to {current_save}")
 
 
-def train_detector_loop(train_loader, model, optimiser, model_save, loss_func, scheduler=None, epochs=100):
+def train_detector_loop(train_loader, model, optimiser, model_save, scheduler=None, epochs=100):
     device = get_device()
 
     print(f"Training model using device: {device}")
@@ -79,28 +74,23 @@ def train_detector_loop(train_loader, model, optimiser, model_save, loss_func, s
         for t, (images, targets) in enumerate(train_loader):
             model.train()
 
-            # x = x.to(device=device, dtype=DTYPE)
-            # y = y.to(device=device, dtype=DTYPE)
-
             images = list(image.to(device) for image in images)
             targets = [{k: v.to(device) for k, v in t.items()} for t in targets]
 
             loss_dict = model(images, targets)
-
-            losses = torch.sum(torch.tensor([loss for loss in loss_dict.values()], requires_grad=True))
+            losses = torch.tensor([loss * REG_MULT if key == "loss_box_reg" else loss for key, loss in loss_dict.items()], requires_grad=True)
+            losses[1] *= REG_MULT
+            loss = torch.sum(losses)
 
             optimiser.zero_grad()
-            losses.backward()
+            loss.backward()
             optimiser.step()
 
-            # output = model(x)
-            # loss = loss_func(output, y)
-            # optimiser.zero_grad()
-            # loss.backward()
-            # optimiser.step()
-
             if t % PRINT_BATCHES == 0:
-                print(f"Epoch {e:4d}, batch {t:4d} -- Loss = {losses.item():.6f}, lr = {optimiser.param_groups[0]['lr']:.4f}")
+                print(f"Epoch [{e}], batch [{t}] -- "
+                      f"loss_classifier {losses[0]:.4f}, loss_box_reg {losses[1]:.4f}, "
+                      f"loss_objectness {losses[2]:.4f}, loss_rpn_box_reg {losses[3]:.4f} -- "
+                      f"lr {optimiser.param_groups[0]['lr']:.4f}")
 
         if scheduler is not None:
             scheduler.step()
@@ -125,17 +115,17 @@ def train_detector(train_dir, model_save_dir, backbone_dir):
     model = DetectionModel(backbone)
     model = model.to(device=device)
     optimiser = optim.Adam(model.parameters(), lr=LEARNING_RATE)
-    # train_detector_loop(loader, model, optimiser, model_save_dir, calc_loss_detection)
+    train_detector_loop(loader, model, optimiser, model_save_dir)
 
-    num_epochs = 10
-    for epoch in range(num_epochs):
-        train_one_epoch(model, optimiser, loader, device, epoch, print_freq=2)
-        current_save = f"{model_save_dir}/after_{epoch + 1}_epochs.pt"
-        torch.save(model.state_dict(), current_save)
+    # num_epochs = 10
+    # for epoch in range(num_epochs):
+    #     train_one_epoch(model, optimiser, loader, device, epoch, print_freq=2)
+    #     current_save = f"{model_save_dir}/after_{epoch + 1}_epochs.pt"
+    #     torch.save(model.state_dict(), current_save)
 
 
 def train_classifier(train_dir, model_save_dir):
-    dataset = ClassificationDataset(train_dir)
+    dataset = ClassificationDataset(train_dir, transforms=detector_transforms)
     loader = DataLoader(dataset, batch_size=BATCH_SIZE, shuffle=True)
     model = ClassifierModel()
     optimiser = optim.Adam(model.parameters(), lr=LEARNING_RATE)

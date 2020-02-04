@@ -3,6 +3,8 @@
 import json
 from pathlib import Path
 import torch
+import cv2
+import numpy as np
 
 
 # *** Exceptions ***
@@ -91,3 +93,22 @@ def get_video_dicts(data_dir):
 
     print(f"Successfully extracted {num_dicts} video dictionaries from json files")
     return dicts
+
+
+IMG_MIN_VAL = 0
+IMG_MAX_VAL = 0
+
+
+def add_edges(img):
+    """
+    Add an edge channel to the image
+
+    :param img: PIL Image
+    :return: Numpy array of dimension (C + 1, H, W), channel 0 are edges (between 0 and 255)
+    """
+
+    cv_img = np.array(img)
+    gray = cv2.cvtColor(cv_img, cv2.COLOR_RGB2GRAY)
+    edges = cv2.Canny(gray, IMG_MIN_VAL, IMG_MAX_VAL)[None, :, :]
+    output = np.concatenate((edges, cv_img.transpose((2, 1, 0))), axis=0)
+    return output

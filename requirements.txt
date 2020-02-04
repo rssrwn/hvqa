@@ -6,4 +6,5 @@ shapely
 cython
 pycocotools
 matplotlib
+opencv-python
 

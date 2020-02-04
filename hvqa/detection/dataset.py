@@ -126,6 +126,12 @@ class _AbsHVQADataset(Dataset):
 
         return Image.open(img_path), frames[frame_num]
 
+    def _apply_trans(self, img):
+        if self.transforms is not None:
+            img = self.transforms(img)
+
+        return img
+
 
 class DetectionDataset(_AbsHVQADataset):
     """
@@ -156,10 +162,7 @@ class DetectionDataset(_AbsHVQADataset):
         }
 
         img = self._collect_img(video_dir, frame_num)
-        if self.transforms is not None:
-            t = self.transforms
-            img = t(img)
-
+        img = self._apply_trans(img)
         return img, target
 
     def _collect_targets(self, frame_dict):
@@ -201,7 +204,7 @@ class DetectionDataset(_AbsHVQADataset):
         else:
             raise UnknownObjectTypeException(f"Unknown object {obj}")
 
-    def _collect_frame_output(self, frame_dict):
+    def _collect_yolo_output(self, frame_dict):
         """
         Build frame output for YOLO-style training
         For each region of the image we produce a vector with 9 numbers:
@@ -254,8 +257,8 @@ class DetectionDataset(_AbsHVQADataset):
 
 
 class ClassificationDataset(_AbsHVQADataset):
-    def __init__(self, data_dir):
-        super(ClassificationDataset, self).__init__(data_dir)
+    def __init__(self, data_dir, transforms=None):
+        super(ClassificationDataset, self).__init__(data_dir, transforms)
 
     @staticmethod
     def _collect_classifier_output(frame_dict):
@@ -279,4 +282,8 @@ class ClassificationDataset(_AbsHVQADataset):
         video_num, frame_num = self.ids[item]
         frame_dict = self.frame_dicts[item]
         video_dir = Path(f"{self.data_dir}/{video_num}")
-        return self._collect_frame(video_dir, frame_num), self._collect_classifier_output(frame_dict)
+
+        target = self._collect_classifier_output(frame_dict)
+        img = self._collect_img(video_dir, frame_num)
+        img = self._apply_trans(img)
+        return img, target
