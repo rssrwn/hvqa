@@ -78,19 +78,21 @@ def train_detector_loop(train_loader, model, optimiser, model_save, scheduler=No
             targets = [{k: v.to(device) for k, v in t.items()} for t in targets]
 
             loss_dict = model(images, targets)
-            losses = torch.tensor([loss * REG_MULT if key == "loss_box_reg" else loss for key, loss in loss_dict.items()], requires_grad=True)
-            losses[1] *= REG_MULT
-            loss = torch.sum(losses)
+            loss = sum([loss * REG_MULT if key == "loss_box_reg" else loss for key, loss in loss_dict.items()])
 
             optimiser.zero_grad()
             loss.backward()
             optimiser.step()
 
             if t % PRINT_BATCHES == 0:
-                print(f"Epoch [{e}], batch [{t}] -- "
+                losses = [loss * REG_MULT if key == "loss_box_reg" else loss for key, loss in loss_dict.items()]
+                losses = torch.tensor(losses)
+
+                print(f"Epoch {e:>3}, batch {t:>4} "
+                      f"-- loss {loss:.4f}, "
                       f"loss_classifier {losses[0]:.4f}, loss_box_reg {losses[1]:.4f}, "
-                      f"loss_objectness {losses[2]:.4f}, loss_rpn_box_reg {losses[3]:.4f} -- "
-                      f"lr {optimiser.param_groups[0]['lr']:.4f}")
+                      f"loss_objectness {losses[2]:.4f}, loss_rpn_box_reg {losses[3]:.4f} "
+                      f"-- lr {optimiser.param_groups[0]['lr']:.6f}")
 
         if scheduler is not None:
             scheduler.step()
@@ -115,11 +117,12 @@ def train_detector(train_dir, model_save_dir, backbone_dir):
     model = DetectionModel(backbone)
     model = model.to(device=device)
     optimiser = optim.Adam(model.parameters(), lr=LEARNING_RATE)
-    train_detector_loop(loader, model, optimiser, model_save_dir)
 
-    # num_epochs = 10
+    train_detector_loop(loader, model, optimiser, model_save_dir)
+    #
+    # num_epochs = 50
     # for epoch in range(num_epochs):
-    #     train_one_epoch(model, optimiser, loader, device, epoch, print_freq=2)
+    #     train_one_epoch(model, optimiser, loader, device, epoch, print_freq=20)
     #     current_save = f"{model_save_dir}/after_{epoch + 1}_epochs.pt"
     #     torch.save(model.state_dict(), current_save)
 
