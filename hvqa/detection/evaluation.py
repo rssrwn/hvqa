@@ -1,9 +1,10 @@
 import torch
 import torch.nn.functional as F
+import torchvision.transforms as T
 from PIL import ImageDraw
 import numpy as np
 
-from hvqa.util import get_device
+from hvqa.util import UnknownObjectTypeException, get_device
 
 from lib.vision.engine import evaluate
 
@@ -30,7 +31,7 @@ class DetectionEvaluator(_AbsEvaluator):
 
     def visualise(self, model, conf_threshold=0.5):
         dataset = self.test_loader.dataset
-        transform = self.test_loader.transform
+        transform = self.test_loader.dataset.transforms
 
         model.eval()
 
@@ -38,25 +39,33 @@ class DetectionEvaluator(_AbsEvaluator):
         for i in range(NUM_IMAGES):
             image_idx = np.random.randint(0, num_images)
 
-            img, frame_dict = dataset.get_image(image_idx)
+            img_tensor, frame_dict = dataset.get_image(image_idx)
 
-            # Add bboxs
+            if transform:
+                img_tensor = transform(img_tensor)
+
+            img = T.ToPILImage()(img_tensor)
+
+            # Add actual bboxs
             draw = ImageDraw.Draw(img)
             self._add_bboxs(draw, [obj["position"] for obj in frame_dict["objects"]])
 
-            if transform:
-                img = transform(img)
-
             with torch.no_grad():
-                net_out = model(img[None, :, :, :])
+                net_out = model(img_tensor[None, :, :, :])
 
             scores = net_out[0]["scores"]
             idxs = scores > conf_threshold
 
             boxes = list(net_out[0]["boxes"][idxs, :].numpy())
             labels = list(net_out[0]["labels"][idxs].numpy())
+            short_labels = [self._shorten_label(label) for label in labels]
 
-            DetectionEvaluator._add_bboxs(draw, boxes, ground_truth=False)
+            # Add predicted bboxs
+            self._add_bboxs(draw, boxes, ground_truth=False)
+
+            for idx, label in enumerate(short_labels):
+                x1, y1, x2, y2 = boxes[idx]
+                self._add_labels(draw, (x1, y1), label)
 
             img.show()
 
@@ -70,6 +79,26 @@ class DetectionEvaluator(_AbsEvaluator):
             x2 = round(x2) + 1
             y2 = round(y2) + 1
             drawer.rectangle((x1, y1, x2, y2), fill=None, outline=colour)
+
+    @staticmethod
+    def _add_labels(drawer, position, text):
+        colour = "red"
+        x1, y1 = position
+        y1 -= 10
+        drawer.text((x1, y1), text, fill=colour)
+
+    @staticmethod
+    def _shorten_label(label):
+        if label == 0:
+            return "o"
+        elif label == 1:
+            return "f"
+        elif label == 2:
+            return "b"
+        elif label == 3:
+            return "r"
+        else:
+            raise UnknownObjectTypeException(f"Unknown label {label}")
 
 
 class ClassificationEvaluator(_AbsEvaluator):

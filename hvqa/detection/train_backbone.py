@@ -4,9 +4,8 @@ import torch
 import torch.nn as nn
 import torch.optim as optim
 from torch.utils.data import DataLoader
-import torchvision.transforms as T
 
-from hvqa.util import get_device, add_edges, DTYPE
+from hvqa.util import get_device, add_edges, detector_transforms, DTYPE
 from hvqa.detection.models import ClassifierModel
 from hvqa.detection.dataset import ClassificationDataset
 from hvqa.detection.evaluation import ClassificationEvaluator
@@ -17,11 +16,6 @@ LEARNING_RATE = 0.001
 
 _mse_func = nn.MSELoss(reduction="none")
 
-detector_transforms = T.Compose([
-    # T.Lambda(lambda x: add_edges(x)),
-    T.ToTensor(),
-])
-
 
 def calc_loss_classifiction(pred, actual):
     mse = _mse_func(pred, actual)
@@ -29,7 +23,7 @@ def calc_loss_classifiction(pred, actual):
     return torch.mean(loss_sum)
 
 
-def train_one_epoch(model, optimiser, loader_train, device, print_freq=100):
+def train_one_epoch(model, optimiser, loader_train, device, epoch, print_freq=100):
     for t, (x, y) in enumerate(loader_train):
         model.train()
         x = x.to(device=device, dtype=DTYPE)
@@ -42,7 +36,7 @@ def train_one_epoch(model, optimiser, loader_train, device, print_freq=100):
         optimiser.step()
 
         if t % print_freq == 0:
-            print(f"Epoch {e:>3}, batch {t:>4} "
+            print(f"Epoch {epoch:>3}, batch {t:>4} "
                   f"-- loss = {loss.item():.6f} "
                   f"-- lr = {optimiser.param_groups[0]['lr']:.4f}")
 
@@ -58,7 +52,7 @@ def train_classifier(model, loader_train, loader_test, model_save_dir, epochs=50
     model = model.to(device=device)
     for epoch in range(epochs):
         model.train()
-        train_one_epoch(model, optimiser, loader_train, device, print_freq=50)
+        train_one_epoch(model, optimiser, loader_train, device, epoch, print_freq=50)
 
         # Save a temp model every epoch
         current_save = f"{model_save_dir}/after_{epoch + 1}_epochs.pt"

@@ -1,6 +1,11 @@
 import argparse
+import torch
+from torch.utils.data import DataLoader
 
+from hvqa.util import detector_transforms, collate_func, get_device
 from hvqa.detection.evaluation import DetectionEvaluator, ClassificationEvaluator
+from hvqa.detection.models import ClassifierModel, DetectionBackbone, DetectionModel
+from hvqa.detection.dataset import DetectionDataset
 
 
 DEFAULT_CONF_THRESHOLD = 0.5
@@ -10,12 +15,12 @@ def eval_classifier(evaluator, model_file, threshold):
     evaluator.eval_models(model_file, threshold)
 
 
-def eval_detector(evaluator, model_file, threshold, visualise):
+def eval_detector(evaluator, model, threshold, visualise):
     if visualise:
-        evaluator.visualise(model_file, threshold)
+        evaluator.visualise(model, threshold)
 
     # TODO uncomment
-    # evaluator.eval_model(model_file, threshold)
+    # evaluator.eval_model(model, threshold)
 
 
 def main(test_dir, model_file, threshold, classifier, visualise):
@@ -28,8 +33,19 @@ def main(test_dir, model_file, threshold, classifier, visualise):
         eval_classifier(evaluator, model_file, threshold)
     else:
         print("Evaluating detector performance...")
-        evaluator = DetectionEvaluator(test_dir, "saved-models/resnet-classifier-v1/after_10_epochs.pt")
-        eval_detector(evaluator, model_file, threshold, visualise)
+
+        device = get_device()
+        pretrained = ClassifierModel()
+        pretrained.load_state_dict(torch.load("saved-models/resnet-classifier-v1/after_10_epochs.pt", map_location=device))
+        backbone = DetectionBackbone(pretrained)
+        model = DetectionModel(backbone)
+        model.load_state_dict(torch.load("saved-models/detector-with-bb-v2/after_20_epochs.pt", map_location=device))
+
+        dataset_test = DetectionDataset(test_dir, transforms=detector_transforms)
+        loader_test = DataLoader(dataset_test, batch_size=48, shuffle=True, collate_fn=collate_func)
+
+        evaluator = DetectionEvaluator(loader_test)
+        eval_detector(evaluator, model, threshold, visualise)
 
 
 if __name__ == '__main__':

@@ -4,9 +4,8 @@ import torch
 import torch.nn as nn
 import torch.optim as optim
 from torch.utils.data import DataLoader
-import torchvision.transforms as T
 
-from hvqa.util import get_device, load_model, add_edges
+from hvqa.util import get_device, load_model, add_edges, detector_transforms, collate_func
 from hvqa.detection.models import DetectionModel, ClassifierModel, DetectionBackbone
 from hvqa.detection.dataset import DetectionDataset
 from hvqa.detection.evaluation import DetectionEvaluator
@@ -18,15 +17,6 @@ BATCH_SIZE = 128
 LEARNING_RATE = 0.005
 
 _mse_func = nn.MSELoss(reduction="none")
-
-detector_transforms = T.Compose([
-    # T.Lambda(lambda x: add_edges(x)),
-    T.ToTensor(),
-])
-
-
-def collate_func(batch):
-    return tuple(zip(*batch))
 
 
 def train_detector(model, loader_train, loader_test, model_save_dir, epochs=50):

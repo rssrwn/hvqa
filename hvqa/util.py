@@ -5,6 +5,7 @@ from pathlib import Path
 import torch
 import cv2
 import numpy as np
+import torchvision.transforms as T
 
 
 # *** Exceptions ***
@@ -24,6 +25,11 @@ NUM_YOLO_REGIONS = 8
 
 USE_GPU = True
 DTYPE = torch.float32
+
+detector_transforms = T.Compose([
+    # T.Lambda(lambda x: add_edges(x)),
+    T.ToTensor(),
+])
 
 
 # *** Util functions ***
@@ -58,19 +64,6 @@ def load_model(model_class, path, *model_args):
 
 def get_device():
     return torch.device("cuda:0") if USE_GPU and torch.cuda.is_available() else torch.device("cpu")
-
-
-def extract_bbox_and_class(img_out, conf_threshold):
-    preds = img_out[:, img_out[4, :, :] > conf_threshold]
-
-    preds_arr = []
-    for pred_idx in range(preds.shape[1]):
-        pred = preds[:, pred_idx]
-        bbox = resize_bbox(pred[0:4].numpy())
-        conf, idx = torch.max(pred[5:], 0)
-        preds_arr.append((bbox, conf.item(), idx.item()))
-
-    return preds_arr
 
 
 def get_video_dicts(data_dir):
@@ -112,3 +105,7 @@ def add_edges(img):
     edges = cv2.Canny(gray, IMG_MIN_VAL, IMG_MAX_VAL)[None, :, :]
     output = np.concatenate((edges, cv_img.transpose((2, 1, 0))), axis=0)
     return output
+
+
+def collate_func(batch):
+    return tuple(zip(*batch))
