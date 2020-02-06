@@ -36,33 +36,6 @@ class DetectionEvaluator(_AbsEvaluator):
     def __init__(self, test_loader):
         super(DetectionEvaluator, self).__init__(test_loader)
 
-        # pretrained = load_model(ClassifierModel, backbone_file)
-        # self.backbone = DetectionBackbone(pretrained)
-
-    # def eval_model(self, model_file, threshold=0.5):
-    #     model = load_model(DetectionModel, Path(model_file), self.backbone)
-    #     model.eval()
-    #
-    #     ious = []
-    #     for i, (x, y) in enumerate(self.test_loader):
-    #         with torch.no_grad():
-    #             preds = model(x)
-    #
-    #         preds_arr = extract_bbox_and_class(preds[0, :, :, :], threshold)
-    #         actual_arr = extract_bbox_and_class(y[0, :, :, :], threshold)
-    #
-    #         for actual_obj in actual_arr:
-    #             best_iou = None
-    #             for obj_idx, pred_obj in enumerate(preds_arr):
-    #                 iou = self._calc_iou(actual_obj[0], pred_obj[0])
-    #                 if best_iou is None or abs(1 - iou) < abs(1 - best_iou):
-    #                     best_iou = iou
-    #
-    #             ious.append(best_iou)
-    #
-    #     avg_iou = sum(ious) / len(ious)
-    #     print(f"Avg IOU: {avg_iou}")
-
     def eval_model(self, model, threshold=None):
         device = get_device()
         evaluate(model, self.test_loader, device)
@@ -82,7 +55,7 @@ class DetectionEvaluator(_AbsEvaluator):
 
         return poly_1.intersection(poly_2).area / poly_1.union(poly_2).area
 
-    def visualise(self, model_file, conf_threshold=0.5):
+    def visualise(self, model, conf_threshold=0.5):
         dataset = self.test_loader.dataset
 
         # Collect image
@@ -94,7 +67,6 @@ class DetectionEvaluator(_AbsEvaluator):
         draw = ImageDraw.Draw(img)
         self._add_bboxs(draw, [obj["position"] for obj in frame_dict["objects"]])
 
-        model = load_model(DetectionModel, Path(model_file), self.backbone)
         model.eval()
 
         # TODO use transforms
@@ -135,11 +107,10 @@ class ClassificationEvaluator(_AbsEvaluator):
         dataset = ClassificationDataset(test_data_dir)
         self.test_loader = DataLoader(dataset, batch_size=batch_size, shuffle=True)
 
-    def eval_model(self, model_file, threshold=0.7):
-        model = load_model(ClassifierModel, Path(model_file))
-        model.eval()
+    def eval_model(self, model, threshold=0.7):
+        print("Evaluating classification model")
 
-        print(f"Evaluating model at {model_file}")
+        model.eval()
 
         mses = torch.tensor([], dtype=torch.float32)
         num_correct = torch.tensor([], dtype=torch.float32)

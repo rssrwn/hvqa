@@ -233,6 +233,13 @@ class ClassificationDataset(_AbsHVQADataset):
         return output
 
     def __getitem__(self, item):
+        """
+        Get training pair (input, target)
+
+        :param item: Index of training data point
+        :return: Img (img tensor), target (classification tensor)
+        """
+
         video_num, frame_num = self.ids[item]
         frame_dict = self.frame_dicts[item]
         video_dir = Path(f"{self.data_dir}/{video_num}")
