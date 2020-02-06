@@ -108,15 +108,20 @@ class ClassificationEvaluator(_AbsEvaluator):
     def eval_model(self, model, threshold=0.7):
         print("Evaluating classification model")
 
+        device = get_device()
         model.eval()
 
         mses = torch.tensor([], dtype=torch.float32)
         num_correct = torch.tensor([], dtype=torch.float32)
         for i, (x, y) in enumerate(self.test_loader):
+            x = x.to(device=device)
+
             with torch.no_grad():
                 preds = model(x)
 
             num_predictions = preds.shape[1]
+
+            preds = preds.to("cpu")
 
             # Calculate MSE
             mse = F.mse_loss(preds, y, reduction="none")
@@ -132,6 +137,6 @@ class ClassificationEvaluator(_AbsEvaluator):
 
         assert mses.shape[0] == num_correct.shape[0], "Different numbers of images seen"
 
-        print(f"Avg MSE: {torch.mean(mses)}")
-        print(f"Avg correct predictions: {torch.mean(num_correct)} at threshold {threshold}")
-        print(f"Avg prediction accuracy: {torch.mean(num_correct) / num_predictions} at threshold {threshold}")
+        print(f"Avg MSE: {torch.mean(mses):.4f}")
+        print(f"Avg correct predictions: {torch.mean(num_correct):.4f} at threshold {threshold}")
+        print(f"Avg prediction accuracy: {torch.mean(num_correct) / num_predictions:.4f} at threshold {threshold}")

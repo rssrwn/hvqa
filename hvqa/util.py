@@ -27,7 +27,7 @@ USE_GPU = True
 DTYPE = torch.float32
 
 detector_transforms = T.Compose([
-    # T.Lambda(lambda x: add_edges(x)),
+    T.Lambda(lambda x: add_edges(x)),
     T.ToTensor(),
 ])
 
@@ -102,8 +102,8 @@ def add_edges(img):
 
     cv_img = np.array(img)
     gray = cv2.cvtColor(cv_img, cv2.COLOR_RGB2GRAY)
-    edges = cv2.Canny(gray, IMG_MIN_VAL, IMG_MAX_VAL)[None, :, :]
-    output = np.concatenate((edges, cv_img.transpose((2, 1, 0))), axis=0)
+    edges = cv2.Canny(gray, IMG_MIN_VAL, IMG_MAX_VAL)[:, :, None]
+    output = np.concatenate((edges, cv_img), axis=2)
     return output
 
 

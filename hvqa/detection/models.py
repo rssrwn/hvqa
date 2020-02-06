@@ -18,7 +18,7 @@ class DetectionModel(nn.Module):
         sizes = ((4, 8, 16, 32),)
         ratios = ((0.5, 1, 2.0),)
         anchor_generator = AnchorGenerator(sizes=sizes, aspect_ratios=ratios)
-        roi_pooler = MultiScaleRoIAlign(featmap_names=['0'], output_size=3, sampling_ratio=-1)
+        roi_pooler = MultiScaleRoIAlign(featmap_names=['0'], output_size=3, sampling_ratio=2)
 
         self.f_rcnn = FasterRCNN(backbone,
                                  min_size=128,
@@ -35,12 +35,25 @@ class ClassifierModel(nn.Module):
     def __init__(self):
         super(ClassifierModel, self).__init__()
 
-        self.resnet = ResNet(BasicBlock, [2, 2, 2, 2], num_classes=4)
-        self.out_channels = 256
+        # self.resnet = ResNet(BasicBlock, [2, 2, 2, 2], num_classes=4)
+        # self.out_channels = 256
+
+        self.conv1 = nn.Conv2d(4, 32, 3, stride=2, padding=1)
+        self.conv2 = nn.Conv2d(32, 64, 3, stride=2, padding=1)
+        self.pool1 = nn.MaxPool2d(2, stride=2)
+        self.fc1 = nn.Linear(64 * 16 * 16, 1024)
+        self.fc2 = nn.Linear(1024, 4)
 
     def forward(self, img):
-        resnet_out = self.resnet(img)
-        out = torch.sigmoid(resnet_out)
+        # resnet_out = self.resnet(img)
+        # out = torch.sigmoid(resnet_out)
+
+        out = self.conv1(img)
+        out = self.conv2(out)
+        out = self.pool1(out)
+        out = self._flatten(out)
+        out = self.fc1(out)
+        out = self.fc2(out)
 
         return out
 
@@ -57,6 +70,11 @@ class ClassifierModel(nn.Module):
         # x = self.resnet.layer4(x)
 
         return x
+
+    @staticmethod
+    def _flatten(tensor):
+        batch = tensor.shape[0]
+        return tensor.view(batch, -1)
 
 
 class DetectionBackbone(nn.Module):

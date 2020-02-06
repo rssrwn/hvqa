@@ -11,7 +11,7 @@ from hvqa.detection.dataset import ClassificationDataset
 from hvqa.detection.evaluation import ClassificationEvaluator
 
 
-BATCH_SIZE = 64
+BATCH_SIZE = 128
 LEARNING_RATE = 0.001
 
 _mse_func = nn.MSELoss(reduction="none")
