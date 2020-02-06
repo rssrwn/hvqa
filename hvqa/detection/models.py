@@ -7,9 +7,6 @@ from torchvision.models.detection import FasterRCNN
 from torchvision.models.detection.rpn import AnchorGenerator
 
 
-OUTPUT_SHAPE = (9, 8, 8)
-TOTAL_OUTPUT_SIZE = OUTPUT_SHAPE[0] * OUTPUT_SHAPE[1] * OUTPUT_SHAPE[2]
-
 # Include background as a class
 NUM_CLASSES = 4 + 1
 
@@ -30,19 +27,8 @@ class DetectionModel(nn.Module):
                                  rpn_anchor_generator=anchor_generator,
                                  box_roi_pool=roi_pooler)
 
-    def forward(self, img, target=None):
-        return self.f_rcnn(img, target)
-
-    @staticmethod
-    def _flatten(tensor):
-        batch = tensor.shape[0]
-        return tensor.view(batch, -1)
-
-    @staticmethod
-    def _output_tensor(vec):
-        batch = vec.shape[0]
-        c, h, w = OUTPUT_SHAPE
-        return vec.view(batch, c, h, w)
+    def forward(self, x, target=None):
+        return self.f_rcnn(x, target)
 
 
 class ClassifierModel(nn.Module):
@@ -91,5 +77,4 @@ class DetectionBackbone(nn.Module):
         x = self.model.feature_map(x)
         x = self.conv1(x)
         x = self.conv2(x)
-
         return x

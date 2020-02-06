@@ -6,62 +6,66 @@ from shapely.geometry import Polygon
 from PIL import ImageDraw
 import numpy as np
 
-from hvqa.util import load_model, extract_bbox_and_class, NUM_YOLO_REGIONS
+from hvqa.util import load_model, extract_bbox_and_class, get_device
 from hvqa.detection.dataset import DetectionDataset, ClassificationDataset
 from hvqa.detection.models import DetectionModel, ClassifierModel, DetectionBackbone
 
+from lib.vision.engine import evaluate
+
 
 class _AbsEvaluator:
-    def __init__(self, test_data_dir):
-        self.test_data_dir = test_data_dir
+    def __init__(self, test_loader):
+        # TODO transforms
+        self.test_loader = test_loader
 
-    def eval_models(self, model_dir, conf_threshold=0.5):
-        model_path = Path(model_dir)
-        if model_path.is_dir():
-            print("Model path is a directory, evaluating all models in dir...")
-            for model_file in model_path.iterdir():
-                self.eval_model(model_file, conf_threshold)
-        else:
-            print("Model path is a file, evaluating single model...")
-            self.eval_model(model_dir, conf_threshold)
+    # def eval_models_from_file(self, model_dir, conf_threshold=0.5):
+    #     model_path = Path(model_dir)
+    #     if model_path.is_dir():
+    #         print("Model path is a directory, evaluating all models in dir...")
+    #         for model_file in model_path.iterdir():
+    #             self.eval_model_from_file(model_file, conf_threshold)
+    #     else:
+    #         print("Model path is a file, evaluating single model...")
+    #         self.eval_model_from_file(model_dir, conf_threshold)
 
-    def eval_model(self, model_file, threshold):
+    def eval_model(self, model, threshold):
         raise NotImplementedError()
 
 
 class DetectionEvaluator(_AbsEvaluator):
-    def __init__(self, test_data_dir, backbone_file):
-        super(DetectionEvaluator, self).__init__(test_data_dir)
-        batch_size = 1
-        dataset = DetectionDataset(test_data_dir, NUM_YOLO_REGIONS)
-        self.test_loader = DataLoader(dataset, batch_size=batch_size, shuffle=True)
+    def __init__(self, test_loader):
+        super(DetectionEvaluator, self).__init__(test_loader)
 
-        pretrained = load_model(ClassifierModel, backbone_file)
-        self.backbone = DetectionBackbone(pretrained)
+        # pretrained = load_model(ClassifierModel, backbone_file)
+        # self.backbone = DetectionBackbone(pretrained)
 
-    def eval_model(self, model_file, threshold=0.5):
-        model = load_model(DetectionModel, Path(model_file), self.backbone)
-        model.eval()
+    # def eval_model(self, model_file, threshold=0.5):
+    #     model = load_model(DetectionModel, Path(model_file), self.backbone)
+    #     model.eval()
+    #
+    #     ious = []
+    #     for i, (x, y) in enumerate(self.test_loader):
+    #         with torch.no_grad():
+    #             preds = model(x)
+    #
+    #         preds_arr = extract_bbox_and_class(preds[0, :, :, :], threshold)
+    #         actual_arr = extract_bbox_and_class(y[0, :, :, :], threshold)
+    #
+    #         for actual_obj in actual_arr:
+    #             best_iou = None
+    #             for obj_idx, pred_obj in enumerate(preds_arr):
+    #                 iou = self._calc_iou(actual_obj[0], pred_obj[0])
+    #                 if best_iou is None or abs(1 - iou) < abs(1 - best_iou):
+    #                     best_iou = iou
+    #
+    #             ious.append(best_iou)
+    #
+    #     avg_iou = sum(ious) / len(ious)
+    #     print(f"Avg IOU: {avg_iou}")
 
-        ious = []
-        for i, (x, y) in enumerate(self.test_loader):
-            with torch.no_grad():
-                preds = model(x)
-
-            preds_arr = extract_bbox_and_class(preds[0, :, :, :], threshold)
-            actual_arr = extract_bbox_and_class(y[0, :, :, :], threshold)
-
-            for actual_obj in actual_arr:
-                best_iou = None
-                for obj_idx, pred_obj in enumerate(preds_arr):
-                    iou = self._calc_iou(actual_obj[0], pred_obj[0])
-                    if best_iou is None or abs(1 - iou) < abs(1 - best_iou):
-                        best_iou = iou
-
-                ious.append(best_iou)
-
-        avg_iou = sum(ious) / len(ious)
-        print(f"Avg IOU: {avg_iou}")
+    def eval_model(self, model, threshold=None):
+        device = get_device()
+        evaluate(model, self.test_loader, device)
 
     @staticmethod
     def _create_shape(bbox):

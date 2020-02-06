@@ -40,7 +40,7 @@ class _AbsHVQADataset(Dataset):
         num_videos = 0
         num_frames = 0
 
-        print("Searching videos for training data...")
+        print("Searching videos for data...")
 
         # Iterate through videos
         for video_dir in video_dirs:
@@ -61,7 +61,7 @@ class _AbsHVQADataset(Dataset):
 
             num_videos += 1
 
-        print(f"Found training data from {num_videos} videos and {num_frames} frames")
+        print(f"Found data from {num_videos} videos and {num_frames} frames")
 
         return ids, frame_dicts
 
@@ -135,17 +135,22 @@ class _AbsHVQADataset(Dataset):
 
 class DetectionDataset(_AbsHVQADataset):
     """
-    A class for storing the dataset of frames
+    A class for storing the dataset of frames in the Faster R-CNN format
     Generates tensors for frames and outputs on the fly
     Note: For object detection we do not care which video the frames came from so all frames are stored together
     """
 
-    def __init__(self, data_dir, num_regions, transforms=None):
+    def __init__(self, data_dir, transforms=None):
         super(DetectionDataset, self).__init__(data_dir, transforms)
-        self.num_regions = num_regions
-        self.region_size = int(self.img_size / self.num_regions)
 
     def __getitem__(self, item):
+        """
+        Get a training pair (input, target)
+
+        :param item: Index of training data point
+        :return: img (tensor), target (dict)
+        """
+
         video_num, frame_num = self.ids[item]
         frame_dict = self.frame_dicts[item]
         video_dir = Path(f"{self.data_dir}/{video_num}")
@@ -203,57 +208,6 @@ class DetectionDataset(_AbsHVQADataset):
             return 3
         else:
             raise UnknownObjectTypeException(f"Unknown object {obj}")
-
-    def _collect_yolo_output(self, frame_dict):
-        """
-        Build frame output for YOLO-style training
-        For each region of the image we produce a vector with 9 numbers:
-          - x1, y1, x2, y2, confidence, p(octo), p(fish), p(bag), p(rock)
-
-        Probabilities and confidence are either 0 or 1
-        Coords in output are normalised between 0 and 1
-
-        :param frame_dict: Frame dictionary (as in json file of dataset)
-        :return: Frame output as a 9x8x8 torch Tensor (Note: outputs x height x width)
-        """
-
-        output = torch.zeros([9, 8, 8], dtype=torch.float32)
-        objects = frame_dict["objects"]
-        for obj in objects:
-            [x1, y1, x2, y2] = obj["position"]
-            class_vec = self._create_class_vec(obj)
-            normalised_coords = torch.from_numpy(np.array([x1, y1, x2, y2], dtype=np.float32) / self.img_size)
-
-            centre_x = (x1 + x2) // 2
-            centre_y = (y1 + y2) // 2
-
-            # Check which region the centre of object is in
-            for i in range(0, self.num_regions):
-                for j in range(0, self.num_regions):
-                    r_s = self.region_size
-                    if (i * r_s) <= centre_x < (i + 1) * r_s and (j * r_s) <= centre_y < (j + 1) * r_s:
-                        one = torch.ones([1], dtype=torch.float32)
-                        vec = torch.cat((normalised_coords, one, class_vec))
-                        output[:, j, i] = vec
-
-        return output
-
-    @staticmethod
-    def _create_class_vec(obj):
-        vec = torch.zeros([4], dtype=torch.float32)
-        obj_type = obj["class"]
-        if obj_type == "octopus":
-            vec[0] = 1
-        elif obj_type == "fish":
-            vec[1] = 1
-        elif obj_type == "bag":
-            vec[2] = 1
-        elif obj_type == "rock":
-            vec[3] = 1
-        else:
-            raise UnknownObjectTypeException(f"Unknown object type: {obj_type}")
-
-        return vec
 
 
 class ClassificationDataset(_AbsHVQADataset):
