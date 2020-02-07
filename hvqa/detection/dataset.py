@@ -198,14 +198,16 @@ class DetectionDataset(_AbsHVQADataset):
     @staticmethod
     def _label(obj):
         obj_type = obj["class"]
+
+        # Note: 0 represents background
         if obj_type == "octopus":
-            return 0
-        elif obj_type == "fish":
             return 1
-        elif obj_type == "bag":
+        elif obj_type == "fish":
             return 2
-        elif obj_type == "rock":
+        elif obj_type == "bag":
             return 3
+        elif obj_type == "rock":
+            return 4
         else:
             raise UnknownObjectTypeException(f"Unknown object {obj}")
 

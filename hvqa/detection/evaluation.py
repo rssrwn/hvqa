@@ -50,19 +50,18 @@ class DetectionEvaluator(_AbsEvaluator):
             draw = ImageDraw.Draw(img)
             self._add_bboxs(draw, [obj["position"] for obj in frame_dict["objects"]])
 
+            # Get network output
             with torch.no_grad():
                 net_out = model(img_tensor[None, :, :, :])
 
             scores = net_out[0]["scores"]
             idxs = scores > conf_threshold
-
             boxes = list(net_out[0]["boxes"][idxs, :].numpy())
             labels = list(net_out[0]["labels"][idxs].numpy())
             short_labels = [self._shorten_label(label) for label in labels]
 
-            # Add predicted bboxs
+            # Add predicted bboxs and labels
             self._add_bboxs(draw, boxes, ground_truth=False)
-
             for idx, label in enumerate(short_labels):
                 x1, y1, x2, y2 = boxes[idx]
                 self._add_labels(draw, (x1, y1), label)
@@ -90,12 +89,14 @@ class DetectionEvaluator(_AbsEvaluator):
     @staticmethod
     def _shorten_label(label):
         if label == 0:
-            return "o"
+            return "back"
         elif label == 1:
-            return "f"
+            return "o"
         elif label == 2:
-            return "b"
+            return "f"
         elif label == 3:
+            return "b"
+        elif label == 4:
             return "r"
         else:
             raise UnknownObjectTypeException(f"Unknown label {label}")
