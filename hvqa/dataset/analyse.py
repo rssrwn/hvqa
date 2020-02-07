@@ -1,6 +1,8 @@
 import argparse
+import numpy as np
 
-from hvqa.util import *
+from hvqa.util import get_video_dicts, detector_transforms, IMG_SIZE
+from hvqa.detection.dataset import ClassificationDataset
 
 
 def extract_event(event):
@@ -84,7 +86,31 @@ def count_rotations(video_dicts):
     print(f"\nTotal number of frames: {num_frames}\n")
 
 
-def main(data_dir, events, colours, rotations):
+def analyse_pixels(dataset):
+    img, target = dataset[0]
+    num_channels = img.shape[0]
+    pixels = [[] for _ in range(num_channels)]
+
+    num_samples = 1000
+    idxs = np.random.randint(0, len(dataset), (num_samples,))
+    for idx in idxs:
+        img, target = dataset[idx]
+        img = img.numpy()
+        for c_idx in range(num_channels):
+            pixels[c_idx].append(list(img[c_idx, :, :].reshape(-1)))
+
+    means = []
+    stddevs = []
+    for arr in pixels:
+        means.append(np.array(arr).mean())
+        stddevs.append(np.array(arr).std())
+
+    print("Dataset statistics per channel:")
+    print(f"Means:    {tuple(means)}")
+    print(f"Std devs: {tuple(stddevs)}")
+
+
+def main(data_dir, events, colours, rotations, pixels):
     video_dicts = get_video_dicts(data_dir)
 
     if events:
@@ -99,12 +125,18 @@ def main(data_dir, events, colours, rotations):
         print("Analysing octopus rotations...")
         count_rotations(video_dicts)
 
+    if pixels:
+        print("Analysing pixels...")
+        dataset = ClassificationDataset(data_dir, transforms=detector_transforms)
+        analyse_pixels(dataset)
+
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description="Script for analysing built dataset")
     parser.add_argument("-e", "--events", action="store_true", default=False)
     parser.add_argument("-c", "--colours", action="store_true", default=False)
     parser.add_argument("-r", "--rotations", action="store_true", default=False)
+    parser.add_argument("-p", "--pixels", action="store_true", default=False)
     parser.add_argument("data_dir", type=str)
     args = parser.parse_args()
-    main(args.data_dir, args.events, args.colours, args.rotations)
+    main(args.data_dir, args.events, args.colours, args.rotations, args.pixels)
