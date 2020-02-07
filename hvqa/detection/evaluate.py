@@ -4,7 +4,7 @@ from torch.utils.data import DataLoader
 
 from hvqa.util import detector_transforms, collate_func, get_device
 from hvqa.detection.evaluation import DetectionEvaluator, ClassificationEvaluator
-from hvqa.detection.models import ClassifierModel, DetectionBackbone, DetectionModel
+from hvqa.detection.models import ClassifierModel, DetectionBackboneWrapper, DetectionModel
 from hvqa.detection.dataset import DetectionDataset
 
 
@@ -37,7 +37,7 @@ def main(test_dir, model_file, threshold, classifier, visualise):
         device = get_device()
         pretrained = ClassifierModel()
         pretrained.load_state_dict(torch.load("saved-models/resnet-classifier-v1/after_10_epochs.pt", map_location=device))
-        backbone = DetectionBackbone(pretrained)
+        backbone = DetectionBackboneWrapper(pretrained)
         model = DetectionModel(backbone)
         model.load_state_dict(torch.load("saved-models/detector-with-bb-v2/after_20_epochs.pt", map_location=device))
 

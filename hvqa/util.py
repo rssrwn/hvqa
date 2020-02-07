@@ -26,6 +26,11 @@ NUM_YOLO_REGIONS = 8
 USE_GPU = True
 DTYPE = torch.float32
 
+
+# TODO normalise
+# Means:    (0.010761048, 0.24837227, 0.75161874, 0.6989449)
+# Std devs: (0.10317583, 0.06499335, 0.065463744, 0.056644086)
+
 detector_transforms = T.Compose([
     T.Lambda(lambda x: add_edges(x)),
     T.ToTensor(),

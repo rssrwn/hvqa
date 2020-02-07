@@ -35,25 +35,12 @@ class ClassifierModel(nn.Module):
     def __init__(self):
         super(ClassifierModel, self).__init__()
 
-        # self.resnet = ResNet(BasicBlock, [2, 2, 2, 2], num_classes=4)
-        # self.out_channels = 256
-
-        self.conv1 = nn.Conv2d(4, 32, 3, stride=2, padding=1)
-        self.conv2 = nn.Conv2d(32, 64, 3, stride=2, padding=1)
-        self.pool1 = nn.MaxPool2d(2, stride=2)
-        self.fc1 = nn.Linear(64 * 16 * 16, 1024)
-        self.fc2 = nn.Linear(1024, 4)
+        self.resnet = ResNet(BasicBlock, [2, 2, 2, 2], num_classes=4)
+        self.out_channels = 256
 
     def forward(self, img):
-        # resnet_out = self.resnet(img)
-        # out = torch.sigmoid(resnet_out)
-
-        out = self.conv1(img)
-        out = self.conv2(out)
-        out = self.pool1(out)
-        out = self._flatten(out)
-        out = self.fc1(out)
-        out = self.fc2(out)
+        resnet_out = self.resnet(img)
+        out = torch.sigmoid(resnet_out)
 
         return out
 
@@ -77,9 +64,9 @@ class ClassifierModel(nn.Module):
         return tensor.view(batch, -1)
 
 
-class DetectionBackbone(nn.Module):
+class DetectionBackboneWrapper(nn.Module):
     def __init__(self, trained_model):
-        super(DetectionBackbone, self).__init__()
+        super(DetectionBackboneWrapper, self).__init__()
 
         self.model = trained_model
         self.out_channels = trained_model.out_channels
@@ -96,3 +83,29 @@ class DetectionBackbone(nn.Module):
         x = self.conv1(x)
         x = self.conv2(x)
         return x
+
+
+class DetectionBackbone(nn.Module):
+    def __init__(self):
+        super(DetectionBackbone, self).__init__()
+
+        self.conv1 = nn.Conv2d(4, 64, 3, stride=1, padding=1)
+        self.conv2 = nn.Conv2d(64, 128, 3, stride=1, padding=1)
+        self.relu1 = nn.ReLU(inplace=False)
+        self.pool1 = nn.MaxPool2d(2, stride=2)
+        self.conv3 = nn.Conv2d(128, 256, 3, stride=1, padding=1)
+        self.conv4 = nn.Conv2d(256, 256, 3, stride=1, padding=1)
+        self.relu2 = nn.ReLU(inplace=False)
+        self.pool2 = nn.MaxPool2d(2, stride=2)
+
+    def forward(self, img):
+        out = self.conv1(img)
+        out = self.conv2(out)
+        out = self.relu1(out)
+        out = self.pool1(out)
+        out = self.conv3(out)
+        out = self.conv4(out)
+        out = self.relu2(out)
+        out = self.pool2(out)
+
+        return out
