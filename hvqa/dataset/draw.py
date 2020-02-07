@@ -92,8 +92,7 @@ class Drawer:
     def _draw_fish(img, fish):
         x1, y1, x2, y2 = fish["position"]
         rotation = fish["rotation"]
-        x_centre = x1 + ((x2 - x1) // 2)
-        y_centre = y1 + ((y2 - y1) // 2)
+        x_centre, y_centre = Drawer._update_centres((x1, y1, x2, y2), rotation)
 
         # Body
         for i in range(x1 + 1, x1 + 4):
@@ -115,8 +114,7 @@ class Drawer:
     def _draw_bag(img, bag):
         x1, y1, x2, y2 = bag["position"]
         rotation = bag["rotation"]
-        x_centre = x1 + ((x2 - x1) // 2)
-        y_centre = y1 + ((y2 - y1) // 2)
+        x_centre, y_centre = Drawer._update_centres((x1, y1, x2, y2), rotation)
 
         # Body
         for i in range(x1, x1 + 5):
@@ -158,6 +156,27 @@ class Drawer:
                 Drawer._draw_pixel(img, i + 1, j - 1, BLACK_RGB, rotation, x_centre, y_centre)
 
     @staticmethod
+    def _update_centres(pos, rot):
+        """
+        Update centres for non-square objects
+
+        :param pos: position
+        :param rot: Rotation
+        :return: x_centre, y_centre
+        """
+
+        x1, y1, x2, y2 = pos
+        x_centre = x1 + ((x2 - x1) // 2)
+        y_centre = y1 + ((y2 - y1) // 2)
+        if rot == 1:
+            # x_centre += 1
+            y_centre += 1
+        elif rot == 3:
+            x_centre -= 1
+
+        return x_centre, y_centre
+
+    @staticmethod
     def _get_obj_colour(obj):
         colour = obj["colour"]
         if colour == "brown":
@@ -190,8 +209,8 @@ class Drawer:
         if rotation == 0:
             Drawer._set_pixel_colour(img, x, y, rgb_tuple)
         elif rotation == 1:
-            Drawer._set_pixel_colour(img, x_centre + y_diff, y_centre - x_diff, rgb_tuple)
+            Drawer._set_pixel_colour(img, x_centre + y_diff, y_centre - x_diff, rgb_tuple)  # +1
         elif rotation == 2:
             Drawer._set_pixel_colour(img, x_centre + x_diff, y_centre + y_diff, rgb_tuple)
         elif rotation == 3:
-            Drawer._set_pixel_colour(img, x_centre - y_diff, y_centre + x_diff, rgb_tuple)
+            Drawer._set_pixel_colour(img, x_centre - y_diff, y_centre + x_diff, rgb_tuple)  # -1

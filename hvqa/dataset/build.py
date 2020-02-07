@@ -71,7 +71,7 @@ def create_frame(frame):
 def delete_directory(name):
     directory = Path(f"./{name}")
     if directory.exists():
-        response = input(f"About to delete {name} directory. Are you sure you want to continue? [y/n]")
+        response = input(f"About to delete {name} directory. Are you sure you want to continue? [y/n] ")
         if response != "y":
             print("Exiting...")
             exit()
@@ -90,7 +90,7 @@ def main(out_dir, num_videos, json_only, frames_only):
 
     if not json_only:
         response = input(f"About to create frames. This could overwrite old frames. "
-                         f"Are you sure you want to continue? [y/n]")
+                         f"Are you sure you want to continue? [y/n] ")
         if response != "y":
             print("Exiting...")
             exit()
