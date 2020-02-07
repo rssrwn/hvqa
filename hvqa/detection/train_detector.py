@@ -14,9 +14,8 @@ from lib.vision.engine import train_one_epoch
 
 
 BATCH_SIZE = 128
-LEARNING_RATE = 0.005
-
-_mse_func = nn.MSELoss(reduction="none")
+LEARNING_RATE = 0.001
+PRINT_FREQ = 20
 
 
 def train_detector(model, loader_train, loader_test, model_save_dir, epochs=50):
@@ -30,7 +29,7 @@ def train_detector(model, loader_train, loader_test, model_save_dir, epochs=50):
     model = model.to(device=device)
     for epoch in range(epochs):
         model.train()
-        train_one_epoch(model, optimiser, loader_train, device, epoch, print_freq=50)
+        train_one_epoch(model, optimiser, loader_train, device, epoch, print_freq=PRINT_FREQ)
 
         # Save a temp model every epoch
         current_save = f"{model_save_dir}/after_{epoch + 1}_epochs.pt"

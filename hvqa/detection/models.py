@@ -18,7 +18,7 @@ class DetectionModel(nn.Module):
         sizes = ((4, 8, 16, 32, 64),)
         ratios = ((0.5, 1, 2.0),)
         anchor_generator = AnchorGenerator(sizes=sizes, aspect_ratios=ratios)
-        roi_pooler = MultiScaleRoIAlign(featmap_names=['0'], output_size=7, sampling_ratio=2)
+        roi_pooler = MultiScaleRoIAlign(featmap_names=['0'], output_size=3, sampling_ratio=-1)
 
         self.f_rcnn = FasterRCNN(backbone,
                                  min_size=128,

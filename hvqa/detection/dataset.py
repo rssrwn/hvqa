@@ -175,7 +175,7 @@ class DetectionDataset(_AbsHVQADataset):
         bboxs = torch.zeros((len(objects), 4), dtype=torch.float32)
         labels = torch.zeros(len(objects), dtype=torch.int64)
         areas = torch.zeros(len(objects), dtype=torch.float32)
-        for idx, obj in enumerate(frame_dict["objects"]):
+        for idx, obj in enumerate(objects):
             bbox = obj["position"]
             bboxs[idx, :] = torch.tensor(bbox)
 
