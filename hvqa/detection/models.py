@@ -25,7 +25,9 @@ class DetectionModel(nn.Module):
                                  max_size=128,
                                  num_classes=NUM_CLASSES,
                                  rpn_anchor_generator=anchor_generator,
-                                 box_roi_pool=roi_pooler)
+                                 box_roi_pool=roi_pooler,
+                                 image_mean=(0.2484, 0.7516, 0.6989),
+                                 image_std=(0.0650, 0.6546, 0.0566))
 
     def forward(self, x, target=None):
         return self.f_rcnn(x, target)
@@ -89,7 +91,9 @@ class DetectionBackbone(nn.Module):
     def __init__(self):
         super(DetectionBackbone, self).__init__()
 
-        self.conv1 = nn.Conv2d(4, 64, 3, stride=1, padding=1)
+        in_channels = 3
+
+        self.conv1 = nn.Conv2d(in_channels, 64, 3, stride=1, padding=1)
         self.relu1 = nn.ReLU(inplace=False)
         self.pool1 = nn.MaxPool2d(2, stride=2)
         self.conv2 = nn.Conv2d(64, 128, 3, stride=1, padding=1)
