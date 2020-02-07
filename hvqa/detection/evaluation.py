@@ -89,7 +89,7 @@ class DetectionEvaluator(_AbsEvaluator):
     @staticmethod
     def _shorten_label(label):
         if label == 0:
-            return "back"
+            return "bg"
         elif label == 1:
             return "o"
         elif label == 2:
