@@ -7,4 +7,3 @@ cython
 pycocotools
 matplotlib
 opencv-python
-

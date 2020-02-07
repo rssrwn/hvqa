@@ -1,6 +1,5 @@
 import torch
 import torch.nn as nn
-import torch.nn.functional as F
 from torchvision.ops import MultiScaleRoIAlign
 from torchvision.models.resnet import ResNet, BasicBlock
 from torchvision.models.detection import FasterRCNN

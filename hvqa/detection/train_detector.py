@@ -1,11 +1,10 @@
 import argparse
 from pathlib import Path
 import torch
-import torch.nn as nn
 import torch.optim as optim
 from torch.utils.data import DataLoader
 
-from hvqa.util import get_device, load_model, add_edges, detector_transforms, collate_func
+from hvqa.util import get_device, load_model, detector_transforms, collate_func
 from hvqa.detection.models import DetectionModel, ClassifierModel, DetectionBackboneWrapper, DetectionBackbone
 from hvqa.detection.dataset import DetectionDataset
 from hvqa.detection.evaluation import DetectionEvaluator
@@ -18,7 +17,7 @@ LEARNING_RATE = 0.001
 PRINT_FREQ = 20
 
 
-def train_detector(model, loader_train, loader_test, model_save_dir, epochs=50):
+def train_detector(model, loader_train, loader_test, model_save_dir, epochs=10):
     evaluator = DetectionEvaluator(loader_test)
     optimiser = optim.Adam(model.parameters(), lr=LEARNING_RATE)
 
@@ -43,17 +42,20 @@ def train_detector(model, loader_train, loader_test, model_save_dir, epochs=50):
 
 
 def main(train_dir, backbone_dir, val_dir, model_save_dir):
-    # Create model save path, just in case
+    # Create model save path, in case it doesn't exist
     path = Path(f"./{model_save_dir}")
     path.mkdir(parents=True, exist_ok=True)
 
     # Read backbone model
-    # pretrained = load_model(ClassifierModel, backbone_dir)
-    # backbone = DetectionBackboneWrapper(pretrained)
-    # model = DetectionModel(backbone)
-
-    backbone = DetectionBackbone()
-    model = DetectionModel(backbone)
+    if backbone_dir is not None:
+        pretrained = load_model(ClassifierModel, backbone_dir)
+        backbone = DetectionBackboneWrapper(pretrained)
+        model = DetectionModel(backbone)
+        print("Successfully read pretrained backbone model")
+    else:
+        backbone = DetectionBackbone()
+        model = DetectionModel(backbone)
+        print("No backbone model given, training end-to-end model")
 
     # Read train data
     dataset_train = DetectionDataset(train_dir, transforms=detector_transforms)
@@ -69,8 +71,8 @@ def main(train_dir, backbone_dir, val_dir, model_save_dir):
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description="Script for training object detector model")
     parser.add_argument("train_dir", type=str)
-    parser.add_argument("backbone_dir", type=str)
     parser.add_argument("test_dir", type=str)
     parser.add_argument("model_save_dir", type=str)
+    parser.add_argument("--backbone_dir", type=str, required=False, default=None)
     args = parser.parse_args()
     main(args.train_dir, args.backbone_dir, args.test_dir, args.model_save_dir)
