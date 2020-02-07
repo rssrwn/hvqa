@@ -15,10 +15,10 @@ class DetectionModel(nn.Module):
     def __init__(self, backbone):
         super(DetectionModel, self).__init__()
 
-        sizes = ((4, 8, 16, 32),)
+        sizes = ((4, 8, 16, 32, 64),)
         ratios = ((0.5, 1, 2.0),)
         anchor_generator = AnchorGenerator(sizes=sizes, aspect_ratios=ratios)
-        roi_pooler = MultiScaleRoIAlign(featmap_names=['0'], output_size=3, sampling_ratio=2)
+        roi_pooler = MultiScaleRoIAlign(featmap_names=['0'], output_size=7, sampling_ratio=2)
 
         self.f_rcnn = FasterRCNN(backbone,
                                  min_size=128,
@@ -90,22 +90,21 @@ class DetectionBackbone(nn.Module):
         super(DetectionBackbone, self).__init__()
 
         self.conv1 = nn.Conv2d(4, 64, 3, stride=1, padding=1)
-        self.conv2 = nn.Conv2d(64, 128, 3, stride=1, padding=1)
         self.relu1 = nn.ReLU(inplace=False)
         self.pool1 = nn.MaxPool2d(2, stride=2)
-        self.conv3 = nn.Conv2d(128, 256, 3, stride=1, padding=1)
-        self.conv4 = nn.Conv2d(256, 256, 3, stride=1, padding=1)
-        self.relu2 = nn.ReLU(inplace=False)
-        self.pool2 = nn.MaxPool2d(2, stride=2)
+        self.conv2 = nn.Conv2d(64, 128, 3, stride=1, padding=1)
+
+        # self.conv3 = nn.Conv2d(128, 256, 3, stride=1, padding=1)
+        # self.conv4 = nn.Conv2d(256, 256, 3, stride=1, padding=1)
+        # self.relu2 = nn.ReLU(inplace=False)
+        # self.pool2 = nn.MaxPool2d(2, stride=2)
+
+        self.out_channels = 128
 
     def forward(self, img):
         out = self.conv1(img)
-        out = self.conv2(out)
         out = self.relu1(out)
         out = self.pool1(out)
-        out = self.conv3(out)
-        out = self.conv4(out)
-        out = self.relu2(out)
-        out = self.pool2(out)
+        out = self.conv2(out)
 
         return out

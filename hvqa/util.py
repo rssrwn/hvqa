@@ -5,7 +5,7 @@ from pathlib import Path
 import torch
 import cv2
 import numpy as np
-import torchvision.transforms as T
+import torchvision.transforms.transforms as T
 
 
 # *** Exceptions ***
@@ -27,13 +27,13 @@ USE_GPU = True
 DTYPE = torch.float32
 
 
-# TODO normalise
 # Means:    (0.010761048, 0.24837227, 0.75161874, 0.6989449)
 # Std devs: (0.10317583, 0.06499335, 0.065463744, 0.056644086)
 
 detector_transforms = T.Compose([
     T.Lambda(lambda x: add_edges(x)),
     T.ToTensor(),
+    T.Normalize((0.0108, 0.2484, 0.7516, 0.6989), (0.1034, 0.0650, 0.6546, 0.0566))
 ])
 
 

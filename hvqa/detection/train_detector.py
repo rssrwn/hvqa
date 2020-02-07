@@ -6,7 +6,7 @@ import torch.optim as optim
 from torch.utils.data import DataLoader
 
 from hvqa.util import get_device, load_model, add_edges, detector_transforms, collate_func
-from hvqa.detection.models import DetectionModel, ClassifierModel, DetectionBackboneWrapper
+from hvqa.detection.models import DetectionModel, ClassifierModel, DetectionBackboneWrapper, DetectionBackbone
 from hvqa.detection.dataset import DetectionDataset
 from hvqa.detection.evaluation import DetectionEvaluator
 
@@ -49,8 +49,11 @@ def main(train_dir, backbone_dir, val_dir, model_save_dir):
     path.mkdir(parents=True, exist_ok=True)
 
     # Read backbone model
-    pretrained = load_model(ClassifierModel, backbone_dir)
-    backbone = DetectionBackboneWrapper(pretrained)
+    # pretrained = load_model(ClassifierModel, backbone_dir)
+    # backbone = DetectionBackboneWrapper(pretrained)
+    # model = DetectionModel(backbone)
+
+    backbone = DetectionBackbone()
     model = DetectionModel(backbone)
 
     # Read train data
