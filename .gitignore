@@ -1,9 +1,20 @@
+# Editor files
 .DS_Store
 */.DS_Store
 .idea/
+*/__pycache__/
+*/*/__pycache__/
+
+# Latex compiled files
+#report/interim-report/interim.aux
+#report/interim-report/interim.bbl
+#report/interim-report/interim.blg
+#report/interim-report/interim.log
+#report/interim-report/interim.out
+#report/interim-report/interim.run.xml
+
+# Data and models
 data/
 example-data/
 saved-models/
-*/__pycache__/
-*/*/__pycache__/
 
