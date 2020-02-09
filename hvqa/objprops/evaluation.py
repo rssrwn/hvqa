@@ -76,17 +76,26 @@ class PropertyExtractionEvaluator(_AbsEvaluator):
             print(f"{PROPERTIES[i].capitalize():<12}{precision:<12.4f}{recall:<12.4f}{accuracy:<12.4f}{avg_mse:<6.4f}")
 
     @staticmethod
-    def _eval_classification(preds, targets, threshold=None):
+    def _eval_classification(preds, indices, threshold=None):
         """
         Calculate metrics for classification
 
-        :param preds: Network predictions (tensor of floats)
-        :param targets: Target outputs (tensor of ints)
+        :param preds: Network predictions (tensor of floats, (N, C))
+        :param indices: Target class indices (tensor of ints, (N, 1))
         :return: mses (list of floats), TP, FP, TN, FN (all ints)
         """
 
         if threshold is None:
             threshold = 0
+
+        preds_shape = preds.shape
+        targets_shape = indices.shape
+
+        assert preds_shape[0] == targets_shape[0], "Predictions and targets must have the same batch size"
+
+        # Convert targets to one-hot encoding
+        targets = torch.zeros(preds_shape)
+        targets[range(preds_shape[0]), indices] = 1
 
         mses = F.mse_loss(preds, targets, reduction="none")
         mses_batch = list(torch.sum(mses, 1).numpy())

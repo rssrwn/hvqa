@@ -23,7 +23,7 @@ def calc_loss_classifiction(pred, actual):
     return torch.mean(loss_sum)
 
 
-def train_one_epoch(model, optimiser, loader_train, device, epoch, print_freq=100):
+def train_one_epoch(model, optimiser, loader_train, device, epoch, print_freq=20):
     for t, (x, y) in enumerate(loader_train):
         model.train()
         x = x.to(device=device, dtype=DTYPE)

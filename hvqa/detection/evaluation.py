@@ -4,20 +4,12 @@ import torchvision.transforms as T
 from PIL import ImageDraw
 import numpy as np
 
-from hvqa.util import UnknownObjectTypeException, get_device
+from hvqa.util import UnknownObjectTypeException, get_device, _AbsEvaluator
 
 from lib.vision.engine import evaluate
 
 
 NUM_IMAGES = 3
-
-
-class _AbsEvaluator:
-    def __init__(self, test_loader):
-        self.test_loader = test_loader
-
-    def eval_model(self, model, threshold):
-        raise NotImplementedError()
 
 
 class DetectionEvaluator(_AbsEvaluator):

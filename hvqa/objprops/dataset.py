@@ -7,6 +7,7 @@ from torch.utils.data import Dataset
 
 COLOURS = ["red", "silver", "white", "brown", "blue", "purple", "green"]
 ROTATIONS = [0, 1, 2, 3]
+CLASSES = ["octopus", "fish", "bag", "rock"]
 
 
 class PropertyExtractionDataset(Dataset):
@@ -14,7 +15,7 @@ class PropertyExtractionDataset(Dataset):
     Dataset for training/testing networks which extract properties from objects
     """
 
-    def __int__(self, data_dir, transforms=None):
+    def __init__(self, data_dir, transforms=None):
         super(PropertyExtractionDataset, self).__init__()
 
         self.data_dir = Path(data_dir)
@@ -25,7 +26,7 @@ class PropertyExtractionDataset(Dataset):
         vid_idx, frame_idx, obj_idx = self.ids[item]
         obj_dict = self.obj_dicts[item]
 
-        video_dir = self.data_dir / vid_idx
+        video_dir = self.data_dir / str(vid_idx)
         img = self._collect_img(video_dir, frame_idx)
 
         # Collect network input
@@ -61,19 +62,34 @@ class PropertyExtractionDataset(Dataset):
 
     @staticmethod
     def _collect_target(obj_dict):
+        """
+        Collect network target as a dictionary containing three targets
+
+        :param obj_dict: Object
+        :return: Dict containing single-elem tensors which are the idx of the output class
+        """
+
         colour = obj_dict["colour"]
         colour_idx = COLOURS.index(colour)
-        colour_tensor = torch.zeros(len(COLOURS))
-        colour_tensor[colour_idx] = 1
+        colour_tensor = torch.tensor([colour_idx])
+        # colour_tensor[colour_idx] = 1
 
         rotation = obj_dict["rotation"]
         rotation_idx = ROTATIONS.index(rotation)
-        rotation_tensor = torch.zeros(len(ROTATIONS))
-        rotation_tensor[rotation_idx] = 1
+        rotation_tensor = torch.tensor([rotation_idx])
+        # rotation_tensor = torch.zeros(len(ROTATIONS))
+        # rotation_tensor[rotation_idx] = 1
+
+        cls = obj_dict["class"]
+        cls_idx = CLASSES.index(cls)
+        cls_tensor = torch.tensor([cls_idx])
+        # cls_tensor = torch.zeros(len(CLASSES))
+        # cls_tensor[cls_idx] = 1
 
         target = {
             "colour": colour_tensor,
-            "rotation": rotation_tensor
+            "rotation": rotation_tensor,
+            "class": cls_tensor
         }
         return target
 
@@ -102,10 +118,10 @@ class PropertyExtractionDataset(Dataset):
 
                 # Iterate through frames in current video
                 for frame_num, frame in enumerate(frames):
-                    objects = frame["objects"]
+                    objs = frame["objects"]
 
                     # Iterate through objects in frame
-                    for obj_idx, obj in enumerate(objects):
+                    for obj_idx, obj in enumerate(objs):
                         obj_ids.append((video_num, frame_num, obj_idx))
                         objects.append(obj)
                         num_objects += 1

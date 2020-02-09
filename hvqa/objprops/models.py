@@ -38,14 +38,10 @@ class PropertyExtractionModel(nn.Module):
         features = self.relu(features)
 
         colours = self.colour_layer(features)
-        colours = torch.softmax(colours, 0)
-
         rotations = self.rotation_layer(features)
-        rotations = torch.softmax(rotations, 0)
-
         classes = self.class_layer(features)
-        classes = torch.softmax(classes, 0)
 
+        # Note: softmax is applied by the loss function
         return colours, rotations, classes
 
     @staticmethod
