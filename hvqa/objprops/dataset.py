@@ -72,19 +72,14 @@ class PropertyExtractionDataset(Dataset):
         colour = obj_dict["colour"]
         colour_idx = COLOURS.index(colour)
         colour_tensor = torch.tensor([colour_idx])
-        # colour_tensor[colour_idx] = 1
 
         rotation = obj_dict["rotation"]
         rotation_idx = ROTATIONS.index(rotation)
         rotation_tensor = torch.tensor([rotation_idx])
-        # rotation_tensor = torch.zeros(len(ROTATIONS))
-        # rotation_tensor[rotation_idx] = 1
 
         cls = obj_dict["class"]
         cls_idx = CLASSES.index(cls)
         cls_tensor = torch.tensor([cls_idx])
-        # cls_tensor = torch.zeros(len(CLASSES))
-        # cls_tensor[cls_idx] = 1
 
         target = {
             "colour": colour_tensor,
