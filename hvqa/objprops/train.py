@@ -14,7 +14,7 @@ from hvqa.objprops.evaluation import PropertyExtractionEvaluator
 
 BATCH_SIZE = 128
 LEARNING_RATE = 0.001
-PRINT_FREQ = 20
+PRINT_FREQ = 100
 
 
 transforms = T.Compose([
@@ -36,6 +36,7 @@ def calc_loss(pred, target):
 
 
 def train_one_epoch(model, optimiser, loader_train, device, epoch, print_freq=10):
+    num_batches = len(loader_train)
     for t, (x, y) in enumerate(loader_train):
         model.train()
 
@@ -52,13 +53,13 @@ def train_one_epoch(model, optimiser, loader_train, device, epoch, print_freq=10
         class_targets = class_targets.to(device=device)
 
         output = model(images)
-        loss = calc_loss(output, (colour_targets[:,0], rot_targets[:,0], class_targets[:,0]))
+        loss = calc_loss(output, (colour_targets[:, 0], rot_targets[:, 0], class_targets[:, 0]))
         optimiser.zero_grad()
         loss.backward()
         optimiser.step()
 
         if t % print_freq == 0:
-            print(f"Epoch {epoch:>3}, batch {t:>4} "
+            print(f"Epoch {epoch:>3}, batch [{t:>4}/{num_batches}] "
                   f"-- loss = {loss.item():.6f} "
                   f"-- lr = {optimiser.param_groups[0]['lr']:.4f}")
 

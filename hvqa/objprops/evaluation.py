@@ -29,19 +29,19 @@ class PropertyExtractionEvaluator(_AbsEvaluator):
 
         for i, (x, y) in enumerate(self.test_loader):
             images = torch.cat([img[None, :, :, :] for img in x])
-            targets = [{k: v.to("cpu") for k, v in t.items()} for t in y]
+            targets = [{k: v for k, v in t.items()} for t in y]
             images = images.to(device=device)
 
             with torch.no_grad():
                 colour_preds, rot_preds, class_preds = model(images)
 
-            colour_preds.to("cpu")
-            rot_preds.to("cpu")
-            class_preds.to("cpu")
+            colour_preds = colour_preds.to("cpu")
+            rot_preds = rot_preds.to("cpu")
+            class_preds = class_preds.to("cpu")
 
-            colour_targets = torch.cat([target["colour"][None, :] for target in targets])
-            rot_targets = torch.cat([target["rotation"][None, :] for target in targets])
-            class_targets = torch.cat([target["class"][None, :] for target in targets])
+            colour_targets = torch.cat([target["colour"][None, :] for target in targets]).to("cpu")
+            rot_targets = torch.cat([target["rotation"][None, :] for target in targets]).to("cpu")
+            class_targets = torch.cat([target["class"][None, :] for target in targets]).to("cpu")
 
             vals = [
                 self._eval_classification(colour_preds, colour_targets, threshold),
