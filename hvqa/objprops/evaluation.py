@@ -99,8 +99,7 @@ class PropertyExtractionEvaluator(_AbsEvaluator):
         preds = F.softmax(preds, dim=1)
 
         # Convert targets to one-hot encoding
-        targets = torch.zeros(preds_shape)
-        targets[range(preds_shape[0]), indices] = 1
+        targets = torch.eye(preds_shape[1]).index_select(0, indices[:, 0])
 
         act_bool = torch.BoolTensor(targets == 1)
         max_vals, _ = torch.max(preds, 1)
