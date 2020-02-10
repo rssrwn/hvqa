@@ -82,7 +82,7 @@ class PropertyExtractionEvaluator(_AbsEvaluator):
 
         :param preds: Network predictions (tensor of floats, (N, C))
         :param indices: Target class indices (tensor of ints, (N, 1))
-        :return: mses (list of floats), TP, FP, TN, FN (all ints)
+        :return: loss (list of floats), TP, FP, TN, FN (all ints)
         """
 
         if threshold is None:
@@ -93,12 +93,15 @@ class PropertyExtractionEvaluator(_AbsEvaluator):
 
         assert preds_shape[0] == targets_shape[0], "Predictions and targets must have the same batch size"
 
+        loss = F.cross_entropy(preds, indices, reduction="none")
+        loss_batch = list(torch.sum(loss, 1).numpy())
+
+        preds = torch.softmax(preds)
+
         # Convert targets to one-hot encoding
         targets = torch.zeros(preds_shape)
         targets[range(preds_shape[0]), indices] = 1
 
-        mses = F.mse_loss(preds, targets, reduction="none")
-        mses_batch = list(torch.sum(mses, 1).numpy())
         act_bool = torch.BoolTensor(targets == 1)
         max_vals, _ = torch.max(preds, 1)
         preds_bool = torch.BoolTensor(preds >= max_vals[:, None])
@@ -109,4 +112,4 @@ class PropertyExtractionEvaluator(_AbsEvaluator):
         tns = torch.sum(~act_bool & ~preds_bool).item()
         fns = torch.sum(act_bool & ~preds_bool).item()
 
-        return mses_batch, tps, fps, tns, fns
+        return loss_batch, tps, fps, tns, fns
