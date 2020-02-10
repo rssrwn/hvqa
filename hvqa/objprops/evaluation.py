@@ -19,7 +19,7 @@ class PropertyExtractionEvaluator(_AbsEvaluator):
         model.eval()
 
         # Setup metrics
-        mses = [[] for _ in range(len(PROPERTIES))]
+        losses = [[] for _ in range(len(PROPERTIES))]
         tps = [0 for _ in range(len(PROPERTIES))]
         fps = [0 for _ in range(len(PROPERTIES))]
         tns = [0 for _ in range(len(PROPERTIES))]
@@ -50,8 +50,8 @@ class PropertyExtractionEvaluator(_AbsEvaluator):
             ]
 
             for idx, val in enumerate(vals):
-                mses_, tps_, fps_, tns_, fns_ = val
-                mses[idx].extend(mses_)
+                loss_, tps_, fps_, tns_, fns_ = val
+                losses[idx].extend(loss_)
                 tps[idx] += tps_
                 fps[idx] += fps_
                 tns[idx] += tns_
@@ -60,9 +60,9 @@ class PropertyExtractionEvaluator(_AbsEvaluator):
             num_predictions += len(y)
 
         # Print results
-        print(f"{'Property':<12}{'Precision':<12}{'Recall':<12}{'Accuracy':<12}{'MSE':<6}")
+        print(f"{'Property':<12}{'Precision':<12}{'Recall':<12}{'Accuracy':<12}{'Loss':<6}")
         for i in range(len(PROPERTIES)):
-            mses_ = mses[i]
+            loss = losses[i]
             tp = tps[i]
             fp = fps[i]
             tn = tns[i]
@@ -71,9 +71,9 @@ class PropertyExtractionEvaluator(_AbsEvaluator):
             precision = tp / (tp + fp)
             recall = tp / (tp + fn)
             accuracy = (tp + tn) / (tp + tn + fp + fn)
-            avg_mse = torch.tensor(mses_).mean()
+            avg_loss = torch.tensor(loss).mean()
 
-            print(f"{PROPERTIES[i].capitalize():<12}{precision:<12.4f}{recall:<12.4f}{accuracy:<12.4f}{avg_mse:<6.4f}")
+            print(f"{PROPERTIES[i].capitalize():<12}{precision:<12.4f}{recall:<12.4f}{accuracy:<12.4f}{avg_loss:<6.4f}")
 
     @staticmethod
     def _eval_classification(preds, indices, threshold=None):
@@ -93,10 +93,10 @@ class PropertyExtractionEvaluator(_AbsEvaluator):
 
         assert preds_shape[0] == targets_shape[0], "Predictions and targets must have the same batch size"
 
-        loss = F.cross_entropy(preds, indices, reduction="none")
-        loss_batch = list(torch.sum(loss, 1).numpy())
+        loss = F.cross_entropy(preds, indices[:, 0], reduction="none")
+        loss_batch = list(loss.numpy())
 
-        preds = torch.softmax(preds)
+        preds = F.softmax(preds, dim=1)
 
         # Convert targets to one-hot encoding
         targets = torch.zeros(preds_shape)
