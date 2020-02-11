@@ -5,6 +5,10 @@ from hvqa.util import _AbsEvaluator, get_device
 
 
 PROPERTIES = ["colour", "rotation", "class"]
+COLOURS = ["red", "silver", "white", "brown", "blue", "purple", "green"]
+ROTATIONS = [0, 1, 2, 3]
+CLASSES = ["octopus", "fish", "bag", "rock"]
+PROPS_ARR = [COLOURS, ROTATIONS, CLASSES]
 
 
 class PropertyExtractionEvaluator(_AbsEvaluator):
@@ -60,20 +64,42 @@ class PropertyExtractionEvaluator(_AbsEvaluator):
             num_predictions += len(y)
 
         # Print results
-        print(f"{'Property':<12}{'Precision':<12}{'Recall':<12}{'Accuracy':<12}{'Loss':<6}")
         for i in range(len(PROPERTIES)):
+            print(f"\nResults for {PROPERTIES[i]}:")
+
+            prop = PROPS_ARR[i]
+            num_classes = len(prop)
+
             loss = losses[i]
-            tp = tps[i]
-            fp = fps[i]
-            tn = tns[i]
-            fn = fns[i]
+            class_tps = tps[i]
+            class_fps = fps[i]
+            class_tns = tns[i]
+            class_fns = fns[i]
 
-            precision = tp / (tp + fp)
-            recall = tp / (tp + fn)
-            accuracy = (tp + tn) / (tp + tn + fp + fn)
+            print(f"{'Class':<12}{'Accuracy':<12}{'Precision':<12}{'Recall':<12}")
+
+            num_correct = 0
+            num_predictions = 0
+            for cls in range(num_classes):
+                tp = class_tps[cls].item()
+                fp = class_fps[cls].item()
+                tn = class_tns[cls].item()
+                fn = class_fns[cls].item()
+
+                num_correct += tp + tn
+                num_predictions += tp + fp + tn + fn
+
+                precision = tp / (tp + fp) if (tp + fp) != 0 else float('NaN')
+                recall = tp / (tp + fn) if (tp + fn) != 0 else float('NaN')
+                accuracy = (tp + tn) / (tp + tn + fp + fn)
+
+                print(f"{prop[cls]:<12}{accuracy:<12.4f}{precision:<12.4f}{recall:<12.4f}")
+
             avg_loss = torch.tensor(loss).mean()
+            acc = num_correct / num_predictions
 
-            print(f"{PROPERTIES[i].capitalize():<12}{precision:<12.4f}{recall:<12.4f}{accuracy:<12.4f}{avg_loss:<6.4f}")
+            print(f"\nAverage loss: {avg_loss:.6f}")
+            print(f"Overall accuracy: {acc:.4f}\n")
 
     @staticmethod
     def _eval_classification(preds, indices, threshold=None):
@@ -101,14 +127,15 @@ class PropertyExtractionEvaluator(_AbsEvaluator):
         # Convert targets to one-hot encoding
         targets = torch.eye(preds_shape[1]).index_select(0, indices[:, 0])
 
+        # TODO Fix
         act_bool = torch.BoolTensor(targets == 1)
         max_vals, _ = torch.max(preds, 1)
         preds_bool = torch.BoolTensor(preds >= max_vals[:, None])
         preds_bool = preds_bool & (preds >= threshold)
 
-        tps = torch.sum(act_bool & preds_bool).item()
-        fps = torch.sum(~act_bool & preds_bool).item()
-        tns = torch.sum(~act_bool & ~preds_bool).item()
-        fns = torch.sum(act_bool & ~preds_bool).item()
+        tps = torch.sum(act_bool & preds_bool, dim=0)
+        fps = torch.sum(~act_bool & preds_bool, dim=0)
+        tns = torch.sum(~act_bool & ~preds_bool, dim=0)
+        fns = torch.sum(act_bool & ~preds_bool, dim=0)
 
         return loss_batch, tps, fps, tns, fns

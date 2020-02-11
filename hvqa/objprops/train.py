@@ -108,8 +108,8 @@ def main(train_dir, test_dir, save_dir):
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description="Script for training the property extraction network")
-    parser.add_argument("data_dir", type=str)
+    parser.add_argument("train_dir", type=str)
     parser.add_argument("test_dir", type=str)
     parser.add_argument("save_model_dir", type=str)
     args = parser.parse_args()
-    main(args.data_dir, args.test_dir, args.save_model_dir)
+    main(args.train_dir, args.test_dir, args.save_model_dir)
