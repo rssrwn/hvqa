@@ -2,6 +2,7 @@
 
 import json
 from pathlib import Path
+from PIL import Image
 import torch
 import cv2
 import numpy as np
@@ -73,7 +74,7 @@ def load_model(model_class, path, *model_args):
     device = get_device()
     model = model_class(*model_args)
     model.load_state_dict(torch.load(path, map_location=device))
-    print(f"Loaded classification model with device: {device}")
+    print(f"Loaded model with device: {device}")
     return model
 
 
@@ -101,6 +102,24 @@ def get_video_dicts(data_dir):
 
     print(f"Successfully extracted {num_dicts} video dictionaries from json files")
     return dicts
+
+
+def collect_img(video_dir, frame_idx):
+    """
+    Produce a PIL image
+
+    :param video_dir: Path object of directory image is stored in
+    :param frame_idx: Frame index with video directory
+    :return: PIL image
+    """
+
+    img_path = video_dir / f"frame_{frame_idx}.png"
+    if img_path.exists():
+        img = Image.open(img_path).convert("RGB")
+    else:
+        raise FileNotFoundError(f"Could not find image: {img_path}")
+
+    return img
 
 
 IMG_MIN_VAL = 0

@@ -1,11 +1,10 @@
 import torch
 import json
-import numpy as np
 from pathlib import Path
 from PIL import Image
 from torch.utils.data import Dataset
 
-from hvqa.util import UnknownObjectTypeException
+from hvqa.util import UnknownObjectTypeException, collect_img
 
 
 IMG_SIZE = 128
@@ -67,41 +66,7 @@ class _AbsHVQADataset(Dataset):
 
     @staticmethod
     def _collect_img(video_dir, frame_idx):
-        """
-        Produce a PIL image
-
-        :param video_dir: Path object of directory image is stored in
-        :param frame_idx: Frame index with video directory
-        :return: PIL image
-        """
-
-        img_path = video_dir / f"frame_{frame_idx}.png"
-        if img_path.exists():
-            img = Image.open(img_path).convert("RGB")
-        else:
-            raise FileNotFoundError(f"Could not find image: {img_path}")
-
-        return img
-
-    @staticmethod
-    def _collect_frame(video_dir, frame_idx):
-        """
-        Produce a torch Tensor of an image, normalised between 0 and 1
-        :param video_dir: Path object of directory image is stored in
-        :param frame_idx: Frame index with video directory
-        :return: Image as a torch Tensor (3 x height x width)
-        """
-
-        img_file = video_dir / f"frame_{frame_idx}.png"
-        if img_file.exists():
-            img = Image.open(img_file)
-            img_arr = np.transpose(np.asarray(img, dtype=np.float32) / 255, (2, 0, 1))
-            img_tensor = torch.from_numpy(img_arr)
-            img.close()
-        else:
-            raise FileNotFoundError(f"Could not find image: {img_file}")
-
-        return img_tensor
+        return collect_img(video_dir, frame_idx)
 
     def get_image(self, item):
         """

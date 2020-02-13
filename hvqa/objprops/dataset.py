@@ -1,8 +1,9 @@
 import json
-from PIL import Image
 from pathlib import Path
 import torch
 from torch.utils.data import Dataset
+
+import hvqa.util as util
 
 
 COLOURS = ["red", "silver", "white", "brown", "blue", "purple", "green"]
@@ -56,8 +57,8 @@ class PropertyExtractionDataset(Dataset):
         x1, y1, x2, y2 = position
         x1 -= 1
         y1 -= 1
-        x2 += 1
-        y2 += 1
+        x2 += 2
+        y2 += 2
         return img.crop((x1, y1, x2, y2))
 
     @staticmethod
@@ -130,18 +131,4 @@ class PropertyExtractionDataset(Dataset):
 
     @staticmethod
     def _collect_img(video_dir, frame_idx):
-        """
-        Produce a PIL image
-
-        :param video_dir: Path object of directory image is stored in
-        :param frame_idx: Frame index with video directory
-        :return: PIL image
-        """
-
-        img_path = video_dir / f"frame_{frame_idx}.png"
-        if img_path.exists():
-            img = Image.open(img_path).convert("RGB")
-        else:
-            raise FileNotFoundError(f"Could not find image: {img_path}")
-
-        return img
+        return util.collect_img(video_dir, frame_idx)
