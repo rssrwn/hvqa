@@ -69,12 +69,13 @@ def train_extractor(model, loader_train, loader_test, model_save_dir, epochs=10)
     optimiser = optim.Adam(model.parameters(), lr=LEARNING_RATE)
 
     device = get_device()
+    model = model.to(device=device)
+
+    evaluator.eval_model(model)
 
     print(f"Training property extraction model using device {device}...")
 
-    model = model.to(device=device)
     for epoch in range(epochs):
-        model.train()
         train_one_epoch(model, optimiser, loader_train, device, epoch, print_freq=PRINT_FREQ)
 
         # Save a temp model every epoch
@@ -82,7 +83,6 @@ def train_extractor(model, loader_train, loader_test, model_save_dir, epochs=10)
         torch.save(model.state_dict(), current_save)
 
         # Evaluate performance every epoch
-        model.eval()
         evaluator.eval_model(model)
 
     print(f"Completed training, final model saved to {current_save}")

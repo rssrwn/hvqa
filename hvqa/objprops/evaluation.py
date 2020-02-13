@@ -28,6 +28,7 @@ class PropertyExtractionEvaluator(_AbsEvaluator):
         fps = [0 for _ in range(len(PROPERTIES))]
         tns = [0 for _ in range(len(PROPERTIES))]
         fns = [0 for _ in range(len(PROPERTIES))]
+        correct = [0 for _ in range(len(PROPERTIES))]
 
         num_predictions = 0
 
@@ -54,14 +55,15 @@ class PropertyExtractionEvaluator(_AbsEvaluator):
             ]
 
             for idx, val in enumerate(vals):
-                loss_, tps_, fps_, tns_, fns_ = val
+                loss_, tps_, fps_, tns_, fns_, num_correct = val
                 losses[idx].extend(loss_)
                 tps[idx] += tps_
                 fps[idx] += fps_
                 tns[idx] += tns_
                 fns[idx] += fns_
+                correct[idx] += num_correct
 
-            num_predictions += len(y)
+            num_predictions += len(targets)
 
         # Print results
         for i in range(len(PROPERTIES)):
@@ -78,16 +80,11 @@ class PropertyExtractionEvaluator(_AbsEvaluator):
 
             print(f"{'Class':<12}{'Accuracy':<12}{'Precision':<12}{'Recall':<12}")
 
-            num_correct = 0
-            num_predictions = 0
             for cls in range(num_classes):
                 tp = class_tps[cls].item()
                 fp = class_fps[cls].item()
                 tn = class_tns[cls].item()
                 fn = class_fns[cls].item()
-
-                num_correct += tp + tn
-                num_predictions += tp + fp + tn + fn
 
                 precision = tp / (tp + fp) if (tp + fp) != 0 else float('NaN')
                 recall = tp / (tp + fn) if (tp + fn) != 0 else float('NaN')
@@ -96,7 +93,7 @@ class PropertyExtractionEvaluator(_AbsEvaluator):
                 print(f"{prop[cls]:<12}{accuracy:<12.4f}{precision:<12.4f}{recall:<12.4f}")
 
             avg_loss = torch.tensor(loss).mean()
-            acc = num_correct / num_predictions
+            acc = correct[i] / num_predictions
 
             print(f"\nAverage loss: {avg_loss:.6f}")
             print(f"Overall accuracy: {acc:.4f}\n")
@@ -108,7 +105,7 @@ class PropertyExtractionEvaluator(_AbsEvaluator):
 
         :param preds: Network predictions (tensor of floats, (N, C))
         :param indices: Target class indices (tensor of ints, (N, 1))
-        :return: loss (list of floats), TP, FP, TN, FN (all ints)
+        :return: loss (list of floats), TP, FP, TN, FN (all 1d tensors of ints)
         """
 
         if threshold is None:
@@ -133,9 +130,10 @@ class PropertyExtractionEvaluator(_AbsEvaluator):
         preds_bool = torch.BoolTensor(preds >= max_vals[:, None])
         preds_bool = preds_bool & (preds >= threshold)
 
+        num_correct = torch.sum(act_bool & preds_bool)
         tps = torch.sum(act_bool & preds_bool, dim=0)
         fps = torch.sum(~act_bool & preds_bool, dim=0)
         tns = torch.sum(~act_bool & ~preds_bool, dim=0)
         fns = torch.sum(act_bool & ~preds_bool, dim=0)
 
-        return loss_batch, tps, fps, tns, fns
+        return loss_batch, tps, fps, tns, fns, num_correct.item()
