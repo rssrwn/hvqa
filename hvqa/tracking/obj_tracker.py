@@ -1,7 +1,8 @@
 import numpy as np
-from skimage.color import rgb2gray
-from skimage.feature import ORB, hog, match_descriptors
-from skimage import io
+import math
+from skimage.color import rgb2grey
+from skimage.feature import hog
+import torchvision.transforms as T
 
 
 class ObjTracker:
@@ -13,38 +14,79 @@ class ObjTracker:
 
     def __init__(self):
         self._ids = None
-        self._features = None
-        # self._detector = cv2.ORB()
-        self._detector = ORB(n_keypoints=10)
+        self._objs = None
+        self._resize = T.Resize((16, 16))
 
     def process_frame(self, objs):
         """
         Process a frame (list of objects)
+        Returns indices into the list of objects previously passed in.
+        These indices correspond to the tracker's best guess of the object index that was in the previous frame
 
         :param objs: List of objects which each take the form of a dictionary:
         obj: {
           image: PIL image of object,
+          class: type of object,
+          position: (x1, y1, x2, y2)
         }
-        :return: Ids for each for object
+        :return: List indices (len = len(objs))
         """
 
-        if self._ids is None:
-            self._initial_frame(objs)
+        if self._objs is None:
+            return self._initial_frame(objs)
         else:
-            self._process_frame(objs)
+            return self._process_next_frame(objs)
+
+    def reset_ids(self):
+        self._objs = None
 
     def _initial_frame(self, objs):
-        self._ids = list(range(len(objs)))
-        self._features = [self._extract_features(obj["image"]) for obj in objs]
+        self._objs = objs
+        ids = list(range(len(objs)))
+        return ids
 
-    def _process_frame(self, objs):
-        pass
+    def _process_next_frame(self, objs):
+        idxs = []
+        for new_obj in objs:
+            match_objs = []
+            for idx, obj in enumerate(self._objs):
+                if new_obj["class"] == obj["class"] and self.close_obj(obj, new_obj):
+                    match_objs.append((idx, obj))
+
+            if len(match_objs) == 0:
+                idx = None
+            elif len(match_objs) == 1:
+                idx = match_objs[0][0]
+            else:
+                dists = [(idx, self.dist(new_obj, obj)) for idx, obj in match_objs]
+                dists = sorted(dists, key=lambda idx_dist: idx_dist[1])
+                idx = dists[0][0]
+
+            if idx is None:
+                print("No matching objects")
+            else:
+                idxs.append(idx)
+
+        self._objs = objs
+
+        return idxs
+
+    @staticmethod
+    def close_obj(obj1, obj2):
+        x1, y1, _, _ = obj1["position"]
+        x2, y2, _, _ = obj2["position"]
+        close = abs(x1 - x2) <= 20 and abs(y1 - y2) <= 20
+        return close
+
+    @staticmethod
+    def dist(obj1, obj2):
+        x1, y1, _, _ = obj1["position"]
+        x2, y2, _, _ = obj2["position"]
+        return math.sqrt(((x1 - x2) ** 2) + ((y1 - y2) ** 2))
 
     def _extract_features(self, obj_img):
-        img = np.asarray(obj_img, dtype=np.float32)
-        img = rgb2gray(img)
-        io.imshow(img)
-        io.show()
-        self._detector.detect_and_extract(img)
-        descs = self._detector.descriptors
-        return descs
+        img = self._resize(obj_img)
+        img = np.asarray(img, dtype=np.int32)
+        img = rgb2grey(img)
+        features = hog(img, orientations=8, pixels_per_cell=(4, 4), cells_per_block=(1, 1))
+        return features
