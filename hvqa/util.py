@@ -122,6 +122,24 @@ def collect_img(video_dir, frame_idx):
     return img
 
 
+def collect_obj(img, position):
+    """
+    Collect an object from its bbox in an image
+
+    :param img: PIL Image
+    :param position: bbox coords
+    :return: Cropped PIL Image
+    """
+
+    # Add a 1x1 border around object
+    x1, y1, x2, y2 = position
+    x1 -= 1
+    y1 -= 1
+    x2 += 2
+    y2 += 2
+    return img.crop((x1, y1, x2, y2))
+
+
 IMG_MIN_VAL = 0
 IMG_MAX_VAL = 0
 

@@ -56,10 +56,11 @@ class VideoDataset(Dataset):
         """
 
         id = self.ids[item]
+        video_dir = self.data_dir / str(id)
         video_dict = self.videos[item]
-        imgs = [self._collect_img(id, idx) for idx in range(len(video_dict["frames"]))]
+        imgs = [self._collect_img(video_dir, idx) for idx in range(len(video_dict["frames"]))]
         return imgs, video_dict
 
     @staticmethod
     def _collect_img(video_dir, frame_idx):
-        util.collect_img(video_dir, frame_idx)
+        return util.collect_img(video_dir, frame_idx)

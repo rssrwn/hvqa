@@ -16,12 +16,10 @@ BATCH_SIZE = 128
 LEARNING_RATE = 0.001
 PRINT_FREQ = 100
 
-
 transforms = T.Compose([
     T.Resize((16, 16)),
     T.ToTensor(),
 ])
-
 
 _ce_loss = nn.CrossEntropyLoss()
 

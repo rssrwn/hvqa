@@ -46,20 +46,7 @@ class PropertyExtractionDataset(Dataset):
 
     @staticmethod
     def _collect_obj(img, position):
-        """
-        Collect an object from its bbox in an image
-
-        :param img: PIL Image
-        :param position: bbox coords
-        :return: Cropped PIL Image
-        """
-
-        x1, y1, x2, y2 = position
-        x1 -= 1
-        y1 -= 1
-        x2 += 2
-        y2 += 2
-        return img.crop((x1, y1, x2, y2))
+        return util.collect_obj(img, position)
 
     @staticmethod
     def _collect_target(obj_dict):

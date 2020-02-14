@@ -124,7 +124,6 @@ class PropertyExtractionEvaluator(_AbsEvaluator):
         # Convert targets to one-hot encoding
         targets = torch.eye(preds_shape[1]).index_select(0, indices[:, 0])
 
-        # TODO Fix
         act_bool = torch.BoolTensor(targets == 1)
         max_vals, _ = torch.max(preds, 1)
         preds_bool = torch.BoolTensor(preds >= max_vals[:, None])
