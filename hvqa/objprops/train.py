@@ -4,9 +4,8 @@ import torch
 import torch.nn as nn
 from torch.utils.data import DataLoader
 import torch.optim as optim
-import torchvision.transforms as T
 
-from hvqa.util import get_device, collate_func
+from hvqa.util import get_device, collate_func, prop_transforms
 from hvqa.objprops.dataset import PropertyExtractionDataset
 from hvqa.objprops.models import PropertyExtractionModel
 from hvqa.objprops.evaluation import PropertyExtractionEvaluator
@@ -15,11 +14,6 @@ from hvqa.objprops.evaluation import PropertyExtractionEvaluator
 BATCH_SIZE = 128
 LEARNING_RATE = 0.001
 PRINT_FREQ = 100
-
-transforms = T.Compose([
-    T.Resize((16, 16)),
-    T.ToTensor(),
-])
 
 _ce_loss = nn.CrossEntropyLoss()
 
@@ -94,11 +88,11 @@ def main(train_dir, test_dir, save_dir):
     model = PropertyExtractionModel()
 
     # Read train data
-    dataset_train = PropertyExtractionDataset(train_dir, transforms=transforms)
+    dataset_train = PropertyExtractionDataset(train_dir, transforms=prop_transforms)
     loader_train = DataLoader(dataset_train, batch_size=BATCH_SIZE, shuffle=True, collate_fn=collate_func)
 
     # Read test data
-    dataset_test = PropertyExtractionDataset(test_dir, transforms=transforms)
+    dataset_test = PropertyExtractionDataset(test_dir, transforms=prop_transforms)
     loader_test = DataLoader(dataset_test, batch_size=BATCH_SIZE, shuffle=True, collate_fn=collate_func)
 
     train_extractor(model, loader_train, loader_test, save_dir)

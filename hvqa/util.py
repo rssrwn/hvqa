@@ -42,22 +42,16 @@ DTYPE = torch.float32
 # Std devs: (0.10317583, 0.06499335, 0.065463744, 0.056644086)
 
 detector_transforms = T.Compose([
-    # T.Lambda(lambda x: add_edges(x)),
     T.ToTensor(),
-    # T.Normalize((0.0108, 0.2484, 0.7516, 0.6989), (0.1034, 0.0650, 0.6546, 0.0566))
+])
+
+prop_transforms = T.Compose([
+    T.Resize((16, 16)),
+    T.ToTensor(),
 ])
 
 
 # *** Util functions ***
-
-
-def resize_bbox(bbox):
-    x1, y1, x2, y2 = bbox
-    x1 = round(x1 * IMG_SIZE)
-    y1 = round(y1 * IMG_SIZE)
-    x2 = round(x2 * IMG_SIZE)
-    y2 = round(y2 * IMG_SIZE)
-    return x1, y1, x2, y2
 
 
 def load_model(model_class, path, *model_args):
