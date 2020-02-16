@@ -42,6 +42,8 @@ class Coordinator:
             bboxs = [bbox.numpy() for bbox in list(bboxs)]
             labels = [label.numpy() for label in list(labels)]
             objs = self._extract_props(img, bboxs, labels)
+            ids = self.tracker.process_frame(objs)
+            self._add_ids(objs, ids)
             imgs_objs.append(objs)
 
         new_imgs = [self._add_info_to_img(video[idx], info) for idx, info in enumerate(imgs_objs)]
@@ -50,6 +52,11 @@ class Coordinator:
     def visualise(self, imgs):
         for img in imgs:
             img.show()
+
+    @staticmethod
+    def _add_ids(objs, ids):
+        for idx, obj in enumerate(objs):
+            obj["id"] = ids[idx]
 
     def _add_info_to_img(self, img, img_info):
         """
@@ -66,16 +73,18 @@ class Coordinator:
         draw = ImageDraw.Draw(img)
 
         for obj_info in img_info:
-            bbox = tuple(map(lambda coord: coord * self._visualise_mult, obj_info["bbox"]))
+            bbox = tuple(map(lambda coord: coord * self._visualise_mult, obj_info["position"]))
             colour = obj_info["colour"]
             rotation = obj_info["rotation"]
-            label = obj_info["label"]
+            label = obj_info["class"]
+            id = obj_info["id"]
 
             x1, y1, x2, y2 = bbox
 
             self._add_bbox(draw, bbox, colour)
             draw.text((x1, y1 - 35), label, fill=colour, font=self.font)
-            draw.text((x2 - 30, y2 + 10), "Rot: " + str(rotation), fill=colour, font=self.font)
+            draw.text((x2 - 20, y2 + 10), "Rot: " + str(rotation), fill=colour, font=self.font)
+            draw.text((x1 - 30, y2 + 10), "Id: " + str(id), fill=colour, font=self.font)
 
         return img
 
@@ -99,8 +108,8 @@ class Coordinator:
 
     def _extract_props(self, img, bboxs, labels):
         objs_img = [util.collect_obj(img, bbox) for bbox in bboxs]
-        objs_img = [self.prop_transform(obj) for obj in objs_img]
-        objs_batch = torch.stack(objs_img)
+        objs_img_trans = [self.prop_transform(obj) for obj in objs_img]
+        objs_batch = torch.stack(objs_img_trans)
 
         with torch.no_grad():
             preds = self.prop_classifier(objs_batch)
@@ -116,10 +125,11 @@ class Coordinator:
         # Note: we choose the labels extracted from the property network ('classes') over the detection network
         for idx, bbox in enumerate(bboxs):
             obj = {
-                "bbox": tuple(map(round, bbox)),
+                "image": objs_img[idx],
+                "position": tuple(map(round, bbox)),
                 "colour": colours[idx],
                 "rotation": rotations[idx],
-                "label": labels[idx]
+                "class": labels[idx]
             }
             objs.append(obj)
 
