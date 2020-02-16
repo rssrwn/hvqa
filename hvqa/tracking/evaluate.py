@@ -68,7 +68,7 @@ def eval_tracking(objs, matched_objs):
     return num_matched, len(matched_objs)
 
 
-def eval(dataset):
+def evaluate(dataset):
     tracker = ObjTracker()
 
     print("Evaluating object tracker performance...")
@@ -110,7 +110,7 @@ def eval(dataset):
 
 def main(data_dir):
     dataset = VideoDataset(data_dir)
-    eval(dataset)
+    evaluate(dataset)
 
 
 if __name__ == '__main__':
