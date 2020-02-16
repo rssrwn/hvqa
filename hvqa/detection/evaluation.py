@@ -4,7 +4,7 @@ import torchvision.transforms as T
 from PIL import ImageDraw
 import numpy as np
 
-from hvqa.util import UnknownObjectTypeException, get_device, _AbsEvaluator
+from hvqa.util import UnknownObjectTypeException, get_device, _AbsEvaluator, add_bboxs
 
 from lib.vision.engine import evaluate
 
@@ -63,13 +63,7 @@ class DetectionEvaluator(_AbsEvaluator):
     @staticmethod
     def _add_bboxs(drawer, positions, ground_truth=True):
         colour = "blue" if ground_truth else "red"
-        for position in positions:
-            x1, y1, x2, y2 = position
-            x1 = round(x1) - 1
-            y1 = round(y1) - 1
-            x2 = round(x2) + 1
-            y2 = round(y2) + 1
-            drawer.rectangle((x1, y1, x2, y2), fill=None, outline=colour)
+        add_bboxs(drawer, positions, colour)
 
     @staticmethod
     def _add_labels(drawer, position, text):

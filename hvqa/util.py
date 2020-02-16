@@ -37,6 +37,11 @@ NUM_YOLO_REGIONS = 8
 USE_GPU = True
 DTYPE = torch.float32
 
+PROPERTIES = ["colour", "rotation", "class"]
+COLOURS = ["red", "silver", "white", "brown", "blue", "purple", "green"]
+ROTATIONS = [0, 1, 2, 3]
+CLASSES = ["octopus", "fish", "bag", "rock"]
+PROPS_ARR = [COLOURS, ROTATIONS, CLASSES]
 
 # Means:    (0.010761048, 0.24837227, 0.75161874, 0.6989449)
 # Std devs: (0.10317583, 0.06499335, 0.065463744, 0.056644086)
@@ -151,6 +156,16 @@ def add_edges(img):
     edges = cv2.Canny(gray, IMG_MIN_VAL, IMG_MAX_VAL)[:, :, None]
     output = np.concatenate((edges, cv_img), axis=2)
     return output
+
+
+def add_bboxs(drawer, positions, colour):
+    for position in positions:
+        x1, y1, x2, y2 = position
+        x1 = round(x1) - 1
+        y1 = round(y1) - 1
+        x2 = round(x2) + 1
+        y2 = round(y2) + 1
+        drawer.rectangle((x1, y1, x2, y2), fill=None, outline=colour)
 
 
 def collate_func(batch):

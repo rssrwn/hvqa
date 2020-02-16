@@ -1,14 +1,7 @@
 import torch
 import torch.nn.functional as F
 
-from hvqa.util import _AbsEvaluator, get_device
-
-
-PROPERTIES = ["colour", "rotation", "class"]
-COLOURS = ["red", "silver", "white", "brown", "blue", "purple", "green"]
-ROTATIONS = [0, 1, 2, 3]
-CLASSES = ["octopus", "fish", "bag", "rock"]
-PROPS_ARR = [COLOURS, ROTATIONS, CLASSES]
+from hvqa.util import _AbsEvaluator, get_device, PROPERTIES, PROPS_ARR
 
 
 class PropertyExtractionEvaluator(_AbsEvaluator):
