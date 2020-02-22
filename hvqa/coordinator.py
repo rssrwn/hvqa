@@ -20,7 +20,7 @@ class Coordinator:
         self._img_size = 128
         self._visualise_mult = 8
 
-        self.font = ImageFont.truetype("/Library/Fonts/Arial Unicode.ttf", size=22)
+        self.font = ImageFont.truetype("./lib/fonts/Arial Unicode.ttf", size=22)
 
     def analyse_video(self, video):
         """
@@ -121,7 +121,6 @@ class Coordinator:
         labels = [util.CLASSES[idx.item() - 1] for idx in labels]
 
         objs = []
-
         for idx, bbox in enumerate(bboxs):
             obj = {
                 "image": objs_img[idx],
