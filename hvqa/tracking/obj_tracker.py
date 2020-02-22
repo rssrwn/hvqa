@@ -20,6 +20,7 @@ class ObjTracker:
         self.frame_num = None
         self._max_hidden_frames = 5
         self._hidden_objects = deque()
+        self._timeouts = deque()
 
     def process_frame(self, objs):
         """
@@ -70,7 +71,7 @@ class ObjTracker:
             match_idx = self._find_best_match(obj, curr_objs)
 
             if not curr_obj_idxs:
-                disappeared.append(idx)
+                disappeared.append((idx, self._objs[idx]))
 
             for curr_obj_idx in curr_obj_idxs:
                 if curr_obj_idx != match_idx:
@@ -120,14 +121,15 @@ class ObjTracker:
 
     def _update_hidden(self, disappeared):
         frame_to_remove = self.frame_num - self._max_hidden_frames
-        while len(self._hidden_objects) > 0:
-            if self._hidden_objects[0][0] <= frame_to_remove:
+        while len(self._timeouts) > 0:
+            if self._timeouts[0] <= frame_to_remove:
                 self._hidden_objects.popleft()
+                self._timeouts.popleft()
             else:
                 break
 
-        hidden = zip(disappeared, [self.frame_num] * len(disappeared))
-        self._hidden_objects.extend(hidden)
+        self._hidden_objects.extend(disappeared)
+        self._timeouts.extend([self.frame_num] * len(disappeared))
 
     @staticmethod
     def close_obj(obj1, obj2):
