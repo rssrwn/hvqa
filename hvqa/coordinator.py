@@ -122,7 +122,6 @@ class Coordinator:
 
         objs = []
 
-        # Note: we choose the labels extracted from the property network ('classes') over the detection network
         for idx, bbox in enumerate(bboxs):
             obj = {
                 "image": objs_img[idx],

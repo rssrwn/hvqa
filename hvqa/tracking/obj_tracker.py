@@ -1,8 +1,10 @@
-import numpy as np
 import math
-from skimage.color import rgb2grey
-from skimage.feature import hog
-import torchvision.transforms as T
+from collections import deque
+
+# import numpy as np
+# from skimage.color import rgb2grey
+# from skimage.feature import hog
+# import torchvision.transforms as T
 
 
 class ObjTracker:
@@ -13,9 +15,11 @@ class ObjTracker:
     """
 
     def __init__(self):
-        self._ids = None
+        self._next_id = None
         self._objs = None
-        self._resize = T.Resize((16, 16))
+        self.frame_num = None
+        self._max_hidden_frames = 5
+        self._hidden_objects = deque()
 
     def process_frame(self, objs):
         """
@@ -42,40 +46,94 @@ class ObjTracker:
 
     def _initial_frame(self, objs):
         self._objs = objs
+        self.frame_num = 0
         ids = list(range(len(objs)))
+        self._next_id = len(objs)
         return ids
 
     def _process_next_frame(self, objs):
-        idxs = []
-        for new_obj in objs:
-            match_objs = []
-            for idx, obj in enumerate(self._objs):
-                if new_obj["class"] == obj["class"] and self.close_obj(obj, new_obj):
-                    match_objs.append((idx, obj))
+        # Best matching index into <self._objs> for each curr obj
+        idxs = [self._find_best_match(curr_obj, enumerate(self._objs)) for curr_obj in objs]
 
-            if len(match_objs) == 0:
-                idx = None
-            elif len(match_objs) == 1:
-                idx = match_objs[0][0]
+        # For each old obj we find all the curr objs which have matched with it
+        matches = [[] for _ in self._objs]
+        for curr_obj_idx, idx in enumerate(idxs):
+            if curr_obj_idx is not None:
+                matches[idx].append(curr_obj_idx)
+
+        # Choose the single best curr obj for each old obj
+        # Set every other new object to None in idxs list
+        disappeared = []
+        for idx, curr_obj_idxs in enumerate(matches):
+            obj = self._objs[idx]
+            curr_objs = [(idx, objs[idx]) for idx in curr_obj_idxs]
+            match_idx = self._find_best_match(obj, curr_objs)
+
+            if not curr_obj_idxs:
+                disappeared.append(idx)
+
+            for curr_obj_idx in curr_obj_idxs:
+                if curr_obj_idx != match_idx:
+                    idxs[curr_obj_idx] = None
+
+        # Check each new obj against hidden objs, and assign it the hidden objects id (if matched)
+        # Otherwise assign a new id to each new obj
+        new_objs = [(idx, objs[idx]) for idx, obj_idx in enumerate(idxs) if obj_idx is None]
+        hidden_idxs = [self._find_best_match(new_obj, self._hidden_objects) for idx, new_obj in new_objs]
+        for i, (idx, _) in enumerate(new_objs):
+            if hidden_idxs[i] is not None:
+                idxs[idx] = hidden_idxs[i]
             else:
-                dists = [(idx, self.dist(new_obj, obj)) for idx, obj in match_objs]
-                dists = sorted(dists, key=lambda idx_dist: idx_dist[1])
-                idx = dists[0][0]
+                idxs[idx] = self._next_id
+                self._next_id += 1
 
-            if idx is None:
-                print("No matching objects")
-            else:
-                idxs.append(idx)
-
+        self._update_hidden(disappeared)
         self._objs = objs
+        self.frame_num += 1
 
         return idxs
+
+    def _find_best_match(self, obj, objs):
+        """
+        Find the object in <objs> which best matches <obj>
+
+        :param obj: Object dict
+        :param objs: List of pairs [(idx, obj dict)]
+        :return: Idx of best matching object
+        """
+
+        match_objs = []
+        for idx, obj_ in objs:
+            if obj["class"] == obj_["class"] and self.close_obj(obj, obj_):
+                match_objs.append((idx, obj_))
+
+        if len(match_objs) == 0:
+            idx = None
+        elif len(match_objs) == 1:
+            idx = match_objs[0][0]
+        else:
+            dists = [(idx, self.dist(obj, obj_)) for idx, obj_ in match_objs]
+            dists = sorted(dists, key=lambda idx_dist: idx_dist[1])
+            idx = dists[0][0]
+
+        return idx
+
+    def _update_hidden(self, disappeared):
+        frame_to_remove = self.frame_num - self._max_hidden_frames
+        while len(self._hidden_objects) > 0:
+            if self._hidden_objects[0][0] <= frame_to_remove:
+                self._hidden_objects.popleft()
+            else:
+                break
+
+        hidden = zip(disappeared, [self.frame_num] * len(disappeared))
+        self._hidden_objects.extend(hidden)
 
     @staticmethod
     def close_obj(obj1, obj2):
         x1, y1, _, _ = obj1["position"]
         x2, y2, _, _ = obj2["position"]
-        close = abs(x1 - x2) <= 20 and abs(y1 - y2) <= 20
+        close = abs(x1 - x2) <= 10 and abs(y1 - y2) <= 10
         return close
 
     @staticmethod
@@ -84,9 +142,9 @@ class ObjTracker:
         x2, y2, _, _ = obj2["position"]
         return math.sqrt(((x1 - x2) ** 2) + ((y1 - y2) ** 2))
 
-    def _extract_features(self, obj_img):
-        img = self._resize(obj_img)
-        img = np.asarray(img, dtype=np.int32)
-        img = rgb2grey(img)
-        features = hog(img, orientations=8, pixels_per_cell=(4, 4), cells_per_block=(1, 1))
-        return features
+    # def _extract_features(self, obj_img):
+    #     img = self._resize(obj_img)
+    #     img = np.asarray(img, dtype=np.int32)
+    #     img = rgb2grey(img)
+    #     features = hog(img, orientations=8, pixels_per_cell=(4, 4), cells_per_block=(1, 1))
+    #     return features
