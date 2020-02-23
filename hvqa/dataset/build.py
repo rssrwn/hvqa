@@ -100,9 +100,9 @@ def main(out_dir, num_videos, json_only, frames_only):
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description="Script for building dataset")
-    parser.add_argument("-j", "--json", action="store_true", default=False)
-    parser.add_argument("-f", "--frames", action="store_true", default=False)
+    parser.add_argument("-j", "--json_only", action="store_true", default=False)
+    parser.add_argument("-f", "--frames_only", action="store_true", default=False)
     parser.add_argument("out_dir", type=str)
     parser.add_argument("num_videos", type=int)
     args = parser.parse_args()
-    main(args.out_dir, args.num_videos, args.json, args.frames)
+    main(args.out_dir, args.num_videos, args.json_only, args.frames_only)

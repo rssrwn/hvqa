@@ -6,31 +6,32 @@
 ROTATIONS = [0, 1, 2, 3]
 
 OCTOPUS = (17, 17)
-FISH = (5, 7)
-BAG = (5, 7)
-ROCK = (7, 7)
+FISH = (9, 11)
+BAG = (11, 15)
+ROCK = (12, 12)
 
 NUM_FRAMES = 48
 
-FRAME_SIZE = 128
-NUM_SEGMENTS = 4
+FRAME_SIZE = 256
+NUM_SEGMENTS = 8
 SEGMENT_SIZE = FRAME_SIZE / NUM_SEGMENTS
 EDGE = 3
 CLOSE_OCTO = 5
 
 ROT_PROB = 0.1
-MOVE_PIXELS = 8
+MOVE_PIXELS = 12
 
 
 # *** Number of objects ***
-MIN_FISH = 2
-MAX_FISH = 4
+
+MIN_FISH = 6
+MAX_FISH = 12
 
 MIN_BAG = 1
 MAX_BAG = 2
 
-MIN_ROCK = 2
-MAX_ROCK = 4
+MIN_ROCK = 5
+MAX_ROCK = 6
 
 
 # *** Colour definitions ***
@@ -46,6 +47,8 @@ BLACK_RGB = (0, 0, 0)
 BACKGROUND_R = 62
 BACKGROUND_G = 193
 BACKGROUND_B = 179
+
+GREY_RBG = (122, 122, 122)
 
 # Objects
 OCTO_RGB = (226, 29, 98)

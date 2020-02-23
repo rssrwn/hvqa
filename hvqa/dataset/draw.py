@@ -1,5 +1,3 @@
-import numpy as np
-
 from hvqa.dataset.definitions import *
 from hvqa.util import *
 
@@ -95,20 +93,25 @@ class Drawer:
         x_centre, y_centre = Drawer._update_centres((x1, y1, x2, y2), rotation)
 
         # Body
-        for i in range(x1 + 1, x1 + 4):
-            for j in range(y1, y1 + 5):
+        for i in range(x1 + 2, x1 + 7):
+            for j in range(y1 + 1, y1 + 8):
                 Drawer._draw_pixel(img, i, j, FISH_RGB, rotation, x_centre, y_centre)
 
-        Drawer._draw_pixel(img, x1, y1 + 2, FISH_RGB, rotation, x_centre, y_centre)
-        Drawer._draw_pixel(img, x1 + 4, y1 + 2, FISH_RGB, rotation, x_centre, y_centre)
+        Drawer._draw_pixel(img, x1 + 4, y1, FISH_RGB, rotation, x_centre, y_centre)
+        Drawer._draw_pixel(img, x1, y1 + 5, FISH_RGB, rotation, x_centre, y_centre)
+        Drawer._draw_pixel(img, x1 + 1, y1 + 4, FISH_RGB, rotation, x_centre, y_centre)
+        Drawer._draw_pixel(img, x1 + 7, y1 + 4, FISH_RGB, rotation, x_centre, y_centre)
+        Drawer._draw_pixel(img, x1 + 8, y1 + 5, FISH_RGB, rotation, x_centre, y_centre)
 
         # Tail
-        Drawer._draw_pixel(img, x1 + 1, y1 + 6, FISH_RGB, rotation, x_centre, y_centre)
-        Drawer._draw_pixel(img, x1 + 3, y1 + 6, FISH_RGB, rotation, x_centre, y_centre)
-        Drawer._draw_pixel(img, x1 + 2, y1 + 5, FISH_RGB, rotation, x_centre, y_centre)
+        Drawer._draw_pixel(img, x1 + 4, y1 + 8, FISH_RGB, rotation, x_centre, y_centre)
+        Drawer._draw_pixel(img, x1 + 3, y1 + 9, FISH_RGB, rotation, x_centre, y_centre)
+        Drawer._draw_pixel(img, x1 + 2, y1 + 10, FISH_RGB, rotation, x_centre, y_centre)
+        Drawer._draw_pixel(img, x1 + 5, y1 + 9, FISH_RGB, rotation, x_centre, y_centre)
+        Drawer._draw_pixel(img, x1 + 6, y1 + 10, FISH_RGB, rotation, x_centre, y_centre)
 
         # Eyes
-        Drawer._draw_pixel(img, x1 + 2, y1 + 1, BLACK_RGB, rotation, x_centre, y_centre)
+        Drawer._draw_pixel(img, x1 + 4, y1 + 2, BLACK_RGB, rotation, x_centre, y_centre)
 
     @staticmethod
     def _draw_bag(img, bag):
@@ -117,15 +120,32 @@ class Drawer:
         x_centre, y_centre = Drawer._update_centres((x1, y1, x2, y2), rotation)
 
         # Body
-        for i in range(x1, x1 + 5):
-            for j in range(y1 + 2, y1 + 7):
+        for i in range(x1 + 1, x1 + 10):
+            for j in range(y1 + 6, y1 + 14):
                 Drawer._draw_pixel(img, i, j, BAG_RGB, rotation, x_centre, y_centre)
 
         # Handles
-        Drawer._draw_pixel(img, x1, y1, BAG_RGB, rotation, x_centre, y_centre)
-        Drawer._draw_pixel(img, x1, y1 + 1, BAG_RGB, rotation, x_centre, y_centre)
-        Drawer._draw_pixel(img, x1 + 4, y1, BAG_RGB, rotation, x_centre, y_centre)
-        Drawer._draw_pixel(img, x1 + 4, y1 + 1, BAG_RGB, rotation, x_centre, y_centre)
+        for i in range(5):
+            Drawer._draw_pixel(img, x1 + 1, y1 + 1 + i, BAG_RGB, rotation, x_centre, y_centre)
+            Drawer._draw_pixel(img, x1 + 9, y1 + 1 + i, BAG_RGB, rotation, x_centre, y_centre)
+
+        # Grey outline
+        for i in range(15):
+            Drawer._draw_pixel(img, x1, y1 + i, GREY_RBG, rotation, x_centre, y_centre)
+            Drawer._draw_pixel(img, x1 + 10, y1 + i, GREY_RBG, rotation, x_centre, y_centre)
+
+        for i in range(11):
+            Drawer._draw_pixel(img, x1 + i, y1 + 14, GREY_RBG, rotation, x_centre, y_centre)
+
+        for i in range(7):
+            Drawer._draw_pixel(img, x1 + 2 + i, y1 + 5, GREY_RBG, rotation, x_centre, y_centre)
+
+        for i in range(6):
+            Drawer._draw_pixel(img, x1 + 2, y1 + i, GREY_RBG, rotation, x_centre, y_centre)
+            Drawer._draw_pixel(img, x1 + 8, y1 + i, GREY_RBG, rotation, x_centre, y_centre)
+
+        Drawer._draw_pixel(img, x1 + 1, y1, GREY_RBG, rotation, x_centre, y_centre)
+        Drawer._draw_pixel(img, x1 + 9, y1, GREY_RBG, rotation, x_centre, y_centre)
 
     @staticmethod
     def _draw_rock(img, rock):
@@ -136,24 +156,43 @@ class Drawer:
 
         rock_rgb = Drawer._get_obj_colour(rock)
 
-        # Main body
-        for i in range(x1 + 1, x1 + 6):
-            for j in range(y1 + 1, y1 + 6):
-                Drawer._draw_pixel(img, i, j, rock_rgb, rotation, x_centre, y_centre)
+        # Diagonals
+        lengths = [6, 7, 8, 9, 8, 9, 8, 7, 6, 5, 4, 3]
+        starts = [(x1 + 1, y1 + 6), (x1 + 1, y1 + 7), (x1 + 1, y1 + 8), (x1 + 1, y1 + 9), (x1 + 2, y1 + 9),
+                  (x1 + 2, y1 + 10), (x1 + 3, y1 + 10), (x1 + 4, y1 + 10), (x1 + 5, y1 + 10), (x1 + 6, y1 + 10),
+                  (x1 + 7, y1 + 10), (x1 + 8, y1 + 10)]
 
-        for i in range(x1 + 2, x1 + 5):
-            Drawer._draw_pixel(img, i, y1, rock_rgb, rotation, x_centre, y_centre)
-            Drawer._draw_pixel(img, i, y1 + 6, rock_rgb, rotation, x_centre, y_centre)
+        for length, (start_x, start_y) in zip(lengths, starts):
+            for i in range(length):
+                Drawer._draw_pixel(img, start_x + i, start_y - i, rock_rgb, rotation, x_centre, y_centre)
 
-        for j in range(y1 + 2, y1 + 5):
-            Drawer._draw_pixel(img, x1, j, rock_rgb, rotation, x_centre, y_centre)
-            Drawer._draw_pixel(img, x1 + 6, j, rock_rgb, rotation, x_centre, y_centre)
+        # Grey spots
+        for i in range(2):
+            for j in range(2):
+                Drawer._draw_pixel(img, x1 + 2 + i, y1 + 7 + j, GREY_RBG, rotation, x_centre, y_centre)
+                Drawer._draw_pixel(img, x1 + 3 + i, y1 + 6 + j, GREY_RBG, rotation, x_centre, y_centre)
 
-        # Black section
-        for i in range(x1 + 3, x1 + 5):
-            for j in range(y1 + 4, y1 + 6):
-                Drawer._draw_pixel(img, i, j, BLACK_RGB, rotation, x_centre, y_centre)
-                Drawer._draw_pixel(img, i + 1, j - 1, BLACK_RGB, rotation, x_centre, y_centre)
+                Drawer._draw_pixel(img, x1 + 7 + i, y1 + 2 + j, GREY_RBG, rotation, x_centre, y_centre)
+                Drawer._draw_pixel(img, x1 + 6 + i, y1 + 3 + j, GREY_RBG, rotation, x_centre, y_centre)
+
+                Drawer._draw_pixel(img, x1 + 7 + i, y1 + 7 + j, GREY_RBG, rotation, x_centre, y_centre)
+                Drawer._draw_pixel(img, x1 + 6 + i, y1 + 8 + j, GREY_RBG, rotation, x_centre, y_centre)
+                Drawer._draw_pixel(img, x1 + 8 + i, y1 + 6 + j, GREY_RBG, rotation, x_centre, y_centre)
+
+        # Grey outline
+        for i in range(7):
+            Drawer._draw_pixel(img, x1 + i, y1 + 6 - i, GREY_RBG, rotation, x_centre, y_centre)
+            Drawer._draw_pixel(img, x1 + 2 + i, y1 + 11, GREY_RBG, rotation, x_centre, y_centre)
+            Drawer._draw_pixel(img, x1 + 11, y1 + 2 + i, GREY_RBG, rotation, x_centre, y_centre)
+
+        for i in range(4):
+            Drawer._draw_pixel(img, x1, y1 + 6 + i, GREY_RBG, rotation, x_centre, y_centre)
+            Drawer._draw_pixel(img, x1 + 6 + i, y1, GREY_RBG, rotation, x_centre, y_centre)
+
+        Drawer._draw_pixel(img, x1 + 1, y1 + 10, GREY_RBG, rotation, x_centre, y_centre)
+        Drawer._draw_pixel(img, x1 + 10, y1 + 1, GREY_RBG, rotation, x_centre, y_centre)
+        Drawer._draw_pixel(img, x1 + 9, y1 + 10, GREY_RBG, rotation, x_centre, y_centre)
+        Drawer._draw_pixel(img, x1 + 10, y1 + 9, GREY_RBG, rotation, x_centre, y_centre)
 
     @staticmethod
     def _update_centres(pos, rot):
