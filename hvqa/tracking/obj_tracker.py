@@ -19,6 +19,7 @@ class ObjTracker:
         self._objs = None
         self.frame_num = None
         self._max_hidden_frames = 5
+        self._max_movement = 20
         self._hidden_objects = deque()
         self._timeouts = deque()
 
@@ -142,11 +143,10 @@ class ObjTracker:
         self._hidden_objects.extend(disappeared)
         self._timeouts.extend([self.frame_num] * len(disappeared))
 
-    @staticmethod
-    def close_obj(obj1, obj2):
+    def close_obj(self, obj1, obj2):
         x1, y1, _, _ = obj1["position"]
         x2, y2, _, _ = obj2["position"]
-        close = abs(x1 - x2) <= 10 and abs(y1 - y2) <= 10
+        close = abs(x1 - x2) <= self._max_movement and abs(y1 - y2) <= self._max_movement
         return close
 
     @staticmethod
