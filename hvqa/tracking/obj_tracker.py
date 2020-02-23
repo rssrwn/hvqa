@@ -49,6 +49,7 @@ class ObjTracker:
         self._objs = objs
         self.frame_num = 0
         ids = list(range(len(objs)))
+        self._ids = ids
         self._next_id = len(objs)
         return ids
 
@@ -59,7 +60,7 @@ class ObjTracker:
         # For each old obj we find all the curr objs which have matched with it
         matches = [[] for _ in self._objs]
         for curr_obj_idx, idx in enumerate(idxs):
-            if curr_obj_idx is not None:
+            if idx is not None:
                 matches[idx].append(curr_obj_idx)
 
         # Choose the single best curr obj for each old obj
@@ -71,28 +72,38 @@ class ObjTracker:
             match_idx = self._find_best_match(obj, curr_objs)
 
             if not curr_obj_idxs:
-                disappeared.append((idx, self._objs[idx]))
+                disappeared.append((self._ids[idx], self._objs[idx]))
 
             for curr_obj_idx in curr_obj_idxs:
                 if curr_obj_idx != match_idx:
                     idxs[curr_obj_idx] = None
 
-        # Check each new obj against hidden objs, and assign it the hidden objects id (if matched)
-        # Otherwise assign a new id to each new obj
-        new_objs = [(idx, objs[idx]) for idx, obj_idx in enumerate(idxs) if obj_idx is None]
-        hidden_idxs = [self._find_best_match(new_obj, self._hidden_objects) for idx, new_obj in new_objs]
-        for i, (idx, _) in enumerate(new_objs):
-            if hidden_idxs[i] is not None:
-                idxs[idx] = hidden_idxs[i]
+        ids = []
+        for curr_obj_idx, idx in enumerate(idxs):
+            # Object did not appear in previous frame
+            if idx is None:
+                new_obj = objs[curr_obj_idx]
+                hidden_id = self._find_best_match(new_obj, self._hidden_objects)
+
+                # If no hidden objects match assign a new id
+                # Otherwise assign hidden id
+                if hidden_id is None:
+                    ids.append(self._next_id)
+                    self._next_id += 1
+                else:
+                    ids.append(hidden_id)
+
+            # Object did appear in previous frame -> assign same id
             else:
-                idxs[idx] = self._next_id
-                self._next_id += 1
+                id_ = self._ids[idx]
+                ids.append(id_)
 
         self._update_hidden(disappeared)
         self._objs = objs
+        self._ids = ids
         self.frame_num += 1
 
-        return idxs
+        return ids
 
     def _find_best_match(self, obj, objs):
         """
