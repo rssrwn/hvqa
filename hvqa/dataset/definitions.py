@@ -10,7 +10,7 @@ FISH = (9, 11)
 BAG = (11, 15)
 ROCK = (12, 12)
 
-NUM_FRAMES = 48
+NUM_FRAMES = 32
 
 FRAME_SIZE = 256
 NUM_SEGMENTS = 8
@@ -19,16 +19,16 @@ EDGE = 3
 CLOSE_OCTO = 5
 
 ROT_PROB = 0.1
-MOVE_PIXELS = 12
+MOVE_PIXELS = 15
 
 
 # *** Number of objects ***
 
-MIN_FISH = 6
+MIN_FISH = 8
 MAX_FISH = 12
 
-MIN_BAG = 1
-MAX_BAG = 2
+MIN_BAG = 2
+MAX_BAG = 3
 
 MIN_ROCK = 5
 MAX_ROCK = 6
