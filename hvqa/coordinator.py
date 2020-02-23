@@ -18,9 +18,9 @@ class Coordinator:
         self.tracker = tracker
 
         self._img_size = 256
-        self._visualise_mult = 8
+        self._visualise_mult = 4
 
-        self.font = ImageFont.truetype("./lib/fonts/Arial Unicode.ttf", size=22)
+        self.font = ImageFont.truetype("./lib/fonts/Arial Unicode.ttf", size=18)
 
     def analyse_video(self, video):
         """
@@ -94,7 +94,7 @@ class Coordinator:
         y1 = round(y1) - 1
         x2 = round(x2) + (1 * self._visualise_mult)
         y2 = round(y2) + (1 * self._visualise_mult)
-        drawer.rectangle((x1, y1, x2, y2), fill=None, outline=colour, width=5)
+        drawer.rectangle((x1, y1, x2, y2), fill=None, outline=colour, width=3)
 
     def _extract_objs(self, imgs):
         imgs_trans = [self.detector_transform(img) for img in imgs]
@@ -118,16 +118,17 @@ class Coordinator:
         colours = [util.COLOURS[idx] for idx in preds[0]]
         rotations = [util.ROTATIONS[idx] for idx in preds[1]]
         classes = [util.CLASSES[idx] for idx in preds[2]]
-        labels = [util.CLASSES[idx.item() - 1] for idx in labels]
 
         objs = []
+
+        # Note: we use labels from the property network, not from the detector
         for idx, bbox in enumerate(bboxs):
             obj = {
                 "image": objs_img[idx],
                 "position": tuple(map(round, bbox)),
                 "colour": colours[idx],
                 "rotation": rotations[idx],
-                "class": labels[idx]
+                "class": classes[idx]
             }
             objs.append(obj)
 

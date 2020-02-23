@@ -9,7 +9,7 @@ from hvqa.coordinator import Coordinator
 
 
 def simulate(dataset, coordinator):
-    video, video_dict = dataset[100]
+    video, video_dict = dataset[4]
     coordinator.analyse_video(video)
 
 
