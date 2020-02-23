@@ -15,6 +15,7 @@ from lib.vision.engine import train_one_epoch
 BATCH_SIZE = 128
 LEARNING_RATE = 0.001
 PRINT_FREQ = 20
+EPOCHS = 20
 
 
 def train_detector(model, loader_train, loader_test, model_save_dir, epochs=10):
@@ -65,7 +66,7 @@ def main(train_dir, backbone_dir, val_dir, model_save_dir):
     dataset_test = DetectionDataset(val_dir, transforms=detector_transforms)
     loader_test = DataLoader(dataset_test, batch_size=BATCH_SIZE, shuffle=True, collate_fn=collate_func)
 
-    train_detector(model, loader_train, loader_test, model_save_dir)
+    train_detector(model, loader_train, loader_test, model_save_dir, epochs=EPOCHS)
 
 
 if __name__ == '__main__':
