@@ -51,7 +51,7 @@ detector_transforms = T.Compose([
 ])
 
 prop_transforms = T.Compose([
-    T.Resize((16, 16)),
+    T.Resize((32, 32)),
     T.ToTensor(),
 ])
 
