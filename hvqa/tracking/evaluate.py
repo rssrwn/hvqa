@@ -82,26 +82,28 @@ def evaluate(dataset):
         # Setup initial object list ordered by id from tracker
         frame = generate_tracker_input(imgs[0], frames[0])
         ids = tracker.process_frame(frame)
-        objs = [frames[0]["objects"][id_] for id_ in ids]
+        id_obj = {id_: frames[0]["objects"][id_] for id_ in ids}
 
         total_objs = 0
         num_correct = 0
 
         # Apply each following frame in the video to the tracker
         for frame_idx, img in enumerate(imgs[1:]):
+            frame_objects = frames[frame_idx]["objects"]
+
             frame = generate_tracker_input(img, frames[frame_idx])
             tracked_ids = tracker.process_frame(frame)
-            prev_ids = [id_ for id_ in tracked_ids if id_ in ids]
-            new_ids = [id_ for id_ in tracked_ids if id_ not in ids]
+
+            # We assume no new objects can appear (since we are using the labelled data)
+            matched_objs = []
+            for idx, id_ in enumerate(tracked_ids):
+                matched_objs.append(id_obj[id_])
+                id_obj[id_] = frame_objects[idx]
 
             # Analyse the assignment
-            frame_objects = frames[frame_idx]["objects"]
-            matched_objs = [objs[id_] for id_ in prev_ids]
             num_matched, num_objs = eval_tracking(frame_objects, matched_objs)
             num_correct += num_matched
             total_objs += num_objs
-
-            objs = frame_objects
 
         acc = num_correct / total_objs
 
