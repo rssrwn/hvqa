@@ -17,7 +17,7 @@ class Coordinator:
         self.prop_transform = prop_transform
         self.tracker = tracker
 
-        self._img_size = 128
+        self._img_size = 256
         self._visualise_mult = 8
 
         self.font = ImageFont.truetype("./lib/fonts/Arial Unicode.ttf", size=22)

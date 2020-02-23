@@ -31,7 +31,7 @@ class UnknownPropertyException(BaseException):
 
 # *** Definitions ***
 
-IMG_SIZE = 128
+IMG_SIZE = 256
 NUM_YOLO_REGIONS = 8
 
 USE_GPU = True

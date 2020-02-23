@@ -4,10 +4,7 @@ from pathlib import Path
 from PIL import Image
 from torch.utils.data import Dataset
 
-from hvqa.util import UnknownObjectTypeException, collect_img
-
-
-IMG_SIZE = 128
+from hvqa.util import UnknownObjectTypeException, collect_img, IMG_SIZE
 
 
 class _AbsHVQADataset(Dataset):
