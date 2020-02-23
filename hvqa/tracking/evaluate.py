@@ -22,7 +22,7 @@ def generate_tracker_input(frame_img, frame_dict):
 def close_obj(obj1, obj2):
     x1_1, _, x2_1, _ = obj1["position"]
     x1_2, _, x2_2, _ = obj2["position"]
-    close = abs(x1_1 - x1_2) <= 10 and abs(x2_1 - x2_2) <= 10
+    close = abs(x1_1 - x1_2) <= 20 and abs(x2_1 - x2_2) <= 20
     return close
 
 
