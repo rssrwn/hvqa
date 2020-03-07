@@ -1,9 +1,6 @@
-holds(class(Class, Id), 3) :- property(class, Class, Id, 3).
-holds(colour(Colour, Id), 3) :- property(colour, Colour, Id, 3).
-holds(rotation(Rot, Id), 3) :- property(rotation, Rot, Id, 3).
-holds(position(Pos, Id), 3) :- property(position, Pos, Id, 3).
+holds(P, Frame) :- obs(P, Frame).
 
-holds(close(0, 2), I) :- holds(position((25, 60, 45, 70), 0), I).
+holds(close(0, 2), 4).
 
 goal(I) :-
   holds(class(octopus, 0), I),
@@ -27,4 +24,8 @@ success :- goal(I), I <= n.
   not goal(I),
   I < n.
 
+holds_start(P) :- holds(P, 3).
+holds_next(P) :- holds(P, 4).
+
 #show occurs/2.
+#show holds/2.
