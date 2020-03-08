@@ -29,3 +29,4 @@ holds_next(P) :- holds(P, 4).
 
 #show occurs/2.
 #show holds/2.
+#show -holds/2.

@@ -68,23 +68,18 @@ action(rotate_right(Id)) :- holds(class(octopus, Id), _).
 % ***** Domain Independent Axioms *****
 
 % CWA for defined fluents
-
 -holds(F, I) :-
   fluent(defined, F),
   not holds(F, I),
   step(I).
 
-
 % CWA for actions
-
 -occurs(A, I) :-
   not occurs(A, I),
   action(A),
   step(I).
 
-
 % Inertia axioms
-
 holds(F, I+1) :-
   fluent(inertial, F),
   holds(F, I),
@@ -102,7 +97,6 @@ holds(F, I+1) :-
 % ***** Domain Dependent *****
 
 % Definition for move
-
 holds(position(@new_pos(Pos, Rot), Id), I+1) :-
   occurs(move(Id), I),
   holds(position(Pos, Id), I),
@@ -114,9 +108,7 @@ holds(position(@new_pos(Pos, Rot), Id), I+1) :-
   holds(position(Pos, Id), I),
   step(I+1).
 
-
 % Definition for rotate
-
 holds(rotation(@new_rot(Rot, "rotate_left"), I+1)) :-
   occurs(rotate_left(Id), I),
   holds(rotation(Rot, Id), I),
@@ -137,9 +129,7 @@ holds(rotation(@new_rot(Rot, "rotate_right"), I+1)) :-
   holds(rotation(Rot, Id), I),
   step(I+1).
 
-
 % Definition for colour
-
 holds(colour(Col, Id), I) :-
   holds(class(octopus, Id), I),
   holds(close(Id, IdRock), I),

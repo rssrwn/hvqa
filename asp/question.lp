@@ -2,9 +2,9 @@
 #const next_frame = 4.
 
 % Q1
-% answer(V) :-
-%   property(colour, V, Id, frame),
-%   object(Id, octopus, _, _, _, frame).
+answer(V) :-
+  holds(colour(V, Id), Frame),
+  holds(class(octopus, Id), Frame).
 
 % Q2
 % related :-
@@ -20,15 +20,15 @@
 %  occurred(A, frame, next_frame).
 
 % Q4
-answer(Prop, Val) :-
-  changed(Prop, _, Val, Id, frame),
-  object(Id, octopus, _, _, _, frame),
-  exists(Id, next_frame).
-
-answer(exists, false) :-
-  object(Id, octopus, _, _, _, frame),
-  exists(Id, frame),
-  not exists(Id, next_frame).
+% answer(Prop, Val) :-
+%   changed(Prop, _, Val, Id, frame),
+%   object(Id, octopus, _, _, _, frame),
+%   exists(Id, next_frame).
+%
+% answer(exists, false) :-
+%   object(Id, octopus, _, _, _, frame),
+%   exists(Id, frame),
+%   not exists(Id, next_frame).
 
 answered :- answer(P, V).
 answered :- answer(V).
