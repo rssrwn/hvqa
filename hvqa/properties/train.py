@@ -7,9 +7,9 @@ import torch.optim as optim
 
 from hvqa.util.util import get_device, collate_func
 from hvqa.util.definitions import prop_transforms
-from hvqa.objprops.dataset import PropertyExtractionDataset
-from hvqa.objprops.models import PropertyExtractionModel
-from hvqa.objprops.evaluation import PropertyExtractionEvaluator
+from hvqa.properties.dataset import PropertyExtractionDataset
+from hvqa.properties.models import PropertyExtractionModel
+from hvqa.properties.evaluation import PropertyExtractionEvaluator
 
 
 BATCH_SIZE = 128
