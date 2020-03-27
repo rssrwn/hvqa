@@ -22,6 +22,8 @@ PROPS_ARR = [COLOURS, ROTATIONS, CLASSES]
 
 # *** Relations ***
 
+CLOSE_TO = 5
+
 relations = ["close"]
 
 
