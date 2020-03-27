@@ -13,11 +13,11 @@ class _AbsDetector:
     def __init__(self):
         pass
 
-    def detect_objs(self, video):
+    def detect_objs(self, frames):
         """
         Detect all objects in a video
 
-        :param video: List of PIL frames
+        :param frames: List of PIL frames
         :return: Video object containing info on objects in video
         """
 
@@ -30,28 +30,28 @@ class NeuralDetector(_AbsDetector):
 
         self.model = model
 
-    def detect_objs(self, video):
-        imgs_trans = [_transform(img) for img in video]
+    def detect_objs(self, frames):
+        imgs_trans = [_transform(img) for img in frames]
         imgs_batch = torch.stack(imgs_trans)
 
         with torch.no_grad():
             detector_out = self.model(imgs_batch)
 
-        frames = []
+        frames_objs = []
         for idx, frame in enumerate(detector_out):
-            img = video[idx]
-            boxes = frame["boxes"]
-            labels = frame["labels"]
+            img = frames[idx]
+            bboxs = [tuple(map(round, bbox)) for bbox in list(frame["boxes"])]
+            labels = list(frame["labels"])
 
             objs = []
-            for obj_idx, box in enumerate(boxes):
-                label = labels[obj_idx]
-                obj = Obj(label, box)
+            for obj_idx, bbox in enumerate(bboxs):
+                label = labels[obj_idx].numpy()
+                obj = Obj(label, bbox.numpy())
                 obj.set_image(img)
                 objs.append(obj)
 
             frame = Frame(objs)
-            frames.append(frame)
+            frames_objs.append(frame)
 
-        video = Video(frames)
+        video = Video(frames_objs)
         return video
