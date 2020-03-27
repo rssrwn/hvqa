@@ -90,6 +90,14 @@ class Coordinator:
         drawer.rectangle((x1, y1, x2, y2), fill=None, outline=colour, width=3)
 
     def _extract_objs(self, frames):
+        """
+        Builds structured knowledge from video frames
+        Extracts bboxs and class for each object in each frame
+
+        :param frames: List of PIL frames
+        :return: Video object for video
+        """
+
         video = self.detector.detect_objs(frames)
         return video
 

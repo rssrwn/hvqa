@@ -1,7 +1,7 @@
 import torch
 import torchvision.transforms as T
 
-from hvqa.coordination.knowledge import Obj, Frame, Video
+from hvqa.coordination.video import Obj, Frame, Video
 
 
 _transform = T.Compose([
@@ -25,7 +25,7 @@ class _AbsDetector:
 
 
 class NeuralDetector(_AbsDetector):
-    def __int__(self, model):
+    def __init__(self, model):
         super(NeuralDetector, self).__init__()
 
         self.model = model

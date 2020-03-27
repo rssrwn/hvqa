@@ -118,6 +118,7 @@ class FrameObject:
             x1 -= move_pixels
             x2 -= move_pixels
 
+        # TODO use rotate_left or rotate_right
         event = "rotate"
         if (0 <= x1 < frame_size) and (0 <= x2 < frame_size) and (0 <= y1 < frame_size) and (0 <= y2 < frame_size):
             self.position = [x1, y1, x2, y2]
