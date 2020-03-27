@@ -2,7 +2,8 @@ import torch
 from PIL import ImageDraw
 from PIL import ImageFont
 
-import hvqa.util as util
+from hvqa.util.definitions import COLOURS, ROTATIONS, CLASSES
+import hvqa.util.util as util
 
 
 class Coordinator:
@@ -115,9 +116,9 @@ class Coordinator:
             preds = self.prop_classifier(objs_batch)
 
         preds = [torch.max(pred, dim=1)[1].numpy() for pred in preds]
-        colours = [util.COLOURS[idx] for idx in preds[0]]
-        rotations = [util.ROTATIONS[idx] for idx in preds[1]]
-        classes = [util.CLASSES[idx] for idx in preds[2]]
+        colours = [COLOURS[idx] for idx in preds[0]]
+        rotations = [ROTATIONS[idx] for idx in preds[1]]
+        classes = [CLASSES[idx] for idx in preds[2]]
 
         objs = []
 

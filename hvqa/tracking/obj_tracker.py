@@ -1,11 +1,6 @@
 import math
 from collections import deque
 
-# import numpy as np
-# from skimage.color import rgb2grey
-# from skimage.feature import hog
-# import torchvision.transforms as T
-
 
 class ObjTracker:
     """
@@ -154,10 +149,3 @@ class ObjTracker:
         x1, y1, _, _ = obj1["position"]
         x2, y2, _, _ = obj2["position"]
         return math.sqrt(((x1 - x2) ** 2) + ((y1 - y2) ** 2))
-
-    # def _extract_features(self, obj_img):
-    #     img = self._resize(obj_img)
-    #     img = np.asarray(img, dtype=np.int32)
-    #     img = rgb2grey(img)
-    #     features = hog(img, orientations=8, pixels_per_cell=(4, 4), cells_per_block=(1, 1))
-    #     return features

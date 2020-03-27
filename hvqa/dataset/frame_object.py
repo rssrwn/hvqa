@@ -1,7 +1,7 @@
 import random
 
 from hvqa.dataset.definitions import *
-from hvqa.util import *
+from hvqa.util.exceptions import *
 
 
 class FrameObject:

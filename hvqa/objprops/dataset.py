@@ -3,7 +3,7 @@ from pathlib import Path
 import torch
 from torch.utils.data import Dataset
 
-import hvqa.util as util
+import hvqa.util.util as util
 
 
 COLOURS = ["red", "silver", "white", "brown", "blue", "purple", "green"]

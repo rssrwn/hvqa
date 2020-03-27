@@ -3,7 +3,7 @@ import math
 
 from hvqa.dataset.frame_object import FrameObject
 from hvqa.dataset.definitions import *
-from hvqa.util import *
+from hvqa.util.exceptions import *
 
 
 class Frame:

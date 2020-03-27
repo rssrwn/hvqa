@@ -1,7 +1,9 @@
 import torch
 import torch.nn.functional as F
 
-from hvqa.util import _AbsEvaluator, get_device, PROPERTIES, PROPS_ARR
+from hvqa.util.util import get_device
+from hvqa.util.interfaces import _AbsEvaluator
+from hvqa.util.definitions import PROPERTIES, PROPS_ARR
 
 
 class PropertyExtractionEvaluator(_AbsEvaluator):

@@ -1,62 +1,12 @@
-# File for helper classes and methods
+# *** util functions ***
 
+import torch
 import json
 from pathlib import Path
 from PIL import Image
-import torch
-import cv2
-import numpy as np
-import torchvision.transforms as T
 
 
-# *** Classes ***
-
-class _AbsEvaluator:
-    def __init__(self, test_loader):
-        self.test_loader = test_loader
-
-    def eval_model(self, model, threshold):
-        raise NotImplementedError()
-
-
-# *** Exceptions ***
-
-class UnknownObjectTypeException(BaseException):
-    pass
-
-
-class UnknownPropertyException(BaseException):
-    pass
-
-
-# *** Definitions ***
-
-IMG_SIZE = 256
-NUM_YOLO_REGIONS = 8
-
-USE_GPU = True
-DTYPE = torch.float32
-
-PROPERTIES = ["colour", "rotation", "class"]
-COLOURS = ["red", "silver", "white", "brown", "blue", "purple", "green"]
-ROTATIONS = [0, 1, 2, 3]
-CLASSES = ["octopus", "fish", "bag", "rock"]
-PROPS_ARR = [COLOURS, ROTATIONS, CLASSES]
-
-# Means:    (0.010761048, 0.24837227, 0.75161874, 0.6989449)
-# Std devs: (0.10317583, 0.06499335, 0.065463744, 0.056644086)
-
-detector_transforms = T.Compose([
-    T.ToTensor(),
-])
-
-prop_transforms = T.Compose([
-    T.Resize((32, 32)),
-    T.ToTensor(),
-])
-
-
-# *** Util functions ***
+_USE_GPU = True
 
 
 def load_model(model_class, path, *model_args):
@@ -78,7 +28,7 @@ def load_model(model_class, path, *model_args):
 
 
 def get_device():
-    return torch.device("cuda:0") if USE_GPU and torch.cuda.is_available() else torch.device("cpu")
+    return torch.device("cuda:0") if _USE_GPU and torch.cuda.is_available() else torch.device("cpu")
 
 
 def get_video_dicts(data_dir):
@@ -141,21 +91,6 @@ def collect_obj(img, position):
 
 IMG_MIN_VAL = 0
 IMG_MAX_VAL = 0
-
-
-def add_edges(img):
-    """
-    Add an edge channel to the image
-
-    :param img: PIL Image
-    :return: Numpy array of dimension (C + 1, H, W), channel 0 are edges (between 0 and 255)
-    """
-
-    cv_img = np.array(img)
-    gray = cv2.cvtColor(cv_img, cv2.COLOR_RGB2GRAY)
-    edges = cv2.Canny(gray, IMG_MIN_VAL, IMG_MAX_VAL)[:, :, None]
-    output = np.concatenate((edges, cv_img), axis=2)
-    return output
 
 
 def add_bboxs(drawer, positions, colour):

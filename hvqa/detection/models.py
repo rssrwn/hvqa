@@ -6,7 +6,7 @@ from torchvision.models.resnet import ResNet, BasicBlock
 from torchvision.models.detection import FasterRCNN
 from torchvision.models.detection.rpn import AnchorGenerator
 
-from hvqa.util import IMG_SIZE
+from hvqa.util.definitions import IMG_SIZE
 
 
 # Include background as a class

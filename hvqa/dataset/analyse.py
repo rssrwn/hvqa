@@ -1,7 +1,8 @@
 import argparse
 import numpy as np
 
-from hvqa.util import get_video_dicts, detector_transforms
+from hvqa.util.util import get_video_dicts
+from hvqa.util.definitions import detector_transforms
 from hvqa.detection.dataset import ClassificationDataset
 
 

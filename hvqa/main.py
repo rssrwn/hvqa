@@ -1,6 +1,7 @@
 import argparse
 
-import hvqa.util as util
+import hvqa.util.util as util
+from hvqa.util.definitions import detector_transforms, prop_transforms
 from hvqa.videos import VideoDataset
 from hvqa.detection.models import DetectionBackbone, DetectionModel
 from hvqa.objprops.models import PropertyExtractionModel
@@ -21,7 +22,7 @@ def main(data_dir, detector_model_dir, prop_model_dir):
     prop_model = util.load_model(PropertyExtractionModel, prop_model_dir)
     prop_model.eval()
     tracker = ObjTracker()
-    coord = Coordinator(detector, util.detector_transforms, prop_model, util.prop_transforms, tracker)
+    coord = Coordinator(detector, detector_transforms, prop_model, prop_transforms, tracker)
     simulate(data, coord)
 
 
