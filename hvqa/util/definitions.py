@@ -24,12 +24,12 @@ PROPS_ARR = [COLOURS, ROTATIONS, CLASSES]
 
 CLOSE_TO = 5
 
-relations = ["close"]
+RELATIONS = ["close"]
 
 
 # *** Events ****
 
-events = ["move", "rotate_left", "rotate_right"]
+EVENTS = ["move", "rotate_left", "rotate_right"]
 
 
 # *** Transforms ***

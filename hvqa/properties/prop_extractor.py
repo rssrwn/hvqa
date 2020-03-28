@@ -11,9 +11,6 @@ _transform = T.Compose([
 
 
 class _AbsPropExtractor:
-    def __init__(self):
-        pass
-
     def extract_props(self, obj_imgs):
         """
         Extracts properties of objects from images

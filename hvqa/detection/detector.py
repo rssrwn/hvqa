@@ -11,9 +11,6 @@ _transform = T.Compose([
 
 
 class _AbsDetector:
-    def __init__(self):
-        pass
-
     def detect_objs(self, frames):
         """
         Detect all objects in a video

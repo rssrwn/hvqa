@@ -76,13 +76,19 @@ class FrameObject:
         """
         Rotate the object left or right with equal probability
         Note: We assume the octopus is square
+
+        :return: Event (rotate_left or rotate_right) (str)
         """
 
         rand = random.random()
         if rand < 0.5:
             self._rotate_left()
+            event = "rotate_left"
         else:
             self._rotate_right()
+            event = "rotate_right"
+
+        return event
 
     def _rotate_left(self):
         self.rotation -= 1
@@ -118,13 +124,11 @@ class FrameObject:
             x1 -= move_pixels
             x2 -= move_pixels
 
-        # TODO use rotate_left or rotate_right
-        event = "rotate"
         if (0 <= x1 < frame_size) and (0 <= x2 < frame_size) and (0 <= y1 < frame_size) and (0 <= y2 < frame_size):
             self.position = [x1, y1, x2, y2]
             event = "move"
         else:
-            self.rotate()
+            event = self.rotate()
 
         return event
 

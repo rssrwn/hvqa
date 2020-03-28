@@ -87,8 +87,7 @@ class Frame:
 
         rand = random.random()
         if rand <= ROT_PROB:
-            next_frame.octopus.rotate()
-            event = "rotate"
+            event = next_frame.octopus.rotate()
         else:
             event = next_frame.octopus.move(MOVE_PIXELS, FRAME_SIZE)
 
@@ -172,8 +171,13 @@ class Frame:
         x1, y1, x2, y2 = obj.position
         obj_corners = [(x1, y1), (x2, y1), (x2, y2), (x1, y2)]
 
+        x_overlap = x2 >= octo_x2 and x1 <= octo_x1
+        y_overlap = y2 >= octo_y2 and y1 <= octo_y1
+
         for x, y in obj_corners:
-            if octo_x1 <= x <= octo_x2 and octo_y1 <= y <= octo_y2:
+            match_x = octo_x1 <= x <= octo_x2 or x_overlap
+            match_y = octo_y1 <= y <= octo_y2 or y_overlap
+            if match_x and match_y:
                 return True
 
         return False

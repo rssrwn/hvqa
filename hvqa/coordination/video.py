@@ -1,9 +1,11 @@
 from hvqa.util.util import collect_obj
-from hvqa.util.definitions import relations, events, VIDEO_LENGTH
+from hvqa.util.definitions import RELATIONS, EVENTS, VIDEO_LENGTH, CLASSES
 
 
 class Obj:
     def __init__(self, cls, pos):
+        assert cls in CLASSES, f"Class must be one of {CLASSES}"
+
         self.cls = cls
         self.pos = pos
         self.rot = None
@@ -29,7 +31,7 @@ class Frame:
         self._obj_id_map = {obj.id: obj for obj in objs}
 
     def set_relation(self, idx1, idx2, relation):
-        assert relation in relations, f"Relation arg must be one of {relations}"
+        assert relation in RELATIONS, f"Relation arg must be one of {RELATIONS}"
         self.relations.append((idx1, idx2, relation))
 
 
@@ -39,5 +41,5 @@ class Video:
         self.events = [None] * (VIDEO_LENGTH - 1)
 
     def set_event(self, event, obj_id, start_idx):
-        assert event in events, f"Event arg must be one of {events}"
+        assert event in EVENTS, f"Event arg must be one of {EVENTS}"
         self.events[start_idx] = (event, obj_id)
