@@ -2,6 +2,7 @@ import torch
 import torchvision.transforms as T
 
 from hvqa.coordination.video import Obj, Frame, Video
+from hvqa.util.definitions import CLASSES
 
 
 _transform = T.Compose([
@@ -40,13 +41,14 @@ class NeuralDetector(_AbsDetector):
         frames_objs = []
         for idx, frame in enumerate(detector_out):
             img = frames[idx]
-            bboxs = [tuple(map(round, bbox)) for bbox in list(frame["boxes"])]
-            labels = list(frame["labels"])
+            bboxs = [bbox.numpy() for bbox in list(frame["boxes"])]
+            bboxs = [tuple(map(round, bbox)) for bbox in bboxs]
+            labels = [CLASSES[label.numpy() - 1] for label in list(frame["labels"])]
 
             objs = []
             for obj_idx, bbox in enumerate(bboxs):
-                label = labels[obj_idx].numpy()
-                obj = Obj(label, bbox.numpy())
+                label = labels[obj_idx]
+                obj = Obj(label, bbox)
                 obj.set_image(img)
                 objs.append(obj)
 

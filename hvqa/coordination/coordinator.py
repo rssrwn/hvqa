@@ -38,8 +38,9 @@ class Coordinator:
             ids = self.tracker.process_frame(objs)
             self._add_ids(objs, ids)
 
-        self._add_info_to_video_(frames, video)
-        self.visualise(frames)
+        self.tracker.reset()
+        new_frames = self._add_info_to_video(frames, video)
+        self.visualise(new_frames)
 
     @staticmethod
     def visualise(imgs):
@@ -51,13 +52,12 @@ class Coordinator:
         for idx, obj in enumerate(objs):
             obj.id = ids[idx]
 
-    def _add_info_to_video_(self, imgs, video):
+    def _add_info_to_video(self, imgs, video):
         """
         For each image in the video:
           - Increase size of image
           - Draw bounding boxes
           - Write object info
-        Note: Modifies imgs in-place
 
         :param imgs: List of PIL Image
         :param video: Frame object corresponding to PIL images
@@ -80,6 +80,8 @@ class Coordinator:
                 draw.text((x1, y1 - 35), obj.cls, fill=colour, font=self.font)
                 draw.text((x2 - 20, y2 + 10), "Rot: " + str(obj.rot), fill=colour, font=self.font)
                 draw.text((x1 - 30, y2 + 10), "Id: " + str(obj.id), fill=colour, font=self.font)
+
+        return imgs
 
     def _add_bbox(self, drawer, position, colour):
         x1, y1, x2, y2 = position

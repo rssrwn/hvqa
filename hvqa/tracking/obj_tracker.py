@@ -10,6 +10,9 @@ class ObjTracker:
     """
 
     def __init__(self):
+        self.reset()
+
+    def reset(self):
         self._next_id = None
         self._objs = None
         self.frame_num = None
@@ -21,15 +24,9 @@ class ObjTracker:
     def process_frame(self, objs):
         """
         Process a frame (list of objects)
-        Returns indices into the list of objects previously passed in.
-        These indices correspond to the tracker's best guess of the object index that was in the previous frame
+        Returns object ids which correspond to the tracker's best guess of the object in the frame
 
-        :param objs: List of objects which each take the form of a dictionary:
-        obj: {
-          image: PIL image of object,
-          class: type of object,
-          position: (x1, y1, x2, y2)
-        }
+        :param objs: List of Obj objects
         :return: List indices (len = len(objs))
         """
 
@@ -37,9 +34,6 @@ class ObjTracker:
             return self._initial_frame(objs)
         else:
             return self._process_next_frame(objs)
-
-    def reset_ids(self):
-        self._objs = None
 
     def _initial_frame(self, objs):
         self._objs = objs
@@ -105,14 +99,14 @@ class ObjTracker:
         """
         Find the object in <objs> which best matches <obj>
 
-        :param obj: Object dict
-        :param objs: List of pairs [(idx, obj dict)]
+        :param obj: Obj
+        :param objs: List of pairs [(idx, Obj)]
         :return: Idx of best matching object
         """
 
         match_objs = []
         for idx, obj_ in objs:
-            if obj["class"] == obj_["class"] and self.close_obj(obj, obj_):
+            if obj.cls == obj_.cls and self.close_obj(obj, obj_):
                 match_objs.append((idx, obj_))
 
         if len(match_objs) == 0:
@@ -139,13 +133,13 @@ class ObjTracker:
         self._timeouts.extend([self.frame_num] * len(disappeared))
 
     def close_obj(self, obj1, obj2):
-        x1, y1, _, _ = obj1["position"]
-        x2, y2, _, _ = obj2["position"]
+        x1, y1, _, _ = obj1.pos
+        x2, y2, _, _ = obj2.pos
         close = abs(x1 - x2) <= self._max_movement and abs(y1 - y2) <= self._max_movement
         return close
 
     @staticmethod
     def dist(obj1, obj2):
-        x1, y1, _, _ = obj1["position"]
-        x2, y2, _, _ = obj2["position"]
+        x1, y1, _, _ = obj1.pos
+        x2, y2, _, _ = obj2.pos
         return math.sqrt(((x1 - x2) ** 2) + ((y1 - y2) ** 2))
