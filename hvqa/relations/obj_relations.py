@@ -1,10 +1,7 @@
-from hvqa.util.definitions import CLOSE_TO, relations
+from hvqa.util.definitions import CLOSE_TO, RELATIONS
 
 
 class _AbsRelationClassifier:
-    def __init__(self):
-        pass
-
     def detect_relations(self, objs):
         """
         Detect binary relations between pairs of objects
@@ -38,7 +35,7 @@ class HardcodedRelationClassifier(_AbsRelationClassifier):
         for idx, relation_func in enumerate(self.relation_funcs):
             related = relation_func(obj1, obj2)
             if related:
-                obj_relations.append(relations[idx])
+                obj_relations.append(RELATIONS[idx])
 
         return obj_relations
 
@@ -62,8 +59,13 @@ class HardcodedRelationClassifier(_AbsRelationClassifier):
         x1, y1, x2, y2 = obj2.pos
         obj_corners = [(x1, y1), (x2, y1), (x2, y2), (x1, y2)]
 
+        x_overlap = x2 >= obj1_x2 and x1 <= obj1_x1
+        y_overlap = y2 >= obj1_y2 and y1 <= obj1_y1
+
         for x, y in obj_corners:
-            if obj1_x1 <= x <= obj1_x2 and obj1_y1 <= y <= obj1_y2:
+            match_x = obj1_x1 <= x <= obj1_x2 or x_overlap
+            match_y = obj1_y1 <= y <= obj1_y2 or y_overlap
+            if match_x and match_y:
                 return True
 
         return False
