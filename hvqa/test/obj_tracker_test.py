@@ -1,42 +1,16 @@
 import unittest
 
+from hvqa.coordination.video import Obj
 from hvqa.tracking.obj_tracker import ObjTracker
 
 
-obj1 = {
-    "position": (30, 30, 60, 60),
-    "class": "rock"
-}
-
-obj1_copy = {
-    "position": (30, 30, 60, 60),
-    "class": "rock"
-}
-
-obj1_similar = {
-    "position": (35, 35, 65, 65),
-    "class": "rock"
-}
-
-obj2 = {
-    "position": (100, 30, 200, 200),
-    "class": "fish"
-}
-
-obj3 = {
-    "position": (110, 40, 0, 0),
-    "class": "octopus"
-}
-
-obj4 = {
-    "position": (30, 30, 60, 60),
-    "class": "fish"
-}
-
-obj5 = {
-    "position": (110, 40, 0, 0),
-    "class": "rock"
-}
+obj1 = Obj("rock", (30, 30, 60, 60))
+obj1_copy = Obj("rock", (30, 30, 60, 60))
+obj1_similar = Obj("rock", (35, 35, 65, 65))
+obj2 = Obj("fish", (100, 30, 200, 200))
+obj3 = Obj("octopus", (110, 40, 0, 0))
+obj4 = Obj("fish", (30, 30, 60, 60))
+obj5 = Obj("rock", (110, 40, 0, 0))
 
 
 class ObjTrackerTest(unittest.TestCase):
