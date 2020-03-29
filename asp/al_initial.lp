@@ -28,5 +28,5 @@ holds_start(P) :- holds(P, 3).
 holds_next(P) :- holds(P, 4).
 
 #show occurs/2.
-#show holds/2.
-#show -holds/2.
+%#show holds/2.
+%#show -holds/2.

@@ -23,6 +23,21 @@ class Obj:
         assert self.pos is not None, "Position must be set in order to extract object image"
         self.img = collect_obj(img, self.pos)
 
+    def gen_asp_encoding(self, frame_num):
+        assert self.cls is not None, "Class must be set"
+        assert self.pos is not None, "Position must be set"
+        assert self.rot is not None, "Rotation must be set"
+        assert self.colour is not None, "Colour must be set"
+        assert self.id is not None, "Id must be set"
+
+        frame_num = str(frame_num)
+        encoding = f"obs(class({self.cls}, {self.id}), {frame_num}).\n" \
+                   f"obs(position({str(self.pos)}, {self.id}), {frame_num}).\n" \
+                   f"obs(rotation({str(self.rot)}, {self.id}), {frame_num}).\n" \
+                   f"obs(colour({self.colour}, {self.id}), {frame_num}).\n"
+
+        return encoding
+
 
 class Frame:
     def __init__(self, objs):
@@ -32,7 +47,20 @@ class Frame:
 
     def set_relation(self, idx1, idx2, relation):
         assert relation in RELATIONS, f"Relation arg must be one of {RELATIONS}"
-        self.relations.append((idx1, idx2, relation))
+
+        id1 = self.objs[idx1].id
+        id2 = self.objs[idx2].id
+        self.relations.append((id1, id2, relation))
+
+    def gen_asp_encoding(self, frame_num):
+        enc = ""
+        for obj in self.objs:
+            enc += obj.gen_asp_encoding(frame_num) + "\n"
+
+        for id1, id2, rel in self.relations:
+            enc += f"obs({rel}({str(id1)}, {str(id2)}), {str(frame_num)}).\n"
+
+        return enc
 
 
 class Video:
