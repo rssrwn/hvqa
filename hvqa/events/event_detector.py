@@ -24,6 +24,9 @@ class ASPEventDetector(_AbsEventDetector):
         self._video_info = path / "_temp_video_info.lp"
         self.num_frames = 32
 
+        assert self.al_model.exists(), f"File {self.al_model} does not exist"
+        assert self.detector.exists(), f"File {self.detector} does not exist"
+
     def detect_events(self, frames):
         # Create ASP file for video information
         asp_enc = ""
