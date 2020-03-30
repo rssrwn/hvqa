@@ -22,7 +22,6 @@ class ASPEventDetector(_AbsEventDetector):
         self.al_model = path / "model.lp"
         self.detector = path / "events.lp"
         self._video_info = path / "_temp_video_info.lp"
-        self.num_frames = 32
 
         assert self.al_model.exists(), f"File {self.al_model} does not exist"
         assert self.detector.exists(), f"File {self.detector} does not exist"
@@ -30,8 +29,8 @@ class ASPEventDetector(_AbsEventDetector):
     def detect_events(self, frames):
         # Create ASP file for video information
         asp_enc = ""
-        for frame in frames:
-            asp_enc += frame.gen_asp_encoding + "\n"
+        for idx, frame in enumerate(frames):
+            asp_enc += frame.gen_asp_encoding(idx) + "\n"
 
         f = open(self._video_info, "w")
         f.write(asp_enc)
@@ -47,13 +46,16 @@ class ASPEventDetector(_AbsEventDetector):
         asp_events = asp_events[0]
 
         # Parse event info from ASP result
-        events = [[]] * (self.num_frames - 1)
+        events = [[]] * (len(frames) - 1)
         for pred, args in asp_events:
             if pred == "occurs":
                 event, frame = args
                 splits = event.split("(")
                 event_name = splits[0]
-                obj_id = splits[1][0:-1]  # Remove closing bracket
-                events[frame] = (obj_id, event_name)
+                obj_id = int(splits[1][0:-1])  # Remove closing bracket
+                events[frame] = [(obj_id, event_name)]
+
+        # Cleanup temp file
+        self._video_info.unlink()
 
         return events
