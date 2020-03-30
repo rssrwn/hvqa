@@ -1,32 +1,33 @@
-holds(P, Frame) :- obs(P, Frame).
+% ***** File for finding which events occurred by modelling them as possible explanations *****
 
-holds(close(0, 2), 4).
+% Map to representation used in book
+obs(F, true, I) :- obs(F, I).
 
-goal(I) :-
-  holds(class(octopus, 0), I),
-  holds(colour(blue, 0), I),
-  holds(rotation(1, 0), I),
-  holds(position((25, 60, 45, 70), 0), I),
-  holds(class(fish, 1), I),
-  holds(colour(silver, 1), I),
-  holds(rotation(3, 1), I),
-  holds(position((60, 100, 65, 105), 1), I),
-  holds(class(rock, 2), I),
-  holds(colour(blue, 2), I),
-  holds(rotation(0, 2), I),
-  holds(position((30, 60, 35, 65), 2), I).
+% Assume correct initial state
+holds(F, 0) :- obs(F, true, 0).
 
-success :- goal(I), I <= n.
-:- not success.
+% Defined fluents are hardcoded, so we need to copy them over to holds
+holds(F, I) :-
+  fluent(defined, F),
+  obs(F, true, I).
 
-1{occurs(A, I) : action(A)}1 :-
-  step(I),
-  not goal(I),
-  I < n.
+% CWA for obs
+obs(F, false, I) :-
+  fluent(_, F),
+  not obs(F, true, I),
+  step(I).
 
-holds_start(P) :- holds(P, 3).
-holds_next(P) :- holds(P, 4).
+% Reality check axioms
+:- obs(F, true, I), -holds(F, I).
+:- obs(F, false, I), holds(F, I).
+
+% Generate possible events
+occurs(A, I) : action(A) :- step(I+1), I >= 0.
+
+% wrong_obs_true(F, I) :- obs(F, true, I), -holds(F, I).
+% wrong_obs_false(F, I) :- obs(F, false, I), holds(F, I).
+
+% correct_actions :- occurs(move(0), 0), occurs(rotate_right(0), 1).
+% :- not correct_actions.
 
 #show occurs/2.
-%#show holds/2.
-%#show -holds/2.
