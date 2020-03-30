@@ -70,6 +70,7 @@ action(nothing).
   fluent(inertial, F),
   not holds(F, 0).
 
+% CWA for inertial fluents
 % -holds(F, I) :-
 %   fluent(inertial, F),
 %   not holds(F, I),
@@ -141,11 +142,11 @@ holds(rotation(@new_rot(Rot, "rotate_right"), Id), I+1) :-
   step(I+1).
 
 % Definition for nothing action
-holds(F, I+1) :-
-  occurs(nothing, I),
-  holds(F, I),
-  fluent(inertial, F),
-  step(I+1).
+% holds(F, I+1) :-
+%   occurs(nothing, I),
+%   holds(F, I),
+%   fluent(inertial, F),
+%   step(I+1).
 
 % Definition for colour
 change_colour(Old, New, Id, I-1) :-
@@ -160,7 +161,12 @@ change_colour(Old, New, Id, I-1) :-
 holds(colour(New, Id), I+1) :- change_colour(_, New, Id, I).
 -holds(colour(Old, Id), I+1) :- change_colour(Old, _, Id, I).
 
-% % Definition for class
+% holds(colour(Col, Id), I+1) :-
+%   holds(colour(Col, Id), I),
+%   not change_colour(Col, _, Id, I),
+%   step(I+1).
+
+% Definition for class
 % holds(class(C, Id), I+1) :-
 %   holds(class(C, Id), I),
 %   step(I+1).

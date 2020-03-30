@@ -50,10 +50,11 @@ class ASPEventDetector(_AbsEventDetector):
         for pred, args in asp_events:
             if pred == "occurs":
                 event, frame = args
-                splits = event.split("(")
-                event_name = splits[0]
-                obj_id = int(splits[1][0:-1])  # Remove closing bracket
-                events[frame] = [(obj_id, event_name)]
+                if event != "nothing":
+                    splits = event.split("(")
+                    event_name = splits[0]
+                    obj_id = int(splits[1][0:-1])  # Remove closing bracket
+                    events[frame] = [(obj_id, event_name)]
 
         # Cleanup temp file
         self._video_info.unlink()
