@@ -209,11 +209,11 @@ class Drawer:
         x1, y1, x2, y2 = pos
         x_centre = x1 + ((x2 - x1) // 2)
         y_centre = y1 + ((y2 - y1) // 2)
+        w_h_diff = abs((x2 - x1) - (y2 - y1))
         if rot == 1:
-            # x_centre += 1
-            y_centre += 1
+            y_centre += (w_h_diff // 2)
         elif rot == 3:
-            x_centre -= 1
+            x_centre -= (w_h_diff // 2)
 
         return x_centre, y_centre
 
