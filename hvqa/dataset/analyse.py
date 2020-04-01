@@ -35,7 +35,7 @@ def count_events(video_dicts):
     for event in event_list:
         increment_in_map(event_dict, event)
 
-    print(f"\n{'Event name' :<20}{'Occurrences' :<15}Frequency")
+    print(f"{'Event name' :<20}{'Occurrences' :<15}Frequency")
     for event, num in event_dict.items():
         print(f"{event:<20}{num:<15}{(num / num_frame_changes) * 100:.3g}%")
 
@@ -57,7 +57,7 @@ def count_colours(video_dicts):
                 elif obj["class"] == "octopus":
                     increment_in_map(octo_colours, obj["colour"])
 
-    print(f"\n{'Rock colour' :<20}{'Occurrences' :<15}Frequency")
+    print(f"{'Rock colour' :<20}{'Occurrences' :<15}Frequency")
     for colour, num in rock_colours.items():
         print(f"{colour:<20}{num:<15}{(num / num_frames) * 100:.3g}%")
 
@@ -80,11 +80,34 @@ def count_rotations(video_dicts):
                 if obj["class"] == "octopus":
                     increment_in_map(rotations, obj["rotation"])
 
-    print(f"\n{'Octopus rotations' :<20}{'Occurrences' :<15}Frequency")
+    print(f"{'Octopus rotations' :<20}{'Occurrences' :<15}Frequency")
     for rotation, num in rotations.items():
         print(f"{rotation:<20}{num:<15}{(num / num_frames) * 100:.3g}%")
 
     print(f"\nTotal number of frames: {num_frames}\n")
+
+
+def count_fish_eaten(video_dicts):
+    fish_eaten = {}
+    num_videos = 0
+    for video in video_dicts:
+        events = video["events"]
+        num_videos += 1
+        num_fish_eaten = 0
+        for event_list in events:
+            if "eat fish" in event_list:
+                num_fish_eaten += 1
+
+        increment_in_map(fish_eaten, num_fish_eaten)
+
+    fish_eaten = fish_eaten.items()
+    fish_eaten = sorted(fish_eaten, key=lambda eaten: eaten[0])
+
+    print(f"{'Fish eaten' :<15}{'Occurrences' :<15}Frequency")
+    for num_eaten, cnt in fish_eaten:
+        print(f"{num_eaten:<15}{cnt:<15}{(cnt / num_videos) * 100:.3g}%")
+
+    print(f"Total number of videos: {num_videos}")
 
 
 def analyse_pixels(dataset):
@@ -111,7 +134,7 @@ def analyse_pixels(dataset):
     print(f"Std devs: {tuple(stddevs)}")
 
 
-def main(data_dir, events, colours, rotations, pixels):
+def main(data_dir, events, colours, rotations, fish, pixels):
     video_dicts = get_video_dicts(data_dir)
 
     if events:
@@ -126,6 +149,10 @@ def main(data_dir, events, colours, rotations, pixels):
         print("Analysing octopus rotations...")
         count_rotations(video_dicts)
 
+    if fish:
+        print("Analysing number of fish eaten...")
+        count_fish_eaten(video_dicts)
+
     if pixels:
         print("Analysing pixels...")
         dataset = ClassificationDataset(data_dir, transforms=detector_transforms)
@@ -137,7 +164,8 @@ if __name__ == '__main__':
     parser.add_argument("-e", "--events", action="store_true", default=False)
     parser.add_argument("-c", "--colours", action="store_true", default=False)
     parser.add_argument("-r", "--rotations", action="store_true", default=False)
+    parser.add_argument("-f", "--fish", action="store_true", default=False)
     parser.add_argument("-p", "--pixels", action="store_true", default=False)
     parser.add_argument("data_dir", type=str)
     args = parser.parse_args()
-    main(args.data_dir, args.events, args.colours, args.rotations, args.pixels)
+    main(args.data_dir, args.events, args.colours, args.rotations, args.fish, args.pixels)
