@@ -11,6 +11,7 @@ class Video:
         self.events = []
         self.questions = []
         self.answers = []
+        self.q_idxs = []
         self._question_funcs = [
             self._gen_prop_question
         ]
@@ -26,21 +27,24 @@ class Video:
             self.frames.append(curr)
             self.events.append(events)
 
-        questions, answers = self._gen_qa_pairs()
+        questions, answers, idxs = self._gen_qa_pairs()
         self.questions = questions
         self.answers = answers
+        self.q_idxs = idxs
 
     def _gen_qa_pairs(self):
         questions = []
         answers = []
+        idxs = []
         for q_idx in range(QS_PER_VIDEO):
             func_idx = random.randint(0, len(self._question_funcs) - 1)
             q_func = self._question_funcs[func_idx]
             question, answer = q_func()
             questions.append(question)
             answers.append(answer)
+            idxs.append(q_idx)
 
-        return questions, answers
+        return questions, answers, idxs
 
     # Q: What <property> was the <object> in frame <frame_idx>?
     # A: <property_val>
@@ -64,7 +68,10 @@ class Video:
             unique_prop_val = str(obj.get_prop_val(unique_prop)) + " "
 
         # Get the property value (the answer)
-        props = QUESTION_OBJ_PROPS[:].remove(unique_prop)
+        props = QUESTION_OBJ_PROPS[:]
+        if unique_prop != "class":
+            props.remove(unique_prop)
+
         idx = random.randint(0, len(props) - 1)
         prop = props[idx]
         prop_val = obj.get_prop_val(prop)
@@ -85,17 +92,17 @@ class Video:
         """
 
         objs = frame.get_objects()
-        classes = set([obj.obj_type for obj in objs])
-        classes = random.shuffle(classes)
+        classes = list(set([obj.obj_type for obj in objs]))
+        random.shuffle(classes)
 
         unique_obj = None
         prop = None
 
         for cls in classes:
-            objs = [obj for obj in objs if obj.obj_type == cls]
-            objs = random.shuffle(objs)
-            for obj in objs:
-                prop = self._unique_prop(obj, objs)
+            cls_objs = [obj for obj in objs if obj.obj_type == cls]
+            random.shuffle(cls_objs)
+            for obj in cls_objs:
+                prop = self._unique_prop(obj, cls_objs)
                 if prop is not None:
                     unique_obj = obj
                     break
@@ -131,6 +138,9 @@ class Video:
                 if obj.obj_type == obj_.obj_type:
                     unique_class = False
 
+            if not (unique_colour or unique_rotation or unique_class):
+                break
+
         if unique_class:
             return "class"
 
@@ -154,5 +164,6 @@ class Video:
             "frames": [frame.to_dict() for frame in self.frames],
             "events": self.events,
             "questions": self.questions,
-            "answers": self.answers
+            "answers": self.answers,
+            "question_types": self.q_idxs
         }
