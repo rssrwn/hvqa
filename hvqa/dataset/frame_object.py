@@ -21,6 +21,18 @@ class FrameObject:
             "rotation": self.rotation
         }
 
+    def get_prop_val(self, prop_str):
+        if prop_str == "class":
+            return self.obj_type
+        elif prop_str == "position":
+            return self.position
+        elif prop_str == "colour":
+            return self.colour
+        elif prop_str == "rotation":
+            return self.rotation
+        else:
+            raise UnknownPropertyException(f"Unknown property {prop_str}")
+
     def random_obj(self, obj_type):
         """
         Create random object of type <obj_type>

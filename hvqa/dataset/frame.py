@@ -1,5 +1,5 @@
-import random
 import math
+import random
 
 from hvqa.dataset.frame_object import FrameObject
 from hvqa.dataset.definitions import *
@@ -17,6 +17,13 @@ class Frame:
         self._remaining_segments = [(i, j) for i in range(NUM_SEGMENTS) for j in range(NUM_SEGMENTS)]
         self.octopus = None
         self.frame_size = FRAME_SIZE
+
+    def get_objects(self):
+        objs = self.static_objects[:]
+        if self.octopus is not None:
+            objs.append(self.octopus)
+
+        return objs
 
     def obj_box(self, obj_size, rotation):
         """
@@ -183,11 +190,8 @@ class Frame:
         return False
 
     def to_dict(self):
-        statics = [obj.to_dict() for obj in self.static_objects]
-        octopus = []
-        if self.octopus is not None:
-            octopus = [self.octopus.to_dict()]
-
+        objs = self.get_objects()
+        objs = [obj.to_dict() for obj in objs]
         return {
-            "objects": statics + octopus
+            "objects": objs
         }

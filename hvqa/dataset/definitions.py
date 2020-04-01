@@ -22,10 +22,17 @@ ROT_PROB = 0.1
 MOVE_PIXELS = 15
 
 
+# *** QA Pairs ***
+
+QS_PER_VIDEO = 10
+
+QUESTION_OBJ_PROPS = ["colour", "rotation"]
+
+
 # *** Number of objects ***
 
-MIN_FISH = 8
-MAX_FISH = 12
+MIN_FISH = 5
+MAX_FISH = 8
 
 MIN_BAG = 2
 MAX_BAG = 3
