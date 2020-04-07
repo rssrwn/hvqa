@@ -1,4 +1,5 @@
 from pathlib import Path
+from clyngor import solve
 
 from hvqa.util.definitions import CLASSES, PROP_LOOKUP
 from hvqa.util.exceptions import UnknownQuestionTypeException, UnknownPropertyValueException
@@ -22,7 +23,9 @@ class HardcodedQASystem(_AbsQASystem):
     def __init__(self, asp_dir):
         path = Path(asp_dir)
         self.qa_system = path / "qa.lp"
+        self.features = path / "background_knowledge.lp"
         self._video_info = path / "_temp_video_info.lp"
+
         self._asp_question_templates = {
             0: "answer(V) :- {asp_obj}, holds({prop}(V, Id), {frame_idx}).\n",
 
@@ -44,12 +47,73 @@ class HardcodedQASystem(_AbsQASystem):
             6: "answer(rotate_left)."
         }
 
+        self._answer_str_templates = {
+            0: "{prop_val}",
+            1: "{ans}",
+            2: "{action}",
+            3: "Its {prop} changed from {before} to {after}",
+            4: "not implemented",
+            5: "not implemented",
+            6: "not implemented"
+        }
+
     def answer(self, video, question, q_type):
         asp_enc = video.gen_asp_encoding()
         asp_enc += f"\nquestion_type({q_type}).\n"
 
         question_enc = self._gen_asp_question(question, q_type)
         asp_enc += f"\n{question_enc}\n"
+
+        f = open(self._video_info, "w")
+        f.write(asp_enc)
+        f.close()
+
+        # Solve AL model with video info
+        answers = solve([self.features, self.qa_system, self._video_info], use_clingo_module=True)
+
+        assert len(answers) != 0, "ASP QA program is unsatisfiable"
+        assert not len(answers) > 1, "ASP QA program must contain only a single answer set"
+
+        answers = answers[0]
+
+        ans_str = None
+        for pred, args in answers:
+            if pred == "answer":
+                ans_str = self._gen_answer_str(args, q_type)
+
+        # Cleanup temp file
+        self._video_info.unlink()
+
+        assert ans_str is not None, "The answer set did not contain an answer predicate"
+
+        return ans_str
+
+    def _gen_answer_str(self, args, q_type):
+        if q_type == 0:
+            asp_q = self._answer_q_type_0(args)
+        elif q_type == 1:
+            asp_q = self._answer_q_type_1(args)
+        elif q_type == 2:
+            asp_q = self._answer_q_type_2(args)
+        elif q_type == 3:
+            asp_q = self._answer_q_type_3(args)
+        elif q_type == 4:
+            asp_q = self._answer_q_type_4(args)
+        elif q_type == 5:
+            asp_q = self._answer_q_type_5(args)
+        elif q_type == 6:
+            asp_q = self._answer_q_type_6(args)
+        else:
+            raise UnknownQuestionTypeException(f"Question type {q_type} unknown")
+
+    def _answer_q_type_0(self, args):
+        assert len(args) == 1, "Args is not correct length for question type 0"
+
+        prop_val = args[0]
+
+        template = self._answer_str_templates[0]
+        ans_str = template.format(prop_val=prop_val)
+        return ans_str
 
     def _gen_asp_question(self, question, q_type):
         if q_type == 0:
@@ -68,6 +132,8 @@ class HardcodedQASystem(_AbsQASystem):
             asp_q = self._parse_q_type_6(question)
         else:
             raise UnknownQuestionTypeException(f"Question type {q_type} unknown")
+
+        return asp_q
 
     def _parse_q_type_0(self, question):
         splits = question.split(" ")
