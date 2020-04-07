@@ -10,11 +10,26 @@ class _AbsModel:
     """
 
     def __init__(self):
-        self.detector = None
-        self.prop_classifier = None
-        self.tracker = None
-        self.relation_classifier = None
-        self.event_classifier = None
+        self.obj_detector = self._setup_detector()
+        self.prop_classifier = self._setup_prop_classifier()
+        self.tracker = self._setup_tracker()
+        self.relation_classifier = self._setup_relation_classifier()
+        self.event_detector = self._setup_detector()
+
+    def _setup_detector(self):
+        raise NotImplementedError
+
+    def _setup_prop_classifier(self):
+        raise NotImplementedError
+
+    def _setup_tracker(self):
+        raise NotImplementedError
+
+    def _setup_relation_classifier(self):
+        raise NotImplementedError
+
+    def _setup_event_detector(self):
+        raise NotImplementedError
 
     def run(self, frames, questions, q_types):
         """
@@ -61,7 +76,7 @@ class _AbsModel:
         :return: Video object for video
         """
 
-        video = self.detector.detect_objs(frames)
+        video = self.obj_detector.detect_objs(frames)
         return video
 
     def _extract_props_(self, objs):
@@ -104,7 +119,7 @@ class _AbsModel:
         """
 
         frames = video.frames
-        events = self.event_classifier.detect_events(frames)
+        events = self.event_detector.detect_events(frames)
         for frame_idx, frame_events in enumerate(events):
             for obj_id, event in frame_events:
                 video.add_event(event, obj_id, frame_idx)
