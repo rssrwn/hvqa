@@ -71,3 +71,16 @@ class Video:
     def add_event(self, event, obj_id, start_idx):
         assert event in EVENTS, f"Event arg must be one of {EVENTS}"
         self.events[start_idx] = self.events[start_idx] + [(event, obj_id)]
+
+    def gen_asp_encoding(self):
+        enc = ""
+        for frame_idx, frame in enumerate(self.frames):
+            enc += frame.gen_asp_encoding(frame_idx)
+
+        enc += "\n"
+
+        for frame_idx, events in enumerate(self.events):
+            for event, obj_id in events:
+                enc += f"occurs({event}({obj_id}), {frame_idx}).\n"
+
+        return enc

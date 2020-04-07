@@ -19,6 +19,23 @@ ROTATIONS = [0, 1, 2, 3]
 CLASSES = ["octopus", "fish", "bag", "rock"]
 PROPS_ARR = [COLOURS, ROTATIONS, CLASSES]
 
+PROP_LOOKUP = {
+    "red": "colour",
+    "silver": "colour",
+    "white": "colour",
+    "brown": "colour",
+    "purple": "colour",
+    "green": "colour",
+    "octopus": "class",
+    "fish": "class",
+    "bag": "class",
+    "rock": "class",
+    "upward-facing": "rotation",
+    "right-facing": "rotation",
+    "downward-facing": "rotation",
+    "left-facing": "rotation"
+}
+
 
 # *** Relations ***
 

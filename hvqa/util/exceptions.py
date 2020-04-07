@@ -7,3 +7,7 @@ class UnknownObjectTypeException(BaseException):
 
 class UnknownPropertyException(BaseException):
     pass
+
+
+class UnknownQuestionTypeException(BaseException):
+    pass
