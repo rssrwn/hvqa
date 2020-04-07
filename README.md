@@ -15,3 +15,4 @@ The following scripts are contained in the project:
 * '**analyse**' runs analysis on the current dataset (see the file for full list of flags)
 * '**train**' trains either the classifier (backbone) model or the detector model with a pre-trained classifier
 * '**evaluate**' evaluates the performance of either the classifier or detector model
+
