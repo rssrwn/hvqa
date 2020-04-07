@@ -115,6 +115,33 @@ class HardcodedQASystem(_AbsQASystem):
         ans_str = template.format(prop_val=prop_val)
         return ans_str
 
+    def _answer_q_type_1(self, args):
+        assert len(args) == 1, "Args is not correct length for question type 1"
+
+        yes_no = args[0]
+
+        template = self._answer_str_templates[1]
+        ans_str = template.format(ans=yes_no)
+        return ans_str
+
+    def _answer_q_type_2(self, args):
+        assert len(args) == 1, "Args is not correct length for question type 2"
+
+        action = args[0]
+
+        template = self._answer_str_templates[2]
+        ans_str = template.format(action=action)
+        return ans_str
+
+    def _answer_q_type_3(self, args):
+        assert len(args) == 3, "Args is not correct length for question type 3"
+
+        prop, before, after = args
+
+        template = self._answer_str_templates[3]
+        ans_str = template.format(prop=prop, before=before, after=after)
+        return ans_str
+
     def _gen_asp_question(self, question, q_type):
         if q_type == 0:
             asp_q = self._parse_q_type_0(question)
