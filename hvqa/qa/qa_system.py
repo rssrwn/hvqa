@@ -122,6 +122,21 @@ class HardcodedQASystem(_AbsQASystem):
         asp_q = template.format(frame_idx=str(frame_idx))
         return asp_q
 
+    def _parse_q_type_3(self, question):
+        splits = question.split(" ")
+        frame_idx = int(splits[-1][:-1])
+
+        cls = splits[4]
+        prop_val = None
+        if cls not in CLASSES:
+            prop_val = cls
+            cls = splits[5]
+
+        asp_obj = self._gen_asp_obj(cls, prop_val, frame_idx, "Id")
+
+        template = self._asp_question_templates[3]
+        asp_q = template.format(asp_obj=asp_obj, frame_idx=frame_idx)
+        return asp_q
 
     @staticmethod
     def _gen_asp_obj(cls, prop_val, frame_idx, id_str):
