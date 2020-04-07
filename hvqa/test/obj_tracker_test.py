@@ -1,6 +1,6 @@
 import unittest
 
-from hvqa.coordination.video import Obj
+from hvqa.util.video_repr import Obj
 from hvqa.tracking.obj_tracker import ObjTracker
 
 

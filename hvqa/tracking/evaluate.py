@@ -2,7 +2,7 @@ import argparse
 
 import hvqa.util.func as util
 from hvqa.tracking.obj_tracker import ObjTracker
-from hvqa.videos import VideoDataset
+from hvqa.video_dataset import VideoDataset
 
 
 def generate_tracker_input(frame_img, frame_dict):

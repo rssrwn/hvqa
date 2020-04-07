@@ -1,7 +1,7 @@
 import torch
 import torchvision.transforms as T
 
-from hvqa.coordination.video import Obj, Frame, Video
+from hvqa.util.video_repr import Obj, Frame, Video
 from hvqa.util.definitions import CLASSES
 
 

@@ -1,13 +1,13 @@
 import argparse
 
 import hvqa.util.func as util
-from hvqa.videos import VideoDataset
+from hvqa.video_dataset import VideoDataset
 from hvqa.detection.models import DetectionBackbone, DetectionModel
 from hvqa.detection.detector import NeuralDetector
 from hvqa.properties.models import PropertyExtractionModel
 from hvqa.properties.prop_extractor import NeuralPropExtractor
 from hvqa.tracking.obj_tracker import ObjTracker
-from hvqa.coordination.coordinator import Coordinator
+from hvqa.models.coordinator import Coordinator
 
 
 def simulate(dataset, coordinator):

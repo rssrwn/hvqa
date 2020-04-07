@@ -120,3 +120,13 @@ class Coordinator:
 
             # We use class from detector (if this line is commented)
             # obj.cls = cls
+
+    # def _extract_relations_(self, frame):
+    #     """
+    #     Extract relations between objects in a frame
+    #     Note: Modifies frame in-place to add relations
+    #
+    #     :param frame: Frame obj
+    #     """
+    #
+    #     pass
