@@ -5,7 +5,7 @@ import torch.nn as nn
 from torch.utils.data import DataLoader
 import torch.optim as optim
 
-from hvqa.util.util import get_device, collate_func
+from hvqa.util.func import get_device, collate_func
 from hvqa.util.definitions import prop_transforms
 from hvqa.properties.dataset import PropertyExtractionDataset
 from hvqa.properties.models import PropertyExtractionModel

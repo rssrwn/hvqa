@@ -1,6 +1,6 @@
 import argparse
 
-import hvqa.util.util as util
+import hvqa.util.func as util
 from hvqa.videos import VideoDataset
 from hvqa.detection.models import DetectionBackbone, DetectionModel
 from hvqa.detection.detector import NeuralDetector

@@ -1,6 +1,6 @@
 import argparse
 
-import hvqa.util.util as util
+import hvqa.util.func as util
 from hvqa.tracking.obj_tracker import ObjTracker
 from hvqa.videos import VideoDataset
 

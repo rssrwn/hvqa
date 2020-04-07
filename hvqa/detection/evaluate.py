@@ -3,7 +3,7 @@ import torch
 from torch.utils.data import DataLoader
 
 from hvqa.util.definitions import detector_transforms
-from hvqa.util.util import collate_func, get_device
+from hvqa.util.func import collate_func, get_device
 from hvqa.detection.evaluation import DetectionEvaluator, ClassificationEvaluator
 from hvqa.detection.models import ClassifierModel, DetectionBackboneWrapper, DetectionModel, DetectionBackbone
 from hvqa.detection.dataset import DetectionDataset

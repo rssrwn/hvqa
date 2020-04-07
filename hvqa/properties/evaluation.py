@@ -1,7 +1,7 @@
 import torch
 import torch.nn.functional as F
 
-from hvqa.util.util import get_device
+from hvqa.util.func import get_device
 from hvqa.util.interfaces import _AbsEvaluator
 from hvqa.util.definitions import PROPERTIES, PROPS_ARR
 

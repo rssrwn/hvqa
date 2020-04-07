@@ -1,4 +1,4 @@
-from hvqa.util.util import collect_obj
+from hvqa.util.func import collect_obj
 from hvqa.util.definitions import RELATIONS, EVENTS, VIDEO_LENGTH, CLASSES
 
 

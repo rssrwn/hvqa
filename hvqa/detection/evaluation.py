@@ -6,7 +6,7 @@ import numpy as np
 
 from hvqa.util.exceptions import *
 from hvqa.util.interfaces import _AbsEvaluator
-from hvqa.util.util import get_device, add_bboxs
+from hvqa.util.func import get_device, add_bboxs
 
 from lib.vision.engine import evaluate
 

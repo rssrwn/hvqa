@@ -2,7 +2,7 @@ import json
 from pathlib import Path
 from torch.utils.data.dataset import Dataset
 
-import hvqa.util.util as util
+import hvqa.util.func as util
 
 
 class VideoDataset(Dataset):

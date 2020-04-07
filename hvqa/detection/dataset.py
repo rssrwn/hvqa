@@ -5,7 +5,7 @@ from PIL import Image
 from torch.utils.data import Dataset
 
 from hvqa.util.exceptions import *
-from hvqa.util.util import collect_img
+from hvqa.util.func import collect_img
 from hvqa.util.definitions import IMG_SIZE
 
 
