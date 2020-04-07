@@ -19,7 +19,7 @@ class _AbsQASystem:
         raise NotImplementedError
 
 
-class HardcodedQASystem(_AbsQASystem):
+class HardcodedASPQASystem(_AbsQASystem):
     def __init__(self, asp_dir):
         path = Path(asp_dir)
         self.qa_system = path / "qa.lp"
