@@ -7,12 +7,12 @@ from hvqa.detection.detector import NeuralDetector
 from hvqa.properties.models import PropertyExtractionModel
 from hvqa.properties.prop_extractor import NeuralPropExtractor
 from hvqa.tracking.obj_tracker import ObjTracker
-from hvqa.models.coordinator import Coordinator
+from hvqa.models.visualise import Visualiser
 
 
 def simulate(dataset, coordinator):
     video, video_dict = dataset[4]
-    coordinator.analyse_video(video)
+    coordinator.visualise(video)
 
 
 def build_detector(detector_model_dir):
@@ -44,11 +44,11 @@ def main(data_dir, detector_model_dir, prop_model_dir):
     prop_extractor = build_prop_extractor(prop_model_dir)
     tracker = build_tracker()
 
-    # Build coordinator
-    coord = Coordinator(detector, prop_extractor, tracker)
+    # Build visualiser
+    # coord = Visualiser()
 
     # Run pipeline
-    simulate(data, coord)
+    # simulate(data, coord)
 
 
 if __name__ == '__main__':

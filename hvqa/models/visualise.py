@@ -2,22 +2,20 @@ from PIL import ImageDraw
 from PIL import ImageFont
 
 
-class Coordinator:
+class Visualiser:
     """
     Coordination class which will be able to answer questions on videos
     """
 
-    def __init__(self, detector, prop_classifier, tracker):
-        self.detector = detector
-        self.prop_classifier = prop_classifier
-        self.tracker = tracker
+    def __init__(self, model):
+        self.model = model
 
         self._img_size = 256
         self._visualise_mult = 4
 
         self.font = ImageFont.truetype("./lib/fonts/Arial Unicode.ttf", size=18)
 
-    def analyse_video(self, frames):
+    def visualise(self, frames):
         """
         Analyse a video.
         For now this method will:
@@ -28,30 +26,12 @@ class Coordinator:
         :param frames: List of PIL Images
         """
 
-        # Batch all frames in a video
-        video = self._extract_objs(frames)
-
-        # Batch all objects in each frame
-        for frame in video.frames:
-            objs = frame.objs
-            self._extract_props_(objs)
-            ids = self.tracker.process_frame(objs)
-            self._add_ids(objs, ids)
-
-        self.tracker.reset()
+        video = self.model.process_frames(frames)
         new_frames = self._add_info_to_video(frames, video)
-        self.visualise(new_frames)
-
-    @staticmethod
-    def visualise(imgs):
-        for img in imgs:
+        for img in new_frames:
             img.show()
 
-    @staticmethod
-    def _add_ids(objs, ids):
-        for idx, obj in enumerate(objs):
-            obj.id = ids[idx]
-
+    # TODO: Add relation and event info
     def _add_info_to_video(self, imgs, video):
         """
         For each image in the video:
@@ -90,43 +70,3 @@ class Coordinator:
         x2 = round(x2) + (1 * self._visualise_mult)
         y2 = round(y2) + (1 * self._visualise_mult)
         drawer.rectangle((x1, y1, x2, y2), fill=None, outline=colour, width=3)
-
-    def _extract_objs(self, frames):
-        """
-        Builds structured knowledge from video frames
-        Extracts bboxs and class for each object in each frame
-
-        :param frames: List of PIL frames
-        :return: Video object for video
-        """
-
-        video = self.detector.detect_objs(frames)
-        return video
-
-    def _extract_props_(self, objs):
-        """
-        Extract properties from each object and add them to the object
-        Note: Modifies objects in-place with new properties
-
-        :param objs: List of Objs
-        """
-
-        obj_imgs = [obj.img for obj in objs]
-        props = self.prop_classifier.extract_props(obj_imgs)
-        for idx, (colour, rot, cls) in enumerate(props):
-            obj = objs[idx]
-            obj.colour = colour
-            obj.rot = rot
-
-            # We use class from detector (if this line is commented)
-            # obj.cls = cls
-
-    # def _extract_relations_(self, frame):
-    #     """
-    #     Extract relations between objects in a frame
-    #     Note: Modifies frame in-place to add relations
-    #
-    #     :param frame: Frame obj
-    #     """
-    #
-    #     pass

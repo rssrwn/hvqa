@@ -29,7 +29,7 @@ RELATIONS = ["close"]
 
 # *** Events ****
 
-EVENTS = ["move", "rotate_left", "rotate_right"]
+EVENTS = ["move", "rotate left", "rotate right"]
 
 
 # *** Transforms ***

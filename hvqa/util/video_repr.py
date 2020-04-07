@@ -66,8 +66,8 @@ class Frame:
 class Video:
     def __init__(self, frames):
         self.frames = frames
-        self.events = [None] * (VIDEO_LENGTH - 1)
+        self.events = [[]] * (VIDEO_LENGTH - 1)
 
-    def set_event(self, event, obj_id, start_idx):
+    def add_event(self, event, obj_id, start_idx):
         assert event in EVENTS, f"Event arg must be one of {EVENTS}"
-        self.events[start_idx] = (event, obj_id)
+        self.events[start_idx] = self.events[start_idx] + [(event, obj_id)]
