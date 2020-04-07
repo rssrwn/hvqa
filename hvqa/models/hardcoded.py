@@ -19,3 +19,6 @@ class HardcodedModel(_AbsModel):
 
     def _setup_event_detector(self):
         pass
+
+    def _setup_qa_system(self):
+        pass

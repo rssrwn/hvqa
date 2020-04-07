@@ -24,11 +24,6 @@ answer(V) :-
 %   changed(Prop, _, Val, Id, frame),
 %   object(Id, octopus, _, _, _, frame),
 %   exists(Id, next_frame).
-%
-% answer(exists, false) :-
-%   object(Id, octopus, _, _, _, frame),
-%   exists(Id, frame),
-%   not exists(Id, next_frame).
 
 answered :- answer(P, V).
 answered :- answer(V).

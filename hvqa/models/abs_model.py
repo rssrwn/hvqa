@@ -15,6 +15,7 @@ class _AbsModel:
         self.tracker = self._setup_tracker()
         self.relation_classifier = self._setup_relation_classifier()
         self.event_detector = self._setup_detector()
+        self.qa_system = self._setup_qa_system()
 
     def _setup_detector(self):
         raise NotImplementedError
@@ -29,6 +30,9 @@ class _AbsModel:
         raise NotImplementedError
 
     def _setup_event_detector(self):
+        raise NotImplementedError
+
+    def _setup_qa_system(self):
         raise NotImplementedError
 
     def run(self, frames, questions, q_types):

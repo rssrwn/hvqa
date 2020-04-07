@@ -4,7 +4,7 @@ from PIL import ImageFont
 
 class Visualiser:
     """
-    Coordination class which will be able to answer questions on videos
+    Visualiser class which can produce PIL images with video info
     """
 
     def __init__(self, model):
