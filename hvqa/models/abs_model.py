@@ -46,7 +46,8 @@ class _AbsModel:
         """
 
         video = self.process_frames(frames)
-        pass
+        answers = self._answer_questions(video, questions, q_types)
+        return answers
 
     def process_frames(self, frames):
         # Batch all frames in a video
@@ -127,3 +128,21 @@ class _AbsModel:
         for frame_idx, frame_events in enumerate(events):
             for obj_id, event in frame_events:
                 video.add_event(event, obj_id, frame_idx)
+
+    def _answer_questions(self, video, questions, q_types):
+        """
+        Generate an answer for each question
+
+        :param video: Video obj
+        :param questions: Questions: [str]
+        :param q_types: Question types: [int]
+        :return: Answers: [str]
+        """
+
+        answers = []
+        for idx, question in enumerate(questions):
+            q_type = q_types[idx]
+            ans = self.qa_system.answer(video, question, q_type)
+            answers.append(ans)
+
+        return answers

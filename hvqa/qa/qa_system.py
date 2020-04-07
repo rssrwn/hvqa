@@ -90,21 +90,23 @@ class HardcodedQASystem(_AbsQASystem):
 
     def _gen_answer_str(self, args, q_type):
         if q_type == 0:
-            asp_q = self._answer_q_type_0(args)
+            ans = self._answer_q_type_0(args)
         elif q_type == 1:
-            asp_q = self._answer_q_type_1(args)
+            ans = self._answer_q_type_1(args)
         elif q_type == 2:
-            asp_q = self._answer_q_type_2(args)
+            ans = self._answer_q_type_2(args)
         elif q_type == 3:
-            asp_q = self._answer_q_type_3(args)
+            ans = self._answer_q_type_3(args)
         elif q_type == 4:
-            asp_q = self._answer_q_type_4(args)
+            ans = self._answer_q_type_4(args)
         elif q_type == 5:
-            asp_q = self._answer_q_type_5(args)
+            ans = self._answer_q_type_5(args)
         elif q_type == 6:
-            asp_q = self._answer_q_type_6(args)
+            ans = self._answer_q_type_6(args)
         else:
             raise UnknownQuestionTypeException(f"Question type {q_type} unknown")
+
+        return ans
 
     def _answer_q_type_0(self, args):
         assert len(args) == 1, "Args is not correct length for question type 0"
