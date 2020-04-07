@@ -29,11 +29,29 @@ obj_fish.colour = "silver"
 obj_fish.rot = 3
 obj_fish.id = 2
 
+close_octo1 = Obj("octopus", (10, 50, 27, 67))
+close_octo1.colour = "red"
+close_octo1.rot = 1
+close_octo1.id = 0
+
+close_octo2 = Obj("octopus", (25, 50, 42, 67))
+close_octo2.colour = "red"
+close_octo2.rot = 1
+close_octo2.id = 0
+
+close_fish = Obj("fish", (45, 50, 50, 55))
+close_fish.colour = "silver"
+close_fish.rot = 3
+close_fish.id = 3
+
 frame1 = Frame([obj1, obj_rock, obj_fish])
 frame2 = Frame([obj2, obj_rock, obj_fish])
 frame2.set_relation(0, 1, "close")
 frame3 = Frame([obj3, obj_rock, obj_fish])
 frame3.set_relation(0, 1, "close")
+
+close_frame1 = Frame([close_octo1, close_fish, obj_fish])
+close_frame2 = Frame([close_octo2, obj_fish])
 
 
 class EventDetectionTest(unittest.TestCase):
@@ -68,4 +86,10 @@ class EventDetectionTest(unittest.TestCase):
         frames = [frame1, frame2, frame3]
         events = self.detector.detect_events(frames)
         exp_events = [[(0, "move")], [(0, "rotate_right")]]
+        self.assertEqual(exp_events, events)
+
+    def test_disappear_fish(self):
+        frames = [close_frame1, close_frame2]
+        events = self.detector.detect_events(frames)
+        exp_events = [[(0, "move")]]
         self.assertEqual(exp_events, events)

@@ -19,13 +19,15 @@ obs(F, false, I) :-
 
 % Reality check axioms
 :- obs(F, true, I), -holds(F, I).
-:- obs(F, false, I), holds(F, I).
+% :- obs(F, false, I), holds(F, I).
 
 % Generate possible events
 occurs(A, I) : action(A) :- step(I+1), I >= 0.
 
 % wrong_obs_true(F, I) :- obs(F, true, I), -holds(F, I).
 % wrong_obs_false(F, I) :- obs(F, false, I), holds(F, I).
+% #show wrong_obs_true/2.
+% #show wrong_obs_false/2.
 
 % correct_actions :- occurs(move(0), 0), occurs(rotate_right(0), 1).
 % :- not correct_actions.

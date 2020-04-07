@@ -17,7 +17,7 @@ class Visualiser:
 
     def visualise(self, frames):
         """
-        Analyse a video.
+        Visualise a video.
         For now this method will:
         1. detect objects
         2. Extract logical properties from object
