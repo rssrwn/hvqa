@@ -11,3 +11,7 @@ class UnknownPropertyException(BaseException):
 
 class UnknownQuestionTypeException(BaseException):
     pass
+
+
+class UnknownPropertyValueException(BaseException):
+    pass
