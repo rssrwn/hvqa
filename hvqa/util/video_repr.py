@@ -30,6 +30,8 @@ class Obj:
         assert self.colour is not None, "Colour must be set"
         assert self.id is not None, "Id must be set"
 
+        self.pos = tuple(map(int, self.pos))
+
         frame_num = str(frame_num)
         encoding = f"obs(class({self.cls}, {self.id}), {frame_num}).\n" \
                    f"obs(position({str(self.pos)}, {self.id}), {frame_num}).\n" \

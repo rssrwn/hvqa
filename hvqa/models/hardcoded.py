@@ -12,14 +12,15 @@ from hvqa.util.func import load_model
 
 class HardcodedModel(_AbsModel):
     def __init__(self, detector_path, prop_classifier_path, event_asp_dir, qa_system_asp_dir):
-        super(HardcodedModel, self).__init__()
-
         self.detector_path = detector_path
         self.prop_classifier_path = prop_classifier_path
         self.event_asp_dir = event_asp_dir
         self.qa_system_asp_dir = qa_system_asp_dir
 
-    def _setup_detector(self):
+        # Setup components after we have set the required paths
+        super(HardcodedModel, self).__init__()
+
+    def _setup_obj_detector(self):
         backbone = DetectionBackbone()
         detector_model = load_model(DetectionModel, self.detector_path, backbone)
         detector_model.eval()

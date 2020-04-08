@@ -10,14 +10,14 @@ class _AbsModel:
     """
 
     def __init__(self):
-        self.obj_detector = self._setup_detector()
+        self.obj_detector = self._setup_obj_detector()
         self.prop_classifier = self._setup_prop_classifier()
         self.tracker = self._setup_tracker()
         self.relation_classifier = self._setup_relation_classifier()
-        self.event_detector = self._setup_detector()
+        self.event_detector = self._setup_event_detector()
         self.qa_system = self._setup_qa_system()
 
-    def _setup_detector(self):
+    def _setup_obj_detector(self):
         raise NotImplementedError
 
     def _setup_prop_classifier(self):
