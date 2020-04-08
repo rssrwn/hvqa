@@ -48,6 +48,7 @@ RELATIONS = ["close"]
 # *** Events ****
 
 EVENTS = ["move", "rotate left", "rotate right"]
+ASP_EVENTS = ["move", "rotate_left", "rotate_right"]
 
 
 # *** Transforms ***

@@ -3,7 +3,7 @@ from clyngor import solve
 
 from hvqa.util.definitions import CLASSES, PROP_LOOKUP
 from hvqa.util.exceptions import UnknownQuestionTypeException
-from hvqa.util.func import format_prop_val
+from hvqa.util.func import format_prop_val, format_rotation_str
 
 
 class _AbsQASystem:
@@ -34,18 +34,18 @@ class HardcodedASPQASystem(_AbsQASystem):
                "answer(yes) :- related.\n"
                "answer(no) :- not related.\n",
 
-            2: "answer(move) :- occurs(move(Id), {frame_idx})."
-               "answer(rotate_left) :- occurs(rotate_left(Id), {frame_idx})."
-               "answer(rotate_right) :- occurs(rotate_right(Id), {frame_idx}).",
+            2: "answer(move) :- occurs(move(Id), {frame_idx}).\n"
+               "answer(rotate_left) :- occurs(rotate_left(Id), {frame_idx}).\n"
+               "answer(rotate_right) :- occurs(rotate_right(Id), {frame_idx}).\n",
 
             3: "answer(Prop, Before, After) :- changed(Prop, Before, After, Id, {frame_idx}), "
-               "{asp_obj}, exists(Id, {frame_idx}+1).",
+               "{asp_obj}, exists(Id, {frame_idx}+1).\n",
 
-            4: "answer(0).",
+            4: "answer(0).\n",
 
-            5: "answer(move).",
+            5: "answer(move).\n",
 
-            6: "answer(rotate_left)."
+            6: "answer(rotate_left).\n"
         }
 
         self._answer_str_templates = {
@@ -60,10 +60,10 @@ class HardcodedASPQASystem(_AbsQASystem):
 
     def answer(self, video, question, q_type):
         asp_enc = video.gen_asp_encoding()
-        asp_enc += f"\nquestion_type({q_type}).\n"
-
         question_enc = self._gen_asp_question(question, q_type)
         asp_enc += f"\n{question_enc}\n"
+
+        print(question_enc)
 
         f = open(self._video_info, "w")
         f.write(asp_enc)
@@ -71,6 +71,7 @@ class HardcodedASPQASystem(_AbsQASystem):
 
         # Solve AL model with video info
         answers = solve([self.features, self.qa_system, self._video_info], use_clingo_module=True)
+        answers = [ans for ans in answers]
 
         assert len(answers) != 0, "ASP QA program is unsatisfiable"
         assert not len(answers) > 1, "ASP QA program must contain only a single answer set"
@@ -113,7 +114,8 @@ class HardcodedASPQASystem(_AbsQASystem):
         assert len(args) == 2, "Args is not correct length for question type 0"
 
         prop, prop_val = args
-        prop_val = format_prop_val(prop, prop_val)
+        if prop == "rotation":
+            prop_val = format_rotation_str(int(prop_val))
 
         template = self._answer_str_templates[0]
         ans_str = template.format(prop_val=prop_val)
