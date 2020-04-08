@@ -24,6 +24,7 @@ PROP_LOOKUP = {
     "silver": "colour",
     "white": "colour",
     "brown": "colour",
+    "blue": "colour",
     "purple": "colour",
     "green": "colour",
     "octopus": "class",

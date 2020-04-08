@@ -2,7 +2,8 @@ from pathlib import Path
 from clyngor import solve
 
 from hvqa.util.definitions import CLASSES, PROP_LOOKUP
-from hvqa.util.exceptions import UnknownQuestionTypeException, UnknownPropertyValueException
+from hvqa.util.exceptions import UnknownQuestionTypeException
+from hvqa.util.func import format_prop_val
 
 
 class _AbsQASystem:
@@ -27,15 +28,15 @@ class HardcodedASPQASystem(_AbsQASystem):
         self._video_info = path / "_temp_video_info.lp"
 
         self._asp_question_templates = {
-            0: "answer(V) :- {asp_obj}, holds({prop}(V, Id), {frame_idx}).\n",
+            0: "answer({prop}, V) :- {asp_obj}, holds({prop}(V, Id), {frame_idx}).\n",
 
             1: "related :- holds({rel}(Id1, Id2), {frame_idx}), {asp_obj1}, {asp_obj2}.\n"
                "answer(yes) :- related.\n"
                "answer(no) :- not related.\n",
 
             2: "answer(move) :- occurs(move(Id), {frame_idx})."
-               "answer(rl) :- occurs(rotate_left(Id), {frame_idx})."
-               "answer(rr) :- occurs(rotate_right(Id), {frame_idx}).",
+               "answer(rotate_left) :- occurs(rotate_left(Id), {frame_idx})."
+               "answer(rotate_right) :- occurs(rotate_right(Id), {frame_idx}).",
 
             3: "answer(Prop, Before, After) :- changed(Prop, Before, After, Id, {frame_idx}), "
                "{asp_obj}, exists(Id, {frame_idx}+1).",
@@ -109,9 +110,10 @@ class HardcodedASPQASystem(_AbsQASystem):
         return ans
 
     def _answer_q_type_0(self, args):
-        assert len(args) == 1, "Args is not correct length for question type 0"
+        assert len(args) == 2, "Args is not correct length for question type 0"
 
-        prop_val = args[0]
+        prop, prop_val = args
+        prop_val = format_prop_val(prop, prop_val)
 
         template = self._answer_str_templates[0]
         ans_str = template.format(prop_val=prop_val)
@@ -130,6 +132,10 @@ class HardcodedASPQASystem(_AbsQASystem):
         assert len(args) == 1, "Args is not correct length for question type 2"
 
         action = args[0]
+        if action == "rotate_left":
+            action = "rotate left"
+        elif action == "rotate_right":
+            action = "rotate right"
 
         template = self._answer_str_templates[2]
         ans_str = template.format(action=action)
@@ -206,7 +212,7 @@ class HardcodedASPQASystem(_AbsQASystem):
 
         obj1_cls = splits[2]
         obj1_prop_val = None
-        rel_idx = 3
+        rel_idx = 3  # Note: hardcoded for 'close to' other relations will be different TODO
         if obj1_cls not in CLASSES:
             obj1_prop_val = obj1_cls
             obj1_cls = splits[3]
@@ -214,11 +220,11 @@ class HardcodedASPQASystem(_AbsQASystem):
 
         rel = splits[rel_idx]
 
-        obj2_cls = splits[rel_idx + 2]
+        obj2_cls = splits[rel_idx + 3]
         obj2_prop_val = None
         if obj2_cls not in CLASSES:
             obj2_prop_val = obj2_cls
-            obj2_cls = splits[rel_idx + 3]
+            obj2_cls = splits[rel_idx + 4]
 
         asp_obj1 = self._gen_asp_obj(obj1_cls, obj1_prop_val, frame_idx, "Id1")
         asp_obj2 = self._gen_asp_obj(obj2_cls, obj2_prop_val, frame_idx, "Id2")
@@ -265,20 +271,10 @@ class HardcodedASPQASystem(_AbsQASystem):
 
     @staticmethod
     def _gen_asp_obj(cls, prop_val, frame_idx, id_str):
-        asp_obj_str = f"holds(class({cls}, Id), {str(frame_idx)})"
+        asp_obj_str = f"holds(class({cls}, {id_str}), {str(frame_idx)})"
         if prop_val is not None:
             prop = PROP_LOOKUP[prop_val]
-            if prop == "rotation":
-                if prop_val == "upward-facing":
-                    prop_val = 0
-                elif prop_val == "right-facing":
-                    prop_val = 1
-                elif prop_val == "downward-facing":
-                    prop_val = 2
-                elif prop_val == "left-facing":
-                    prop_val = 3
-                else:
-                    raise UnknownPropertyValueException(f"Rotation {prop_val} unknown")
+            prop_val = format_prop_val(prop, prop_val)
 
             asp_obj_str += f", holds({prop}({prop_val}, {id_str}), {str(frame_idx)})"
 

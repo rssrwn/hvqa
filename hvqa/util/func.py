@@ -5,6 +5,8 @@ import json
 from pathlib import Path
 from PIL import Image
 
+from hvqa.util.exceptions import UnknownPropertyValueException
+
 
 _USE_GPU = True
 
@@ -105,3 +107,19 @@ def add_bboxs(drawer, positions, colour):
 
 def collate_func(batch):
     return tuple(zip(*batch))
+
+
+def format_prop_val(prop, prop_val):
+    if prop == "rotation":
+        if prop_val == "upward-facing":
+            prop_val = 0
+        elif prop_val == "right-facing":
+            prop_val = 1
+        elif prop_val == "downward-facing":
+            prop_val = 2
+        elif prop_val == "left-facing":
+            prop_val = 3
+        else:
+            raise UnknownPropertyValueException(f"Rotation {prop_val} unknown")
+
+    return prop_val
