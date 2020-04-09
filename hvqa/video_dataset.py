@@ -14,7 +14,8 @@ class VideoDataset(Dataset):
         super(VideoDataset, self).__init__()
 
         self.data_dir = Path(data_dir)
-        self.ids, self.videos = self._find_videos()
+        ids, self.videos = self._find_videos()
+        self.ids = {id_: idx for idx, id_ in enumerate(ids)}
 
     def _find_videos(self):
         video_dirs = self.data_dir.iterdir()
@@ -28,7 +29,13 @@ class VideoDataset(Dataset):
 
         # Iterate through videos
         for video_dir in video_dirs:
-            video_num = int(str(video_dir).split("/")[-1])
+            video_num = str(video_dir).split("/")[-1]
+            if not video_num.isdigit():
+                print(f"WARNING: {video_dir} could not be parsed into an integer")
+                continue
+
+            video_num = int(video_num)
+
             json_file = video_dir / "video.json"
             if json_file.exists():
                 with json_file.open() as f:
@@ -51,13 +58,13 @@ class VideoDataset(Dataset):
         """
         Get item of dataset
 
-        :param item: Index of video in the dataset
+        :param item: Video number (as stored in directory)
         :return: List of PIL Images, video_dict
         """
 
-        id = self.ids[item]
-        video_dir = self.data_dir / str(id)
-        video_dict = self.videos[item]
+        idx = self.ids[item]
+        video_dir = self.data_dir / str(item)
+        video_dict = self.videos[idx]
         imgs = [self._collect_img(video_dir, idx) for idx in range(len(video_dict["frames"]))]
         return imgs, video_dict
 
