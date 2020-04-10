@@ -12,6 +12,7 @@ holds(F, I) :-
   obs(F, true, I).
 
 % CWA for obs
+% TODO not needed
 obs(F, false, I) :-
   fluent(_, F),
   not obs(F, true, I),
@@ -19,7 +20,7 @@ obs(F, false, I) :-
 
 % Reality check axioms
 :- obs(F, true, I), -holds(F, I).
-% :- obs(F, false, I), holds(F, I).
+:- obs(F, false, I), holds(F, I).
 
 % Generate possible events
 occurs(A, I) : action(A) :- step(I+1), I >= 0.
@@ -29,7 +30,9 @@ occurs(A, I) : action(A) :- step(I+1), I >= 0.
 % #show wrong_obs_true/2.
 % #show wrong_obs_false/2.
 
-% correct_actions :- occurs(move(0), 0), occurs(rotate_right(0), 1).
+% correct_actions :- occurs(move(0), 0).
 % :- not correct_actions.
 
 #show occurs/2.
+% #show disappear/2.
+% #show exists/2.

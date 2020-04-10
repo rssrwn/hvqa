@@ -141,13 +141,6 @@ holds(rotation(@new_rot(Rot, "rotate_right"), Id), I+1) :-
   holds(rotation(Rot, Id), I),
   step(I+1).
 
-% Definition for nothing action
-% holds(F, I+1) :-
-%   occurs(nothing, I),
-%   holds(F, I),
-%   fluent(inertial, F),
-%   step(I+1).
-
 % Definition for colour
 change_colour(Old, New, Id, I-1) :-
   holds(class(octopus, Id), I),
@@ -161,12 +154,28 @@ change_colour(Old, New, Id, I-1) :-
 holds(colour(New, Id), I+1) :- change_colour(_, New, Id, I).
 -holds(colour(Old, Id), I+1) :- change_colour(Old, _, Id, I).
 
-% holds(colour(Col, Id), I+1) :-
-%   holds(colour(Col, Id), I),
-%   not change_colour(Col, _, Id, I),
-%   step(I+1).
+% Feature engineering
+exists(Id, Frame) :- obs(class(_, Id), Frame).
 
-% Definition for class
-% holds(class(C, Id), I+1) :-
-%   holds(class(C, Id), I),
-%   step(I+1).
+disappear(Id, Frame) :-
+  exists(Id, Frame),
+  occurs(move(_), Frame),
+  not exists(Id, Frame+1),
+  step(Frame+1).
+
+% Event definitions
+event(eat_fish(Octo), Frame) :-
+  disappear(Fish, Frame),
+  holds(class(fish, Fish), Frame),
+  occurs(move(Octo), Frame).
+
+event(eat_bag(Octo), Frame) :-
+  disappear(Bag, Frame),
+  holds(class(bag, Bag), Frame),
+  occurs(move(Octo), Frame).
+
+% Remove obj if it disappears
+-holds(class(Class, Id), I+1) :- disappear(Id, I), holds(class(Class, Id), I), step(I+1).
+-holds(colour(Colour, Id), I+1) :- disappear(Id, I), holds(colour(Colour, Id), I), step(I+1).
+-holds(rotation(Rot, Id), I+1) :- disappear(Id, I), holds(rotation(Rot, Id), I), step(I+1).
+-holds(position(Pos, Id), I+1) :- disappear(Id, I), holds(position(Pos, Id), I), step(I+1).

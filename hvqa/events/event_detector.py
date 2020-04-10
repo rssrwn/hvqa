@@ -57,6 +57,6 @@ class ASPEventDetector(_AbsEventDetector):
                     events[frame] = [(obj_id, event_name)]
 
         # Cleanup temp file
-        self._video_info.unlink()
+        # self._video_info.unlink()
 
         return events
