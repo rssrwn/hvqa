@@ -48,11 +48,15 @@ def new_rot(rotation, action):
 % Assume every we have information for every timestep
 step(I) :- obs(_, _, I).
 
+% Add internal property called exists
+obs(exists(Id), true, I) :- obs(class(_, Id), true, I).
+
 % Type definitions
 fluent(inertial, rotation(R, Id)) :- obs(rotation(R, Id), _, _).
 fluent(inertial, position(P, Id)) :- obs(position(P, Id), _, _).
 fluent(inertial, class(C, Id)) :- obs(class(C, Id), _, _).
 fluent(inertial, colour(C, Id)) :- obs(colour(C, Id), _, _).
+fluent(inertial, exists(Id)) :- obs(exists(Id), _, _).
 
 fluent(defined, close(Id1, Id2)) :- obs(close(Id1, Id2), _, _).
 
@@ -60,7 +64,7 @@ fluent(defined, close(Id1, Id2)) :- obs(close(Id1, Id2), _, _).
 action(move(Id)) :- obs(class(octopus, Id), _, _).
 action(rotate_left(Id)) :- obs(class(octopus, Id), _, _).
 action(rotate_right(Id)) :- obs(class(octopus, Id), _, _).
-action(nothing).
+action(nothing(Id)) :- obs(class(octopus, Id), _, _).
 
 
 % ***** Domain Independent Axioms *****
@@ -155,12 +159,12 @@ holds(colour(New, Id), I+1) :- change_colour(_, New, Id, I).
 -holds(colour(Old, Id), I+1) :- change_colour(Old, _, Id, I).
 
 % Feature engineering
-exists(Id, Frame) :- obs(class(_, Id), Frame).
+obs_exists(Id, Frame) :- obs(class(_, Id), true, Frame).
 
 disappear(Id, Frame) :-
-  exists(Id, Frame),
+  obs_exists(Id, Frame),
   occurs(move(_), Frame),
-  not exists(Id, Frame+1),
+  not obs_exists(Id, Frame+1),
   step(Frame+1).
 
 % Event definitions
@@ -174,8 +178,12 @@ event(eat_bag(Octo), Frame) :-
   holds(class(bag, Bag), Frame),
   occurs(move(Octo), Frame).
 
-% Remove obj if it disappears
--holds(class(Class, Id), I+1) :- disappear(Id, I), holds(class(Class, Id), I), step(I+1).
--holds(colour(Colour, Id), I+1) :- disappear(Id, I), holds(colour(Colour, Id), I), step(I+1).
--holds(rotation(Rot, Id), I+1) :- disappear(Id, I), holds(rotation(Rot, Id), I), step(I+1).
--holds(position(Pos, Id), I+1) :- disappear(Id, I), holds(position(Pos, Id), I), step(I+1).
+% Definition for exists
+-holds(exists(Id), I+1) :-
+  holds(exists(Id), I),
+  disappear(Id, I),
+  step(I+1).
+
+-occurs(move(Id), I) :- -holds(exists(Id), I).
+-occurs(rotate_left(Id), I) :- -holds(exists(Id), I).
+-occurs(rotate_right(Id), I) :- -holds(exists(Id), I).

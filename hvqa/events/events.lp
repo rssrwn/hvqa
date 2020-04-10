@@ -11,16 +11,15 @@ holds(F, I) :-
   fluent(defined, F),
   obs(F, true, I).
 
-% CWA for obs
-% TODO not needed
-obs(F, false, I) :-
-  fluent(_, F),
-  not obs(F, true, I),
+% We only need CWA for exists
+obs(exists(Id), false, I) :-
+  fluent(inertial, exists(Id)),
+  not obs(exists(Id), true, I),
   step(I).
 
 % Reality check axioms
 :- obs(F, true, I), -holds(F, I).
-:- obs(F, false, I), holds(F, I).
+:- obs(exists(Id), false, I), holds(exists(Id), I).
 
 % Generate possible events
 occurs(A, I) : action(A) :- step(I+1), I >= 0.
@@ -34,5 +33,6 @@ occurs(A, I) : action(A) :- step(I+1), I >= 0.
 % :- not correct_actions.
 
 #show occurs/2.
+% #show holds/2.
 % #show disappear/2.
 % #show exists/2.
