@@ -87,7 +87,7 @@ class EventDetectionTest(unittest.TestCase):
     def test_nothing_event(self):
         frames = [frame1, frame1]
         events = self.detector.detect_events(frames)
-        exp_events = [[]]
+        exp_events = [[(0, "nothing")]]
         self.assertEqual(exp_events, events)
 
     def test_multiple_events(self):
@@ -106,4 +106,10 @@ class EventDetectionTest(unittest.TestCase):
         frames = [close_bag_frame1, close_bag_frame2]
         events = self.detector.detect_events(frames)
         exp_events = [[(0, "move")]]
+        self.assertEqual(exp_events, events)
+
+    def test_multiple_nothing_events(self):
+        frames = [close_bag_frame1, close_bag_frame2, close_bag_frame2]
+        events = self.detector.detect_events(frames)
+        exp_events = [[(0, "move")], [(0, "nothing")]]
         self.assertEqual(exp_events, events)
