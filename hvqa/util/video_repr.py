@@ -1,5 +1,5 @@
 from hvqa.util.func import collect_obj
-from hvqa.util.definitions import RELATIONS, ASP_EVENTS, VIDEO_LENGTH, CLASSES
+from hvqa.util.definitions import RELATIONS, EVENTS, VIDEO_LENGTH, CLASSES
 
 
 class Obj:
@@ -71,7 +71,7 @@ class Video:
         self.events = [[]] * (VIDEO_LENGTH - 1)
 
     def add_event(self, event, obj_id, start_idx):
-        assert event in ASP_EVENTS, f"Event arg must be one of {ASP_EVENTS}"
+        assert event in EVENTS, f"Event {event} is not one of {EVENTS}"
         self.events[start_idx] = self.events[start_idx] + [(event, obj_id)]
 
     def gen_asp_encoding(self):
