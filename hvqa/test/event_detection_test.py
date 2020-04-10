@@ -44,6 +44,11 @@ close_fish.colour = "silver"
 close_fish.rot = 3
 close_fish.id = 3
 
+close_bag = Obj("bag", (45, 50, 50, 55))
+close_bag.colour = "white"
+close_bag.rot = 2
+close_bag.id = 4
+
 frame1 = Frame([obj1, obj_rock, obj_fish])
 frame2 = Frame([obj2, obj_rock, obj_fish])
 frame2.set_relation(0, 1, "close")
@@ -52,6 +57,9 @@ frame3.set_relation(0, 1, "close")
 
 close_frame1 = Frame([close_octo1, close_fish, obj_fish])
 close_frame2 = Frame([close_octo2, obj_fish])
+
+close_bag_frame1 = Frame([close_octo1, obj_fish, close_bag])
+close_bag_frame2 = Frame([obj_fish])
 
 
 class EventDetectionTest(unittest.TestCase):
@@ -90,6 +98,12 @@ class EventDetectionTest(unittest.TestCase):
 
     def test_disappear_fish(self):
         frames = [close_frame1, close_frame2]
+        events = self.detector.detect_events(frames)
+        exp_events = [[(0, "move")]]
+        self.assertEqual(exp_events, events)
+
+    def test_disappear_bag(self):
+        frames = [close_bag_frame1, close_bag_frame2]
         events = self.detector.detect_events(frames)
         exp_events = [[(0, "move")]]
         self.assertEqual(exp_events, events)
