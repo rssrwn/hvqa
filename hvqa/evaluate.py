@@ -15,6 +15,7 @@ def evaluate(model, data):
     num_correct = 0
 
     for video_idx in range(len(data)):
+        print(f"Running on video {video_idx}")
         frames, video_dict = data[video_idx]
         questions = video_dict["questions"]
         q_types = video_dict["question_types"]
@@ -36,7 +37,7 @@ def evaluate(model, data):
 
     print(f"Num correct: {num_correct}")
     print(f"Total: {total}")
-    print(f"Accuracy: {acc:.1}")
+    print(f"Accuracy: {acc:.2}%")
 
 
 def main(data_dir, model_type):

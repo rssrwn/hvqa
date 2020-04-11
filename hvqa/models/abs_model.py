@@ -141,6 +141,7 @@ class _AbsModel:
 
         answers = []
         for idx, question in enumerate(questions):
+            print(f"Question {idx}: {question}")
             q_type = q_types[idx]
             ans = self.qa_system.answer(video, question, q_type)
             answers.append(ans)

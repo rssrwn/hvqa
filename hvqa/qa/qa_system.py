@@ -1,5 +1,5 @@
 from pathlib import Path
-from clyngor import solve
+import clingo
 
 from hvqa.util.definitions import CLASSES, PROP_LOOKUP
 from hvqa.util.exceptions import UnknownQuestionTypeException
@@ -36,7 +36,8 @@ class HardcodedASPQASystem(_AbsQASystem):
 
             2: "answer(move) :- occurs(move(Id), {frame_idx}).\n"
                "answer(rotate_left) :- occurs(rotate_left(Id), {frame_idx}).\n"
-               "answer(rotate_right) :- occurs(rotate_right(Id), {frame_idx}).\n",
+               "answer(rotate_right) :- occurs(rotate_right(Id), {frame_idx}).\n"
+               "answer(nothing) :- occurs(nothing(Id), {frame_idx}).\n",
 
             3: "answer(Prop, Before, After) :- changed(Prop, Before, After, Id, {frame_idx}), "
                "{asp_obj}, exists(Id, {frame_idx}+1).\n",
@@ -69,22 +70,39 @@ class HardcodedASPQASystem(_AbsQASystem):
         f.write(asp_enc)
         f.close()
 
+        # Add files
+        ctl = clingo.Control()
+        ctl.load(str(self.qa_system))
+        ctl.load(str(self.features))
+        ctl.load(str(self._video_info))
+
+        # Configure the solver
+        config = ctl.configuration
+        config.solve.models = 0
+        config.solve.opt_mode = "optN"
+
+        ctl.ground([("base", [])])
+
         # Solve AL model with video info
-        answers = solve([self.features, self.qa_system, self._video_info], use_clingo_module=True)
-        answers = [ans for ans in answers]
+        models = []
+        with ctl.solve(yield_=True) as handle:
+            for model in handle:
+                models.append(model.symbols(shown=True))
 
-        assert len(answers) != 0, "ASP QA program is unsatisfiable"
-        assert not len(answers) > 1, "ASP QA program must contain only a single answer set"
+        assert len(models) != 0, "ASP QA program is unsatisfiable"
+        assert len(models) == 1, "ASP QA program must contain only a single answer set"
 
-        answers = answers[0]
+        model = models[0]
 
         ans_str = None
-        for pred, args in answers:
-            if pred == "answer":
+        for sym in model:
+            if sym.name == "answer":
+                args = sym.arguments
+                args = list(map(str, args))
                 ans_str = self._gen_answer_str(args, q_type)
 
         # Cleanup temp file
-        self._video_info.unlink()
+        # self._video_info.unlink()
 
         assert ans_str is not None, "The answer set did not contain an answer predicate"
 

@@ -36,17 +36,20 @@ class ASPEventDetector(_AbsEventDetector):
         f.write(asp_enc)
         f.close()
 
-        # Solve AL model with video info
+        # Add files
         ctl = clingo.Control()
         ctl.load(str(self.al_model))
         ctl.load(str(self.detector))
         ctl.load(str(self._video_info))
-        ctl.ground([("base", [])])
 
+        # Configure the solver
         config = ctl.configuration
         config.solve.models = 0
         config.solve.opt_mode = "optN"
 
+        ctl.ground([("base", [])])
+
+        # Solve AL model with video info
         models = []
         with ctl.solve(yield_=True) as handle:
             for model in handle:

@@ -8,3 +8,4 @@ answered :- answer(V).
 #show answer/1.
 #show answer/2.
 #show answer/3.
+% #show changed/5.
