@@ -2,6 +2,14 @@
 
 A dataset and implementation (ongoing) of a 'hybrid' VideoQA model which extracts properties from objects using deep learning and reasons about the objects using Answer Set Programming.
 
+## Requirements 
+
+Most packages can be installed using pip by running `pip install -r requirements.txt`. However, the project also requires that Clingo and Clorm are installed. These can be installed using Anaconda by running:
+* `conda install -c potassco clingo`
+* `conda install -c potassco clorm` 
+
+The project uses Clingo version 5.3.0.
+
 ## Running
 
 At the moment, interaction with the project should be through python scripts, which are stored in their functional locations.
