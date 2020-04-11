@@ -18,8 +18,11 @@ obs(exists(Id), false, I) :-
   step(I).
 
 % Reality check axioms
-:- obs(F, true, I), -holds(F, I).
-:- obs(exists(Id), false, I), holds(exists(Id), I).
+% :- obs(F, true, I), -holds(F, I).
+% :- obs(exists(Id), false, I), holds(exists(Id), I).
+
+:~ obs(F, true, I), -holds(F, I). [1@2, F, I]
+:~ obs(exists(Id), false, I), holds(exists(Id), I). [1@1, exists(Id), I]
 
 % Generate possible events
 occurs(A, I) : action(A) :- step(I+1), I >= 0.

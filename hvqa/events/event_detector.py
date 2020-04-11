@@ -1,5 +1,5 @@
-from clyngor import solve
 from pathlib import Path
+import clingo
 
 
 class _AbsEventDetector:
@@ -37,22 +37,35 @@ class ASPEventDetector(_AbsEventDetector):
         f.close()
 
         # Solve AL model with video info
-        asp_events = solve([self.al_model, self.detector, self._video_info], use_clingo_module=True)
-        asp_events = [asp_event for asp_event in asp_events]
+        ctl = clingo.Control()
+        ctl.load(str(self.al_model))
+        ctl.load(str(self.detector))
+        ctl.load(str(self._video_info))
+        ctl.ground([("base", [])])
 
-        assert len(asp_events) != 0, "ASP event detection program is unsatisfiable"
-        assert not len(asp_events) > 1, "ASP event detection program must contain only a single answer set"
+        config = ctl.configuration
+        config.solve.models = 0
+        config.solve.opt_mode = "optN"
 
-        asp_events = asp_events[0]
+        models = []
+        with ctl.solve(yield_=True) as handle:
+            for model in handle:
+                if model.optimality_proven:
+                    models.append(model.symbols(shown=True))
+
+        assert len(models) != 0, "ASP event detection program is unsatisfiable"
+        assert len(models) == 1, "ASP event detection program must contain only a single answer set"
+
+        model = models[0]
 
         # Parse event info from ASP result
         events = [[]] * (len(frames) - 1)
-        for pred, args in asp_events:
-            if pred == "occurs":
-                event, frame = args
-                splits = event.split("(")
-                event_name = splits[0]
-                obj_id = int(splits[1][0:-1])  # Remove closing bracket
+        for sym in model:
+            if sym.name == "occurs":
+                event, frame = sym.arguments
+                frame = frame.number
+                event_name = event.name
+                obj_id = event.arguments[0].number
                 events[frame] = [(obj_id, event_name)]
 
         # Cleanup temp file
