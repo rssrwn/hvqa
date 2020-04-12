@@ -125,16 +125,17 @@ def format_prop_val(prop, prop_val):
     return prop_val
 
 
-def format_rotation_str(rot):
-    if rot == 0:
-        val = "upward-facing"
-    elif rot == 1:
-        val = "right-facing"
-    elif rot == 2:
-        val = "downward-facing"
-    elif rot == 3:
-        val = "left-facing"
-    else:
-        raise UnknownPropertyValueException(f"Rotation {rot} unknown")
+def format_prop_str(prop, prop_val):
+    if prop == "rotation":
+        if prop_val == 0 or prop_val == "0":
+            prop_val = "upward-facing"
+        elif prop_val == 1 or prop_val == "1":
+            prop_val = "right-facing"
+        elif prop_val == 2 or prop_val == "2":
+            prop_val = "downward-facing"
+        elif prop_val == 3 or prop_val == "3":
+            prop_val = "left-facing"
+        else:
+            raise UnknownPropertyValueException(f"Rotation {prop} unknown")
 
-    return val
+    return prop_val

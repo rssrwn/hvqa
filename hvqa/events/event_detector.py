@@ -37,7 +37,7 @@ class ASPEventDetector(_AbsEventDetector):
         f.close()
 
         # Add files
-        ctl = clingo.Control()
+        ctl = clingo.Control(message_limit=0)
         ctl.load(str(self.al_model))
         ctl.load(str(self.detector))
         ctl.load(str(self._video_info))
@@ -72,6 +72,6 @@ class ASPEventDetector(_AbsEventDetector):
                 events[frame] = [(obj_id, event_name)]
 
         # Cleanup temp file
-        # self._video_info.unlink()
+        self._video_info.unlink()
 
         return events

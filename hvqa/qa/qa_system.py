@@ -3,7 +3,7 @@ import clingo
 
 from hvqa.util.definitions import CLASSES, PROP_LOOKUP
 from hvqa.util.exceptions import UnknownQuestionTypeException
-from hvqa.util.func import format_prop_val, format_rotation_str
+from hvqa.util.func import format_prop_val, format_prop_str
 
 
 class _AbsQASystem:
@@ -71,7 +71,7 @@ class HardcodedASPQASystem(_AbsQASystem):
         f.close()
 
         # Add files
-        ctl = clingo.Control()
+        ctl = clingo.Control(message_limit=0)
         ctl.load(str(self.qa_system))
         ctl.load(str(self.features))
         ctl.load(str(self._video_info))
@@ -102,7 +102,7 @@ class HardcodedASPQASystem(_AbsQASystem):
                 ans_str = self._gen_answer_str(args, q_type)
 
         # Cleanup temp file
-        # self._video_info.unlink()
+        self._video_info.unlink()
 
         assert ans_str is not None, "The answer set did not contain an answer predicate"
 
@@ -132,8 +132,7 @@ class HardcodedASPQASystem(_AbsQASystem):
         assert len(args) == 2, "Args is not correct length for question type 0"
 
         prop, prop_val = args
-        if prop == "rotation":
-            prop_val = format_rotation_str(int(prop_val))
+        # prop_val = format_prop_str(prop, prop_val)
 
         template = self._answer_str_templates[0]
         ans_str = template.format(prop_val=prop_val)
@@ -165,6 +164,8 @@ class HardcodedASPQASystem(_AbsQASystem):
         assert len(args) == 3, "Args is not correct length for question type 3"
 
         prop, before, after = args
+        before = format_prop_str(prop, before)
+        after = format_prop_str(prop, after)
 
         template = self._answer_str_templates[3]
         ans_str = template.format(prop=prop, before=before, after=after)
