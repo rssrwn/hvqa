@@ -1,5 +1,7 @@
 % Feature engineering for QA (not event detection)
 
+step(I) :- obs(_, I).
+
 holds(F, I) :- obs(F, I).
 
 changed(colour, Before, After, Id, Frame) :-
@@ -14,18 +16,37 @@ changed(rotation, Before, After, Id, Frame) :-
 
 exists(Id, Frame) :- holds(class(_, Id), Frame).
 
-occurs_event(Action, Frame) :- occurs(Action, Frame).
+action(move).
+action(rotate_left).
+action(rotate_right).
+action(nothing).
 
-occurs_event(change_colour(Id), Frame) :- changed(colour, _, _, Id, Frame).
+event(A) :- action(A).
+event(change_colour).
+event(eat_fish).
+event(eat_bag).
 
-occurs_event(eat_fish(Octo), Frame) :-
+occurs_event(move, Id, Frame) :- occurs(move(Id), Frame).
+occurs_event(rotate_left, Id, Frame) :- occurs(rotate_left(Id), Frame).
+occurs_event(rotate_right, Id, Frame) :- occurs(rotate_right(Id), Frame).
+occurs_event(nothing, Id, Frame) :- occurs(nothing(Id), Frame).
+
+occurs_event(change_colour, Id, Frame) :- changed(colour, _, _, Id, Frame).
+
+occurs_event(eat_fish, Octo, Frame) :-
   holds(class(fish, Fish), Frame),
   not exists(Fish, Frame+1),
   holds(class(octopus, Octo), Frame),
   holds(class(octopus, Octo), Frame+1).
 
-occurs_event(eat_bag(Octo), Frame) :-
+occurs_event(eat_bag, Octo, Frame) :-
   holds(class(bag, Bag), Frame),
   not exists(Bag, Frame+1),
   holds(class(octopus, Octo), Frame),
-  holds(class(octopus, Octo), Frame+1).
+  not exists(Octo, Frame+1),
+  step(Frame+1).
+
+event_count(Event, Id, Num) :-
+  Num = #count { Frame : occurs_event(Event, Id, Frame) },
+  exists(Id, _),
+  event(Event).

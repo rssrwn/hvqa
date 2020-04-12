@@ -158,3 +158,24 @@ def event_to_asp_str(event):
         event = "eat_bag"
 
     return event
+
+
+def asp_str_to_event(asp_event):
+    if asp_event == "move":
+        event = "move"
+    elif asp_event == "rotate_left":
+        event = "rotate left"
+    elif asp_event == "rotate_right":
+        event = "rotate right"
+    elif asp_event == "change_colour":
+        event = "change colour"
+    elif asp_event == "eat_fish":
+        event = "eat a fish"
+    elif asp_event == "eat_bag":
+        event = "eat a fish"
+    elif asp_event == "unknown":
+        event = "unknown"
+    else:
+        raise UnknownPropertyValueException(f"Unknown ASP event {asp_event}")
+
+    return event

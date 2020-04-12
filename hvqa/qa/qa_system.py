@@ -3,7 +3,7 @@ import clingo
 
 from hvqa.util.definitions import CLASSES, PROP_LOOKUP
 from hvqa.util.exceptions import UnknownQuestionTypeException
-from hvqa.util.func import format_prop_val, format_prop_str, event_to_asp_str
+from hvqa.util.func import format_prop_val, format_prop_str, event_to_asp_str, asp_str_to_event
 
 
 class _AbsQASystem:
@@ -42,9 +42,9 @@ class HardcodedASPQASystem(_AbsQASystem):
             3: "answer(Prop, Before, After) :- changed(Prop, Before, After, Id, {frame_idx}), "
                "{asp_obj}, exists(Id, {frame_idx}+1).\n",
 
-            4: "answer(N) :- N = #count {{ {event}(Id), Frame : occurs_event({event}(Id), Frame), {asp_obj} }}.\n",
+            4: "answer(N) :- N = #count {{ {event}, Id, Frame : occurs_event({event}, Id, Frame), {asp_obj} }}.\n",
 
-            5: "answer(move).\n",
+            5: "answer(Event) :- event_count(Event, Id, {num}), {asp_obj}.\n",
 
             6: "answer(rotate_left).\n"
         }
@@ -55,7 +55,7 @@ class HardcodedASPQASystem(_AbsQASystem):
             2: "{action}",
             3: "Its {prop} changed from {before} to {after}",
             4: "{ans}",
-            5: "not implemented",
+            5: "{event}",
             6: "not implemented"
         }
 
@@ -89,8 +89,11 @@ class HardcodedASPQASystem(_AbsQASystem):
             for model in handle:
                 models.append(model.symbols(shown=True))
 
-        assert len(models) != 0, "ASP QA program is unsatisfiable"
-        assert len(models) == 1, "ASP QA program must contain only a single answer set"
+        assert len(models) <= 1, "ASP QA program must contain only a single answer set"
+
+        # If we cannot find an answer return a wrong answer
+        if len(models) == 0:
+            return "unknown"
 
         model = models[0]
 
@@ -183,8 +186,12 @@ class HardcodedASPQASystem(_AbsQASystem):
     def _answer_q_type_5(self, args):
         assert len(args) == 1, "Args is not correct length for question type 5"
 
+        event = args[0]
+        event = asp_str_to_event(event)
+
         template = self._answer_str_templates[5]
-        return template
+        ans_str = template.format(event=event)
+        return ans_str
 
     def _answer_q_type_6(self, args):
         assert len(args) == 1, "Args is not correct length for question type 6"
@@ -304,8 +311,21 @@ class HardcodedASPQASystem(_AbsQASystem):
         return asp_q
 
     def _parse_q_type_5(self, question):
+        splits = question.split(" ")
+
+        num = int(splits[-2])
+
+        cls = splits[3]
+        prop_val = None
+        if cls not in CLASSES:
+            prop_val = cls
+            cls = splits[4]
+
+        asp_obj = self._gen_asp_obj(cls, prop_val, "Frame", "Id")
+
         template = self._asp_question_templates[5]
-        return template
+        asp_q = template.format(asp_obj=asp_obj, num=num)
+        return asp_q
 
     def _parse_q_type_6(self, question):
         template = self._asp_question_templates[6]
