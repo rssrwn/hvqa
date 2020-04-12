@@ -47,7 +47,9 @@ RELATIONS = ["close"]
 
 # *** Events ****
 
-EVENTS = ["move", "rotate_left", "rotate_right", "nothing"]
+ACTIONS = ["move", "rotate_left", "rotate_right", "nothing"]
+
+EVENTS = ["move", "rotate left", "rotate right", "nothing", "change colour", "eat a fish", "eat a bag"]
 
 
 # *** Transforms ***

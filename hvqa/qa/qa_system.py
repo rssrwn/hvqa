@@ -3,7 +3,7 @@ import clingo
 
 from hvqa.util.definitions import CLASSES, PROP_LOOKUP
 from hvqa.util.exceptions import UnknownQuestionTypeException
-from hvqa.util.func import format_prop_val, format_prop_str
+from hvqa.util.func import format_prop_val, format_prop_str, event_to_asp_str
 
 
 class _AbsQASystem:
@@ -42,7 +42,7 @@ class HardcodedASPQASystem(_AbsQASystem):
             3: "answer(Prop, Before, After) :- changed(Prop, Before, After, Id, {frame_idx}), "
                "{asp_obj}, exists(Id, {frame_idx}+1).\n",
 
-            4: "answer(0).\n",
+            4: "answer(N) :- N = #count {{ {event}(Id), Frame : occurs_event({event}(Id), Frame), {asp_obj} }}.\n",
 
             5: "answer(move).\n",
 
@@ -54,7 +54,7 @@ class HardcodedASPQASystem(_AbsQASystem):
             1: "{ans}",
             2: "{action}",
             3: "Its {prop} changed from {before} to {after}",
-            4: "not implemented",
+            4: "{ans}",
             5: "not implemented",
             6: "not implemented"
         }
@@ -174,8 +174,11 @@ class HardcodedASPQASystem(_AbsQASystem):
     def _answer_q_type_4(self, args):
         assert len(args) == 1, "Args is not correct length for question type 4"
 
+        num = args[0]
+
         template = self._answer_str_templates[4]
-        return template
+        ans_str = template.format(ans=num)
+        return ans_str
 
     def _answer_q_type_5(self, args):
         assert len(args) == 1, "Args is not correct length for question type 5"
@@ -279,8 +282,26 @@ class HardcodedASPQASystem(_AbsQASystem):
         return asp_q
 
     def _parse_q_type_4(self, question):
+        splits = question.split(" ")
+
+        cls_idx = 5
+        cls = splits[cls_idx]
+        prop_val = None
+        if cls not in CLASSES:
+            prop_val = cls
+            cls_idx = 6
+            cls = splits[cls_idx]
+
+        event = splits[cls_idx + 1:]
+        event = " ".join(event)
+        event = event[:-1]
+        event = event_to_asp_str(event)
+
+        asp_obj = self._gen_asp_obj(cls, prop_val, "Frame", "Id")
+
         template = self._asp_question_templates[4]
-        return template
+        asp_q = template.format(asp_obj=asp_obj, event=event)
+        return asp_q
 
     def _parse_q_type_5(self, question):
         template = self._asp_question_templates[5]

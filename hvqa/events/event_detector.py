@@ -56,6 +56,9 @@ class ASPEventDetector(_AbsEventDetector):
                 if model.optimality_proven:
                     models.append(model.symbols(shown=True))
 
+        # Cleanup temp file
+        self._video_info.unlink()
+
         assert len(models) != 0, "ASP event detection program is unsatisfiable"
         assert len(models) == 1, "ASP event detection program must contain only a single answer set"
 
@@ -70,8 +73,5 @@ class ASPEventDetector(_AbsEventDetector):
                 event_name = event.name
                 obj_id = event.arguments[0].number
                 events[frame] = [(obj_id, event_name)]
-
-        # Cleanup temp file
-        self._video_info.unlink()
 
         return events

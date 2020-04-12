@@ -6,6 +6,7 @@ from pathlib import Path
 from PIL import Image
 
 from hvqa.util.exceptions import UnknownPropertyValueException
+from hvqa.util.definitions import EVENTS
 
 
 _USE_GPU = True
@@ -139,3 +140,21 @@ def format_prop_str(prop, prop_val):
             raise UnknownPropertyValueException(f"Rotation {prop} unknown")
 
     return prop_val
+
+
+def event_to_asp_str(event):
+    if event not in EVENTS:
+        raise UnknownPropertyValueException(f"Unknown event {event}")
+
+    if event == "rotate left":
+        event = "rotate_left"
+    elif event == "rotate right":
+        event = "rotate_right"
+    elif event == "change colour":
+        event = "change_colour"
+    elif event == "eat a fish":
+        event = "eat_fish"
+    elif event == "eat a bag":
+        event = "eat_bag"
+
+    return event
