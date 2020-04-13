@@ -42,7 +42,7 @@ class HardcodedASPQASystem(_AbsQASystem):
             3: "answer(Prop, Before, After) :- changed(Prop, Before, After, Id, {frame_idx}), "
                "{asp_obj}, exists(Id, {frame_idx}+1).\n",
 
-            4: "answer(N) :- N = #count {{ {event}, Id, Frame : occurs_event({event}, Id, Frame), {asp_obj} }}.\n",
+            4: "answer(N) :- event_count({event}, Id, N), {asp_obj}.\n",
 
             5: "answer(Event) :- event_count(Event, Id, {num}), {asp_obj}.\n",
 

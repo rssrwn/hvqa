@@ -47,6 +47,6 @@ occurs_event(eat_bag, Octo, Frame) :-
   step(Frame+1).
 
 event_count(Event, Id, Num) :-
-  Num = #count { Frame : occurs_event(Event, Id, Frame) },
-  exists(Id, _),
+  Num = #count { Event, Id, Frame : occurs_event(Event, Id, Frame) },
+  occurs_event(_, Id, _),
   event(Event).
