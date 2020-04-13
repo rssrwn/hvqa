@@ -166,14 +166,6 @@ change_colour(Old, New, Id, I-1) :-
 holds(colour(New, Id), I+1) :- change_colour(_, New, Id, I).
 -holds(colour(Old, Id), I+1) :- change_colour(Old, _, Id, I).
 
-% Feature engineering
-obs_exists(Id, Frame) :- obs(class(_, Id), true, Frame).
-
-disappear(Id, Frame) :-
-  obs_exists(Id, Frame),
-  occurs(move(_), Frame),
-  not obs_exists(Id, Frame+1),
-  step(Frame+1).
 
 % Event definitions
 event(eat_fish(Octo), Frame) :-

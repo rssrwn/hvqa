@@ -1,7 +1,35 @@
 % ***** File for finding which events occurred by modelling them as possible explanations *****
 
-% Map to representation used in book
-obs(F, true, I) :- obs(F, I).
+% Feature engineering
+obs_exists(Id, Frame) :- obs(class(_, Id), true, Frame).
+
+disappear(Id, Frame) :-
+  obs_exists(Id, Frame),
+  occurs(move(_), Frame),
+  not obs_exists(Id, Frame+1),
+  step(Frame+1).
+
+% Map to internal representation if we think it is not an error
+obs(F, true, I) :-
+  obs(F, I),
+  not nn_error(F, I).
+
+% Error if a new object appears (which wasn't in initial frame)
+nn_error(class(Class, Id), Frame) :-
+  obs(class(Class, Id), Frame),
+  not obs(class(Class, Id), 0).
+
+% One of the octopus' is an error if there are two
+% 1 { nn_error(class(octopus, Id1), Frame); nn_error(class(octopus), Id2) } 1 :-
+%   obs(class(octopus, Id1), Frame),
+%   obs(class(octopus, Id2), Frame),
+%   Id1 != Id2.
+
+% If an object is detected in error, assume all properties are erroneous
+error_obj(Id, Frame) :- nn_error(class(_, Id), Frame).
+nn_error(colour(Colour, Id), Frame) :- error_obj(Id, Frame), obs(colour(Colour, Id), Frame).
+nn_error(rotation(Rot, Id), Frame) :- error_obj(Id, Frame), obs(rotation(Rot, Id), Frame).
+nn_error(position(Pos, Id), Frame) :- error_obj(Id, Frame), obs(position(Pos, Id), Frame).
 
 % Assume correct initial state
 holds(F, 0) :- obs(F, true, 0).
@@ -27,15 +55,4 @@ obs(exists(Id), false, I) :-
 % Generate possible events
 occurs(A, I) : action(A) :- step(I+1), I >= 0.
 
-% wrong_obs_true(F, I) :- obs(F, true, I), -holds(F, I).
-% wrong_obs_false(F, I) :- obs(F, false, I), holds(F, I).
-% #show wrong_obs_true/2.
-% #show wrong_obs_false/2.
-
-% correct_actions :- occurs(move(0), 0).
-% :- not correct_actions.
-
 #show occurs/2.
-% #show holds/2.
-% #show disappear/2.
-% #show exists/2.

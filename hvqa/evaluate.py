@@ -18,7 +18,7 @@ def _inc_in_map(coll, key):
     coll[key] += 1
 
 
-def evaluate(model, data):
+def evaluate(model, data, verbose=False):
     correct = {}
     incorrect = {}
 
@@ -38,8 +38,15 @@ def evaluate(model, data):
             if actual == predicted:
                 _inc_in_map(correct, q_type)
                 video_correct += 1
+                if verbose:
+                    print(f"Q{idx}: Correct.")
+
             else:
                 _inc_in_map(incorrect, q_type)
+                question = questions[idx]
+                if verbose:
+                    print(f"Q{idx}: Incorrect. Question: {question} -- "
+                          f"Answer: Predicted '{predicted}', actual '{actual}'")
 
         acc = video_correct / len(questions)
         print(f"Video [{video_idx:4}/{len(data):4}] -- {video_correct:2} / {len(questions):2} -- Accuracy: {acc:.0%}")
@@ -77,7 +84,7 @@ def main(data_dir, model_type):
         print("That type of model is not supported")
         return
 
-    evaluate(model, data)
+    evaluate(model, data, verbose=True)
 
 
 if __name__ == '__main__':
