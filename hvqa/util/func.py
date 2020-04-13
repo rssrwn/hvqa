@@ -143,21 +143,22 @@ def format_prop_str(prop, prop_val):
 
 
 def event_to_asp_str(event):
-    if event not in EVENTS:
+    if event == "move" or event == "moving":
+        asp_str = "move"
+    elif event == "rotate left" or event == "rotating left":
+        asp_str = "rotate_left"
+    elif event == "rotate right" or event == "rotating right":
+        asp_str = "rotate_right"
+    elif event == "change colour" or event == "changing colour":
+        asp_str = "change_colour"
+    elif event == "eat a fish" or event == "eating a fish":
+        asp_str = "eat_fish"
+    elif event == "eat a bag" or event == "eating a bag":
+        asp_str = "eat_bag"
+    else:
         raise UnknownPropertyValueException(f"Unknown event {event}")
 
-    if event == "rotate left":
-        event = "rotate_left"
-    elif event == "rotate right":
-        event = "rotate_right"
-    elif event == "change colour":
-        event = "change_colour"
-    elif event == "eat a fish":
-        event = "eat_fish"
-    elif event == "eat a bag":
-        event = "eat_bag"
-
-    return event
+    return asp_str
 
 
 def asp_str_to_event(asp_event):
@@ -179,3 +180,21 @@ def asp_str_to_event(asp_event):
         raise UnknownPropertyValueException(f"Unknown ASP event {asp_event}")
 
     return event
+
+
+# TODO Fix firth
+occurrences = {
+    "first": 1,
+    "second": 2,
+    "third": 3,
+    "fourth": 4,
+    "firth": 5
+}
+
+
+def format_occ(occ_str):
+    occ = occurrences.get(occ_str)
+    if occ is None:
+        raise UnknownPropertyValueException(f"Unknown occurrence value {occ_str}")
+
+    return occ

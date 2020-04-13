@@ -3,7 +3,7 @@ import clingo
 
 from hvqa.util.definitions import CLASSES, PROP_LOOKUP
 from hvqa.util.exceptions import UnknownQuestionTypeException
-from hvqa.util.func import format_prop_val, format_prop_str, event_to_asp_str, asp_str_to_event
+from hvqa.util.func import format_prop_val, format_prop_str, event_to_asp_str, asp_str_to_event, format_occ
 
 
 class _AbsQASystem:
@@ -46,7 +46,8 @@ class HardcodedASPQASystem(_AbsQASystem):
 
             5: "answer(Event) :- event_count(Event, Id, {num}), {asp_obj}.\n",
 
-            6: "answer(rotate_left).\n"
+            6: "answer(Action) :- occurs_event(Action, Id, Frame+1), action(Action), "
+               "occurs_event({event}, Id, Frame), {asp_obj}.\n"
         }
 
         self._answer_str_templates = {
@@ -56,7 +57,7 @@ class HardcodedASPQASystem(_AbsQASystem):
             3: "Its {prop} changed from {before} to {after}",
             4: "{ans}",
             5: "{event}",
-            6: "not implemented"
+            6: "{action}"
         }
 
     def answer(self, video, question, q_type):
@@ -196,8 +197,12 @@ class HardcodedASPQASystem(_AbsQASystem):
     def _answer_q_type_6(self, args):
         assert len(args) == 1, "Args is not correct length for question type 6"
 
+        action = args[0]
+        action = asp_str_to_event(action)
+
         template = self._answer_str_templates[6]
-        return template
+        ans_str = template.format(action=action)
+        return ans_str
 
     def _gen_asp_question(self, question, q_type):
         if q_type == 0:
@@ -328,8 +333,33 @@ class HardcodedASPQASystem(_AbsQASystem):
         return asp_q
 
     def _parse_q_type_6(self, question):
+        splits = question.split(" ")
+
+        cls = splits[3]
+        event_idx = 7
+        prop_val = None
+        if cls not in CLASSES:
+            prop_val = cls
+            cls = splits[4]
+            event_idx = 8
+
+        asp_obj = self._gen_asp_obj(cls, prop_val, "Frame", "Id")
+
+        # Check if there is an occurrence string
+        if splits[-1] == "time?":
+            occ_str = splits[-2]
+            occ = format_occ(occ_str)
+            event = splits[event_idx:-4]
+        else:
+            splits[-1] = splits[-1][:-1]
+            event = splits[event_idx:]
+
+        event = " ".join(event)
+        event = event_to_asp_str(event)
+
         template = self._asp_question_templates[6]
-        return template
+        asp_q = template.format(asp_obj=asp_obj, event=event)
+        return asp_q
 
     @staticmethod
     def _gen_asp_obj(cls, prop_val, frame_idx, id_str):
