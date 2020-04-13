@@ -1,5 +1,7 @@
 # Abstract QA Model Class File
 
+import time
+
 
 class _AbsModel:
     """
@@ -16,6 +18,15 @@ class _AbsModel:
         self.relation_classifier = self._setup_relation_classifier()
         self.event_detector = self._setup_event_detector()
         self.qa_system = self._setup_qa_system()
+
+        self._timings = {
+            "Detector": 0,
+            "Properties": 0,
+            "Tracker": 0,
+            "Relations": 0,
+            "Events": 0,
+            "QA": 0
+        }
 
     def _setup_obj_detector(self):
         raise NotImplementedError
@@ -46,24 +57,25 @@ class _AbsModel:
         """
 
         video = self.process_frames(frames)
-        answers = self._answer_questions(video, questions, q_types)
+        qa_args = (video, questions, q_types)
+        answers = self._time_func(self._answer_questions, qa_args, "QA")
         return answers
 
     def process_frames(self, frames):
         # Batch all frames in a video
-        video = self._extract_objs(frames)
+        video = self._time_func(self._extract_objs, (frames,), "Detector")
 
         self.tracker.reset()
 
         # Batch all objects in each frame
         for frame in video.frames:
             objs = frame.objs
-            self._extract_props_(objs)
-            ids = self.tracker.process_frame(objs)
+            self._time_func(self._extract_props_, (objs,), "Properties")
+            ids = self._time_func(self.tracker.process_frame, (objs,), "Tracker")
             self._add_ids(objs, ids)
-            self._detect_relations_(frame)
+            self._time_func(self._detect_relations_, (frame,), "Relations")
 
-        self._detect_events_(video)
+        self._time_func(self._detect_events_, (video,), "Events")
 
         return video
 
@@ -140,10 +152,22 @@ class _AbsModel:
         """
 
         answers = self.qa_system.answer(video, questions, q_types)
-        # for idx, question in enumerate(questions):
-        #     print(f"Question {idx}: {question}")
-        #     q_type = q_types[idx]
-        #     ans = self.qa_system.answers(video, question, q_type)
-        #     answers.append(ans)
-
         return answers
+
+    def _time_func(self, func, args, timings_key):
+        start = time.time()
+        result = func(*args)
+        total = time.time() - start
+        self._timings[timings_key] += total
+        return result
+
+    def print_timings(self):
+        timings = list(self._timings.items())
+        sorted(timings, key=lambda pair: pair[1], reverse=True)
+        total = sum(list(map(lambda pair: pair[1], timings)))
+
+        print("Timings:")
+        print(f"{'Component':<15}{'Time':<15}Share")
+        for component, t in timings:
+            print(f"{component:<15}{t:<15.2f}{t / total:.1%}")
+        print()

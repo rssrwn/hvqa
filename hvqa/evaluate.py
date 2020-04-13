@@ -22,8 +22,8 @@ def evaluate(model, data):
     correct = {}
     incorrect = {}
 
+    print()
     for video_idx in range(len(data)):
-        print(f"Running on video {video_idx}")
         frames, video_dict = data[video_idx]
         questions = video_dict["questions"]
         q_types = video_dict["question_types"]
@@ -31,27 +31,31 @@ def evaluate(model, data):
         answers = model.run(frames, questions, q_types)
         expected = video_dict["answers"]
 
+        video_correct = 0
         for idx, predicted in enumerate(answers):
             actual = expected[idx]
             q_type = q_types[idx]
             if actual == predicted:
-                print(f"Q{idx}: correct")
                 _inc_in_map(correct, q_type)
+                video_correct += 1
             else:
-                print(f"Q{idx}: incorrect. Got: {predicted}, actual: {actual}")
                 _inc_in_map(incorrect, q_type)
+
+        acc = video_correct / len(questions)
+        print(f"Video [{video_idx:4}/{len(data):4}] -- {video_correct:2} / {len(questions):2} -- Accuracy: {acc:.0%}")
 
     q_types = list(set(correct.keys()).union(set(incorrect.keys())))
     sorted(q_types)
 
+    print("Results:")
     print(f"\n{'Question Type':<20}{'Correct':<15}{'Incorrect':<15}Accuracy")
     for q_type in q_types:
         num_correct = correct.get(q_type)
         num_correct = 0 if num_correct is None else num_correct
         num_incorrect = incorrect.get(q_type)
         num_incorrect = 0 if num_incorrect is None else num_incorrect
-        acc = (num_correct / (num_correct + num_incorrect)) * 100
-        print(f"{q_type:<20}{num_correct:<15}{num_incorrect:<15}{acc:.3g}%")
+        acc = (num_correct / (num_correct + num_incorrect))
+        print(f"{q_type:<20}{num_correct:<15}{num_incorrect:<15}{acc:.1%}")
 
     num_correct = sum(correct.values())
     total = num_correct + sum(incorrect.values())
@@ -59,7 +63,9 @@ def evaluate(model, data):
 
     print(f"\nNum correct: {num_correct}")
     print(f"Total: {total}")
-    print(f"Accuracy: {acc:.3g}%")
+    print(f"Accuracy: {acc:.3}%\n")
+
+    model.print_timings()
 
 
 def main(data_dir, model_type):
