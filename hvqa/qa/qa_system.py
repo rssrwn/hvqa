@@ -2,7 +2,6 @@ from pathlib import Path
 import clingo
 
 from hvqa.util.definitions import CLASSES, PROP_LOOKUP
-from hvqa.util.exceptions import UnknownQuestionTypeException
 from hvqa.util.func import format_prop_val, format_prop_str, event_to_asp_str, asp_str_to_event, format_occ
 
 
@@ -27,50 +26,77 @@ class HardcodedASPQASystem(_AbsQASystem):
         self.features = path / "background_knowledge.lp"
         self._video_info = path / "_temp_video_info.lp"
 
-        self._asp_question_templates = {
-            0: "answer({prop}, V) :- {asp_obj}, holds({prop}(V, Id), {frame_idx}).\n",
+        asp_template_0 = "answer({{q_idx}}, {prop}, V) :- {asp_obj}, holds({prop}(V, Id), {frame_idx}).\n"
 
-            1: "related :- holds({rel}(Id1, Id2), {frame_idx}), {asp_obj1}, {asp_obj2}.\n"
-               "answer(yes) :- related.\n"
-               "answer(no) :- not related.\n",
+        asp_template_1 = """
+        related :- holds({rel}(Id1, Id2), {frame_idx}), {asp_obj1}, {asp_obj2}.
+        answer({{q_idx}}, yes) :- related.
+        answer({{q_idx}}, no) :- not related.
+        """
 
-            2: "answer(move) :- occurs(move(Id), {frame_idx}).\n"
-               "answer(rotate_left) :- occurs(rotate_left(Id), {frame_idx}).\n"
-               "answer(rotate_right) :- occurs(rotate_right(Id), {frame_idx}).\n"
-               "answer(nothing) :- occurs(nothing(Id), {frame_idx}).\n",
+        asp_template_2 = """
+        answer({{q_idx}}, move) :- occurs(move(Id), {frame_idx}).
+        answer({{q_idx}}, rotate_left) :- occurs(rotate_left(Id), {frame_idx}).
+        answer({{q_idx}}, rotate_right) :- occurs(rotate_right(Id), {frame_idx}).
+        answer({{q_idx}}, nothing) :- occurs(nothing(Id), {frame_idx}).
+        """
 
-            3: "answer(Prop, Before, After) :- "
-               "changed(Prop, Before, After, Id, {frame_idx}), "
-               "exists(Id, {frame_idx}+1), "
-               "{asp_obj}.\n",
+        asp_template_3 = """
+        answer({{q_idx}}, Prop, Before, After) :- 
+            changed(Prop, Before, After, Id, {frame_idx}),
+            exists(Id, {frame_idx}+1), 
+            {asp_obj}.
+        """
 
-            4: "answer(N) :- event_count({event}, Id, N), {asp_obj}.\n",
+        asp_template_4 = "answer({{q_idx}}, N) :- event_count({event}, Id, N), {asp_obj}.\n"
 
-            5: "answer(Event) :- event_count(Event, Id, {num}), {asp_obj}.\n",
+        asp_template_5 = "answer({{q_idx}}, Event) :- event_count(Event, Id, {num}), {asp_obj}.\n"
 
-            6: "answer(Action) :- "
-               "occurs_event(Action, Id, Frame+1), "
-               "action(Action), "
-               "event_occurrence({event}, Id, Frame, {occ}), "
-               "{asp_obj}.\n"
+        asp_template_6 = """
+        answer({{q_idx}}, Action) :- 
+            occurs_event(Action, Id, Frame+1),
+            action(Action),
+            event_occurrence({event}, Id, Frame, {occ}),
+            {asp_obj}.
+        """
+
+        ans_template_0 = "{prop_val}"
+        ans_template_1 = "{ans}"
+        ans_template_2 = "{action}"
+        ans_template_3 = "Its {prop} changed from {before} to {after}"
+        ans_template_4 = "{ans}"
+        ans_template_5 = "{event}"
+        ans_template_6 = "{action}"
+
+        self.q_funcs = {
+            0: (self._parse_q_type_0, asp_template_0),
+            1: (self._parse_q_type_1, asp_template_1),
+            2: (self._parse_q_type_2, asp_template_2),
+            3: (self._parse_q_type_3, asp_template_3),
+            4: (self._parse_q_type_4, asp_template_4),
+            5: (self._parse_q_type_5, asp_template_5),
+            6: (self._parse_q_type_6, asp_template_6)
         }
 
-        self._answer_str_templates = {
-            0: "{prop_val}",
-            1: "{ans}",
-            2: "{action}",
-            3: "Its {prop} changed from {before} to {after}",
-            4: "{ans}",
-            5: "{event}",
-            6: "{action}"
+        self.ans_funcs = {
+            0: (self._answer_q_type_0, ans_template_0),
+            1: (self._answer_q_type_1, ans_template_1),
+            2: (self._answer_q_type_2, ans_template_2),
+            3: (self._answer_q_type_3, ans_template_3),
+            4: (self._answer_q_type_4, ans_template_4),
+            5: (self._answer_q_type_5, ans_template_5),
+            6: (self._answer_q_type_6, ans_template_6)
         }
 
-    def answer(self, video, question, q_type):
+    def answer(self, video, questions, q_types):
+        # Generate ASP encoding for video and questions
         asp_enc = video.gen_asp_encoding()
-        question_enc = self._gen_asp_question(question, q_type)
-        asp_enc += f"\n{question_enc}\n"
-
-        print(question_enc)
+        for q_idx, question in enumerate(questions):
+            q_type = q_types[q_idx]
+            q_func, template = self.q_funcs[q_type]
+            question_enc = q_func(question, template)
+            question_enc = question_enc.format(q_idx=str(q_idx))
+            asp_enc += f"\n{question_enc}\n"
 
         f = open(self._video_info, "w")
         f.write(asp_enc)
@@ -97,66 +123,61 @@ class HardcodedASPQASystem(_AbsQASystem):
 
         assert len(models) <= 1, "ASP QA program must contain only a single answer set"
 
-        # If we cannot find an answer return a wrong answer
+        # If we cannot find any answer return a wrong answer
         if len(models) == 0:
             return "Unknown (unsatisfiable ASP program)"
 
         model = models[0]
 
-        ans_str = None
+        answers = {q_idx: [] for q_idx in range(len(questions))}
         for sym in model:
             if sym.name == "answer":
                 args = sym.arguments
-                args = list(map(str, args))
-                ans_str = self._gen_answer_str(args, q_type)
+                q_idx = int(args[0].number)
+                args = list(map(str, args[1:]))
+                answers[q_idx].append(args)
+
+        ans_strs = [None] * len(questions)
+        for q_idx, args in answers.items():
+            num_ans = len(args)
+
+            if num_ans > 1:
+                print(f"WARNING: {num_ans} answers for question {q_idx}. Selecting a single answer...")
+                args = args[0]
+
+            if num_ans == 0:
+                ans_str = "Unknown"
+            else:
+                q_type = q_types[q_idx]
+                q_func, template = self.ans_funcs[q_type]
+                ans_str = q_func(args[0], template)
+
+            ans_strs[q_idx] = ans_str
 
         # Cleanup temp file
         self._video_info.unlink()
 
-        assert ans_str is not None, "The answer set did not contain an answer predicate"
+        return ans_strs
 
-        return ans_str
-
-    def _gen_answer_str(self, args, q_type):
-        if q_type == 0:
-            ans = self._answer_q_type_0(args)
-        elif q_type == 1:
-            ans = self._answer_q_type_1(args)
-        elif q_type == 2:
-            ans = self._answer_q_type_2(args)
-        elif q_type == 3:
-            ans = self._answer_q_type_3(args)
-        elif q_type == 4:
-            ans = self._answer_q_type_4(args)
-        elif q_type == 5:
-            ans = self._answer_q_type_5(args)
-        elif q_type == 6:
-            ans = self._answer_q_type_6(args)
-        else:
-            raise UnknownQuestionTypeException(f"Question type {q_type} unknown")
-
-        return ans
-
-    def _answer_q_type_0(self, args):
+    def _answer_q_type_0(self, args, template):
         assert len(args) == 2, "Args is not correct length for question type 0"
 
         prop, prop_val = args
+
+        # TODO Update dataset to use readable version of rotation (ef. upward-facing)
         # prop_val = format_prop_str(prop, prop_val)
 
-        template = self._answer_str_templates[0]
         ans_str = template.format(prop_val=prop_val)
         return ans_str
 
-    def _answer_q_type_1(self, args):
+    def _answer_q_type_1(self, args, template):
         assert len(args) == 1, "Args is not correct length for question type 1"
 
         yes_no = args[0]
-
-        template = self._answer_str_templates[1]
         ans_str = template.format(ans=yes_no)
         return ans_str
 
-    def _answer_q_type_2(self, args):
+    def _answer_q_type_2(self, args, template):
         assert len(args) == 1, "Args is not correct length for question type 2"
 
         action = args[0]
@@ -165,71 +186,42 @@ class HardcodedASPQASystem(_AbsQASystem):
         elif action == "rotate_right":
             action = "rotate right"
 
-        template = self._answer_str_templates[2]
         ans_str = template.format(action=action)
         return ans_str
 
-    def _answer_q_type_3(self, args):
+    def _answer_q_type_3(self, args, template):
         assert len(args) == 3, "Args is not correct length for question type 3"
 
         prop, before, after = args
         before = format_prop_str(prop, before)
         after = format_prop_str(prop, after)
-
-        template = self._answer_str_templates[3]
         ans_str = template.format(prop=prop, before=before, after=after)
         return ans_str
 
-    def _answer_q_type_4(self, args):
+    def _answer_q_type_4(self, args, template):
         assert len(args) == 1, "Args is not correct length for question type 4"
 
         num = args[0]
-
-        template = self._answer_str_templates[4]
         ans_str = template.format(ans=num)
         return ans_str
 
-    def _answer_q_type_5(self, args):
+    def _answer_q_type_5(self, args, template):
         assert len(args) == 1, "Args is not correct length for question type 5"
 
         event = args[0]
         event = asp_str_to_event(event)
-
-        template = self._answer_str_templates[5]
         ans_str = template.format(event=event)
         return ans_str
 
-    def _answer_q_type_6(self, args):
+    def _answer_q_type_6(self, args, template):
         assert len(args) == 1, "Args is not correct length for question type 6"
 
         action = args[0]
         action = asp_str_to_event(action)
-
-        template = self._answer_str_templates[6]
         ans_str = template.format(action=action)
         return ans_str
 
-    def _gen_asp_question(self, question, q_type):
-        if q_type == 0:
-            asp_q = self._parse_q_type_0(question)
-        elif q_type == 1:
-            asp_q = self._parse_q_type_1(question)
-        elif q_type == 2:
-            asp_q = self._parse_q_type_2(question)
-        elif q_type == 3:
-            asp_q = self._parse_q_type_3(question)
-        elif q_type == 4:
-            asp_q = self._parse_q_type_4(question)
-        elif q_type == 5:
-            asp_q = self._parse_q_type_5(question)
-        elif q_type == 6:
-            asp_q = self._parse_q_type_6(question)
-        else:
-            raise UnknownQuestionTypeException(f"Question type {q_type} unknown")
-
-        return asp_q
-
-    def _parse_q_type_0(self, question):
+    def _parse_q_type_0(self, question, template):
         splits = question.split(" ")
         prop = splits[1]
         frame_idx = int(splits[-1][:-1])
@@ -242,12 +234,10 @@ class HardcodedASPQASystem(_AbsQASystem):
             cls = splits[5]
 
         asp_obj = self._gen_asp_obj(cls, prop_val, frame_idx, "Id")
-
-        template = self._asp_question_templates[0]
         asp_q = template.format(asp_obj=asp_obj, prop=prop, frame_idx=str(frame_idx))
         return asp_q
 
-    def _parse_q_type_1(self, question):
+    def _parse_q_type_1(self, question, template):
         splits = question.split(" ")
         frame_idx = int(splits[-1][:-1])
 
@@ -270,19 +260,16 @@ class HardcodedASPQASystem(_AbsQASystem):
         asp_obj1 = self._gen_asp_obj(obj1_cls, obj1_prop_val, frame_idx, "Id1")
         asp_obj2 = self._gen_asp_obj(obj2_cls, obj2_prop_val, frame_idx, "Id2")
 
-        template = self._asp_question_templates[1]
         asp_q = template.format(rel=rel, asp_obj1=asp_obj1, asp_obj2=asp_obj2, frame_idx=str(frame_idx))
         return asp_q
 
-    def _parse_q_type_2(self, question):
+    def _parse_q_type_2(self, question, template):
         splits = question.split(" ")
         frame_idx = int(splits[-1][:-1])
-
-        template = self._asp_question_templates[2]
         asp_q = template.format(frame_idx=str(frame_idx))
         return asp_q
 
-    def _parse_q_type_3(self, question):
+    def _parse_q_type_3(self, question, template):
         splits = question.split(" ")
         frame_idx = int(splits[-1][:-1])
 
@@ -293,12 +280,10 @@ class HardcodedASPQASystem(_AbsQASystem):
             cls = splits[5]
 
         asp_obj = self._gen_asp_obj(cls, prop_val, frame_idx, "Id")
-
-        template = self._asp_question_templates[3]
         asp_q = template.format(asp_obj=asp_obj, frame_idx=frame_idx)
         return asp_q
 
-    def _parse_q_type_4(self, question):
+    def _parse_q_type_4(self, question, template):
         splits = question.split(" ")
 
         cls_idx = 5
@@ -315,12 +300,10 @@ class HardcodedASPQASystem(_AbsQASystem):
         event = event_to_asp_str(event)
 
         asp_obj = self._gen_asp_obj(cls, prop_val, "Frame", "Id")
-
-        template = self._asp_question_templates[4]
         asp_q = template.format(asp_obj=asp_obj, event=event)
         return asp_q
 
-    def _parse_q_type_5(self, question):
+    def _parse_q_type_5(self, question, template):
         splits = question.split(" ")
 
         num = int(splits[-2])
@@ -332,12 +315,10 @@ class HardcodedASPQASystem(_AbsQASystem):
             cls = splits[4]
 
         asp_obj = self._gen_asp_obj(cls, prop_val, "Frame", "Id")
-
-        template = self._asp_question_templates[5]
         asp_q = template.format(asp_obj=asp_obj, num=num)
         return asp_q
 
-    def _parse_q_type_6(self, question):
+    def _parse_q_type_6(self, question, template):
         splits = question.split(" ")
 
         cls = splits[3]
@@ -362,8 +343,6 @@ class HardcodedASPQASystem(_AbsQASystem):
 
         event = " ".join(event)
         event = event_to_asp_str(event)
-
-        template = self._asp_question_templates[6]
         asp_q = template.format(asp_obj=asp_obj, event=event, occ=occ)
         return asp_q
 

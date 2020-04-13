@@ -139,11 +139,11 @@ class _AbsModel:
         :return: Answers: [str]
         """
 
-        answers = []
-        for idx, question in enumerate(questions):
-            print(f"Question {idx}: {question}")
-            q_type = q_types[idx]
-            ans = self.qa_system.answer(video, question, q_type)
-            answers.append(ans)
+        answers = self.qa_system.answer(video, questions, q_types)
+        # for idx, question in enumerate(questions):
+        #     print(f"Question {idx}: {question}")
+        #     q_type = q_types[idx]
+        #     ans = self.qa_system.answers(video, question, q_type)
+        #     answers.append(ans)
 
         return answers
