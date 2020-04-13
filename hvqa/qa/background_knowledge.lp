@@ -50,3 +50,7 @@ event_count(Event, Id, Num) :-
   Num = #count { Event, Id, Frame : occurs_event(Event, Id, Frame) },
   occurs_event(_, Id, _),
   event(Event).
+
+event_occurrence(Event, Id, Frame, Num) :-
+  Num = #count { I : occurs_event(Event, Id, I), I <= Frame },
+  occurs_event(Event, Id, Frame).

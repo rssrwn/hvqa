@@ -39,15 +39,20 @@ class HardcodedASPQASystem(_AbsQASystem):
                "answer(rotate_right) :- occurs(rotate_right(Id), {frame_idx}).\n"
                "answer(nothing) :- occurs(nothing(Id), {frame_idx}).\n",
 
-            3: "answer(Prop, Before, After) :- changed(Prop, Before, After, Id, {frame_idx}), "
-               "{asp_obj}, exists(Id, {frame_idx}+1).\n",
+            3: "answer(Prop, Before, After) :- "
+               "changed(Prop, Before, After, Id, {frame_idx}), "
+               "exists(Id, {frame_idx}+1), "
+               "{asp_obj}.\n",
 
             4: "answer(N) :- event_count({event}, Id, N), {asp_obj}.\n",
 
             5: "answer(Event) :- event_count(Event, Id, {num}), {asp_obj}.\n",
 
-            6: "answer(Action) :- occurs_event(Action, Id, Frame+1), action(Action), "
-               "occurs_event({event}, Id, Frame), {asp_obj}.\n"
+            6: "answer(Action) :- "
+               "occurs_event(Action, Id, Frame+1), "
+               "action(Action), "
+               "event_occurrence({event}, Id, Frame, {occ}), "
+               "{asp_obj}.\n"
         }
 
         self._answer_str_templates = {
@@ -94,7 +99,7 @@ class HardcodedASPQASystem(_AbsQASystem):
 
         # If we cannot find an answer return a wrong answer
         if len(models) == 0:
-            return "unknown"
+            return "Unknown (unsatisfiable ASP program)"
 
         model = models[0]
 
@@ -353,12 +358,13 @@ class HardcodedASPQASystem(_AbsQASystem):
         else:
             splits[-1] = splits[-1][:-1]
             event = splits[event_idx:]
+            occ = 1
 
         event = " ".join(event)
         event = event_to_asp_str(event)
 
         template = self._asp_question_templates[6]
-        asp_q = template.format(asp_obj=asp_obj, event=event)
+        asp_q = template.format(asp_obj=asp_obj, event=event, occ=occ)
         return asp_q
 
     @staticmethod
