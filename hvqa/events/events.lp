@@ -12,21 +12,41 @@ obs_disappear(Id, Frame) :-
 % Map to internal representation if we think it is not an error
 obs(F, true, I) :-
   obs(F, I),
-  not nn_error(F, I).
+  not nn_error(F, I),
+  not obs(F, false, I).
+
+obs(Swap, true, I) :- swapped(Swap, Old, I).
+obs(Old, false, I) :- swapped(Swap, Old, I).
 
 % Error if a new object appears (which wasn't in initial frame)
-nn_error(class(Class, Id), Frame) :-
+error_obj(Id, Frame) :-
   obs(class(Class, Id), Frame),
   not obs(class(Class, Id), 0).
 
-% If there are two octopuses one of them is an error
-1 { nn_error(class(octopus, Id1), Frame); nn_error(class(octopus), Id2) } 1 :-
-  obs(class(octopus, Id1), Frame),
-  obs(class(octopus, Id2), Frame),
-  Id1 != Id2.
+% If there are two octopuses there may be a tracker error
+{ tracker_error(ErrorId, Id) } :-
+  error_obj(ErrorId, Frame),
+  obs(class(octopus, Id), Frame),
+  ErrorId != Id.
+
+% Create new fluents with correct Id but erroneous properties
+swapped(colour(C1, Id), colour(C2, Id), I) :-
+  tracker_error(ErrorId, Id),
+  obs(colour(C1, ErrorId), I),
+  obs(colour(C2, Id), I).
+
+swapped(rotation(R1, Id), rotation(R2, Id), I) :-
+  tracker_error(ErrorId, Id),
+  obs(rotation(R1, ErrorId), I),
+  obs(rotation(R2, Id), I).
+
+swapped(position(P1, Id), position(P2, Id), I) :-
+  tracker_error(ErrorId, Id),
+  obs(position(P1, ErrorId), I),
+  obs(position(P2, Id), I).
 
 % If an object is detected in error, assume all properties are erroneous
-error_obj(Id, Frame) :- nn_error(class(_, Id), Frame).
+nn_error(class(Class, Id), Frame) :-  error_obj(Id, Frame), obs(class(Class, Id), Frame).
 nn_error(colour(Colour, Id), Frame) :- error_obj(Id, Frame), obs(colour(Colour, Id), Frame).
 nn_error(rotation(Rot, Id), Frame) :- error_obj(Id, Frame), obs(rotation(Rot, Id), Frame).
 nn_error(position(Pos, Id), Frame) :- error_obj(Id, Frame), obs(position(Pos, Id), Frame).

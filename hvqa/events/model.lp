@@ -46,7 +46,7 @@ def new_rot(rotation, action):
 
 % Timesteps
 % Assume every we have information for every timestep
-step(I) :- obs(_, _, I).
+step(I) :- obs(_, true, I).
 
 % Add internal property called exists
 obs(exists(Id), true, I) :- obs(class(_, Id), true, I).
@@ -61,10 +61,10 @@ fluent(inertial, exists(Id)) :- obs(exists(Id), _, _).
 fluent(defined, close(Id1, Id2)) :- obs(close(Id1, Id2), _, _).
 
 % Assume only octopus can do actions
-action(move(Id)) :- obs(class(octopus, Id), _, _).
-action(rotate_left(Id)) :- obs(class(octopus, Id), _, _).
-action(rotate_right(Id)) :- obs(class(octopus, Id), _, _).
-action(nothing(Id)) :- obs(class(octopus, Id), _, _).
+action(move(Id)) :- obs(class(octopus, Id), true, 0).
+action(rotate_left(Id)) :- obs(class(octopus, Id), true, 0).
+action(rotate_right(Id)) :- obs(class(octopus, Id), true, 0).
+action(nothing(Id)) :- obs(class(octopus, Id), true, 0).
 
 
 % ***** Domain Independent Axioms *****
