@@ -109,12 +109,12 @@ holds(F, I+1) :-
   step(I).
 
 % Assume only one object can do actions
-non_static(Id) :- occurs(move(Id), Frame).
-non_static(Id) :- occurs(rotate_left(Id), Frame).
-non_static(Id) :- occurs(rotate_right(Id), Frame).
-non_static(Id) :- occurs(nothing(Id), Frame).
-
-:- non_static(Id1), non_static(Id2), Id1 != Id2.
+% non_static(Id) :- occurs(move(Id), Frame).
+% non_static(Id) :- occurs(rotate_left(Id), Frame).
+% non_static(Id) :- occurs(rotate_right(Id), Frame).
+% non_static(Id) :- occurs(nothing(Id), Frame).
+%
+% :- non_static(Id1), non_static(Id2), Id1 != Id2.
 
 
 % ***** Domain Dependent *****
@@ -175,6 +175,7 @@ event(eat_fish(Octo), Frame) :-
 
 event(eat_bag(Octo), Frame) :-
   obs_disappear(Bag, Frame),
+  obs_disappear(Octo, Frame),
   holds(class(bag, Bag), Frame),
   occurs(move(Octo), Frame).
 

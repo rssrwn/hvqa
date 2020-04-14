@@ -1,5 +1,6 @@
 from pathlib import Path
 import clingo
+import time
 
 
 class _AbsEventDetector:
@@ -22,6 +23,7 @@ class ASPEventDetector(_AbsEventDetector):
         self.al_model = path / "model.lp"
         self.detector = path / "events.lp"
         self._video_info = path / "_temp_video_info.lp"
+        self.timeout = 5
 
         assert self.al_model.exists(), f"File {self.al_model} does not exist"
         assert self.detector.exists(), f"File {self.detector} does not exist"
@@ -51,10 +53,16 @@ class ASPEventDetector(_AbsEventDetector):
 
         # Solve AL model with video info
         models = []
+        start_time = time.time()
         with ctl.solve(yield_=True) as handle:
             for model in handle:
                 if model.optimality_proven:
                     models.append(model.symbols(shown=True))
+
+                if time.time() - start_time > self.timeout:
+                    print("WARNING: Event detection program reached timeout")
+                    handle.cancel()
+                    break
 
         # Cleanup temp file
         self._video_info.unlink()
