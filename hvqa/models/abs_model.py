@@ -71,18 +71,12 @@ class _AbsModel:
         for frame in video.frames:
             objs = frame.objs
             self._time_func(self._extract_props_, (objs,), "Properties")
-            ids = self._time_func(self.tracker.process_frame, (objs,), "Tracker")
-            self._add_ids(objs, ids)
+            self._time_func(self.tracker.process_frame_, (objs,), "Tracker")
             self._time_func(self._detect_relations_, (frame,), "Relations")
 
         self._time_func(self._detect_events_, (video,), "Events")
 
         return video
-
-    @staticmethod
-    def _add_ids(objs, ids):
-        for idx, obj in enumerate(objs):
-            obj.id = ids[idx]
 
     def _extract_objs(self, frames):
         """

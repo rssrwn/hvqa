@@ -45,8 +45,6 @@ class ASPEventDetector(_AbsEventDetector):
         # Configure the solver
         config = ctl.configuration
         config.solve.models = 0
-
-        # Note: CLingo only returns a single optimal answer set
         config.solve.opt_mode = "optN"
 
         ctl.ground([("base", [])])
@@ -62,9 +60,6 @@ class ASPEventDetector(_AbsEventDetector):
         self._video_info.unlink()
 
         assert len(models) != 0, "ASP event detection program is unsatisfiable"
-
-        # if len(models) == 0:
-        #     print("WARNING: Event detection ASP program is unsatisfiable")
 
         if len(models) > 1:
             print("WARNING: Event detection ASP program contains multiple answer sets. Choosing one answer...")

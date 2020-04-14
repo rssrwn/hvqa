@@ -21,19 +21,24 @@ class ObjTracker:
         self._hidden_objects = deque()
         self._timeouts = deque()
 
-    def process_frame(self, objs):
+    def process_frame_(self, objs):
         """
         Process a frame (list of objects)
         Returns object ids which correspond to the tracker's best guess of the object in the frame
+        Note: Updates objs in-place
 
         :param objs: List of Obj objects
         :return: List indices (len = len(objs))
         """
 
         if self._objs is None:
-            return self._initial_frame(objs)
+            ids = self._initial_frame(objs)
         else:
-            return self._process_next_frame(objs)
+            ids = self._process_next_frame(objs)
+
+        # Assign ids
+        for idx, obj in enumerate(objs):
+            obj.id = ids[idx]
 
     def _initial_frame(self, objs):
         self._objs = objs
@@ -106,7 +111,8 @@ class ObjTracker:
 
         match_objs = []
         for idx, obj_ in objs:
-            if obj.cls == obj_.cls and self.close_obj(obj, obj_):
+            if obj.cls == obj_.cls and self.close_obj(obj, obj_) and \
+                    (obj.rot == obj_.rot or self._close_pos(obj, obj_)):
                 match_objs.append((idx, obj_))
 
         if len(match_objs) == 0:
@@ -137,6 +143,10 @@ class ObjTracker:
         x2, y2, _, _ = obj2.pos
         close = abs(x1 - x2) <= self._max_movement and abs(y1 - y2) <= self._max_movement
         return close
+
+    def _close_pos(self, obj1, obj2):
+        dist = self.dist(obj1, obj2)
+        return dist <= 3
 
     @staticmethod
     def dist(obj1, obj2):

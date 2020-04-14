@@ -61,14 +61,16 @@ class ObjTrackerTest(unittest.TestCase):
     def test_process_frame_initial_frame(self):
         objs = [obj1, obj2, obj3, obj4, obj5]
         exp_idxs = [0, 1, 2, 3, 4]
-        idxs = self.tracker.process_frame(objs)
+        self.tracker.process_frame_(objs)
+        idxs = [obj.id for obj in objs]
         self.assertEqual(exp_idxs, idxs)
 
     def test_process_frame_no_change(self):
         objs = [obj1, obj2, obj3, obj4, obj5]
         exp_idxs = [0, 1, 2, 3, 4]
         for _ in range(2):
-            idxs = self.tracker.process_frame(objs)
+            self.tracker.process_frame_(objs)
+            idxs = [obj.id for obj in objs]
             self.assertEqual(exp_idxs, idxs)
 
     def test_process_frame_moved_obj(self):
@@ -104,7 +106,9 @@ class ObjTrackerTest(unittest.TestCase):
     def _process_frames(self, frames):
         idxs = []
         for i in range(len(frames)):
-            ids = self.tracker.process_frame(frames[i])
+            frame = frames[i]
+            self.tracker.process_frame_(frame)
+            ids = [obj.id for obj in frame]
             idxs.append(ids)
 
         return idxs
