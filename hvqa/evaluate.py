@@ -1,4 +1,5 @@
 import argparse
+import time
 
 from hvqa.video_dataset import VideoDataset
 from hvqa.models.hardcoded import HardcodedModel
@@ -21,6 +22,8 @@ def _inc_in_map(coll, key):
 def evaluate(model, data, verbose=False):
     correct = {}
     incorrect = {}
+
+    start_time = time.time()
 
     print()
     for video_idx in range(len(data)):
@@ -49,13 +52,13 @@ def evaluate(model, data, verbose=False):
                           f"Answer: Predicted '{predicted}', actual '{actual}'")
 
         acc = video_correct / len(questions)
-        print(f"Video [{video_idx:4}/{len(data):4}] -- {video_correct:2} / {len(questions):2} -- Accuracy: {acc:.0%}")
+        print(f"Video [{video_idx+1:4}/{len(data):4}] -- {video_correct:2} / {len(questions):2} -- Accuracy: {acc:.0%}")
 
     q_types = list(set(correct.keys()).union(set(incorrect.keys())))
     sorted(q_types)
 
-    print("Results:")
-    print(f"\n{'Question Type':<20}{'Correct':<15}{'Incorrect':<15}Accuracy")
+    print("\nResults:")
+    print(f"{'Question Type':<20}{'Correct':<15}{'Incorrect':<15}Accuracy")
     for q_type in q_types:
         num_correct = correct.get(q_type)
         num_correct = 0 if num_correct is None else num_correct
@@ -73,6 +76,9 @@ def evaluate(model, data, verbose=False):
     print(f"Accuracy: {acc:.3}%\n")
 
     model.print_timings()
+
+    end_time = time.time()
+    print(f"Total time: {end_time - start_time:.1f} seconds.\n")
 
 
 def main(data_dir, model_type):

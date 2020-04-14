@@ -3,7 +3,7 @@
 % Feature engineering
 obs_exists(Id, Frame) :- obs(class(_, Id), true, Frame).
 
-disappear(Id, Frame) :-
+obs_disappear(Id, Frame) :-
   obs_exists(Id, Frame),
   occurs(move(_), Frame),
   not obs_exists(Id, Frame+1),
@@ -19,11 +19,11 @@ nn_error(class(Class, Id), Frame) :-
   obs(class(Class, Id), Frame),
   not obs(class(Class, Id), 0).
 
-% One of the octopus' is an error if there are two
-% 1 { nn_error(class(octopus, Id1), Frame); nn_error(class(octopus), Id2) } 1 :-
-%   obs(class(octopus, Id1), Frame),
-%   obs(class(octopus, Id2), Frame),
-%   Id1 != Id2.
+% If there are two octopuses one of them is an error
+1 { nn_error(class(octopus, Id1), Frame); nn_error(class(octopus), Id2) } 1 :-
+  obs(class(octopus, Id1), Frame),
+  obs(class(octopus, Id2), Frame),
+  Id1 != Id2.
 
 % If an object is detected in error, assume all properties are erroneous
 error_obj(Id, Frame) :- nn_error(class(_, Id), Frame).
@@ -46,11 +46,11 @@ obs(exists(Id), false, I) :-
   step(I).
 
 % Reality check axioms
-% :- obs(F, true, I), -holds(F, I).
-% :- obs(exists(Id), false, I), holds(exists(Id), I).
+:- obs(class(octopus, Id), true, I), occurs(nothing(Id), I).
+:- obs(exists(Id), false, I), holds(exists(Id), I).
 
-:~ obs(F, true, I), -holds(F, I). [1@2, F, I]
-:~ obs(exists(Id), false, I), holds(exists(Id), I). [1@1, exists(Id), I]
+:~ obs(F, true, I), -holds(F, I). [1@1, F, I]  % TODO Change back priority 2
+% :~ obs(exists(Id), false, I), holds(exists(Id), I). [1@1, exists(Id), I]
 
 % Generate possible events
 occurs(A, I) : action(A) :- step(I+1), I >= 0.

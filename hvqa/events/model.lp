@@ -169,19 +169,19 @@ holds(colour(New, Id), I+1) :- change_colour(_, New, Id, I).
 
 % Event definitions
 event(eat_fish(Octo), Frame) :-
-  disappear(Fish, Frame),
+  obs_disappear(Fish, Frame),
   holds(class(fish, Fish), Frame),
   occurs(move(Octo), Frame).
 
 event(eat_bag(Octo), Frame) :-
-  disappear(Bag, Frame),
+  obs_disappear(Bag, Frame),
   holds(class(bag, Bag), Frame),
   occurs(move(Octo), Frame).
 
 % Definition for exists
 -holds(exists(Id), I+1) :-
   holds(exists(Id), I),
-  disappear(Id, I),
+  obs_disappear(Id, I),
   step(I+1).
 
 -occurs(move(Id), I) :- -holds(exists(Id), I).
