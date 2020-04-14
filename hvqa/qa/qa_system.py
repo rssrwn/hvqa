@@ -147,7 +147,7 @@ class HardcodedASPQASystem(_AbsQASystem):
             ans_strs[q_idx] = ans_str
 
         # Cleanup temp file
-        # self._video_info.unlink()
+        self._video_info.unlink()
 
         return ans_strs
 

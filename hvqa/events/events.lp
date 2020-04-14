@@ -47,8 +47,8 @@ obs(exists(Id), false, I) :-
 
 % Reality check axioms
 :- obs(class(octopus, Id), true, I), occurs(nothing(Id), I).
-:- obs(exists(Id), false, I), holds(exists(Id), I).
-:~ obs(F, true, I), -holds(F, I). [1@1, F, I]
+:~ obs(exists(Id), false, I), holds(exists(Id), I). [1@1, exists(Id), I]
+:~ obs(F, true, I), -holds(F, I). [1@2, F, I]
 
 % Generate possible events
 occurs(A, I) : action(A) :- step(I+1), I >= 0.

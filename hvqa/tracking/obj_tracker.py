@@ -111,8 +111,7 @@ class ObjTracker:
 
         match_objs = []
         for idx, obj_ in objs:
-            if obj.cls == obj_.cls and self.close_obj(obj, obj_) and \
-                    (obj.rot == obj_.rot or self._close_pos(obj, obj_)):
+            if obj.cls == obj_.cls and self.close_obj(obj, obj_):
                 match_objs.append((idx, obj_))
 
         if len(match_objs) == 0:

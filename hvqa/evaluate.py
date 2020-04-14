@@ -3,6 +3,7 @@ import time
 
 from hvqa.video_dataset import VideoDataset
 from hvqa.models.hardcoded import HardcodedModel
+from hvqa.models.visualise import Visualiser
 
 
 DETECTOR_PATH = "saved-models/detector-e2e-v1_0/after_20_epochs.pt"
@@ -69,11 +70,11 @@ def evaluate(model, data, verbose=False):
 
     num_correct = sum(correct.values())
     total = num_correct + sum(incorrect.values())
-    acc = (num_correct / total) * 100
+    acc = (num_correct / total)
 
     print(f"\nNum correct: {num_correct}")
     print(f"Total: {total}")
-    print(f"Accuracy: {acc:.3}%\n")
+    print(f"Accuracy: {acc:.1%}\n")
 
     model.print_timings()
 
@@ -91,6 +92,11 @@ def main(data_dir, model_type):
         return
 
     evaluate(model, data, verbose=False)
+
+    # video_idx = 7
+    # frames, video_dict = data[video_idx]
+    # visual = Visualiser(model)
+    # visual.visualise(frames)
 
 
 if __name__ == '__main__':
