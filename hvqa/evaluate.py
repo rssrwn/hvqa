@@ -84,7 +84,7 @@ def main(data_dir, model_type):
         print("That type of model is not supported")
         return
 
-    evaluate(model, data, verbose=True)
+    evaluate(model, data, verbose=False)
 
 
 if __name__ == '__main__':
