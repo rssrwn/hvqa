@@ -93,7 +93,7 @@ def main(data_dir, model_type):
 
     evaluate(model, data, verbose=True)
 
-    # video_idx = 78
+    # video_idx = 5
     # frames, video_dict = data[video_idx]
     # visual = Visualiser(model)
     # visual.visualise(frames)

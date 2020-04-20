@@ -46,8 +46,10 @@ class Obj:
 class Frame:
     def __init__(self, objs):
         self.objs = objs
+        self._id_idx_map = self._find_duplicate_idxs()
         self.relations = []
-        self._obj_id_map = {obj.id: obj for obj in objs}
+        self._id_idx_map = {}
+        self._try_id_idx_map = {}
 
     def set_relation(self, idx1, idx2, relation):
         assert relation in RELATIONS, f"Relation arg must be one of {RELATIONS}"
@@ -57,26 +59,28 @@ class Frame:
         self.relations.append((id1, id2, relation))
 
     def gen_asp_encoding(self, frame_num):
-        err_idxs = self._find_duplicate_idxs()
-
         enc = ""
 
-        err_id = 0
-        idx_err_id_map = {}
-        for id_, idxs in err_idxs.items():
-            choice_str = "{ "
+        try_id = 0
+        try_id_idx_map = {}
+        idx_try_id_map = {}
+        for id_, idxs in self._id_idx_map.items():
+            choice_str = "1 {"
             for idx in idxs:
-                choice_str += f"err_obj({err_id}) ; "
-                idx_err_id_map[idx] = err_id
-                err_id += 1
+                choice_str += f" try_obj({try_id}, {frame_num}) ;"
+                try_id_idx_map[try_id] = idx
+                idx_try_id_map[idx] = try_id
+                try_id += 1
 
-            choice_str = choice_str[:-2] + " }.\n"
+            choice_str = choice_str[:-1] + "} 1.\n"
             enc += choice_str
 
+        self._try_id_idx_map = try_id_idx_map
+
         for idx, obj in enumerate(self.objs):
-            err_id = idx_err_id_map.get(idx)
+            err_id = idx_try_id_map.get(idx)
             if err_id is not None:
-                body_str = f"err_obj({err_id})"
+                body_str = f"try_obj({err_id}, {frame_num})"
                 enc += obj.gen_asp_encoding(frame_num, body_str) + "\n"
             else:
                 enc += obj.gen_asp_encoding(frame_num) + "\n"
@@ -87,6 +91,13 @@ class Frame:
         return enc
 
     def _find_duplicate_idxs(self):
+        """
+        For each id where there is uncertainty about which object is correct
+        Finds the list of indices (into the objs list) competing for the id
+
+        :return: Map from id to list of indices into objs list
+        """
+
         ids = {}
         for idx, obj in enumerate(self.objs):
             idxs = ids.get(obj.id)
@@ -96,6 +107,28 @@ class Frame:
 
         dup_ids = {id_: idxs for id_, idxs in ids.items() if len(idxs) > 1}
         return dup_ids
+
+    def set_correct_objs(self, try_ids):
+        """
+        Remove error objects from frame
+        <try_ids> are the correct identifiers set using a choice rule in the ASP encoding
+
+        :param try_ids: List of identifiers
+        """
+
+        remove_idxs = set()
+        for try_id in try_ids:
+            obj_idx = self._try_id_idx_map[try_id]
+            obj_id = self.objs[obj_idx].id
+            dup_idxs = self._id_idx_map[obj_id]
+            remove_idxs = remove_idxs.union(set([idx for idx in dup_idxs if idx != obj_idx]))
+
+        objs = [obj for idx, obj in enumerate(self.objs) if idx not in remove_idxs]
+
+        self.objs = objs
+        self._id_idx_map = self._find_duplicate_idxs()
+        self._id_idx_map = {}
+        self._try_id_idx_map = {}
 
 
 class Video:
