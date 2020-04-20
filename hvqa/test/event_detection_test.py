@@ -84,12 +84,6 @@ class EventDetectionTest(unittest.TestCase):
         exp_events = [[(0, "rotate_left")]]
         self.assertEqual(exp_events, events)
 
-    def test_nothing_event(self):
-        frames = [frame1, frame1]
-        events = self.detector.detect_events(frames)
-        exp_events = [[(0, "nothing")]]
-        self.assertEqual(exp_events, events)
-
     def test_multiple_events(self):
         frames = [frame1, frame2, frame3]
         events = self.detector.detect_events(frames)
