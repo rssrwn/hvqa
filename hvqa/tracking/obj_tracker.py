@@ -36,9 +36,9 @@ class ObjTracker:
             ids = self._initial_frame(objs)
         else:
             if self.err_corr:
-                ids = self._process_next_frame(objs)
-            else:
                 ids = self._process_next_frame_err_corr(objs)
+            else:
+                ids = self._process_next_frame(objs)
 
         # Assign ids
         for idx, obj in enumerate(objs):
@@ -117,21 +117,23 @@ class ObjTracker:
 
         ids = []
         for curr_obj_idx, idx in enumerate(idxs):
-            # Object did appear in previous frame -> assign same id
-            id_ = self._ids[idx]
-
             # Object did not appear in previous frame
             if idx is None:
-                curr_obj = objs[curr_obj_idx]
-                hidden_id = self._find_best_match(curr_obj, self._hidden_objects)
+                new_obj = objs[curr_obj_idx]
+                hidden_id = self._find_best_match(new_obj, self._hidden_objects)
 
-                # If no hidden objects try to assign an existing id
-                id_ = hidden_id
+                # If no hidden objects match assign a new id
+                # Otherwise assign hidden id
                 if hidden_id is None:
                     ids.append(self._next_id)
                     self._next_id += 1
+                else:
+                    ids.append(hidden_id)
 
-            ids.append(id_)
+            # Object did appear in previous frame -> assign same id
+            else:
+                id_ = self._ids[idx]
+                ids.append(id_)
 
         self._update_hidden(disappeared)
         self._objs = objs
@@ -140,27 +142,12 @@ class ObjTracker:
 
         return ids
 
-    def _find_matches(self, obj, objs):
-        match_objs = []
-        for obj_ in objs:
-            if obj.cls == obj_.cls:
-                if obj.is_static and self._close_pos(obj, obj_):
-                    match_objs.append(obj_)
-                elif (not obj.is_static) and self.close_obj(obj, obj_):
-                    match_objs.append(obj_)
-
-        match_objs = [(self.dist(obj, obj_), obj_) for obj_ in match_objs]
-        match_objs = sorted(match_objs, key=lambda dist_obj: dist_obj[0])
-        match_objs = [obj_ for dist, obj_ in match_objs]
-        return match_objs
-
     def _find_best_match(self, obj, objs):
         """
         Find the object in <objs> which best matches <obj>
-
         :param obj: Obj
-        :param objs: List of pairs [(id, Obj)]
-        :return: Id of best matching object
+        :param objs: List of pairs [(idx, Obj)]
+        :return: Idx of best matching object
         """
 
         match_objs = []
@@ -178,6 +165,29 @@ class ObjTracker:
             idx = dists[0][0]
 
         return idx
+
+    def _find_matches(self, obj, objs):
+        """
+        Find all objects in <objs> which match with <obj>
+        Two objects match if they have the same class and are close (as defined in close_obj)
+
+        :param obj: Obj
+        :param objs: List of Objs
+        :return: List of Objs
+        """
+
+        match_objs = []
+        for obj_ in objs:
+            if obj.cls == obj_.cls:
+                if obj.is_static and self._close_pos(obj, obj_):
+                    match_objs.append(obj_)
+                elif (not obj.is_static) and self.close_obj(obj, obj_):
+                    match_objs.append(obj_)
+
+        match_objs = [(self.dist(obj, obj_), obj_) for obj_ in match_objs]
+        match_objs = sorted(match_objs, key=lambda dist_obj: dist_obj[0])
+        match_objs = [obj_ for dist, obj_ in match_objs]
+        return match_objs
 
     def _find_close_matches(self, obj, objs):
         """
