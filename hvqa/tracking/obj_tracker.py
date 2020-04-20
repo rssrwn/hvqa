@@ -18,7 +18,8 @@ class ObjTracker:
         self._objs = None
         self.frame_num = None
         self._max_hidden_frames = 5
-        self._max_movement = 20
+        self._max_movement = 30
+        self._max_close_dist = 5
         self._hidden_objects = deque()
         self._timeouts = deque()
 
@@ -87,6 +88,9 @@ class ObjTracker:
                 disappeared.append(obj)
 
         self._update_hidden(disappeared)
+        self._objs = objs
+        self._ids = ids
+        self.frame_num += 1
 
         return ids
 
@@ -225,7 +229,7 @@ class ObjTracker:
 
     def _close_pos(self, obj1, obj2):
         dist = self.dist(obj1, obj2)
-        return dist <= 3
+        return dist <= self._max_close_dist
 
     @staticmethod
     def dist(obj1, obj2):
