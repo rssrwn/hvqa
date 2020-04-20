@@ -111,7 +111,7 @@ class ObjTrackerTest(unittest.TestCase):
         objs2 = [obj1, obj1_err, obj2, obj5]
         objs3 = [obj1, obj2, obj5]
         exp_ids = [[0, 1, 2], [0, 0, 1, 2], [0, 1, 2]]
-        ids = self._process_frames([objs1, objs2, objs3])
+        ids = self._process_frames([objs1, objs2, objs3], err_corr=True)
         self.assertEqual(exp_ids, ids)
 
     def test_err_corr_move(self):
@@ -120,14 +120,18 @@ class ObjTrackerTest(unittest.TestCase):
         objs3 = [obj1_moved, obj1_err_moved, obj2, obj5]
         objs4 = [obj1, obj2, obj5]
         exp_ids = [[0, 1, 2], [0, 0, 1, 2], [0, 0, 1, 2], [0, 1, 2]]
-        ids = self._process_frames([objs1, objs2, objs3, objs4])
+        ids = self._process_frames([objs1, objs2, objs3, objs4], err_corr=True)
         self.assertEqual(exp_ids, ids)
 
-    def _process_frames(self, frames):
+    def _process_frames(self, frames, err_corr=False):
         idxs = []
         for i in range(len(frames)):
             frame = frames[i]
-            self.tracker.process_frame_(frame)
+            if err_corr:
+                self.tracker_err_corr.process_frame_(frame)
+            else:
+                self.tracker.process_frame_(frame)
+
             ids = [obj.id for obj in frame]
             idxs.append(ids)
 
