@@ -91,7 +91,7 @@ def main(data_dir, model_type):
         print("That type of model is not supported")
         return
 
-    evaluate(model, data, verbose=False)
+    evaluate(model, data, verbose=True)
 
     # video_idx = 78
     # frames, video_dict = data[video_idx]

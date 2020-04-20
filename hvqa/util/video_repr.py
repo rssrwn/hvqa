@@ -24,7 +24,7 @@ class Obj:
         assert self.pos is not None, "Position must be set in order to extract object image"
         self.img = collect_obj(img, self.pos)
 
-    def gen_asp_encoding(self, frame_num):
+    def gen_asp_encoding(self, frame_num, body=None):
         assert self.cls is not None, "Class must be set"
         assert self.pos is not None, "Position must be set"
         assert self.rot is not None, "Rotation must be set"
@@ -33,11 +33,12 @@ class Obj:
 
         self.pos = tuple(map(int, self.pos))
 
+        body_str = "" if body is None else " :- " + body
         frame_num = str(frame_num)
-        encoding = f"obs(class({self.cls}, {self.id}), {frame_num}).\n" \
-                   f"obs(position({str(self.pos)}, {self.id}), {frame_num}).\n" \
-                   f"obs(rotation({str(self.rot)}, {self.id}), {frame_num}).\n" \
-                   f"obs(colour({self.colour}, {self.id}), {frame_num}).\n"
+        encoding = f"obs(class({self.cls}, {self.id}), {frame_num}){body_str}.\n" \
+                   f"obs(position({str(self.pos)}, {self.id}), {frame_num}){body_str}.\n" \
+                   f"obs(rotation({str(self.rot)}, {self.id}), {frame_num}){body_str}.\n" \
+                   f"obs(colour({self.colour}, {self.id}), {frame_num}){body_str}.\n"
 
         return encoding
 
@@ -56,14 +57,45 @@ class Frame:
         self.relations.append((id1, id2, relation))
 
     def gen_asp_encoding(self, frame_num):
+        err_idxs = self._find_duplicate_idxs()
+
         enc = ""
-        for obj in self.objs:
-            enc += obj.gen_asp_encoding(frame_num) + "\n"
+
+        err_id = 0
+        idx_err_id_map = {}
+        for id_, idxs in err_idxs.items():
+            choice_str = "{ "
+            for idx in idxs:
+                choice_str += f"err_obj({err_id}), "
+                idx_err_id_map[idx] = err_id
+                err_id += 1
+
+            choice_str = choice_str[:-2] + " }.\n"
+            enc += choice_str
+
+        for idx, obj in enumerate(self.objs):
+            err_id = idx_err_id_map.get(idx)
+            if err_id is not None:
+                body_str = f"err_obj({err_id})"
+                enc += obj.gen_asp_encoding(frame_num, body_str) + "\n"
+            else:
+                enc += obj.gen_asp_encoding(frame_num) + "\n"
 
         for id1, id2, rel in self.relations:
             enc += f"obs({rel}({str(id1)}, {str(id2)}), {str(frame_num)}).\n"
 
         return enc
+
+    def _find_duplicate_idxs(self):
+        ids = {}
+        for idx, obj in enumerate(self.objs):
+            idxs = ids.get(obj.id)
+            idxs = [] if idxs is None else idxs
+            idxs.append(idx)
+            ids[obj.id] = idxs
+
+        dup_ids = {id_: idxs for id_, idxs in ids.items() if len(idxs) > 1}
+        return dup_ids
 
 
 class Video:
