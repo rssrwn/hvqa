@@ -9,7 +9,8 @@ class ObjTracker:
     and assign their respective ids
     """
 
-    def __init__(self):
+    def __init__(self, err_corr=False):
+        self.err_corr = err_corr
         self.reset()
 
     def reset(self):
@@ -34,7 +35,10 @@ class ObjTracker:
         if self._objs is None:
             ids = self._initial_frame(objs)
         else:
-            ids = self._process_next_frame(objs)
+            if self.err_corr:
+                ids = self._process_next_frame(objs)
+            else:
+                ids = self._process_next_frame_err_corr(objs)
 
         # Assign ids
         for idx, obj in enumerate(objs):
@@ -46,6 +50,44 @@ class ObjTracker:
         ids = list(range(len(objs)))
         self._ids = ids
         self._next_id = len(objs)
+        return ids
+
+    def _process_next_frame_err_corr(self, objs):
+        ids = []
+        for obj in objs:
+            matches = self._find_matches(obj, self._objs)
+
+            # Assign a new id if the object is new (and can't be found in hidden objects)
+            if len(matches) == 0:
+                hidden_matches = self._find_matches(obj, self._hidden_objects)
+                if len(hidden_matches) == 0:
+                    id_ = self._next_id
+                    self._next_id += 1
+                else:
+                    id_ = hidden_matches[0].id
+
+            elif len(matches) == 1:
+                id_ = matches[0].id
+
+            # Assign a single id if there are multiple matches
+            else:
+                id_ = matches[0].id
+                if len(set([obj_.id for obj_ in matches])) > 1:
+                    print("WARNING: Multiple ids from previous frame match with current object")
+
+            ids.append(id_)
+
+        # Find disappeared objects
+        old_ids = set([obj_.id for obj_ in self._objs])
+        disappeared_ids = old_ids - set(ids)
+
+        disappeared = []
+        for obj in self._objs:
+            if obj.id in disappeared_ids:
+                disappeared.append(obj)
+
+        self._update_hidden(disappeared)
+
         return ids
 
     def _process_next_frame(self, objs):
@@ -75,23 +117,21 @@ class ObjTracker:
 
         ids = []
         for curr_obj_idx, idx in enumerate(idxs):
+            # Object did appear in previous frame -> assign same id
+            id_ = self._ids[idx]
+
             # Object did not appear in previous frame
             if idx is None:
-                new_obj = objs[curr_obj_idx]
-                hidden_id = self._find_best_match(new_obj, self._hidden_objects)
+                curr_obj = objs[curr_obj_idx]
+                hidden_id = self._find_best_match(curr_obj, self._hidden_objects)
 
-                # If no hidden objects match assign a new id
-                # Otherwise assign hidden id
+                # If no hidden objects try to assign an existing id
+                id_ = hidden_id
                 if hidden_id is None:
                     ids.append(self._next_id)
                     self._next_id += 1
-                else:
-                    ids.append(hidden_id)
 
-            # Object did appear in previous frame -> assign same id
-            else:
-                id_ = self._ids[idx]
-                ids.append(id_)
+            ids.append(id_)
 
         self._update_hidden(disappeared)
         self._objs = objs
@@ -100,13 +140,27 @@ class ObjTracker:
 
         return ids
 
+    def _find_matches(self, obj, objs):
+        match_objs = []
+        for obj_ in objs:
+            if obj.cls == obj_.cls:
+                if obj.is_static and self._close_pos(obj, obj_):
+                    match_objs.append(obj_)
+                elif (not obj.is_static) and self.close_obj(obj, obj_):
+                    match_objs.append(obj_)
+
+        match_objs = [(self.dist(obj, obj_), obj_) for obj_ in match_objs]
+        match_objs = sorted(match_objs, key=lambda dist_obj: dist_obj[0])
+        match_objs = [obj_ for dist, obj_ in match_objs]
+        return match_objs
+
     def _find_best_match(self, obj, objs):
         """
         Find the object in <objs> which best matches <obj>
 
         :param obj: Obj
-        :param objs: List of pairs [(idx, Obj)]
-        :return: Idx of best matching object
+        :param objs: List of pairs [(id, Obj)]
+        :return: Id of best matching object
         """
 
         match_objs = []
@@ -124,6 +178,22 @@ class ObjTracker:
             idx = dists[0][0]
 
         return idx
+
+    def _find_close_matches(self, obj, objs):
+        """
+        Find all objects in <objs> which both match and are very close to <obj>
+
+        :param obj: Obj
+        :param objs: List of pairs [(id, Obj)]
+        :return: List of ids of close, matched objects
+        """
+
+        match_objs = []
+        for id_, obj_ in objs:
+            if obj.cls == obj_.cls and self._close_pos(obj, obj_):
+                match_objs.append(id_)
+
+        return match_objs
 
     def _update_hidden(self, disappeared):
         frame_to_remove = self.frame_num - self._max_hidden_frames
