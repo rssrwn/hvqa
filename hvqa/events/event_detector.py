@@ -76,12 +76,29 @@ class ASPEventDetector(_AbsEventDetector):
 
         # Parse event info from ASP result
         events = [[]] * (len(frames) - 1)
+        correct_objs = {}
         for sym in model:
+            # Get actions from occurs predicate
             if sym.name == "occurs":
                 event, frame = sym.arguments
                 frame = frame.number
                 event_name = event.name
                 obj_id = event.arguments[0].number
                 events[frame] = events[frame] + [(obj_id, event_name)]
+
+            # Work out which objects are nn errors from err_id predicate
+            elif sym.name == "try_obj":
+                err_id, frame = sym.arguments
+                err_id = err_id.number
+                frame = frame.number
+                frame_err_ids = correct_objs.get(frame)
+                frame_err_ids = [] if frame_err_ids is None else frame_err_ids
+                frame_err_ids.append(err_id)
+                correct_objs[frame] = frame_err_ids
+
+        # Set correct objects in each frame, error objects are removed
+        for frame_num, try_ids in correct_objs.items():
+            frame = frames[frame_num]
+            frame.set_correct_objs(try_ids)
 
         return events
