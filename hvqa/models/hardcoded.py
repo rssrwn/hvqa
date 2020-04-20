@@ -14,6 +14,7 @@ class HardcodedModel(_AbsModel):
     def __init__(self, detector_path, prop_classifier_path, event_asp_dir, qa_system_asp_dir):
         self.detector_path = detector_path
         self.prop_classifier_path = prop_classifier_path
+        self.tracker_err_correction = True
         self.event_asp_dir = event_asp_dir
         self.qa_system_asp_dir = qa_system_asp_dir
 
@@ -34,7 +35,7 @@ class HardcodedModel(_AbsModel):
         return prop_extractor
 
     def _setup_tracker(self):
-        tracker = ObjTracker()
+        tracker = ObjTracker(err_corr=self.tracker_err_correction)
         return tracker
 
     def _setup_relation_classifier(self):

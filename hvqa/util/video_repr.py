@@ -66,7 +66,7 @@ class Frame:
         for id_, idxs in err_idxs.items():
             choice_str = "{ "
             for idx in idxs:
-                choice_str += f"err_obj({err_id}), "
+                choice_str += f"err_obj({err_id}) ; "
                 idx_err_id_map[idx] = err_id
                 err_id += 1
 
