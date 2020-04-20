@@ -8,6 +8,7 @@ class Obj:
 
         self.cls = cls
         self.pos = pos
+        self.is_static = cls != "octopus"
         self.rot = None
         self.colour = None
         self.id = None
