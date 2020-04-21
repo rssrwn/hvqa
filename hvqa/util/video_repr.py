@@ -88,6 +88,8 @@ class Frame:
         for id1, id2, rel in self.relations:
             enc += f"obs({rel}({str(id1)}, {str(id2)}), {str(frame_num)}).\n"
 
+        enc += "\n"
+
         return enc
 
     def _find_duplicate_idxs(self):

@@ -28,9 +28,9 @@ class HardcodedASPQASystem(_AbsQASystem):
 
         asp_template_0 = "answer({{q_idx}}, {prop}, V) :- {asp_obj}, holds({prop}(V, Id), {frame_idx})."
 
-        asp_template_1 = "related :- holds({rel}(Id1, Id2), {frame_idx}), {asp_obj1}, {asp_obj2}. \n" \
-                         "answer({{q_idx}}, yes) :- related. \n" \
-                         "answer({{q_idx}}, no) :- not related."
+        asp_template_1 = "related({{q_idx}}) :- holds({rel}(Id1, Id2), {frame_idx}), {asp_obj1}, {asp_obj2}. \n" \
+                         "answer({{q_idx}}, yes) :- related({{q_idx}}). \n" \
+                         "answer({{q_idx}}, no) :- not related({{q_idx}})."
 
         asp_template_2 = "answer({{q_idx}}, move) :- occurs(move(Id), {frame_idx}). \n" \
                          "answer({{q_idx}}, rotate_left) :- occurs(rotate_left(Id), {frame_idx}). \n" \
@@ -147,7 +147,7 @@ class HardcodedASPQASystem(_AbsQASystem):
             ans_strs[q_idx] = ans_str
 
         # Cleanup temp file
-        # self._video_info.unlink()
+        self._video_info.unlink()
 
         return ans_strs
 
