@@ -1,8 +1,10 @@
 import math
 from collections import deque
 
+from hvqa.util.interfaces import Component
 
-class ObjTracker:
+
+class ObjTracker(Component):
     """
     Class used for assigning ids to each object in a frame, and tracking objects through frames.
     Ids are assigned initially and then the class will attempt to track objects in successive frames
@@ -23,7 +25,20 @@ class ObjTracker:
         self._hidden_objects = deque()
         self._timeouts = deque()
 
-    def process_frame_(self, objs):
+    def run_(self, video):
+        for frame in video.frames:
+            self._process_frame_(frame.objs)
+
+    def train(self, data):
+        pass
+
+    def load(self, path):
+        pass
+
+    def save(self, path):
+        pass
+
+    def _process_frame_(self, objs):
         """
         Process a frame (list of objects)
         Returns object ids which correspond to the tracker's best guess of the object in the frame

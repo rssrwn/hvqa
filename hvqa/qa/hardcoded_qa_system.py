@@ -6,33 +6,7 @@ from hvqa.util.definitions import CLASSES, PROP_LOOKUP
 from hvqa.util.func import format_prop_val, format_prop_str, event_to_asp_str, asp_str_to_event, format_occ
 
 
-class _AbsQASystem(Component):
-    def answer(self, video, question, q_type):
-        """
-        Answer a question on a video
-
-        :param video: Video obj
-        :param question: Question: str
-        :param q_type: Question type: int
-        :return: Answer: str
-        """
-
-        raise NotImplementedError
-
-    def run_(self, video):
-        raise NotImplementedError()
-
-    def train(self, data):
-        raise NotImplementedError()
-
-    def load(self, path):
-        raise NotImplementedError()
-
-    def save(self, path):
-        raise NotImplementedError()
-
-
-class HardcodedASPQASystem(_AbsQASystem):
+class HardcodedASPQASystem(Component):
     def __init__(self, asp_dir):
         path = Path(asp_dir)
         self.qa_system = path / "qa.lp"
@@ -94,7 +68,8 @@ class HardcodedASPQASystem(_AbsQASystem):
         }
 
     def run_(self, video):
-        pass
+        answers = self._answer(video)
+        video.set_gen_ans(answers)
 
     def train(self, data):
         pass
@@ -105,7 +80,17 @@ class HardcodedASPQASystem(_AbsQASystem):
     def save(self, path):
         pass
 
-    def answer(self, video, questions, q_types):
+    def _answer(self, video):
+        """
+        Answer a question on a video
+
+        :param video: Video obj
+        :return: Answers: [str]
+        """
+
+        questions = video.questions
+        q_types = video.q_types
+
         # Generate ASP encoding for video and questions
         asp_enc = video.gen_asp_encoding()
         for q_idx, question in enumerate(questions):

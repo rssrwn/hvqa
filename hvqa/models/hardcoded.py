@@ -2,11 +2,11 @@ from hvqa.models.abs_model import _AbsModel
 from hvqa.detection.models import DetectionBackbone, DetectionModel
 from hvqa.detection.detector import NeuralDetector
 from hvqa.properties.models import PropertyExtractionModel
-from hvqa.properties.prop_extractor import NeuralPropExtractor
+from hvqa.properties.neural_prop_extractor import NeuralPropExtractor
 from hvqa.tracking.obj_tracker import ObjTracker
-from hvqa.relations.obj_relations import HardcodedRelationClassifier
-from hvqa.events.event_detector import ASPEventDetector
-from hvqa.qa.qa_system import HardcodedASPQASystem
+from hvqa.relations.hardcoded_relations import HardcodedRelationClassifier
+from hvqa.events.asp_event_detector import ASPEventDetector
+from hvqa.qa.hardcoded_qa_system import HardcodedASPQASystem
 from hvqa.util.func import load_model
 
 

@@ -1,10 +1,21 @@
 from hvqa.util.definitions import CLOSE_TO, RELATIONS
 from hvqa.util.interfaces import Component
-from hvqa.util.video_repr import Video
 
 
-class _AbsRelationClassifier(Component):
-    def detect_relations(self, objs):
+class HardcodedRelationClassifier(Component):
+    def __init__(self):
+        super(HardcodedRelationClassifier, self).__init__()
+
+        self.relation_funcs = [self._close_to]
+
+    def run_(self, video):
+        for frame in video.frames:
+            objs = frame.objs
+            rels = self._detect_relations(objs)
+            for idx1, idx2, rel in rels:
+                frame.set_relation(idx1, idx2, rel)
+
+    def _detect_relations(self, objs):
         """
         Detect binary relations between pairs of objects
 
@@ -12,28 +23,6 @@ class _AbsRelationClassifier(Component):
         :return: List of relations [(idx1, idx2, relation)]
         """
 
-        raise NotImplementedError
-
-    def run_(self, data):
-        assert type(data) == Video
-
-    def train(self, data):
-        raise NotImplementedError()
-
-    def load(self, path):
-        raise NotImplementedError()
-
-    def save(self, path):
-        raise NotImplementedError()
-
-
-class HardcodedRelationClassifier(_AbsRelationClassifier):
-    def __init__(self):
-        super(HardcodedRelationClassifier, self).__init__()
-
-        self.relation_funcs = [self._close_to]
-
-    def detect_relations(self, objs):
         rels = []
         for obj1_idx, obj1 in enumerate(objs):
             for obj2_idx, obj2 in enumerate(objs):

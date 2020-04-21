@@ -1,6 +1,6 @@
 import unittest
 
-from hvqa.qa.qa_system import HardcodedASPQASystem
+from hvqa.qa.hardcoded_qa_system import HardcodedASPQASystem
 from hvqa.util.video_repr import Video, Frame, Obj
 
 

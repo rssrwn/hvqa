@@ -13,39 +13,26 @@ _transform = T.Compose([
 ])
 
 
-class _AbsPropExtractor(Component):
-    def extract_props(self, obj_imgs):
-        """
-        Extracts properties of objects from images
-
-        :param obj_imgs: List of PIL images of objects
-        :return: List of tuple [(colour, rotation, class)]
-        """
-
-        raise NotImplementedError
-
-    def run_(self, data):
-        assert type(data) == list, "Input to property extractor component should be a list of PIL images of objects"
-
-        return self.extract_props(data)
-
-    def train(self, data):
-        raise NotImplementedError()
-
-    def load(self, path):
-        raise NotImplementedError()
-
-    def save(self, path):
-        raise NotImplementedError()
-
-
-class NeuralPropExtractor(_AbsPropExtractor):
+class NeuralPropExtractor(Component):
     def __init__(self, model):
         super(NeuralPropExtractor, self).__init__()
 
         self.model = model
 
-    def extract_props(self, obj_imgs):
+    def run_(self, video):
+        for frame in video.frames:
+            objs = frame.objs
+            obj_imgs = [obj.img for obj in objs]
+            props = self._extract_props(obj_imgs)
+            for idx, (colour, rot, cls) in enumerate(props):
+                obj = objs[idx]
+                obj.colour = colour
+                obj.rot = rot
+
+                # Uncomment the following to use obj type from property extractor
+                # obj.cls = cls
+
+    def _extract_props(self, obj_imgs):
         """
         Extracts properties of objects from images
 
