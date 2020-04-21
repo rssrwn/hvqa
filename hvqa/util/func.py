@@ -38,6 +38,17 @@ def load_model(model_class, path, *model_args):
     return model
 
 
+def save_model(model, path):
+    """
+    Save <model> to <path> using torch.save
+
+    :param model: Model to save (nn.Module)
+    :param path: Path to save to (str)
+    """
+
+    torch.save(model.state_dict(), path)
+
+
 def get_device():
     return torch.device("cuda:0") if _USE_GPU and torch.cuda.is_available() else torch.device("cpu")
 

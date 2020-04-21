@@ -11,9 +11,43 @@ class _AbsEvaluator:
 
 class Component:
     def run(self, data):
+        """
+        Run the component with some input <data>
+        The input and output can take any type (it is up to the component to check this)
+
+        :param data: Input to the component
+        :return: Output of the component
+        """
+
         raise NotImplementedError()
 
     def train(self, data):
+        """
+        Train the component with some training data <data>
+        The input can take any type
+        Nothing is returned
+
+        :param data: Training data
+        """
+
+        raise NotImplementedError()
+
+    def load(self, path):
+        """
+        Load the component from a file
+
+        :param path: Path to load from (str or Path obj)
+        """
+
+        raise NotImplementedError()
+
+    def save(self, path):
+        """
+        Save the component to a file
+
+        :param path: Path to save to (str or Path obj)
+        """
+
         raise NotImplementedError()
 
 

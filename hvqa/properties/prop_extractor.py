@@ -1,8 +1,10 @@
 import torch
 import torchvision.transforms as T
 
+from hvqa.properties.models import PropertyExtractionModel
 from hvqa.util.definitions import COLOURS, ROTATIONS, CLASSES
-from hvqa.util.func import get_device
+from hvqa.util.func import get_device, load_model, save_model
+from hvqa.util.interfaces import Component
 
 
 _transform = T.Compose([
@@ -11,7 +13,7 @@ _transform = T.Compose([
 ])
 
 
-class _AbsPropExtractor:
+class _AbsPropExtractor(Component):
     def extract_props(self, obj_imgs):
         """
         Extracts properties of objects from images
@@ -22,6 +24,20 @@ class _AbsPropExtractor:
 
         raise NotImplementedError
 
+    def run(self, data):
+        assert type(data) == list, "Input to property extractor component should be a list of PIL images of objects"
+
+        return self.extract_props(data)
+
+    def train(self, data):
+        raise NotImplementedError()
+
+    def load(self, path):
+        raise NotImplementedError()
+
+    def save(self, path):
+        raise NotImplementedError()
+
 
 class NeuralPropExtractor(_AbsPropExtractor):
     def __init__(self, model):
@@ -30,6 +46,13 @@ class NeuralPropExtractor(_AbsPropExtractor):
         self.model = model
 
     def extract_props(self, obj_imgs):
+        """
+        Extracts properties of objects from images
+
+        :param obj_imgs: List of PIL images of objects
+        :return: List of tuple [(colour, rotation, class)]
+        """
+
         obj_imgs = [_transform(img) for img in obj_imgs]
         obj_imgs_batch = torch.stack(obj_imgs)
 
@@ -48,3 +71,14 @@ class NeuralPropExtractor(_AbsPropExtractor):
 
         props = zip(colours, rotations, classes)
         return props
+
+    def train(self, data):
+        pass
+
+    def load(self, path):
+        model = load_model(PropertyExtractionModel, path)
+        model.eval()
+        self.model = model
+
+    def save(self, path):
+        save_model(self.model, path)
