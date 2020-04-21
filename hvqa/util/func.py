@@ -173,7 +173,7 @@ def asp_str_to_event(asp_event):
     elif asp_event == "eat_fish":
         event = "eat a fish"
     elif asp_event == "eat_bag":
-        event = "eat a fish"
+        event = "eat a bag"
     elif asp_event == "unknown":
         event = "unknown"
     else:

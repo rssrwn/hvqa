@@ -147,7 +147,7 @@ class HardcodedASPQASystem(_AbsQASystem):
             ans_strs[q_idx] = ans_str
 
         # Cleanup temp file
-        self._video_info.unlink()
+        # self._video_info.unlink()
 
         return ans_strs
 
@@ -156,7 +156,7 @@ class HardcodedASPQASystem(_AbsQASystem):
 
         prop, prop_val = args
 
-        # TODO Update dataset to use readable version of rotation (ef. upward-facing)
+        # TODO Update dataset to use readable version of rotation (eg. upward-facing)
         # prop_val = format_prop_str(prop, prop_val)
 
         ans_str = template.format(prop_val=prop_val)
