@@ -6,7 +6,6 @@ from pathlib import Path
 from PIL import Image
 
 from hvqa.util.exceptions import UnknownPropertyValueException
-from hvqa.util.definitions import EVENTS
 
 
 _USE_GPU = True

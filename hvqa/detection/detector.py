@@ -3,6 +3,7 @@ import torchvision.transforms as T
 
 from hvqa.util.video_repr import Obj, Frame, Video
 from hvqa.util.definitions import CLASSES
+from hvqa.util.func import get_device
 
 
 _transform = T.Compose([
@@ -31,6 +32,9 @@ class NeuralDetector(_AbsDetector):
     def detect_objs(self, frames):
         imgs_trans = [_transform(img) for img in frames]
         imgs_batch = torch.stack(imgs_trans)
+
+        device = get_device()
+        imgs_batch = imgs_batch.to(device)
 
         with torch.no_grad():
             detector_out = self.model(imgs_batch)
