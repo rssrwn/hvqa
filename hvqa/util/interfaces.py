@@ -10,13 +10,12 @@ class _AbsEvaluator:
 
 
 class Component:
-    def run(self, data):
+    def run_(self, video):
         """
-        Run the component with some input <data>
-        The input and output can take any type (it is up to the component to check this)
+        Run the component for a given video
+        Note: The function should modify the video obj in-place with the new information from the component
 
-        :param data: Input to the component
-        :return: Output of the component
+        :param video: Video obj
         """
 
         raise NotImplementedError()

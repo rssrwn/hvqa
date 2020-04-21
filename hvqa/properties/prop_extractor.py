@@ -24,7 +24,7 @@ class _AbsPropExtractor(Component):
 
         raise NotImplementedError
 
-    def run(self, data):
+    def run_(self, data):
         assert type(data) == list, "Input to property extractor component should be a list of PIL images of objects"
 
         return self.extract_props(data)
