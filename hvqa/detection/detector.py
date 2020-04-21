@@ -1,9 +1,10 @@
 import torch
 import torchvision.transforms as T
 
+from hvqa.detection.models import DetectionBackbone, DetectionModel
 from hvqa.util.video_repr import Obj, Frame, Video
 from hvqa.util.definitions import CLASSES
-from hvqa.util.func import get_device
+from hvqa.util.func import get_device, load_model, save_model
 
 
 _transform = T.Compose([
@@ -11,23 +12,24 @@ _transform = T.Compose([
 ])
 
 
-class _AbsDetector:
-    def detect_objs(self, frames):
-        """
-        Detect all objects in a video
-
-        :param frames: List of PIL frames
-        :return: Video object containing info on objects in video
-        """
-
-        raise NotImplementedError
-
-
-class NeuralDetector(_AbsDetector):
+class NeuralDetector:
     def __init__(self, model):
         super(NeuralDetector, self).__init__()
 
         self.model = model
+
+    def train(self, data):
+        pass
+
+    def load(self, path):
+        backbone = DetectionBackbone()
+        detector_model = load_model(DetectionModel, path, backbone)
+        detector_model.eval()
+        detector = NeuralDetector(detector_model)
+        self.model = detector
+
+    def save(self, path):
+        save_model(self.model, path)
 
     def detect_objs(self, frames):
         imgs_trans = [_transform(img) for img in frames]

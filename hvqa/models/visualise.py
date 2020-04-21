@@ -26,7 +26,7 @@ class Visualiser:
         :param frames: List of PIL Images
         """
 
-        video = self.model.process_frames(frames)
+        video = self.model.process(frames)
         new_frames = self._add_info_to_video(frames, video)
         for img in new_frames:
             img.show()

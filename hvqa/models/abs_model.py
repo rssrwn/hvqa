@@ -59,9 +59,11 @@ class _AbsModel(Model):
         :return: Answers: [str]
         """
 
-        video = self.process_frames(frames)
-        qa_args = (video, questions, q_types)
-        answers = self._time_func(self._answer_questions, qa_args, "QA")
+        video = self.process(frames)
+        video.questions = questions
+        video.q_types = q_types
+        self._time_func(self.qa_system.run_, (video,), "QA")
+        answers = video.answers
         return answers
 
     def train(self, data, verbose=True):
@@ -142,92 +144,27 @@ class _AbsModel(Model):
 
         return correct, incorrect
 
-    def process_frames(self, frames):
-        # Batch all frames in a video
-        video = self._time_func(self._extract_objs, (frames,), "Detector")
+    def process(self, frames):
+        video = self.extract_objs(frames)
 
         self.tracker.reset()
-
-        # Batch all objects in each frame
-        for frame in video.frames:
-            objs = frame.objs
-            self._time_func(self._extract_props_, (objs,), "Properties")
-            self._time_func(self.tracker.process_frame_, (objs,), "Tracker")
-            self._time_func(self._detect_relations_, (frame,), "Relations")
-
-        self._time_func(self._detect_events_, (video,), "Events")
+        self._time_func(self.prop_classifier.run_, (video,), "Properties")
+        self._time_func(self.tracker.run_, (video,), "Tracker")
+        self._time_func(self.relation_classifier.run_, (video,), "Relations")
+        self._time_func(self.event_detector.run_, (video,), "Events")
 
         return video
 
-    def _extract_objs(self, frames):
+    def extract_objs(self, frames):
         """
         Builds structured knowledge from video frames
         Extracts bboxs and class for each object in each frame
 
         :param frames: List of PIL frames
-        :return: Video object for video
         """
 
-        video = self.obj_detector.detect_objs(frames)
+        video = self._time_func(self.obj_detector.detect_objs, (frames,), "Detector")
         return video
-
-    def _extract_props_(self, objs):
-        """
-        Extract properties from each object and add them to the object
-        Note: Modifies objects in-place with new properties
-
-        :param objs: List of Objs
-        """
-
-        obj_imgs = [obj.img for obj in objs]
-        props = self.prop_classifier.extract_props(obj_imgs)
-        for idx, (colour, rot, cls) in enumerate(props):
-            obj = objs[idx]
-            obj.colour = colour
-            obj.rot = rot
-
-            # We use class from detector (if this line is commented)
-            # obj.cls = cls
-
-    def _detect_relations_(self, frame):
-        """
-        Extract relations between objects in a frame
-        Note: Modifies frame in-place to add relations
-
-        :param frame: Frame obj
-        """
-
-        objs = frame.objs
-        rels = self.relation_classifier.detect_relations(objs)
-        for idx1, idx2, rel in rels:
-            frame.set_relation(idx1, idx2, rel)
-
-    def _detect_events_(self, video):
-        """
-        Extract events from the video
-        Note: Modifies video in-place to add event info
-
-        :param video: Video obj
-        """
-
-        frames = video.frames
-        events = self.event_detector.detect_events(frames)
-        for frame_idx, frame_events in enumerate(events):
-            for obj_id, event in frame_events:
-                video.add_event(event, obj_id, frame_idx)
-
-    def _answer_questions(self, video, questions, q_types):
-        """
-        Generate an answer for each question
-
-        :param video: Video obj
-        :param questions: Questions: [str]
-        :param q_types: Question types: [int]
-        :return: Answers: [str]
-        """
-
-        answers = self.qa_system.answer(video, questions, q_types)
-        return answers
 
     def _time_func(self, func, args, timings_key):
         start = time.time()

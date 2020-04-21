@@ -139,15 +139,14 @@ class Video:
         self.events = [[]] * (VIDEO_LENGTH - 1)
         self.questions = None
         self.q_types = None
-        self.gen_answers = None
         self.answers = None
 
     def add_event(self, event, obj_id, start_idx):
         assert event in ACTIONS, f"Event {event} is not one of {ACTIONS}"
         self.events[start_idx] = self.events[start_idx] + [(event, obj_id)]
 
-    def set_gen_answers(self, answers):
-        self.gen_answers = answers
+    def set_answers(self, answers):
+        self.answers = answers
 
     def gen_asp_encoding(self):
         enc = ""

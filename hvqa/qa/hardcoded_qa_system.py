@@ -69,7 +69,7 @@ class HardcodedASPQASystem(Component):
 
     def run_(self, video):
         answers = self._answer(video)
-        video.set_gen_ans(answers)
+        video.set_answers(answers)
 
     def train(self, data):
         pass

@@ -63,6 +63,16 @@ class Model:
 
         raise NotImplementedError()
 
+    def process(self, frames):
+        """
+        Process the frames of a video and create a Video obj with the info extracted
+
+        :param frames: List of PIL images
+        :return: Video obj
+        """
+
+        raise NotImplementedError()
+
     def train(self, data, verbose=True):
         """
         Train the model
