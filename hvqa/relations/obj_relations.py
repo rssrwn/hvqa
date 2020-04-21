@@ -45,13 +45,13 @@ class HardcodedRelationClassifier(_AbsRelationClassifier):
         return rels
 
     def train(self, data):
-        raise NotImplementedError("HardcodedRelationClassifier component cannot be trained")
+        pass
 
     def load(self, path):
-        raise NotImplementedError("HardcodedRelationClassifier component does not have anything to load")
+        pass
 
     def save(self, path):
-        raise NotImplementedError("HardcodedRelationClassifier component does not have anything to save")
+        pass
 
     def _check_related(self, obj1, obj2):
         obj_relations = []

@@ -2,8 +2,10 @@ from pathlib import Path
 import clingo
 import time
 
+from hvqa.util.interfaces import Component
 
-class _AbsEventDetector:
+
+class _AbsEventDetector(Component):
     def detect_events(self, frames):
         """
         Detect events between frames
@@ -15,6 +17,18 @@ class _AbsEventDetector:
         """
 
         raise NotImplementedError
+
+    def run_(self, video):
+        pass
+
+    def train(self, data):
+        raise NotImplementedError()
+
+    def load(self, path):
+        raise NotImplementedError()
+
+    def save(self, path):
+        raise NotImplementedError()
 
 
 class ASPEventDetector(_AbsEventDetector):
@@ -29,6 +43,15 @@ class ASPEventDetector(_AbsEventDetector):
         assert self.detector.exists(), f"File {self.detector} does not exist"
 
     def detect_events(self, frames):
+        """
+        Detect events between frames
+        Returns a list of length len(frames) - 1
+        Each element, i, is a list of events which occurred between frame i and i+1
+
+        :param frames: List of Frame objects
+        :return: List of List of (id: int, event_name: str)
+        """
+
         # Create ASP file for video information
         asp_enc = ""
         for idx, frame in enumerate(frames):
@@ -102,3 +125,12 @@ class ASPEventDetector(_AbsEventDetector):
             frame.set_correct_objs(try_ids)
 
         return events
+
+    def train(self, data):
+        pass
+
+    def load(self, path):
+        pass
+
+    def save(self, path):
+        pass
