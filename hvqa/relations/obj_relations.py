@@ -1,7 +1,9 @@
 from hvqa.util.definitions import CLOSE_TO, RELATIONS
+from hvqa.util.interfaces import Component
+from hvqa.util.video_repr import Video
 
 
-class _AbsRelationClassifier:
+class _AbsRelationClassifier(Component):
     def detect_relations(self, objs):
         """
         Detect binary relations between pairs of objects
@@ -11,6 +13,18 @@ class _AbsRelationClassifier:
         """
 
         raise NotImplementedError
+
+    def run_(self, data):
+        assert type(data) == Video
+
+    def train(self, data):
+        raise NotImplementedError()
+
+    def load(self, path):
+        raise NotImplementedError()
+
+    def save(self, path):
+        raise NotImplementedError()
 
 
 class HardcodedRelationClassifier(_AbsRelationClassifier):
@@ -29,6 +43,15 @@ class HardcodedRelationClassifier(_AbsRelationClassifier):
                     rels.extend(obj_rels)
 
         return rels
+
+    def train(self, data):
+        raise NotImplementedError("HardcodedRelationClassifier component cannot be trained")
+
+    def load(self, path):
+        raise NotImplementedError("HardcodedRelationClassifier component does not have anything to load")
+
+    def save(self, path):
+        raise NotImplementedError("HardcodedRelationClassifier component does not have anything to save")
 
     def _check_related(self, obj1, obj2):
         obj_relations = []
