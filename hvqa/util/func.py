@@ -25,6 +25,7 @@ def load_model(model_class, path, *model_args):
     device = get_device()
     model = model_class(*model_args)
     model.load_state_dict(torch.load(path, map_location=device))
+    model = model.to(device)
     print(f"Loaded model with device: {device}")
     return model
 
