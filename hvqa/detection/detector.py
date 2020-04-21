@@ -42,9 +42,9 @@ class NeuralDetector(_AbsDetector):
         frames_objs = []
         for idx, frame in enumerate(detector_out):
             img = frames[idx]
-            bboxs = [bbox.numpy() for bbox in list(frame["boxes"])]
+            bboxs = [bbox.cpu().numpy() for bbox in list(frame["boxes"])]
             bboxs = [tuple(map(round, bbox)) for bbox in bboxs]
-            labels = [CLASSES[label.numpy() - 1] for label in list(frame["labels"])]
+            labels = [CLASSES[label.cpu().numpy() - 1] for label in list(frame["labels"])]
 
             objs = []
             for obj_idx, bbox in enumerate(bboxs):
