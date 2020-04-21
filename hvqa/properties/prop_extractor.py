@@ -2,6 +2,7 @@ import torch
 import torchvision.transforms as T
 
 from hvqa.util.definitions import COLOURS, ROTATIONS, CLASSES
+from hvqa.util.func import get_device
 
 
 _transform = T.Compose([
@@ -32,10 +33,13 @@ class NeuralPropExtractor(_AbsPropExtractor):
         obj_imgs = [_transform(img) for img in obj_imgs]
         obj_imgs_batch = torch.stack(obj_imgs)
 
+        device = get_device()
+        obj_imgs_batch = obj_imgs_batch.to(device)
+
         with torch.no_grad():
             model_out = self.model(obj_imgs_batch)
 
-        preds = [torch.max(pred, dim=1)[1].numpy() for pred in model_out]
+        preds = [torch.max(pred, dim=1)[1].cpu().numpy() for pred in model_out]
         colours = [COLOURS[idx] for idx in preds[0]]
         rotations = [ROTATIONS[idx] for idx in preds[1]]
         classes = [CLASSES[idx] for idx in preds[2]]
