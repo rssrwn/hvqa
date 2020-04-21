@@ -1,11 +1,12 @@
 from pathlib import Path
 import clingo
 
+from hvqa.util.interfaces import Component
 from hvqa.util.definitions import CLASSES, PROP_LOOKUP
 from hvqa.util.func import format_prop_val, format_prop_str, event_to_asp_str, asp_str_to_event, format_occ
 
 
-class _AbsQASystem:
+class _AbsQASystem(Component):
     def answer(self, video, question, q_type):
         """
         Answer a question on a video
@@ -17,6 +18,18 @@ class _AbsQASystem:
         """
 
         raise NotImplementedError
+
+    def run_(self, video):
+        raise NotImplementedError()
+
+    def train(self, data):
+        raise NotImplementedError()
+
+    def load(self, path):
+        raise NotImplementedError()
+
+    def save(self, path):
+        raise NotImplementedError()
 
 
 class HardcodedASPQASystem(_AbsQASystem):
@@ -79,6 +92,18 @@ class HardcodedASPQASystem(_AbsQASystem):
             5: (self._answer_q_type_5, ans_template_5),
             6: (self._answer_q_type_6, ans_template_6)
         }
+
+    def run_(self, video):
+        pass
+
+    def train(self, data):
+        pass
+
+    def load(self, path):
+        pass
+
+    def save(self, path):
+        pass
 
     def answer(self, video, questions, q_types):
         # Generate ASP encoding for video and questions
