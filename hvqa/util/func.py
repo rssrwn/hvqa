@@ -11,6 +11,14 @@ from hvqa.util.exceptions import UnknownPropertyValueException
 _USE_GPU = True
 
 
+def inc_in_map(coll, key):
+    val = coll.get(key)
+    if val is None:
+        coll[key] = 0
+
+    coll[key] += 1
+
+
 def load_model(model_class, path, *model_args):
     """
     Load a model whose state_dict has been saved

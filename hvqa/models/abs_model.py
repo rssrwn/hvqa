@@ -2,8 +2,11 @@
 
 import time
 
+from hvqa.util.interfaces import Model
+from hvqa.util.func import inc_in_map
 
-class _AbsModel:
+
+class _AbsModel(Model):
     """
     Abstract QA Model Class
     Most of the models will run the same pipeline which is contained in this class
@@ -60,6 +63,84 @@ class _AbsModel:
         qa_args = (video, questions, q_types)
         answers = self._time_func(self._answer_questions, qa_args, "QA")
         return answers
+
+    def train(self, data, verbose=True):
+        pass
+
+    def eval(self, data, verbose=True):
+        """
+        Evaluate the performance of the model
+        Will print the results incrementally and as a final tally
+
+        :param data: VideoDataset obj for evaluation data
+        :param verbose: Boolean
+        """
+
+        start_time = time.time()
+
+        correct, incorrect = self._eval_videos(data, verbose)
+        q_types = list(set(correct.keys()).union(set(incorrect.keys())))
+        sorted(q_types)
+
+        print("\nResults:")
+        print(f"{'Question Type':<20}{'Correct':<15}{'Incorrect':<15}Accuracy")
+        for q_type in q_types:
+            num_correct = correct.get(q_type)
+            num_correct = 0 if num_correct is None else num_correct
+            num_incorrect = incorrect.get(q_type)
+            num_incorrect = 0 if num_incorrect is None else num_incorrect
+            acc = (num_correct / (num_correct + num_incorrect))
+            print(f"{q_type:<20}{num_correct:<15}{num_incorrect:<15}{acc:.1%}")
+
+        num_correct = sum(correct.values())
+        total = num_correct + sum(incorrect.values())
+        acc = (num_correct / total)
+
+        print(f"\nNum correct: {num_correct}")
+        print(f"Total: {total}")
+        print(f"Accuracy: {acc:.1%}\n")
+
+        self.print_timings()
+
+        end_time = time.time()
+        print(f"Total time: {end_time - start_time:.1f} seconds.\n")
+
+    def _eval_videos(self, data, verbose):
+        correct = {}
+        incorrect = {}
+
+        print()
+        for video_idx in range(len(data)):
+            frames, video_dict = data[video_idx]
+            questions = video_dict["questions"]
+            q_types = video_dict["question_types"]
+
+            answers = self.run(frames, questions, q_types)
+            expected = video_dict["answers"]
+
+            video_correct = 0
+            for idx, predicted in enumerate(answers):
+                actual = expected[idx]
+                q_type = q_types[idx]
+                if actual == predicted:
+                    inc_in_map(correct, q_type)
+                    video_correct += 1
+                    if verbose:
+                        print(f"Q{idx}: Correct.")
+
+                else:
+                    inc_in_map(incorrect, q_type)
+                    question = questions[idx]
+                    if verbose:
+                        print(f"Q{idx}: Incorrect. Question: {question} -- "
+                              f"Answer: Predicted '{predicted}', actual '{actual}'")
+
+            acc = video_correct / len(questions)
+            print(f"Video [{video_idx + 1:4}/{len(data):4}] "
+                  f"-- {video_correct:2} / {len(questions):2} "
+                  f"-- Accuracy: {acc:.0%}")
+
+        return correct, incorrect
 
     def process_frames(self, frames):
         # Batch all frames in a video
