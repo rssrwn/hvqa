@@ -84,7 +84,12 @@ class _AbsModel(Model):
         return answers
 
     def train(self, data, verbose=True):
-        raise NotImplementedError()
+        print("Training VideoQA model...")
+
+        for component in self.components:
+            component.train(data, verbose)
+
+        print("Completed VideoQA model training")
 
     def load(self, path):
         """
