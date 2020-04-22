@@ -11,7 +11,7 @@ class ObjTracker(Component):
     and assign their respective ids
     """
 
-    def __init__(self, err_corr=False):
+    def __init__(self, err_corr):
         self.err_corr = err_corr
         self.reset()
 
@@ -30,17 +30,6 @@ class ObjTracker(Component):
             self._process_frame_(frame.objs)
 
     def train(self, data):
-        pass
-
-    @staticmethod
-    def new():
-        return ObjTracker()
-
-    @staticmethod
-    def load(path):
-        return ObjTracker()
-
-    def save(self, path):
         pass
 
     def _process_frame_(self, objs):

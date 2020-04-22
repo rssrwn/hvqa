@@ -109,14 +109,3 @@ class ASPEventDetector(Component):
 
     def train(self, data):
         pass
-
-    @staticmethod
-    def new():
-        raise NotImplementedError("ASPEventDetection Component requires an ASP directory")
-
-    @staticmethod
-    def load(path):
-        return ASPEventDetector(path)
-
-    def save(self, path):
-        pass

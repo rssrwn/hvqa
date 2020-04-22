@@ -37,12 +37,8 @@ class HardcodedRelationClassifier(Component):
         pass
 
     @staticmethod
-    def new():
-        return HardcodedRelationClassifier()
-
-    @staticmethod
     def load(path):
-        return HardcodedRelationClassifier()
+        raise NotImplementedError("HardcodedRelationClassifier objects must be newly created")
 
     def save(self, path):
         pass

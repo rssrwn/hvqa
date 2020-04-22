@@ -23,7 +23,7 @@ class HardcodedModel(_AbsModel):
             detector = NeuralDetector.new()
 
         if properties_path is not None:
-            properties = NeuralPropExtractor(properties_path)
+            properties = NeuralPropExtractor.load(properties_path)
         else:
             properties = NeuralPropExtractor.new()
 

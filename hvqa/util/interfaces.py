@@ -21,26 +21,6 @@ class Trainable:
 
         raise NotImplementedError()
 
-    @staticmethod
-    def load(path):
-        """
-        Load the component from a file
-
-        :param path: Path to load from (str or Path obj)
-        :return: Component object
-        """
-
-        raise NotImplementedError()
-
-    def save(self, path):
-        """
-        Save the component to a file
-
-        :param path: Path to save to (str or Path obj)
-        """
-
-        raise NotImplementedError()
-
 
 class Component(Trainable):
     def run_(self, video):
@@ -54,13 +34,6 @@ class Component(Trainable):
         raise NotImplementedError()
 
     def train(self, data):
-        raise NotImplementedError()
-
-    @staticmethod
-    def load(path):
-        raise NotImplementedError()
-
-    def save(self, path):
         raise NotImplementedError()
 
 
@@ -92,9 +65,22 @@ class Model(Trainable):
 
     @staticmethod
     def load(path):
+        """
+        Load the Model object
+
+        :param path: Path to where the object information was saved
+        :return: Model obj
+        """
+
         raise NotImplementedError()
 
     def save(self, path):
+        """
+        Save the Model information
+
+        :param path: Path to where the model should be saved
+        """
+
         raise NotImplementedError()
 
     def eval(self, data, verbose=True):
