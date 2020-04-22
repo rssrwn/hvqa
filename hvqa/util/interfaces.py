@@ -9,17 +9,7 @@ class _AbsEvaluator:
         raise NotImplementedError()
 
 
-class Component:
-    def run_(self, video):
-        """
-        Run the component for a given video
-        Note: The function should modify the video obj in-place with the new information from the component
-
-        :param video: Video obj
-        """
-
-        raise NotImplementedError()
-
+class Trainable:
     def train(self, data):
         """
         Train the component with some training data <data>
@@ -50,7 +40,28 @@ class Component:
         raise NotImplementedError()
 
 
-class Model:
+class Component(Trainable):
+    def run_(self, video):
+        """
+        Run the component for a given video
+        Note: The function should modify the video obj in-place with the new information from the component
+
+        :param video: Video obj
+        """
+
+        raise NotImplementedError()
+
+    def train(self, data):
+        raise NotImplementedError()
+
+    def load(self, path):
+        raise NotImplementedError()
+
+    def save(self, path):
+        raise NotImplementedError()
+
+
+class Model(Trainable):
     def run(self, frames, questions, q_types):
         """
         Generate answers to given questions
@@ -74,13 +85,12 @@ class Model:
         raise NotImplementedError()
 
     def train(self, data, verbose=True):
-        """
-        Train the model
+        raise NotImplementedError()
 
-        :param data: VideoDataset obj of training data
-        :param verbose: Boolean
-        """
+    def load(self, path):
+        raise NotImplementedError()
 
+    def save(self, path):
         raise NotImplementedError()
 
     def eval(self, data, verbose=True):
