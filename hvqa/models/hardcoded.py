@@ -12,14 +12,20 @@ from hvqa.util.func import load_model
 
 class HardcodedModel(_AbsModel):
     def __init__(self, detector_path, prop_classifier_path, event_asp_dir, qa_system_asp_dir):
-        self.detector_path = detector_path
-        self.prop_classifier_path = prop_classifier_path
         self.tracker_err_correction = True
-        self.event_asp_dir = event_asp_dir
-        self.qa_system_asp_dir = qa_system_asp_dir
 
-        # Setup components after we have set the required paths
-        super(HardcodedModel, self).__init__()
+        # This will set paths and setup components by calling the setup functions in this class
+        super(HardcodedModel, self).__init__(
+            detector_path,
+            prop_classifier_path,
+            None,
+            None,
+            event_asp_dir,
+            qa_system_asp_dir
+        )
+
+    def train(self, data, verbose=True):
+        raise NotImplementedError("HardcodedModel cannot be trained")
 
     def _setup_obj_detector(self):
         backbone = DetectionBackbone()
@@ -29,7 +35,7 @@ class HardcodedModel(_AbsModel):
         return detector
 
     def _setup_prop_classifier(self):
-        prop_model = load_model(PropertyExtractionModel, self.prop_classifier_path)
+        prop_model = load_model(PropertyExtractionModel, self.properties_path)
         prop_model.eval()
         prop_extractor = NeuralPropExtractor(prop_model)
         return prop_extractor
@@ -43,9 +49,9 @@ class HardcodedModel(_AbsModel):
         return relations
 
     def _setup_event_detector(self):
-        event_detector = ASPEventDetector(self.event_asp_dir)
+        event_detector = ASPEventDetector(self.events_path)
         return event_detector
 
     def _setup_qa_system(self):
-        qa = HardcodedASPQASystem(self.qa_system_asp_dir)
+        qa = HardcodedASPQASystem(self.qa_path)
         return qa
