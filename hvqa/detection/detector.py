@@ -24,6 +24,14 @@ class NeuralDetector(Trainable):
         raise NotImplementedError()
 
     @staticmethod
+    def new():
+        backbone = DetectionBackbone()
+        detector_model = DetectionModel(backbone)
+        detector_model.eval()
+        detector = NeuralDetector(detector_model)
+        return detector
+
+    @staticmethod
     def load(path):
         backbone = DetectionBackbone()
         detector_model = load_model(DetectionModel, path, backbone)

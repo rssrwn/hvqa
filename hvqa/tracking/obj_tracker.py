@@ -33,6 +33,10 @@ class ObjTracker(Component):
         pass
 
     @staticmethod
+    def new():
+        return ObjTracker()
+
+    @staticmethod
     def load(path):
         return ObjTracker()
 

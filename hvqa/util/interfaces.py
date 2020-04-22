@@ -22,6 +22,16 @@ class Trainable:
         raise NotImplementedError()
 
     @staticmethod
+    def new():
+        """
+        Create a new Component object without loading a previously saved model
+
+        :return: Component object
+        """
+
+        raise NotImplementedError()
+
+    @staticmethod
     def load(path):
         """
         Load the component from a file
@@ -57,6 +67,10 @@ class Component(Trainable):
         raise NotImplementedError()
 
     @staticmethod
+    def new():
+        raise NotImplementedError()
+
+    @staticmethod
     def load(path):
         raise NotImplementedError()
 
@@ -88,6 +102,10 @@ class Model(Trainable):
         raise NotImplementedError()
 
     def train(self, data, verbose=True):
+        raise NotImplementedError()
+
+    @staticmethod
+    def new():
         raise NotImplementedError()
 
     @staticmethod

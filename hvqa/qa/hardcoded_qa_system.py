@@ -75,6 +75,10 @@ class HardcodedASPQASystem(Component):
         pass
 
     @staticmethod
+    def new():
+        raise NotImplementedError("ASP QA Component requires an ASP directory")
+
+    @staticmethod
     def load(path):
         return HardcodedASPQASystem(path)
 

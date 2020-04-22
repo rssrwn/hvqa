@@ -111,6 +111,10 @@ class ASPEventDetector(Component):
         pass
 
     @staticmethod
+    def new():
+        raise NotImplementedError("ASPEventDetection Component requires an ASP directory")
+
+    @staticmethod
     def load(path):
         return ASPEventDetector(path)
 

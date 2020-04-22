@@ -91,34 +91,40 @@ class _AbsModel(Model):
 
         print("Completed VideoQA model training")
 
-    def load(self, path):
-        """
-        Loads the model using metadata from the json object saved at <path>
-        The path should be a json file created by model.save(<path>)
-
-        :param path: Path to save json file to (str)
-        """
-
-        json_file = Path(path)
-        with json_file.open() as f:
-            model_info = json.load(f)
-
-        detector_path = model_info["detector"]
-        props_path = model_info["properties"]
-        tracker_path = model_info["tracker"]
-        relations_path = model_info["relations"]
-        events_path = model_info["events"]
-        qa_path = model_info["qa"]
-
-        self.obj_detector.load(detector_path)
-        self.prop_classifier.load(props_path)
-        self.tracker.load(tracker_path)
-        self.relation_classifier.load(relations_path)
-        self.event_detector.load(relations_path)
-        self.event_detector.load(events_path)
-        self.qa_system.load(qa_path)
-
-        print(f"Successfully loaded VideoQA model from {path}")
+    # @staticmethod
+    # def new():
+    #     pass
+    # 
+    # @staticmethod
+    # def load(path):
+    #     """
+    #     Loads the model using metadata from the json object saved at <path>
+    #     The path should be a json file created by model.save(<path>)
+    #
+    #     :param path: Path of json file to load model from (str)
+    #     :return: _AbsModel
+    #     """
+    #
+    #     json_file = Path(path)
+    #     with json_file.open() as f:
+    #         model_info = json.load(f)
+    #
+    #     detector_path = model_info["detector"]
+    #     props_path = model_info["properties"]
+    #     tracker_path = model_info["tracker"]
+    #     relations_path = model_info["relations"]
+    #     events_path = model_info["events"]
+    #     qa_path = model_info["qa"]
+    #
+    #     self.obj_detector.load(detector_path)
+    #     self.prop_classifier.load(props_path)
+    #     self.tracker.load(tracker_path)
+    #     self.relation_classifier.load(relations_path)
+    #     self.event_detector.load(relations_path)
+    #     self.event_detector.load(events_path)
+    #     self.qa_system.load(qa_path)
+    #
+    #     print(f"Successfully loaded VideoQA model from {path}")
 
     def save(self, path):
         """
@@ -126,7 +132,7 @@ class _AbsModel(Model):
         Note: The individual components will be saved at the paths specified when the model was created
               Not the paths that the components may have been loaded from
 
-        :param path: Path of json file to load model from (str)
+        :param path: Path to save json file to (str)
         """
 
         self.obj_detector.save(self.detector_path)

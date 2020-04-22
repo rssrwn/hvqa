@@ -37,6 +37,10 @@ class HardcodedRelationClassifier(Component):
         pass
 
     @staticmethod
+    def new():
+        return HardcodedRelationClassifier()
+
+    @staticmethod
     def load(path):
         return HardcodedRelationClassifier()
 
