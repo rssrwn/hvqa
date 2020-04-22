@@ -36,8 +36,9 @@ class HardcodedRelationClassifier(Component):
     def train(self, data):
         pass
 
-    def load(self, path):
-        pass
+    @staticmethod
+    def load(path):
+        return HardcodedRelationClassifier()
 
     def save(self, path):
         pass

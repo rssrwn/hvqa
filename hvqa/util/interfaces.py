@@ -21,11 +21,13 @@ class Trainable:
 
         raise NotImplementedError()
 
-    def load(self, path):
+    @staticmethod
+    def load(path):
         """
         Load the component from a file
 
         :param path: Path to load from (str or Path obj)
+        :return: Component object
         """
 
         raise NotImplementedError()
@@ -54,7 +56,8 @@ class Component(Trainable):
     def train(self, data):
         raise NotImplementedError()
 
-    def load(self, path):
+    @staticmethod
+    def load(path):
         raise NotImplementedError()
 
     def save(self, path):
@@ -87,7 +90,8 @@ class Model(Trainable):
     def train(self, data, verbose=True):
         raise NotImplementedError()
 
-    def load(self, path):
+    @staticmethod
+    def load(path):
         raise NotImplementedError()
 
     def save(self, path):

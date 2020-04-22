@@ -1,5 +1,6 @@
 from hvqa.models.abs_model import _AbsModel
 from hvqa.detection.detector import NeuralDetector
+from hvqa.properties.neural_prop_extractor import NeuralPropExtractor
 
 
 class IndividuallyTrainedModel(_AbsModel):
@@ -21,7 +22,8 @@ class IndividuallyTrainedModel(_AbsModel):
         return detector
 
     def _setup_prop_classifier(self):
-        pass
+        prop_extractor = NeuralPropExtractor.load(self.properties_path)
+        return prop_extractor
 
     def _setup_tracker(self):
         pass

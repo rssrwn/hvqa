@@ -1,13 +1,10 @@
 from hvqa.models.abs_model import _AbsModel
-from hvqa.detection.models import DetectionBackbone, DetectionModel
 from hvqa.detection.detector import NeuralDetector
-from hvqa.properties.models import PropertyExtractionModel
 from hvqa.properties.neural_prop_extractor import NeuralPropExtractor
 from hvqa.tracking.obj_tracker import ObjTracker
 from hvqa.relations.hardcoded_relations import HardcodedRelationClassifier
 from hvqa.events.asp_event_detector import ASPEventDetector
 from hvqa.qa.hardcoded_qa_system import HardcodedASPQASystem
-from hvqa.util.func import load_model
 
 
 class HardcodedModel(_AbsModel):
@@ -24,20 +21,12 @@ class HardcodedModel(_AbsModel):
             qa_system_asp_dir
         )
 
-    def train(self, data, verbose=True):
-        raise NotImplementedError("HardcodedModel cannot be trained")
-
     def _setup_obj_detector(self):
-        backbone = DetectionBackbone()
-        detector_model = load_model(DetectionModel, self.detector_path, backbone)
-        detector_model.eval()
-        detector = NeuralDetector(detector_model)
+        detector = NeuralDetector.load(self.detector_path)
         return detector
 
     def _setup_prop_classifier(self):
-        prop_model = load_model(PropertyExtractionModel, self.properties_path)
-        prop_model.eval()
-        prop_extractor = NeuralPropExtractor(prop_model)
+        prop_extractor = NeuralPropExtractor.load(self.properties_path)
         return prop_extractor
 
     def _setup_tracker(self):

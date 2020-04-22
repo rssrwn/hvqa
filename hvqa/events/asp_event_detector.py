@@ -110,8 +110,9 @@ class ASPEventDetector(Component):
     def train(self, data):
         pass
 
-    def load(self, path):
-        pass
+    @staticmethod
+    def load(path):
+        return ASPEventDetector(path)
 
     def save(self, path):
         pass

@@ -32,8 +32,9 @@ class ObjTracker(Component):
     def train(self, data):
         pass
 
-    def load(self, path):
-        pass
+    @staticmethod
+    def load(path):
+        return ObjTracker()
 
     def save(self, path):
         pass

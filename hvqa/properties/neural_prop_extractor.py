@@ -60,12 +60,15 @@ class NeuralPropExtractor(Component):
         return props
 
     def train(self, data):
-        pass
+        # TODO
+        raise NotImplementedError()
 
-    def load(self, path):
+    @staticmethod
+    def load(path):
         model = load_model(PropertyExtractionModel, path)
         model.eval()
-        self.model = model
+        prop_extractor = NeuralPropExtractor(model)
+        return prop_extractor
 
     def save(self, path):
         save_model(self.model, path)

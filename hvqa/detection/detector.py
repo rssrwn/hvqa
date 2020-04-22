@@ -20,14 +20,16 @@ class NeuralDetector(Trainable):
         self.model = model
 
     def train(self, data):
-        pass
+        # TODO
+        raise NotImplementedError()
 
-    def load(self, path):
+    @staticmethod
+    def load(path):
         backbone = DetectionBackbone()
         detector_model = load_model(DetectionModel, path, backbone)
         detector_model.eval()
         detector = NeuralDetector(detector_model)
-        self.model = detector
+        return detector
 
     def save(self, path):
         save_model(self.model, path)
