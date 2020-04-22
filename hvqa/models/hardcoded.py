@@ -1,3 +1,6 @@
+import json
+from pathlib import Path
+
 from hvqa.models.abs_model import _AbsModel
 from hvqa.detection.detector import NeuralDetector
 from hvqa.properties.neural_prop_extractor import NeuralPropExtractor
@@ -8,39 +11,89 @@ from hvqa.qa.hardcoded_qa_system import HardcodedASPQASystem
 
 
 class HardcodedModel(_AbsModel):
-    def __init__(self, detector_path, prop_classifier_path, event_asp_dir, qa_system_asp_dir):
-        self.tracker_err_correction = True
+    def __init__(self, events_path, qa_path, err_corr=True, detector_path=None, properties_path=None):
+        self.err_corr = err_corr
 
-        # This will set paths and setup components by calling the setup functions in this class
+        self.events_path = events_path
+        self.qa_path = qa_path
+
+        if detector_path is not None:
+            detector = NeuralDetector.load(detector_path)
+        else:
+            detector = NeuralDetector.new()
+
+        if properties_path is not None:
+            properties = NeuralPropExtractor(properties_path)
+        else:
+            properties = NeuralPropExtractor.new()
+
+        tracker = ObjTracker(err_corr)
+        relations = HardcodedRelationClassifier()
+        events = ASPEventDetector(events_path)
+        qa = HardcodedASPQASystem(qa_path)
+
+        # This will store each component
         super(HardcodedModel, self).__init__(
-            detector_path,
-            prop_classifier_path,
-            None,
-            None,
-            event_asp_dir,
-            qa_system_asp_dir
+            detector,
+            properties,
+            tracker,
+            relations,
+            events,
+            qa
         )
 
-    def _setup_obj_detector(self):
-        detector = NeuralDetector.load(self.detector_path)
-        return detector
+    @staticmethod
+    def load(path):
+        """
+        Loads the model using metadata from the json object saved at <path>
+        The path should be a json file created by model.save(<path>)
 
-    def _setup_prop_classifier(self):
-        prop_extractor = NeuralPropExtractor.load(self.properties_path)
-        return prop_extractor
+        :param path: Path of json file to load model from (str)
+        :return: _AbsModel
+        """
 
-    def _setup_tracker(self):
-        tracker = ObjTracker(err_corr=self.tracker_err_correction)
-        return tracker
+        save_path = Path(path)
 
-    def _setup_relation_classifier(self):
-        relations = HardcodedRelationClassifier()
-        return relations
+        detector_path = str(save_path / "detector.pt")
+        properties_path = str(save_path / "properties.pt")
+        meta_data_path = save_path / "meta_data.json"
 
-    def _setup_event_detector(self):
-        event_detector = ASPEventDetector(self.events_path)
-        return event_detector
+        with meta_data_path.open() as f:
+            meta_data = json.load(f)
 
-    def _setup_qa_system(self):
-        qa = HardcodedASPQASystem(self.qa_path)
-        return qa
+        events_path = meta_data["events"]
+        qa_path = meta_data["qa"]
+        err_corr = meta_data["error_correction"]
+
+        model = HardcodedModel(events_path, qa_path, err_corr, detector_path, properties_path)
+        return model
+
+    def save(self, path):
+        """
+         This will create (or overwrite) a json file at <path>
+         Note: The individual components will be saved at the paths specified when the model was created
+               Not the paths that the components may have been loaded from
+
+         :param path: Path to save json file to (str)
+         """
+
+        save_path = Path(path)
+        save_path.mkdir(parents=True, exist_ok=True)
+
+        detector_path = save_path / "detector.pt"
+        properties_path = save_path / "properties.pt"
+        meta_data_path = save_path / "meta_data.json"
+
+        self.obj_detector.save(str(detector_path))
+        self.prop_classifier.save(str(properties_path))
+
+        meta_data = {
+            "events": self.events_path,
+            "qa": self.qa_path,
+            "error_correction": self.err_corr
+        }
+
+        with open(meta_data_path, "w") as f:
+            json.dump(meta_data, f)
+
+        print(f"Successfully saved VideoQA model to {path}")

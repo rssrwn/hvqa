@@ -1,8 +1,6 @@
 # Abstract QA Model Class File
 
 import time
-import json
-from pathlib import Path
 
 from hvqa.util.interfaces import Model
 from hvqa.util.func import inc_in_map
@@ -16,20 +14,13 @@ class _AbsModel(Model):
     Models can also override methods if required
     """
 
-    def __init__(self, detector_path, properties_path, tracker_path, relations_path, events_path, qa_path):
-        self.detector_path = detector_path
-        self.properties_path = properties_path
-        self.tracker_path = tracker_path
-        self.relations_path = relations_path
-        self.events_path = events_path
-        self.qa_path = qa_path
-
-        self.obj_detector = self._setup_obj_detector()
-        self.prop_classifier = self._setup_prop_classifier()
-        self.tracker = self._setup_tracker()
-        self.relation_classifier = self._setup_relation_classifier()
-        self.event_detector = self._setup_event_detector()
-        self.qa_system = self._setup_qa_system()
+    def __init__(self, detector, properties, tracker, relations, events, qa):
+        self.obj_detector = detector
+        self.prop_classifier = properties
+        self.tracker = tracker
+        self.relation_classifier = relations
+        self.event_detector = events
+        self.qa_system = qa
 
         self.components = [
             self.prop_classifier,
@@ -47,24 +38,6 @@ class _AbsModel(Model):
             "Events": 0,
             "QA": 0
         }
-
-    def _setup_obj_detector(self):
-        raise NotImplementedError
-
-    def _setup_prop_classifier(self):
-        raise NotImplementedError
-
-    def _setup_tracker(self):
-        raise NotImplementedError
-
-    def _setup_relation_classifier(self):
-        raise NotImplementedError
-
-    def _setup_event_detector(self):
-        raise NotImplementedError
-
-    def _setup_qa_system(self):
-        raise NotImplementedError
 
     def run(self, frames, questions, q_types):
         """
@@ -91,70 +64,12 @@ class _AbsModel(Model):
 
         print("Completed VideoQA model training")
 
-    # @staticmethod
-    # def new():
-    #     pass
-    # 
-    # @staticmethod
-    # def load(path):
-    #     """
-    #     Loads the model using metadata from the json object saved at <path>
-    #     The path should be a json file created by model.save(<path>)
-    #
-    #     :param path: Path of json file to load model from (str)
-    #     :return: _AbsModel
-    #     """
-    #
-    #     json_file = Path(path)
-    #     with json_file.open() as f:
-    #         model_info = json.load(f)
-    #
-    #     detector_path = model_info["detector"]
-    #     props_path = model_info["properties"]
-    #     tracker_path = model_info["tracker"]
-    #     relations_path = model_info["relations"]
-    #     events_path = model_info["events"]
-    #     qa_path = model_info["qa"]
-    #
-    #     self.obj_detector.load(detector_path)
-    #     self.prop_classifier.load(props_path)
-    #     self.tracker.load(tracker_path)
-    #     self.relation_classifier.load(relations_path)
-    #     self.event_detector.load(relations_path)
-    #     self.event_detector.load(events_path)
-    #     self.qa_system.load(qa_path)
-    #
-    #     print(f"Successfully loaded VideoQA model from {path}")
+    @staticmethod
+    def load(path):
+        raise NotImplementedError("AbsModel is abstract; objects should not be created")
 
     def save(self, path):
-        """
-        This will create (or overwrite) a json file at <path>
-        Note: The individual components will be saved at the paths specified when the model was created
-              Not the paths that the components may have been loaded from
-
-        :param path: Path to save json file to (str)
-        """
-
-        self.obj_detector.save(self.detector_path)
-        self.prop_classifier.save(self.properties_path)
-        self.tracker.save(self.tracker_path)
-        self.relation_classifier.save(self.relations_path)
-        self.event_detector.save(self.relations_path)
-        self.event_detector.save(self.events_path)
-        self.qa_system.save(self.qa_path)
-
-        model_info = {
-            "detector": self.detector_path,
-            "properties": self.properties_path,
-            "tracker": self.tracker_path,
-            "relations": self.relations_path,
-            "events": self.events_path,
-            "qa": self.qa_path
-        }
-        with open(path, "w") as f:
-            json.dump(model_info, f)
-
-        print(f"Successfully saved VideoQA model to {path}")
+        raise NotImplementedError("AbsModel is abstract; objects should not be created")
 
     def eval(self, data, verbose=True):
         """
