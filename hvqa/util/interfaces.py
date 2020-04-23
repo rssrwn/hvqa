@@ -22,6 +22,21 @@ class Trainable:
         raise NotImplementedError()
 
 
+class Detector(Trainable):
+    def detect_objs(self, frames):
+        """
+        Detect objects in the list of frames returning an Video obj
+
+        :param frames: List of PIL images
+        :return: Video object
+        """
+
+        raise NotImplementedError()
+
+    def train(self, data):
+        raise NotImplementedError()
+
+
 class Component(Trainable):
     def run_(self, video):
         """
@@ -61,6 +76,19 @@ class Model(Trainable):
         raise NotImplementedError()
 
     def train(self, data, verbose=True):
+        raise NotImplementedError()
+
+    @staticmethod
+    def new(spec, detector, params=None):
+        """
+        Create a new instance of the
+
+        :param spec: Environment specification (dict)
+        :param detector: Object detector (instance of Detector interface)
+        :param params: Dict of parameters
+        :return:
+        """
+
         raise NotImplementedError()
 
     @staticmethod

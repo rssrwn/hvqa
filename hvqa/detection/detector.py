@@ -5,7 +5,7 @@ from hvqa.detection.models import DetectionBackbone, DetectionModel
 from hvqa.util.video_repr import Obj, Frame, Video
 from hvqa.util.definitions import CLASSES
 from hvqa.util.func import get_device, load_model, save_model
-from hvqa.util.interfaces import Trainable
+from hvqa.util.interfaces import Detector
 
 
 _transform = T.Compose([
@@ -13,7 +13,7 @@ _transform = T.Compose([
 ])
 
 
-class NeuralDetector(Trainable):
+class NeuralDetector(Detector):
     def __init__(self, model):
         super(NeuralDetector, self).__init__()
 
