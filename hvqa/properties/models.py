@@ -3,14 +3,16 @@ import torch.nn.functional as F
 
 
 class PropertyExtractionModel(nn.Module):
-    def __init__(self):
+    def __init__(self, spec):
+        """
+        Create a torch Module for the properties model
+
+        :param spec: EnvSpec obj
+        """
+
         super(PropertyExtractionModel, self).__init__()
 
         output_size = 6
-
-        num_colours = 7
-        num_rotations = 4
-        num_classes = 4
 
         feat1 = 32
         feat2 = 64
@@ -27,9 +29,13 @@ class PropertyExtractionModel(nn.Module):
         self.fc = nn.Linear(feat3 * output_size * output_size, latent_size)
 
         # Property layers
-        self.colour_layer = nn.Linear(latent_size, num_colours)
-        self.rotation_layer = nn.Linear(latent_size, num_rotations)
-        self.class_layer = nn.Linear(latent_size, num_classes)
+        prop_layers = []
+        for prop in spec.prop_names():
+            num_values = len(spec.prop_values(prop))
+            prop_layer = nn.Linear(latent_size, num_values)
+            prop_layers.append(prop_layer)
+
+        self.prop_layers = prop_layers
 
     def forward(self, x):
         features = self.conv1(x)
@@ -46,12 +52,10 @@ class PropertyExtractionModel(nn.Module):
         features = self.fc(features)
         features = F.relu(features)
 
-        colours = self.colour_layer(features)
-        rotations = self.rotation_layer(features)
-        classes = self.class_layer(features)
+        prop_outs = [layer(features) for layer in self.prop_layers]
 
         # Note: softmax is applied by the loss function
-        return colours, rotations, classes
+        return tuple(prop_outs)
 
     @staticmethod
     def _flatten(tensor):

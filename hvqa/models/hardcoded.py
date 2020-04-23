@@ -15,7 +15,8 @@ AL_MODEL_DEFAULT = True
 
 
 class HardcodedVQAModel(_AbsVQAModel):
-    def __init__(self, detector, properties, tracker, relations, events, qa):
+    def __init__(self, spec, detector, properties, tracker, relations, events, qa):
+        self.spec = spec
         self.err_corr = tracker.err_corr
         self.al_model = events.al_model
 
@@ -41,7 +42,7 @@ class HardcodedVQAModel(_AbsVQAModel):
         events = ASPEventDetector.new(spec, al_model=al_model)
         qa = HardcodedASPQASystem.new(spec)
 
-        model = HardcodedVQAModel(detector, properties, tracker, relations, events, qa)
+        model = HardcodedVQAModel(spec, detector, properties, tracker, relations, events, qa)
         return model
 
     @staticmethod
@@ -65,15 +66,16 @@ class HardcodedVQAModel(_AbsVQAModel):
 
         err_corr = meta_data["err_corr"]
         al_model = meta_data["al_model"]
+        spec = meta_data["spec"]
 
         detector = NeuralDetector.load(detector_path)
-        properties = NeuralPropExtractor.load(properties_path)
+        properties = NeuralPropExtractor.load(spec, properties_path)
         tracker = ObjTracker(err_corr)
         relations = HardcodedRelationClassifier()
         events = ASPEventDetector(al_model)
         qa = HardcodedASPQASystem()
 
-        model = HardcodedVQAModel(detector, properties, tracker, relations, events, qa)
+        model = HardcodedVQAModel(spec, detector, properties, tracker, relations, events, qa)
         return model
 
     def save(self, path):
@@ -88,8 +90,8 @@ class HardcodedVQAModel(_AbsVQAModel):
         save_path = Path(path)
         save_path.mkdir(parents=True, exist_ok=True)
 
-        detector_path = save_path / "detector.pt"
-        properties_path = save_path / "properties.pt"
+        detector_path = save_path / "detector"
+        properties_path = save_path / "properties"
         meta_data_path = save_path / "meta_data.json"
 
         self.obj_detector.save(str(detector_path))
@@ -98,6 +100,7 @@ class HardcodedVQAModel(_AbsVQAModel):
         meta_data = {
             "err_corr": self.err_corr,
             "al_model": self.al_model,
+            "spec": self.spec
         }
 
         with open(meta_data_path, "w") as f:

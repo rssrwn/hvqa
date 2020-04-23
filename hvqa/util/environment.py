@@ -12,18 +12,22 @@ class EnvSpec:
 
         :param num_frames: Number of frames in the video (int)
         :param obj_types: Object classes (list of str)
-        :param properties: Dict of properties and their values (dict from str to list of str)
+        :param properties: Dict of non-obj detection properties and their values (dict from str to list of str)
         :param relations: Binary relations between objects (list of str)
         :param actions: Actions for objects (list of str)
         :param events: Effects of actions (list of str)
+
+        Note: Properties should not include class or position, these are implicit
         """
 
         self.num_frames = num_frames
         self.obj_types = obj_types
         self.props = properties
+        self._prop_names = self.props.keys()
         self.relations = relations
         self.actions = actions
         self.events = events
+        self.prop_idx_map = {prop: idx for idx, prop in enumerate(self._prop_names)}
 
     @staticmethod
     def from_dict(coll):
@@ -36,6 +40,15 @@ class EnvSpec:
 
         spec = EnvSpec(num_frames, obj_types, properties, relations, actions, events)
         return spec
+
+    def num_props(self):
+        return len(self.props.keys())
+
+    def prop_values(self, prop):
+        return self.props[prop]
+
+    def prop_names(self):
+        return self._prop_names
 
 
 class Obj:

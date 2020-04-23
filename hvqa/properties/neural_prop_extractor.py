@@ -14,9 +14,10 @@ _transform = T.Compose([
 
 
 class NeuralPropExtractor(Component):
-    def __init__(self, model):
+    def __init__(self, spec, model):
         super(NeuralPropExtractor, self).__init__()
 
+        self.spec = spec
         self.model = model
 
     def run_(self, video):
@@ -29,15 +30,12 @@ class NeuralPropExtractor(Component):
                 obj.colour = colour
                 obj.rot = rot
 
-                # Uncomment the following to use obj type from property extractor
-                # obj.cls = cls
-
     def _extract_props(self, obj_imgs):
         """
         Extracts properties of objects from images
 
         :param obj_imgs: List of PIL images of objects
-        :return: List of tuple [(colour, rotation, class)]
+        :return: List of tuple [(colour, rotation)]
         """
 
         obj_imgs = [_transform(img) for img in obj_imgs]
@@ -65,16 +63,16 @@ class NeuralPropExtractor(Component):
 
     @staticmethod
     def new(spec, **kwargs):
-        model = PropertyExtractionModel()
+        model = PropertyExtractionModel(spec)
         model.eval()
-        prop_extractor = NeuralPropExtractor(model)
+        prop_extractor = NeuralPropExtractor(spec, model)
         return prop_extractor
 
     @staticmethod
-    def load(path):
-        model = load_model(PropertyExtractionModel, path)
+    def load(path, spec):
+        model = load_model(PropertyExtractionModel, path, (spec,))
         model.eval()
-        prop_extractor = NeuralPropExtractor(model)
+        prop_extractor = NeuralPropExtractor(spec, model)
         return prop_extractor
 
     def save(self, path):
