@@ -60,7 +60,7 @@ class _AbsVQAModel(Model):
         raise NotImplementedError("AbsModel is abstract; objects should not be created")
 
     @staticmethod
-    def new(spec, detector, params=None):
+    def new(spec, detector, **kwargs):
         raise NotImplementedError("AbsModel is abstract; objects should not be created")
 
     @staticmethod

@@ -37,6 +37,11 @@ class HardcodedRelationClassifier(Component):
         pass
 
     @staticmethod
+    def new(spec, **kwargs):
+        relations = HardcodedRelationClassifier()
+        return relations
+
+    @staticmethod
     def load(path):
         raise NotImplementedError("HardcodedRelationClassifier objects must be newly created")
 

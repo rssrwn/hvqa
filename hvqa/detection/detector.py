@@ -24,7 +24,7 @@ class NeuralDetector(Detector):
         raise NotImplementedError()
 
     @staticmethod
-    def new():
+    def new(spec, **kwargs):
         backbone = DetectionBackbone()
         detector_model = DetectionModel(backbone)
         detector_model.eval()

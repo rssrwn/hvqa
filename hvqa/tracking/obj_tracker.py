@@ -11,7 +11,7 @@ class ObjTracker(Component):
     and assign their respective ids
     """
 
-    def __init__(self, err_corr):
+    def __init__(self, err_corr=True):
         self.err_corr = err_corr
         self.reset()
 
@@ -31,6 +31,12 @@ class ObjTracker(Component):
 
     def train(self, data):
         pass
+
+    @staticmethod
+    def new(spec, **kwargs):
+        err_corr = kwargs["err_corr"]
+        tracker = ObjTracker(err_corr)
+        return tracker
 
     def _process_frame_(self, objs):
         """

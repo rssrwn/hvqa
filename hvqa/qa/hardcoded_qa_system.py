@@ -71,6 +71,11 @@ class HardcodedASPQASystem(Component):
         answers = self._answer(video)
         video.set_answers(answers)
 
+    @staticmethod
+    def new(spec, **kwargs):
+        qa = HardcodedASPQASystem()
+        return qa
+
     def train(self, data):
         pass
 

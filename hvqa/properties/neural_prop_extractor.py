@@ -64,7 +64,7 @@ class NeuralPropExtractor(Component):
         raise NotImplementedError()
 
     @staticmethod
-    def new():
+    def new(spec, **kwargs):
         model = PropertyExtractionModel()
         model.eval()
         prop_extractor = NeuralPropExtractor(model)

@@ -23,23 +23,26 @@ class HardcodedVQAModel(_AbsVQAModel):
 
     def train(self, data, verbose=True):
         # TODO
-        pass
+        raise NotImplementedError()
 
     @staticmethod
-    def new(spec, detector, params=None):
+    def new(spec, detector, **kwargs):
         err_corr = ERR_CORR_DEFAULT
         al_model = AL_MODEL_DEFAULT
-        if params is not None:
-            err_corr_param = params.get("error_correction")
-            al_model_param = params.get("al_model")
+        if kwargs is not None:
+            err_corr_param = kwargs.get("error_correction")
+            al_model_param = kwargs.get("al_model")
             err_corr = err_corr_param if err_corr_param is not None else err_corr
             al_model = al_model_param if al_model_param is not None else al_model
 
-        properties = NeuralPropExtractor(spec)
-        tracker = ObjTracker(spec, err_corr)
-        relations = HardcodedRelationClassifier(spec)
-        events = ASPEventDetector(spec)
-        qa = HardcodedASPQASystem(spec)
+        properties = NeuralPropExtractor.new(spec)
+        tracker = ObjTracker.new(spec, err_corr=err_corr)
+        relations = HardcodedRelationClassifier.new(spec)
+        events = ASPEventDetector.new(spec, al_model=al_model)
+        qa = HardcodedASPQASystem.new(spec)
+
+        model = HardcodedVQAModel(detector, properties, tracker, relations, events, qa)
+        return model
 
     @staticmethod
     def load(path):

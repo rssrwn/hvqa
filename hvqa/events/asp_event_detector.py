@@ -30,6 +30,12 @@ class ASPEventDetector(Component):
             for obj_id, event in frame_events:
                 video.add_event(event, obj_id, frame_idx)
 
+    @staticmethod
+    def new(spec, **kwargs):
+        al_model = kwargs["al_model"]
+        events = ASPEventDetector(al_model)
+        return events
+
     def train(self, data):
         print("ASPEventDetector does not require training. Skipping...")
 

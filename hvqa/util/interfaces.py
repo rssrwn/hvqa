@@ -48,6 +48,18 @@ class Component(Trainable):
 
         raise NotImplementedError()
 
+    @staticmethod
+    def new(spec, **kwargs):
+        """
+        Create a new instance of a Component
+
+        :param spec: Environment specification
+        :param kwargs: Other component specific params
+        :return: Instance of the Component
+        """
+
+        raise NotImplementedError()
+
     def train(self, data):
         raise NotImplementedError()
 
@@ -79,14 +91,14 @@ class Model(Trainable):
         raise NotImplementedError()
 
     @staticmethod
-    def new(spec, detector, params=None):
+    def new(spec, detector, **kwargs):
         """
-        Create a new instance of the
+        Create a new instance of the Model
 
         :param spec: Environment specification (dict)
         :param detector: Object detector (instance of Detector interface)
-        :param params: Dict of parameters
-        :return:
+        :param kwargs: Other model specific params
+        :return: Instance of Model
         """
 
         raise NotImplementedError()
