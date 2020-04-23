@@ -1,38 +1,46 @@
 from hvqa.models.abs_model import _AbsModel
 from hvqa.detection.detector import NeuralDetector
 from hvqa.properties.neural_prop_extractor import NeuralPropExtractor
+from hvqa.tracking.obj_tracker import ObjTracker
+from hvqa.qa.hardcoded_qa_system import HardcodedASPQASystem
 
 
-class IndividuallyTrainedModel(_AbsModel):
-    def __init__(self, detector_path, prop_classifier_path, event_asp_dir, qa_system_asp_dir):
-        self.tracker_err_correction = True
-
-        # This will set paths and setup components by calling the setup functions in this class
-        super(IndividuallyTrainedModel, self).__init__(
-            detector_path,
-            prop_classifier_path,
-            None,
-            None,
-            event_asp_dir,
-            qa_system_asp_dir
-        )
-
-    def _setup_obj_detector(self):
-        detector = NeuralDetector.load(self.detector_path)
-        return detector
-
-    def _setup_prop_classifier(self):
-        prop_extractor = NeuralPropExtractor.load(self.properties_path)
-        return prop_extractor
-
-    def _setup_tracker(self):
-        pass
-
-    def _setup_relation_classifier(self):
-        pass
-
-    def _setup_event_detector(self):
-        pass
-
-    def _setup_qa_system(self):
-        pass
+# TODO
+# class IndividuallyTrainedModel(_AbsModel):
+#     def __init__(self, events_path, qa_path, err_corr=True, detector_path=None, properties_path=None):
+#         self.err_corr = err_corr
+#
+#         self.events_path = events_path
+#         self.qa_path = qa_path
+#
+#         if detector_path is not None:
+#             detector = NeuralDetector.load(detector_path)
+#         else:
+#             detector = NeuralDetector.new()
+#
+#         if properties_path is not None:
+#             properties = NeuralPropExtractor.load(properties_path)
+#         else:
+#             properties = NeuralPropExtractor.new()
+#
+#         tracker = ObjTracker(err_corr)
+#         # relations = HardcodedRelationClassifier()
+#         # events = ASPEventDetector(events_path)
+#         qa = HardcodedASPQASystem(qa_path)
+#
+#         # This will store each component
+#         super(IndividuallyTrainedModel, self).__init__(
+#             detector,
+#             properties,
+#             tracker,
+#             relations,
+#             events,
+#             qa
+#         )
+#
+#     @staticmethod
+#     def load(path):
+#         pass
+#
+#     def save(self, path):
+#         pass

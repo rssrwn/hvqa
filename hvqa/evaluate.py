@@ -9,6 +9,7 @@ DETECTOR_PATH = "saved-models/detector-e2e-v1_0/after_20_epochs.pt"
 PROP_EXTRACTOR_PATH = "saved-models/prop-extractor-v1_0/after_2_epochs.pt"
 EVENT_ASP_DIR = "hvqa/events"
 QA_ASP_DIR = "hvqa/qa"
+ERR_CORR = False
 
 
 def evaluate(model, data, verbose=True):
@@ -19,7 +20,7 @@ def main(data_dir, model_type):
     data = VideoDataset(data_dir)
 
     if model_type == "hardcoded":
-        model = HardcodedModel(DETECTOR_PATH, PROP_EXTRACTOR_PATH, EVENT_ASP_DIR, QA_ASP_DIR)
+        model = HardcodedModel(EVENT_ASP_DIR, QA_ASP_DIR, ERR_CORR, DETECTOR_PATH, PROP_EXTRACTOR_PATH)
     else:
         print("That type of model is not supported")
         return
