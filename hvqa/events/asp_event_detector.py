@@ -9,7 +9,8 @@ class ASPEventDetector(Component):
     def __init__(self, asp_dir):
         path = Path(asp_dir)
         self.al_model = path / "model.lp"
-        self.detector = path / "events.lp"
+        # self.detector = path / "events.lp"
+        self.detector = path / "occurs_events.lp"
         self._video_info = path / "_temp_video_info.lp"
         self.timeout = 5
 
@@ -44,7 +45,7 @@ class ASPEventDetector(Component):
 
         # Add files
         ctl = clingo.Control(message_limit=0)
-        ctl.load(str(self.al_model))
+        # ctl.load(str(self.al_model)) # TODO uncomment for AL event model
         ctl.load(str(self.detector))
         ctl.load(str(self._video_info))
 
@@ -60,8 +61,12 @@ class ASPEventDetector(Component):
         start_time = time.time()
         with ctl.solve(yield_=True) as handle:
             for model in handle:
-                if model.optimality_proven:
-                    models.append(model.symbols(shown=True))
+                
+                # TODO Uncomment for AL event model
+                # if model.optimality_proven:
+                #     models.append(model.symbols(shown=True))
+
+                models.append(model.symbols(shown=True))
 
                 if time.time() - start_time > self.timeout:
                     print("WARNING: Event detection program reached timeout")
