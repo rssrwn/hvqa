@@ -1,8 +1,7 @@
 import unittest
 
 from hvqa.qa.hardcoded_qa_system import HardcodedASPQASystem
-from hvqa.util.video_repr import Video, Frame, Obj
-
+from hvqa.util.environment import Obj, Frame, Video
 
 q_type_0 = "What colour was the left-facing rock in frame 3?"
 q_type_1 = "Was the octopus close to the blue rock in frame 12?"

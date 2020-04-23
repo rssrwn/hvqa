@@ -1,6 +1,6 @@
 import unittest
 
-from hvqa.util.video_repr import Obj, Frame
+from hvqa.util.environment import Obj, Frame
 from hvqa.events.asp_event_detector import ASPEventDetector
 
 
