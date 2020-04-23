@@ -7,8 +7,8 @@ from hvqa.util.func import format_prop_val, format_prop_str, event_to_asp_str, a
 
 
 class HardcodedASPQASystem(Component):
-    def __init__(self, asp_dir):
-        path = Path(asp_dir)
+    def __init__(self):
+        path = Path("hvqa/qa")
         self.qa_system = path / "qa.lp"
         self.features = path / "background_knowledge.lp"
         self._video_info = path / "_temp_video_info.lp"
@@ -158,7 +158,8 @@ class HardcodedASPQASystem(Component):
 
         return ans_strs
 
-    def _answer_q_type_0(self, args, template):
+    @staticmethod
+    def _answer_q_type_0(args, template):
         assert len(args) == 2, "Args is not correct length for question type 0"
 
         prop, prop_val = args
@@ -169,14 +170,16 @@ class HardcodedASPQASystem(Component):
         ans_str = template.format(prop_val=prop_val)
         return ans_str
 
-    def _answer_q_type_1(self, args, template):
+    @staticmethod
+    def _answer_q_type_1(args, template):
         assert len(args) == 1, "Args is not correct length for question type 1"
 
         yes_no = args[0]
         ans_str = template.format(ans=yes_no)
         return ans_str
 
-    def _answer_q_type_2(self, args, template):
+    @staticmethod
+    def _answer_q_type_2(args, template):
         assert len(args) == 1, "Args is not correct length for question type 2"
 
         action = args[0]
@@ -188,7 +191,8 @@ class HardcodedASPQASystem(Component):
         ans_str = template.format(action=action)
         return ans_str
 
-    def _answer_q_type_3(self, args, template):
+    @staticmethod
+    def _answer_q_type_3(args, template):
         assert len(args) == 3, "Args is not correct length for question type 3"
 
         prop, before, after = args
@@ -197,14 +201,16 @@ class HardcodedASPQASystem(Component):
         ans_str = template.format(prop=prop, before=before, after=after)
         return ans_str
 
-    def _answer_q_type_4(self, args, template):
+    @staticmethod
+    def _answer_q_type_4(args, template):
         assert len(args) == 1, "Args is not correct length for question type 4"
 
         num = args[0]
         ans_str = template.format(ans=num)
         return ans_str
 
-    def _answer_q_type_5(self, args, template):
+    @staticmethod
+    def _answer_q_type_5(args, template):
         assert len(args) == 1, "Args is not correct length for question type 5"
 
         event = args[0]
@@ -212,7 +218,8 @@ class HardcodedASPQASystem(Component):
         ans_str = template.format(event=event)
         return ans_str
 
-    def _answer_q_type_6(self, args, template):
+    @staticmethod
+    def _answer_q_type_6(args, template):
         assert len(args) == 1, "Args is not correct length for question type 6"
 
         action = args[0]
