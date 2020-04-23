@@ -2,7 +2,6 @@ import torch
 import torchvision.transforms as T
 
 from hvqa.properties.models import PropertyExtractionModel
-from hvqa.util.definitions import COLOURS, ROTATIONS, CLASSES
 from hvqa.util.func import get_device, load_model, save_model
 from hvqa.util.interfaces import Component
 
@@ -25,17 +24,18 @@ class NeuralPropExtractor(Component):
             objs = frame.objs
             obj_imgs = [obj.img for obj in objs]
             props = self._extract_props(obj_imgs)
-            for idx, (colour, rot, cls) in enumerate(props):
+            for idx, prop_vals in enumerate(props):
                 obj = objs[idx]
-                obj.colour = colour
-                obj.rot = rot
+                for prop_idx, val in enumerate(prop_vals):
+                    prop_name = self.spec.prop_names[prop_idx]
+                    obj.set_prop_val(prop_name, val)
 
     def _extract_props(self, obj_imgs):
         """
         Extracts properties of objects from images
 
         :param obj_imgs: List of PIL images of objects
-        :return: List of tuple [(colour, rotation)]
+        :return: List of tuple [(prop_val1, prop_val2, ...)]
         """
 
         obj_imgs = [_transform(img) for img in obj_imgs]
@@ -48,13 +48,16 @@ class NeuralPropExtractor(Component):
             model_out = self.model(obj_imgs_batch)
 
         preds = [torch.max(pred, dim=1)[1].cpu().numpy() for pred in model_out]
-        colours = [COLOURS[idx] for idx in preds[0]]
-        rotations = [ROTATIONS[idx] for idx in preds[1]]
-        classes = [CLASSES[idx] for idx in preds[2]]
 
-        assert len(colours) == len(rotations) == len(classes), "Number of predictions must be the same"
+        prop_list = []
+        length = None
+        for prop_idx, pred in enumerate(preds):
+            vals = [self.spec.prop_values[idx] for idx in pred]
+            length = len(vals) if length is None else length
+            assert length == len(vals), "Number of predictions must be the same"
+            prop_list.append(vals)
 
-        props = zip(colours, rotations, classes)
+        props = zip(prop_list)
         return props
 
     def train(self, data):
