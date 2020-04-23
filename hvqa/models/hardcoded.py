@@ -1,7 +1,7 @@
 import json
 from pathlib import Path
 
-from hvqa.models.abs_model import _AbsModel
+from hvqa.models.abs_model import _AbsVQAModel
 from hvqa.detection.detector import NeuralDetector
 from hvqa.properties.neural_prop_extractor import NeuralPropExtractor
 from hvqa.tracking.obj_tracker import ObjTracker
@@ -10,37 +10,36 @@ from hvqa.events.asp_event_detector import ASPEventDetector
 from hvqa.qa.hardcoded_qa_system import HardcodedASPQASystem
 
 
-class HardcodedModel(_AbsModel):
-    def __init__(self, events_path, qa_path, err_corr=True, detector_path=None, properties_path=None):
-        self.err_corr = err_corr
+ERR_CORR_DEFAULT = True
+AL_MODEL_DEFAULT = True
 
-        self.events_path = events_path
-        self.qa_path = qa_path
 
-        if detector_path is not None:
-            detector = NeuralDetector.load(detector_path)
-        else:
-            detector = NeuralDetector.new()
+class HardcodedVQAModel(_AbsVQAModel):
+    def __init__(self, detector, properties, tracker, relations, events, qa):
+        self.err_corr = tracker.err_corr
+        self.al_model = events.al_model
 
-        if properties_path is not None:
-            properties = NeuralPropExtractor.load(properties_path)
-        else:
-            properties = NeuralPropExtractor.new()
+        super(HardcodedVQAModel, self).__init__(detector, properties, tracker, relations, events, qa)
 
-        tracker = ObjTracker(err_corr)
-        relations = HardcodedRelationClassifier()
-        events = ASPEventDetector(events_path)
-        qa = HardcodedASPQASystem(qa_path)
+    def train(self, data, verbose=True):
+        # TODO
+        pass
 
-        # This will store each component
-        super(HardcodedModel, self).__init__(
-            detector,
-            properties,
-            tracker,
-            relations,
-            events,
-            qa
-        )
+    @staticmethod
+    def new(spec, detector, params=None):
+        err_corr = ERR_CORR_DEFAULT
+        al_model = AL_MODEL_DEFAULT
+        if params is not None:
+            err_corr_param = params.get("error_correction")
+            al_model_param = params.get("al_model")
+            err_corr = err_corr_param if err_corr_param is not None else err_corr
+            al_model = al_model_param if al_model_param is not None else al_model
+
+        properties = NeuralPropExtractor(spec)
+        tracker = ObjTracker(spec, err_corr)
+        relations = HardcodedRelationClassifier(spec)
+        events = ASPEventDetector(spec)
+        qa = HardcodedASPQASystem(spec)
 
     @staticmethod
     def load(path):
@@ -61,11 +60,17 @@ class HardcodedModel(_AbsModel):
         with meta_data_path.open() as f:
             meta_data = json.load(f)
 
-        events_path = meta_data["events"]
-        qa_path = meta_data["qa"]
-        err_corr = meta_data["error_correction"]
+        err_corr = meta_data["err_corr"]
+        al_model = meta_data["al_model"]
 
-        model = HardcodedModel(events_path, qa_path, err_corr, detector_path, properties_path)
+        detector = NeuralDetector.load(detector_path)
+        properties = NeuralPropExtractor.load(properties_path)
+        tracker = ObjTracker(err_corr)
+        relations = HardcodedRelationClassifier()
+        events = ASPEventDetector(al_model)
+        qa = HardcodedASPQASystem()
+
+        model = HardcodedVQAModel(detector, properties, tracker, relations, events, qa)
         return model
 
     def save(self, path):
@@ -88,9 +93,8 @@ class HardcodedModel(_AbsModel):
         self.prop_classifier.save(str(properties_path))
 
         meta_data = {
-            "events": self.events_path,
-            "qa": self.qa_path,
-            "error_correction": self.err_corr
+            "err_corr": self.err_corr,
+            "al_model": self.al_model,
         }
 
         with open(meta_data_path, "w") as f:

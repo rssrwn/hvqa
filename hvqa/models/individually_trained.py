@@ -1,4 +1,4 @@
-from hvqa.models.abs_model import _AbsModel
+from hvqa.models.abs_model import _AbsVQAModel
 from hvqa.detection.detector import NeuralDetector
 from hvqa.properties.neural_prop_extractor import NeuralPropExtractor
 from hvqa.tracking.obj_tracker import ObjTracker

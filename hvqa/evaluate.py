@@ -1,7 +1,7 @@
 import argparse
 
 from hvqa.video_dataset import VideoDataset
-from hvqa.models.hardcoded import HardcodedModel
+from hvqa.models.hardcoded import HardcodedVQAModel
 from hvqa.models.visualise import Visualiser
 
 
@@ -20,7 +20,7 @@ def main(data_dir, model_type):
     data = VideoDataset(data_dir)
 
     if model_type == "hardcoded":
-        model = HardcodedModel(EVENT_ASP_DIR, QA_ASP_DIR, ERR_CORR, DETECTOR_PATH, PROP_EXTRACTOR_PATH)
+        model = HardcodedVQAModel(EVENT_ASP_DIR, QA_ASP_DIR, ERR_CORR, DETECTOR_PATH, PROP_EXTRACTOR_PATH)
     else:
         print("That type of model is not supported")
         return

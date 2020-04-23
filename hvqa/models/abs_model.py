@@ -6,7 +6,7 @@ from hvqa.util.interfaces import Model
 from hvqa.util.func import inc_in_map
 
 
-class _AbsModel(Model):
+class _AbsVQAModel(Model):
     """
     Abstract QA Model Class
     Most of the models will run the same pipeline which is contained in this class
@@ -57,12 +57,11 @@ class _AbsModel(Model):
         return answers
 
     def train(self, data, verbose=True):
-        print("Training VideoQA model...")
+        raise NotImplementedError("AbsModel is abstract; objects should not be created")
 
-        for component in self.components:
-            component.train(data, verbose)
-
-        print("Completed VideoQA model training")
+    @staticmethod
+    def new(spec, detector, params=None):
+        raise NotImplementedError("AbsModel is abstract; objects should not be created")
 
     @staticmethod
     def load(path):
