@@ -6,16 +6,22 @@ from hvqa.util.interfaces import Component
 
 
 class ASPEventDetector(Component):
-    def __init__(self, asp_dir):
-        path = Path(asp_dir)
-        self.al_model = path / "model.lp"
-        # self.detector = path / "events.lp"
-        self.detector = path / "occurs_events.lp"
+    def __init__(self, al_model=True):
+        self.al_model = al_model
+
+        path = Path("hvqa/events")
         self._video_info = path / "_temp_video_info.lp"
+
+        if al_model:
+            self.detector_file = path / "events.lp"
+            self.al_model_file = path / "model.lp"
+        else:
+            self.detector = path / "occurs_events.lp"
+
         self.timeout = 5
 
-        assert self.al_model.exists(), f"File {self.al_model} does not exist"
-        assert self.detector.exists(), f"File {self.detector} does not exist"
+        assert self.al_model_file.exists(), f"File {self.al_model_file} does not exist"
+        assert self.detector_file.exists(), f"File {self.detector_file} does not exist"
 
     def run_(self, video):
         frames = video.frames
@@ -23,6 +29,9 @@ class ASPEventDetector(Component):
         for frame_idx, frame_events in enumerate(events):
             for obj_id, event in frame_events:
                 video.add_event(event, obj_id, frame_idx)
+
+    def train(self, data):
+        print("ASPEventDetector does not require training. Skipping...")
 
     def _detect_events(self, frames):
         """
@@ -45,9 +54,10 @@ class ASPEventDetector(Component):
 
         # Add files
         ctl = clingo.Control(message_limit=0)
-        # ctl.load(str(self.al_model)) # TODO uncomment for AL event model
-        ctl.load(str(self.detector))
+        ctl.load(str(self.detector_file))
         ctl.load(str(self._video_info))
+        if self.al_model:
+            ctl.load(str(self.al_model_file))
 
         # Configure the solver
         config = ctl.configuration
@@ -61,12 +71,10 @@ class ASPEventDetector(Component):
         start_time = time.time()
         with ctl.solve(yield_=True) as handle:
             for model in handle:
-                
-                # TODO Uncomment for AL event model
-                # if model.optimality_proven:
-                #     models.append(model.symbols(shown=True))
-
-                models.append(model.symbols(shown=True))
+                if self.al_model and model.optimality_proven:
+                    models.append(model.symbols(shown=True))
+                elif not self.al_model:
+                    models.append(model.symbols(shown=True))
 
                 if time.time() - start_time > self.timeout:
                     print("WARNING: Event detection program reached timeout")
@@ -111,6 +119,3 @@ class ASPEventDetector(Component):
             frame.set_correct_objs(try_ids)
 
         return events
-
-    def train(self, data):
-        pass
