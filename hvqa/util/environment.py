@@ -1,6 +1,5 @@
 # File for modelling the environment
 
-from hvqa.util.definitions import CLASSES, RELATIONS, VIDEO_LENGTH, ACTIONS
 from hvqa.util.func import collect_obj
 
 
@@ -11,7 +10,7 @@ class EnvSpec:
         This specification is used to create each Component in a VideoQA Model
 
         :param num_frames: Number of frames in the video (int)
-        :param obj_types: Object classes (list of str)
+        :param obj_types: Object classes and is_static (list of (str, bool))
         :param properties: Dict of non-obj detection properties and their values (dict from str to list of str)
         :param relations: Binary relations between objects (list of str)
         :param actions: Actions for objects (list of str)
@@ -21,13 +20,15 @@ class EnvSpec:
         """
 
         self.num_frames = num_frames
-        self.obj_types = obj_types
-        self.props = properties
-        self._prop_names = self.props.keys()
+        self._obj_types = [cls for cls, _ in obj_types]
+        self._static = [is_static for _, is_static in obj_types]
+        self._obj_idx_map = {obj: idx for idx, obj in enumerate(self._obj_types)}
+        self._props = properties
+        self._prop_names = self._props.keys()
         self.relations = relations
         self.actions = actions
         self.events = events
-        self.prop_idx_map = {prop: idx for idx, prop in enumerate(self._prop_names)}
+        self._prop_idx_map = {prop: idx for idx, prop in enumerate(self._prop_names)}
 
     @staticmethod
     def from_dict(coll):
@@ -42,26 +43,50 @@ class EnvSpec:
         return spec
 
     def num_props(self):
-        return len(self.props.keys())
+        return len(self._props.keys())
 
     def prop_values(self, prop):
-        return self.props[prop]
+        return self._props[prop]
 
     def prop_names(self):
         return self._prop_names
 
+    def obj_types(self):
+        return self._obj_types
+
+    def is_static(self, cls):
+        cls_idx = self._obj_idx_map[cls]
+        is_static = self._static[cls_idx]
+        return is_static
+
 
 class Obj:
-    def __init__(self, cls, pos):
-        assert cls in CLASSES, f"Class must be one of {CLASSES}"
+    def __init__(self, spec, cls, pos):
+        """
+        Create an object from a video
+
+        :param spec: EncSpec object
+        :param cls: Class of object (str)
+        :param pos: Position of object (4-tuple of int)
+        """
+
+        assert cls in spec.obj_types, f"Class must be one of {spec.obj_types}"
+
+        self.spec = spec
 
         self.cls = cls
         self.pos = pos
-        self.is_static = cls != "octopus"
-        self.rot = None
-        self.colour = None
+        self.is_static = spec.is_static(cls)
         self.id = None
         self.img = None
+        self.prop_vals = {prop: None for prop in spec.prop_names}
+
+    def set_prop_val(self, prop, val):
+        vals = self.spec.prop_values(prop)
+        assert prop in self.spec.prop_names, f"Unknown property {prop}"
+        assert val in vals, f"{prop} must be one of {vals}"
+
+        self.prop_vals[prop] = val
 
     def set_image(self, img):
         """
@@ -76,24 +101,26 @@ class Obj:
     def gen_asp_encoding(self, frame_num, body=None):
         assert self.cls is not None, "Class must be set"
         assert self.pos is not None, "Position must be set"
-        assert self.rot is not None, "Rotation must be set"
-        assert self.colour is not None, "Colour must be set"
         assert self.id is not None, "Id must be set"
+        for prop, val in self.prop_vals:
+            assert val is not None, f"{prop} must be set"
 
         self.pos = tuple(map(int, self.pos))
 
         body_str = "" if body is None else " :- " + body
         frame_num = str(frame_num)
         encoding = f"obs(class({self.cls}, {self.id}), {frame_num}){body_str}.\n" \
-                   f"obs(position({str(self.pos)}, {self.id}), {frame_num}){body_str}.\n" \
-                   f"obs(rotation({str(self.rot)}, {self.id}), {frame_num}){body_str}.\n" \
-                   f"obs(colour({self.colour}, {self.id}), {frame_num}){body_str}.\n"
+                   f"obs(position({str(self.pos)}, {self.id}), {frame_num}){body_str}.\n"
+
+        for prop, val in self.prop_vals:
+            encoding += f"obs({prop}({str(val)}, {self.id}), {frame_num}){body_str}.\n"
 
         return encoding
 
 
 class Frame:
-    def __init__(self, objs):
+    def __init__(self, spec, objs):
+        self.spec = spec
         self.objs = objs
         self._id_idx_map = self._find_duplicate_idxs()
         self.relations = []
@@ -101,7 +128,7 @@ class Frame:
         self._try_id_idx_map = {}
 
     def set_relation(self, idx1, idx2, relation):
-        assert relation in RELATIONS, f"Relation arg must be one of {RELATIONS}"
+        assert relation in self.spec.relations, f"Relation arg must be one of {self.spec.relations}"
 
         id1 = self.objs[idx1].id
         id2 = self.objs[idx2].id
@@ -183,16 +210,17 @@ class Frame:
 
 
 class Video:
-    def __init__(self, frames):
+    def __init__(self, spec, frames):
+        self.spec = spec
         self.frames = frames
-        self.events = [[]] * (VIDEO_LENGTH - 1)
+        self.actions = [[]] * (spec.num_frames - 1)
         self.questions = None
         self.q_types = None
         self.answers = None
 
-    def add_event(self, event, obj_id, start_idx):
-        assert event in ACTIONS, f"Event {event} is not one of {ACTIONS}"
-        self.events[start_idx] = self.events[start_idx] + [(event, obj_id)]
+    def add_action(self, action, obj_id, start_idx):
+        assert action in self.spec.actions, f"Action {action} is not one of {self.spec.actions}"
+        self.actions[start_idx] = self.actions[start_idx] + [(action, obj_id)]
 
     def set_answers(self, answers):
         self.answers = answers
@@ -204,7 +232,7 @@ class Video:
 
         enc += "\n"
 
-        for frame_idx, events in enumerate(self.events):
+        for frame_idx, events in enumerate(self.actions):
             for event, obj_id in events:
                 enc += f"occurs({event}({obj_id}), {frame_idx}).\n"
 

@@ -28,7 +28,7 @@ class ASPEventDetector(Component):
         events = self._detect_events(frames)
         for frame_idx, frame_events in enumerate(events):
             for obj_id, event in frame_events:
-                video.add_event(event, obj_id, frame_idx)
+                video.add_action(event, obj_id, frame_idx)
 
     @staticmethod
     def new(spec, **kwargs):
