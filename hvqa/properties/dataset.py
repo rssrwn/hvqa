@@ -119,3 +119,42 @@ class PropertyExtractionDataset(Dataset):
     @staticmethod
     def _collect_img(video_dir, frame_idx):
         return util.collect_img(video_dir, frame_idx)
+
+
+class _PropDataset(Dataset):
+    def __init__(self, spec, videos, transform=None):
+        """
+        Create a dataset for property extraction
+
+        :param spec: EnvSpec object
+        :param videos: List of Video objects
+        :param transform: Torchvision Transform to apply to PIL image of object
+        """
+
+        self.spec = spec
+        self.obj_data = self._collect_data(videos)
+        self.transform = transform
+
+        super(_PropDataset, self).__init__()
+
+    def __getitem__(self, item):
+        img, target = self.obj_data[item]
+        if self.transform is not None:
+            img = self.transform(img)
+
+        return img, target
+
+    def __len__(self):
+        return len(self.obj_data)
+
+    @staticmethod
+    def _collect_data(videos):
+        data = []
+        for video in videos:
+            for frame in video.frames:
+                for obj in frame.objs:
+                    img = obj.img
+                    prop_vals = obj.prop_vals
+                    data.append((img, prop_vals))
+
+        return data
