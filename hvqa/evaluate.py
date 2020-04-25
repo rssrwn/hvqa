@@ -1,9 +1,7 @@
 import argparse
 
-from hvqa.video_dataset import VideoDataset
+from hvqa.util.dataset import VideoDataset
 from hvqa.models.hardcoded import HardcodedVQAModel
-from hvqa.models.visualise import Visualiser
-
 
 DETECTOR_PATH = "saved-models/detector-e2e-v1_0/after_20_epochs.pt"
 PROP_EXTRACTOR_PATH = "saved-models/prop-extractor-v1_0/after_2_epochs.pt"
