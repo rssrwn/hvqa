@@ -1,8 +1,12 @@
 import torch
+import torch.optim as optim
+import torch.nn as nn
 import torchvision.transforms as T
+from torch.utils.data import DataLoader
 
+from hvqa.properties.dataset import _PropDataset
 from hvqa.properties.models import PropertyExtractionModel
-from hvqa.util.func import get_device, load_model, save_model
+from hvqa.util.func import get_device, load_model, save_model, collate_func
 from hvqa.util.interfaces import Component
 
 
@@ -13,11 +17,21 @@ _transform = T.Compose([
 
 
 class NeuralPropExtractor(Component):
-    def __init__(self, spec, model):
+    def __init__(self, spec, model, lr=0.001, batch_size=128, epochs=10, print_freq=10):
         super(NeuralPropExtractor, self).__init__()
 
+        self.device = get_device()
+
         self.spec = spec
-        self.model = model
+        self.model = model.to(self.device)
+        self.lr = lr
+        self.batch_size = batch_size
+        self.epochs = epochs
+        self.print_freq = print_freq
+
+        self.loss_fn = nn.CrossEntropyLoss()
+
+        self._temp_save = "saved-models/properties/temp/"
 
     def run_(self, video):
         for frame in video.frames:
@@ -60,9 +74,26 @@ class NeuralPropExtractor(Component):
         props = zip(prop_list)
         return props
 
-    def train(self, data):
-        # TODO
-        raise NotImplementedError()
+    def train(self, train_data, eval_data, verbose=True):
+        train_dataset = _PropDataset(self.spec, train_data)
+        eval_dataset = _PropDataset(self.spec, eval_data)
+        train_loader = DataLoader(train_dataset, batch_size=self.batch_size, shuffle=True, collate_fn=collate_func)
+        eval_loader = DataLoader(eval_dataset, batch_size=self.batch_size, shuffle=True, collate_fn=collate_func)
+        optimiser = optim.Adam(self.model.parameters(), lr=self.lr)
+
+        print(f"Training property extraction model using device {self.device}...")
+
+        for epoch in range(self.epochs):
+            self._train_one_epoch(train_loader, optimiser, epoch, verbose)
+
+            # Save a temp model every epoch
+            current_save = f"{self._temp_save}/after_{epoch + 1}_epochs.pt"
+            torch.save(self.model.state_dict(), current_save)
+
+            # Evaluate performance every epoch
+            # evaluator.eval_model(model)
+
+        print(f"Completed training, final model saved to {current_save}")
 
     @staticmethod
     def new(spec, **kwargs):
@@ -80,3 +111,34 @@ class NeuralPropExtractor(Component):
 
     def save(self, path):
         save_model(self.model, path)
+
+    def _train_one_epoch(self, train_loader, optimiser, epoch, verbose):
+        num_batches = len(train_loader)
+        for t, (x, y) in enumerate(train_loader):
+            self.model.train()
+
+            images = torch.cat([img[None, :, :, :] for img in x])
+            # targets = [{k: v.to("cpu") for k, v in t.items()} for t in y]
+
+            targets = {prop: torch.cat([obj[prop][None, :] for obj in y]) for prop in self.spec.prop_names}
+            images = images.to(device=self.device)
+            targets = {prop: vals.to(self.device) for prop, vals in targets.items()}
+
+            output = self.model(images)
+            output = {self.spec.prop_names[idx]: out.to("cpu") for idx, out in enumerate(output)}
+
+            loss, losses = self._calc_loss(output, targets)
+            optimiser.zero_grad()
+            loss.backward()
+            optimiser.step()
+
+            if verbose and (t+1) % self.print_freq == 0:
+                loss_str = f"Epoch {epoch:>3}, batch [{t+1:>4}/{num_batches}] -- overall loss = {loss.item():.6f}"
+                for prop, loss in losses.items():
+                    loss_str += f" -- {prop} loss = {loss.item():.6f}"
+                print(loss_str)
+
+    def _calc_loss(self, preds, targets):
+        losses = {prop: self.loss_fn(pred, targets[prop]) for prop, pred in preds.items()}
+        loss = sum(losses.values())
+        return loss, losses
