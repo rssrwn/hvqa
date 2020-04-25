@@ -22,9 +22,10 @@ class HardcodedVQAModel(_AbsVQAModel):
 
         super(HardcodedVQAModel, self).__init__(detector, properties, tracker, relations, events, qa)
 
-    def train(self, data, verbose=True):
-        # TODO
-        raise NotImplementedError()
+    def train(self, train_data, eval_data, verbose=True):
+        print("Training hardcoded model...\n")
+        self.prop_classifier.train(train_data, eval_data, verbose=verbose)
+        print("Completed hardcoded model training.")
 
     @staticmethod
     def new(spec, detector, **kwargs):
@@ -80,11 +81,10 @@ class HardcodedVQAModel(_AbsVQAModel):
 
     def save(self, path):
         """
-         This will create (or overwrite) a json file at <path>
-         Note: The individual components will be saved at the paths specified when the model was created
-               Not the paths that the components may have been loaded from
+         This will create (or overwrite) a directory at <path>
+         The directory contains saved files from the individual components and a Model meta-data file
 
-         :param path: Path to save json file to (str)
+         :param path: Path to save model to (str)
          """
 
         save_path = Path(path)

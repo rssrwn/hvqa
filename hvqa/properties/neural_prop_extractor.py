@@ -4,7 +4,7 @@ import torch.nn as nn
 import torchvision.transforms as T
 from torch.utils.data import DataLoader
 
-from hvqa.properties.dataset import _PropDataset
+from hvqa.properties.dataset import PropDataset
 from hvqa.properties.models import PropertyExtractionModel
 from hvqa.util.func import get_device, load_model, save_model, collate_func
 from hvqa.util.interfaces import Component
@@ -17,13 +17,14 @@ _transform = T.Compose([
 
 
 class NeuralPropExtractor(Component):
-    def __init__(self, spec, model, lr=0.001, batch_size=128, epochs=10, print_freq=10):
+    def __init__(self, spec, model, hardcoded, lr=0.001, batch_size=128, epochs=10, print_freq=10):
         super(NeuralPropExtractor, self).__init__()
 
         self.device = get_device()
 
         self.spec = spec
         self.model = model.to(self.device)
+        self.hardcoded = hardcoded
         self.lr = lr
         self.batch_size = batch_size
         self.epochs = epochs
@@ -75,10 +76,14 @@ class NeuralPropExtractor(Component):
         return props
 
     def train(self, train_data, eval_data, verbose=True):
-        train_dataset = _PropDataset(self.spec, train_data)
-        eval_dataset = _PropDataset(self.spec, eval_data)
+        if self.hardcoded:
+            train_dataset = PropDataset(self.spec, train_data, True, transform=_transform)
+            eval_dataset = PropDataset(self.spec, eval_data, True, transform=_transform)
+        else:
+            raise NotImplementedError()
+
         train_loader = DataLoader(train_dataset, batch_size=self.batch_size, shuffle=True, collate_fn=collate_func)
-        eval_loader = DataLoader(eval_dataset, batch_size=self.batch_size, shuffle=True, collate_fn=collate_func)
+        eval_loader = DataLoader(eval_dataset, batch_size=self.batch_size, shuffle=False, collate_fn=collate_func)
         optimiser = optim.Adam(self.model.parameters(), lr=self.lr)
 
         print(f"Training property extraction model using device {self.device}...")
