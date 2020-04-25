@@ -56,7 +56,7 @@ class _AbsVQAModel(Model):
         answers = video.answers
         return answers
 
-    def train(self, data, verbose=True):
+    def train(self, train_data, eval_data, verbose=True):
         raise NotImplementedError("AbsModel is abstract; objects should not be created")
 
     @staticmethod

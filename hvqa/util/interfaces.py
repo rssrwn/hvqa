@@ -10,13 +10,15 @@ class _AbsEvaluator:
 
 
 class Trainable:
-    def train(self, data):
+    def train(self, train_data, eval_data, verbose=True):
         """
         Train the component with some training data <data>
         The input can take any type
         Nothing is returned
 
-        :param data: Training data
+        :param train_data: Training data
+        :param eval_data: Eval data
+        :param verbose: Print additional info during training
         """
 
         raise NotImplementedError()
@@ -33,7 +35,7 @@ class Detector(Trainable):
 
         raise NotImplementedError()
 
-    def train(self, data):
+    def train(self, train_data, eval_data, verbose=True):
         raise NotImplementedError()
 
 
@@ -60,7 +62,15 @@ class Component(Trainable):
 
         raise NotImplementedError()
 
-    def train(self, data):
+    def train(self, train_data, eval_data, verbose=True):
+        """
+        Train the Component
+
+        :param train_data: List of training Video objects
+        :param eval_data: List of eval Video objects
+        :param verbose: Print additional info during training
+        """
+
         raise NotImplementedError()
 
 
@@ -87,7 +97,15 @@ class Model(Trainable):
 
         raise NotImplementedError()
 
-    def train(self, data, verbose=True):
+    def train(self, train_data, eval_data, verbose=True):
+        """
+        Train the Model
+
+        :param train_data: List of training Video objects
+        :param eval_data: List of eval Video objects
+        :param verbose: Print additional info during training
+        """
+
         raise NotImplementedError()
 
     @staticmethod
