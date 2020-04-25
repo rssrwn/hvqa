@@ -65,7 +65,7 @@ class Obj:
         """
         Create an object from a video
 
-        :param spec: EncSpec object
+        :param spec: EnvSpec object
         :param cls: Class of object (str)
         :param pos: Position of object (4-tuple of int)
         """
@@ -119,13 +119,18 @@ class Obj:
 
 
 class Frame:
-    def __init__(self, spec, objs):
+    def __init__(self, spec, img):
         self.spec = spec
-        self.objs = objs
-        self._id_idx_map = self._find_duplicate_idxs()
+        self.img = img
+        self.objs = None
+        self._id_idx_map = None
         self.relations = []
         self._id_idx_map = {}
         self._try_id_idx_map = {}
+
+    def set_objs(self, objs):
+        self.objs = objs
+        self._id_idx_map = self._find_duplicate_idxs()
 
     def set_relation(self, idx1, idx2, relation):
         assert relation in self.spec.relations, f"Relation arg must be one of {self.spec.relations}"
@@ -221,6 +226,10 @@ class Video:
     def add_action(self, action, obj_id, start_idx):
         assert action in self.spec.actions, f"Action {action} is not one of {self.spec.actions}"
         self.actions[start_idx] = self.actions[start_idx] + [(action, obj_id)]
+
+    def set_questions(self, questions, q_types):
+        self.questions = questions
+        self.q_types = q_types
 
     def set_answers(self, answers):
         self.answers = answers
