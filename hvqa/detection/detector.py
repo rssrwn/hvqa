@@ -19,8 +19,7 @@ class NeuralDetector(Detector):
 
         self.model = model
 
-    def train(self, data):
-        # TODO
+    def train(self, train_data, eval_data, verbose=True):
         raise NotImplementedError()
 
     @staticmethod

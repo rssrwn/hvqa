@@ -36,8 +36,8 @@ class ASPEventDetector(Component):
         events = ASPEventDetector(al_model)
         return events
 
-    def train(self, data):
-        print("ASPEventDetector does not require training. Skipping...")
+    def train(self, train_data, eval_data, verbose=True):
+        raise NotImplementedError()
 
     def _detect_events(self, frames):
         """

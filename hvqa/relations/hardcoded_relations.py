@@ -33,8 +33,8 @@ class HardcodedRelationClassifier(Component):
 
         return rels
 
-    def train(self, data):
-        pass
+    def train(self, train_data, eval_data, verbose=True):
+        raise NotImplementedError()
 
     @staticmethod
     def new(spec, **kwargs):

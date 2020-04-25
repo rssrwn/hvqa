@@ -64,10 +64,10 @@ class Component(Trainable):
 
     def train(self, train_data, eval_data, verbose=True):
         """
-        Train the Component
+        Train the Component individually
 
-        :param train_data: List of training Video objects
-        :param eval_data: List of eval Video objects
+        :param train_data: VideoDataset obj for training
+        :param eval_data: VideoDataset obj for evaluation
         :param verbose: Print additional info during training
         """
 

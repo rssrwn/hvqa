@@ -76,7 +76,7 @@ class HardcodedASPQASystem(Component):
         qa = HardcodedASPQASystem()
         return qa
 
-    def train(self, data):
+    def train(self, train_data, eval_data, verbose=True):
         pass
 
     def save(self, path):
