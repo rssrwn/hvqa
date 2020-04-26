@@ -18,7 +18,7 @@ _transform = T.Compose([
 
 
 class NeuralPropExtractor(Component):
-    def __init__(self, spec, model, hardcoded=True, lr=0.001, batch_size=128, epochs=5, print_freq=10):
+    def __init__(self, spec, model, hardcoded=True, lr=0.001, batch_size=128, epochs=2, print_freq=10):
         super(NeuralPropExtractor, self).__init__()
 
         self.device = get_device()
@@ -110,8 +110,8 @@ class NeuralPropExtractor(Component):
         return prop_extractor
 
     @staticmethod
-    def load(path, spec):
-        model = load_model(PropertyExtractionModel, path, (spec,))
+    def load(spec, path):
+        model = load_model(PropertyExtractionModel, path, spec)
         model.eval()
         prop_extractor = NeuralPropExtractor(spec, model)
         return prop_extractor

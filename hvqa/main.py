@@ -8,6 +8,8 @@ from hvqa.models.hardcoded import HardcodedVQAModel
 
 DETECTOR_PATH = "saved-models/detection/v1_0/after_20_epochs.pt"
 
+MODEL_PATH = "saved-models/hardcoded"
+
 spec = EnvSpec.from_dict({
     "num_frames": 32,
     "obj_types": [("octopus", False), ("fish", True), ("rock", True), ("bag", True)],
@@ -30,6 +32,10 @@ def main(train_dir, eval_dir):
     detector = NeuralDetector.load(DETECTOR_PATH)
     model = HardcodedVQAModel.new(spec, detector)
     model.train(train_data, eval_data)
+    model.save(MODEL_PATH)
+
+    model = HardcodedVQAModel.load(MODEL_PATH)
+
 
 
 if __name__ == '__main__':

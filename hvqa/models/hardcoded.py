@@ -1,6 +1,7 @@
 import json
 from pathlib import Path
 
+from hvqa.util.environment import EnvSpec
 from hvqa.models.abs_model import _AbsVQAModel
 from hvqa.detection.detector import NeuralDetector
 from hvqa.properties.neural_prop_extractor import NeuralPropExtractor
@@ -23,7 +24,7 @@ class HardcodedVQAModel(_AbsVQAModel):
         super(HardcodedVQAModel, self).__init__(detector, properties, tracker, relations, events, qa)
 
     def train(self, train_data, eval_data, verbose=True):
-        print("Training hardcoded model...\n")
+        print("\nTraining hardcoded model...")
         self.prop_classifier.train(train_data, eval_data, verbose=verbose)
         print("Completed hardcoded model training.")
 
@@ -58,8 +59,8 @@ class HardcodedVQAModel(_AbsVQAModel):
 
         save_path = Path(path)
 
-        detector_path = str(save_path / "detector.pt")
-        properties_path = str(save_path / "properties.pt")
+        detector_path = str(save_path / "detector")
+        properties_path = str(save_path / "properties")
         meta_data_path = save_path / "meta_data.json"
 
         with meta_data_path.open() as f:
@@ -67,8 +68,9 @@ class HardcodedVQAModel(_AbsVQAModel):
 
         err_corr = meta_data["err_corr"]
         al_model = meta_data["al_model"]
-        spec = meta_data["spec"]
+        spec_dict = meta_data["spec"]
 
+        spec = EnvSpec.from_dict(spec_dict)
         detector = NeuralDetector.load(detector_path)
         properties = NeuralPropExtractor.load(spec, properties_path)
         tracker = ObjTracker(err_corr)
@@ -100,7 +102,7 @@ class HardcodedVQAModel(_AbsVQAModel):
         meta_data = {
             "err_corr": self.err_corr,
             "al_model": self.al_model,
-            "spec": self.spec
+            "spec": self.spec.to_dict()
         }
 
         with open(meta_data_path, "w") as f:

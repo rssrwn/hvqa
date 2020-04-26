@@ -52,6 +52,18 @@ class EnvSpec:
         spec = EnvSpec(num_frames, obj_types, properties, relations, actions, events)
         return spec
 
+    def to_dict(self):
+        obj_types = list(zip(self._obj_types, self._static))
+        spec = {
+            "num_frames": self.num_frames,
+            "obj_types": obj_types,
+            "properties": self._props,
+            "relations": self.relations,
+            "actions": self.actions,
+            "events": self.events
+        }
+        return spec
+
     def num_props(self):
         return len(self._props.keys())
 
