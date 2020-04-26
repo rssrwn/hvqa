@@ -24,11 +24,21 @@ class EnvSpec:
         self._static = [is_static for _, is_static in obj_types]
         self._obj_idx_map = {obj: idx for idx, obj in enumerate(self._obj_types)}
         self._props = properties
-        self._prop_names = self._props.keys()
+        self._prop_names = list(self._props.keys())
         self.relations = relations
         self.actions = actions
         self.events = events
         self._prop_idx_map = {prop: idx for idx, prop in enumerate(self._prop_names)}
+        self._val_to_internal_map, self._internal_to_val_map = self._setup_prop_val_maps()
+
+    def _setup_prop_val_maps(self):
+        val_to_int = {}
+        int_to_val = {}
+        for prop in self.prop_names():
+            val_to_int[prop] = {val: idx for idx, val in enumerate(self.prop_values(prop))}
+            int_to_val[prop] = {idx: val for idx, val in enumerate(self.prop_values(prop))}
+
+        return val_to_int, int_to_val
 
     @staticmethod
     def from_dict(coll):
@@ -47,6 +57,12 @@ class EnvSpec:
 
     def prop_values(self, prop):
         return self._props[prop]
+
+    def to_internal(self, prop, val):
+        return self._val_to_internal_map[prop][val]
+
+    def from_internal(self, prop, val):
+        return self._internal_to_val_map[prop][val]
 
     def prop_names(self):
         return self._prop_names
@@ -70,7 +86,7 @@ class Obj:
         :param pos: Position of object (4-tuple of int)
         """
 
-        assert cls in spec.obj_types, f"Class must be one of {spec.obj_types}"
+        assert cls in spec.obj_types(), f"Class must be one of {spec.obj_types}"
 
         self.spec = spec
 
@@ -79,12 +95,12 @@ class Obj:
         self.is_static = spec.is_static(cls)
         self.id = None
         self.img = None
-        self.prop_vals = {prop: None for prop in spec.prop_names}
+        self.prop_vals = {prop: None for prop in spec.prop_names()}
 
     def set_prop_val(self, prop, val):
         vals = self.spec.prop_values(prop)
-        assert prop in self.spec.prop_names, f"Unknown property {prop}"
-        assert val in vals, f"{prop} must be one of {vals}"
+        assert prop in self.spec.prop_names(), f"Unknown property {prop}"
+        assert val in vals, f"{prop} of value {val} must be one of {vals}"
 
         self.prop_vals[prop] = val
 

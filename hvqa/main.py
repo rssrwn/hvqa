@@ -1,59 +1,40 @@
 import argparse
 
-import hvqa.util.func as util
 from hvqa.util.dataset import VideoDataset
-from hvqa.detection.models import DetectionBackbone, DetectionModel
+from hvqa.util.environment import EnvSpec
 from hvqa.detection.detector import NeuralDetector
-from hvqa.properties.models import PropertyExtractionModel
-from hvqa.properties.neural_prop_extractor import NeuralPropExtractor
-from hvqa.tracking.obj_tracker import ObjTracker
+from hvqa.models.hardcoded import HardcodedVQAModel
 
 
-def simulate(dataset, coordinator):
-    video, video_dict = dataset[4]
-    coordinator.visualise(video)
+DETECTOR_PATH = "saved-models/detection/v1_0/after_20_epochs.pt"
+
+spec = EnvSpec.from_dict({
+    "num_frames": 32,
+    "obj_types": [("octopus", False), ("fish", True), ("rock", True), ("bag", True)],
+    "properties": {
+        "colour": ["red", "blue", "purple", "brown", "green", "silver", "white"],
+        # "rotation": ["upward-facing", "left-facing", "downward-facing", "right-facing"]
+        "rotation": [0, 1, 2, 3]
+    },
+    "relations": ["close to"],
+    "actions": ["move", "rotate left", "rotate right"],
+    "events": ["change colour", "eat a bag", "eat a fish"],
+})
 
 
-def build_detector(detector_model_dir):
-    backbone = DetectionBackbone()
-    detector_model = util.load_model(DetectionModel, detector_model_dir, backbone)
-    detector_model.eval()
-    detector = NeuralDetector(detector_model)
-    return detector
-
-
-def build_prop_extractor(prop_model_dir):
-    prop_model = util.load_model(PropertyExtractionModel, prop_model_dir)
-    prop_model.eval()
-    prop_extractor = NeuralPropExtractor(prop_model)
-    return prop_extractor
-
-
-def build_tracker():
-    tracker = ObjTracker()
-    return tracker
-
-
-def main(data_dir, detector_model_dir, prop_model_dir):
-    # Fetch data
-    data = VideoDataset(data_dir)
-
-    # Build pipeline components
-    detector = build_detector(detector_model_dir)
-    prop_extractor = build_prop_extractor(prop_model_dir)
-    tracker = build_tracker()
-
-    # Build visualiser
-    # coord = Visualiser()
-
-    # Run pipeline
-    # simulate(data, coord)
+def main(train_dir, eval_dir):
+    train_data = VideoDataset(spec, train_dir, hardcoded=True)
+    train_data = [train_data[idx] for idx in range(len(train_data))]
+    eval_data = VideoDataset(spec, eval_dir, hardcoded=True)
+    eval_data = [eval_data[idx] for idx in range(len(eval_data))]
+    detector = NeuralDetector.load(DETECTOR_PATH)
+    model = HardcodedVQAModel.new(spec, detector)
+    model.train(train_data, eval_data)
 
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description="Script for running VideoQA pipeline on a video")
-    parser.add_argument("data_dir", type=str)
-    parser.add_argument("detector_model_dir", type=str)
-    parser.add_argument("prop_model_dir", type=str)
+    parser.add_argument("train_dir", type=str)
+    parser.add_argument("eval_dir", type=str)
     args = parser.parse_args()
-    main(args.data_dir, args.detector_model_dir, args.prop_model_dir)
+    main(args.train_dir, args.eval_dir)

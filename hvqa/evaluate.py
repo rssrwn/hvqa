@@ -3,8 +3,8 @@ import argparse
 from hvqa.util.dataset import VideoDataset
 from hvqa.models.hardcoded import HardcodedVQAModel
 
-DETECTOR_PATH = "saved-models/detector-e2e-v1_0/after_20_epochs.pt"
-PROP_EXTRACTOR_PATH = "saved-models/prop-extractor-v1_0/after_2_epochs.pt"
+DETECTOR_PATH = "saved-models/detection/v1_0/after_20_epochs.pt"
+PROP_EXTRACTOR_PATH = "saved-models/properties/v1_0/after_2_epochs.pt"
 EVENT_ASP_DIR = "hvqa/events"
 QA_ASP_DIR = "hvqa/qa"
 ERR_CORR = False

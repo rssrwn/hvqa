@@ -3,6 +3,7 @@ import torch.optim as optim
 import torch.nn as nn
 import torchvision.transforms as T
 from torch.utils.data import DataLoader
+from pathlib import Path
 
 from hvqa.properties.dataset import PropDataset
 from hvqa.properties.models import PropertyExtractionModel
@@ -17,7 +18,7 @@ _transform = T.Compose([
 
 
 class NeuralPropExtractor(Component):
-    def __init__(self, spec, model, hardcoded, lr=0.001, batch_size=128, epochs=10, print_freq=10):
+    def __init__(self, spec, model, hardcoded=True, lr=0.001, batch_size=128, epochs=5, print_freq=10):
         super(NeuralPropExtractor, self).__init__()
 
         self.device = get_device()
@@ -32,7 +33,8 @@ class NeuralPropExtractor(Component):
 
         self.loss_fn = nn.CrossEntropyLoss()
 
-        self._temp_save = "saved-models/properties/temp/"
+        self._temp_save = Path("saved-models/properties/temp")
+        self._temp_save.mkdir(exist_ok=True, parents=True)
 
     def run_(self, video):
         for frame in video.frames:
@@ -123,14 +125,19 @@ class NeuralPropExtractor(Component):
             self.model.train()
 
             images = torch.cat([img[None, :, :, :] for img in x])
-            # targets = [{k: v.to("cpu") for k, v in t.items()} for t in y]
 
-            targets = {prop: torch.cat([obj[prop][None, :] for obj in y]) for prop in self.spec.prop_names}
+            targets = []
+            for obj in y:
+                obj = {prop: self.spec.to_internal(prop, val) for prop, val in obj.items()}
+                obj = {prop: torch.tensor([val]) for prop, val in obj.items()}
+                targets.append(obj)
+
+            targets = {prop: torch.cat([obj[prop] for obj in targets]) for prop in self.spec.prop_names()}
             images = images.to(device=self.device)
             targets = {prop: vals.to(self.device) for prop, vals in targets.items()}
 
             output = self.model(images)
-            output = {self.spec.prop_names[idx]: out.to("cpu") for idx, out in enumerate(output)}
+            output = {self.spec.prop_names()[idx]: out.to("cpu") for idx, out in enumerate(output)}
 
             loss, losses = self._calc_loss(output, targets)
             optimiser.zero_grad()

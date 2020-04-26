@@ -11,7 +11,7 @@ class VideoDataset(Dataset):
     Dataset for storing and fetching videos
     """
 
-    def __init__(self, data_dir, spec, hardcoded=False):
+    def __init__(self, spec, data_dir, hardcoded=False):
         super(VideoDataset, self).__init__()
 
         self.spec = spec
@@ -50,8 +50,8 @@ class VideoDataset(Dataset):
             # Iterate through frames in current video
             frames = []
             for frame_num, frame_dict in enumerate(frame_dicts):
-                objs = self._collect_objs(frame_dict)
-                frame_img = self._collect_img(self.data_dir / video_num, frame_num)
+                frame_img = self._collect_img(self.data_dir / str(video_num), frame_num)
+                objs = self._collect_objs(frame_dict, frame_img)
                 frame = Frame(self.spec, frame_img)
                 frame.set_objs(objs) if objs is not None else None
                 frames.append(frame)
@@ -68,7 +68,7 @@ class VideoDataset(Dataset):
 
         return video_ids, videos
 
-    def _collect_objs(self, frame_dict):
+    def _collect_objs(self, frame_dict, frame_img):
         obj_dicts = frame_dict["objects"]
         if self.hardcoded:
             objs = []
@@ -80,6 +80,7 @@ class VideoDataset(Dataset):
                 obj = Obj(self.spec, obj_type, position)
                 obj.set_prop_val("colour", colour)
                 obj.set_prop_val("rotation", rotation)
+                obj.set_image(frame_img)
                 objs.append(obj)
         else:
             objs = None
