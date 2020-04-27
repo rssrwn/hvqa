@@ -125,7 +125,7 @@ class NeuralPropExtractor(Component):
             with torch.no_grad():
                 preds = self.model(images)
 
-            output = {self.spec.prop_names()[idx]: out.to("cpu") for idx, out in enumerate(preds)}
+            output = {prop: out.to("cpu") for prop, out in preds.items()}
             results = {prop: self._eval_prop(pred, targets[prop], threshold) for prop, pred in output.items()}
 
             for prop, (loss_, tps_, fps_, tns_, fns_, num_correct) in results.items():
@@ -136,7 +136,6 @@ class NeuralPropExtractor(Component):
                     tns[prop][target] += tns_[idx]
                     fns[prop][target] += fns_[idx]
 
-                print(num_correct)
                 correct[prop] += num_correct
             num_predictions += len(imgs)
 
@@ -167,7 +166,7 @@ class NeuralPropExtractor(Component):
 
             images, targets = self._prepare_data(imgs, objs)
             output = self.model(images)
-            output = {self.spec.prop_names()[idx]: out.to("cpu") for idx, out in enumerate(output)}
+            output = {prop: out.to("cpu") for prop, out in output.items()}
 
             loss, losses = self._calc_loss(output, targets)
             optimiser.zero_grad()

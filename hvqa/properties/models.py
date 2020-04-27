@@ -29,11 +29,12 @@ class PropertyExtractionModel(nn.Module):
         self.fc = nn.Linear(feat3 * output_size * output_size, latent_size)
 
         # Property layers
-        prop_layers = []
+        prop_layers = {}
         for prop in spec.prop_names():
             num_values = len(spec.prop_values(prop))
             prop_layer = nn.Linear(latent_size, num_values)
-            prop_layers.append(prop_layer)
+            self.add_module(prop, prop_layer)
+            prop_layers[prop] = prop_layer
 
         self.prop_layers = prop_layers
 
@@ -52,10 +53,10 @@ class PropertyExtractionModel(nn.Module):
         features = self.fc(features)
         features = F.relu(features)
 
-        prop_outs = [layer(features) for layer in self.prop_layers]
+        prop_outs = {prop: layer(features) for prop, layer in self.prop_layers.items()}
 
         # Note: softmax is applied by the loss function
-        return tuple(prop_outs)
+        return prop_outs
 
     @staticmethod
     def _flatten(tensor):
