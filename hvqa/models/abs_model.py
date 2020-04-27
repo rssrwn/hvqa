@@ -114,12 +114,14 @@ class _AbsVQAModel(Model):
 
         print()
         for video_idx in range(len(data)):
-            frames, video_dict = data[video_idx]
-            questions = video_dict["questions"]
-            q_types = video_dict["question_types"]
+            video, expected = data[video_idx]
+            questions = video.questions
+            q_types = video.q_types
+
+            # TODO pass in video to run instead
+            frames = [frame.img for frame in video.frames]
 
             answers = self.run(frames, questions, q_types)
-            expected = video_dict["answers"]
 
             video_correct = 0
             for idx, predicted in enumerate(answers):

@@ -56,21 +56,20 @@ class NeuralPropExtractor(Component):
         :return: List of tuple [(prop_val1, prop_val2, ...)]
         """
 
+        device = get_device()
         obj_imgs = [_transform(img) for img in obj_imgs]
         obj_imgs_batch = torch.stack(obj_imgs)
-
-        device = get_device()
         obj_imgs_batch = obj_imgs_batch.to(device)
 
         with torch.no_grad():
             model_out = self.model(obj_imgs_batch)
 
-        preds = [torch.max(pred, dim=1)[1].cpu().numpy() for pred in model_out]
+        preds = {prop: torch.max(pred, dim=1)[1].cpu().numpy() for prop, pred in model_out.items()}
 
         prop_list = []
         length = None
-        for prop_idx, pred in enumerate(preds):
-            vals = [self.spec.prop_values[idx] for idx in pred]
+        for prop, pred in enumerate(preds):
+            vals = [self.spec.prop_values(prop)[idx] for idx in pred]
             length = len(vals) if length is None else length
             assert length == len(vals), "Number of predictions must be the same"
             prop_list.append(vals)

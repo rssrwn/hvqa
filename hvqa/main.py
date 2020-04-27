@@ -26,11 +26,11 @@ spec = EnvSpec.from_dict({
 
 
 def main(train_dir, eval_dir):
-    train_data = VideoDataset(spec, train_dir, hardcoded=True)
-    train_data = [train_data[idx] for idx in range(len(train_data))]
-    eval_data = VideoDataset(spec, eval_dir, hardcoded=True)
-    eval_data = [eval_data[idx] for idx in range(len(eval_data))]
-    detector = NeuralDetector.load(DETECTOR_PATH)
+    detector = NeuralDetector.load(spec, DETECTOR_PATH)
+    train_data = VideoDataset(spec, train_dir, detector, hardcoded=True)
+    train_data = [train_data[idx][0] for idx in range(len(train_data))]
+    eval_data = VideoDataset(spec, eval_dir, detector, hardcoded=True)
+    eval_data = [eval_data[idx][0] for idx in range(len(eval_data))]
     model = HardcodedVQAModel.new(spec, detector)
     model.train(train_data, eval_data)
     model.save(MODEL_PATH)
