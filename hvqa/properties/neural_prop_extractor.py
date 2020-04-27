@@ -151,13 +151,13 @@ class NeuralPropExtractor(Component):
 
     @staticmethod
     def load(spec, path):
-        model = load_model(PropertyExtractionModel, str(path) + ".pt", spec)
+        model = load_model(PropertyExtractionModel, path, spec)
         model.eval()
         prop_extractor = NeuralPropExtractor(spec, model)
         return prop_extractor
 
     def save(self, path):
-        save_model(self.model, str(path) + ".pt")
+        save_model(self.model, path)
 
     def _train_one_epoch(self, train_loader, optimiser, epoch, verbose):
         num_batches = len(train_loader)

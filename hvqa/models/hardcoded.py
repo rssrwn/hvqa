@@ -62,8 +62,8 @@ class HardcodedVQAModel(_AbsVQAModel):
 
         save_path = Path(path)
 
-        detector_path = str(save_path / "detector")
-        properties_path = str(save_path / "properties")
+        detector_path = str(save_path / "detector.pt")
+        properties_path = str(save_path / "properties.pt")
         meta_data_path = save_path / "meta_data.json"
 
         with meta_data_path.open() as f:
@@ -95,8 +95,8 @@ class HardcodedVQAModel(_AbsVQAModel):
         save_path = Path(path)
         save_path.mkdir(parents=True, exist_ok=True)
 
-        detector_path = save_path / "detector"
-        properties_path = save_path / "properties"
+        detector_path = save_path / "detector.pt"
+        properties_path = save_path / "properties.pt"
         meta_data_path = save_path / "meta_data.json"
 
         self.obj_detector.save(str(detector_path))
