@@ -15,6 +15,7 @@ spec = EnvSpec.from_dict({
     "obj_types": [("octopus", False), ("fish", True), ("rock", True), ("bag", True)],
     "properties": {
         "colour": ["red", "blue", "purple", "brown", "green", "silver", "white"],
+        # TODO
         # "rotation": ["upward-facing", "left-facing", "downward-facing", "right-facing"]
         "rotation": [0, 1, 2, 3]
     },
