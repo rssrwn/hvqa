@@ -28,6 +28,9 @@ class HardcodedVQAModel(_AbsVQAModel):
         self.prop_classifier.train(train_data, eval_data, verbose=verbose)
         print("Completed hardcoded model training.")
 
+    def eval_components(self, eval_data):
+        self.prop_classifier.eval(eval_data)
+
     @staticmethod
     def new(spec, detector, **kwargs):
         err_corr = ERR_CORR_DEFAULT
