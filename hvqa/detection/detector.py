@@ -33,13 +33,13 @@ class NeuralDetector(Detector):
     @staticmethod
     def load(path):
         backbone = DetectionBackbone()
-        detector_model = load_model(DetectionModel, path, backbone)
+        detector_model = load_model(DetectionModel, str(path) + ".pt", backbone)
         detector_model.eval()
         detector = NeuralDetector(detector_model)
         return detector
 
     def save(self, path):
-        save_model(self.model, path)
+        save_model(self.model, str(path) + ".pt")
 
     def detect_objs(self, frames):
         imgs_trans = [_transform(img) for img in frames]
