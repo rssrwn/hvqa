@@ -3,7 +3,6 @@ from pathlib import Path
 
 from hvqa.util.environment import EnvSpec
 from hvqa.models.abs_model import _AbsVQAModel
-from hvqa.detection.detector import NeuralDetector
 from hvqa.properties.neural_prop_extractor import NeuralPropExtractor
 from hvqa.tracking.obj_tracker import ObjTracker
 from hvqa.relations.hardcoded_relations import HardcodedRelationClassifier
@@ -16,12 +15,12 @@ AL_MODEL_DEFAULT = True
 
 
 class HardcodedVQAModel(_AbsVQAModel):
-    def __init__(self, spec, detector, properties, tracker, relations, events, qa):
+    def __init__(self, spec, properties, tracker, relations, events, qa):
         self.spec = spec
         self.err_corr = tracker.err_corr
         self.al_model = events.al_model
 
-        super(HardcodedVQAModel, self).__init__(detector, properties, tracker, relations, events, qa)
+        super(HardcodedVQAModel, self).__init__(properties, tracker, relations, events, qa)
 
     def train(self, train_data, eval_data, verbose=True):
         print("\nTraining hardcoded model...")
@@ -32,7 +31,7 @@ class HardcodedVQAModel(_AbsVQAModel):
         self.prop_classifier.eval(eval_data)
 
     @staticmethod
-    def new(spec, detector, **kwargs):
+    def new(spec, **kwargs):
         err_corr = ERR_CORR_DEFAULT
         al_model = AL_MODEL_DEFAULT
         if kwargs is not None:
@@ -47,7 +46,7 @@ class HardcodedVQAModel(_AbsVQAModel):
         events = ASPEventDetector.new(spec, al_model=al_model)
         qa = HardcodedASPQASystem.new(spec)
 
-        model = HardcodedVQAModel(spec, detector, properties, tracker, relations, events, qa)
+        model = HardcodedVQAModel(spec, properties, tracker, relations, events, qa)
         return model
 
     @staticmethod
@@ -61,8 +60,6 @@ class HardcodedVQAModel(_AbsVQAModel):
         """
 
         save_path = Path(path)
-
-        detector_path = str(save_path / "detector.pt")
         properties_path = str(save_path / "properties.pt")
         meta_data_path = save_path / "meta_data.json"
 
@@ -74,14 +71,13 @@ class HardcodedVQAModel(_AbsVQAModel):
         spec_dict = meta_data["spec"]
 
         spec = EnvSpec.from_dict(spec_dict)
-        detector = NeuralDetector.load(detector_path)
         properties = NeuralPropExtractor.load(spec, properties_path)
         tracker = ObjTracker(err_corr)
         relations = HardcodedRelationClassifier()
         events = ASPEventDetector(al_model)
         qa = HardcodedASPQASystem()
 
-        model = HardcodedVQAModel(spec, detector, properties, tracker, relations, events, qa)
+        model = HardcodedVQAModel(spec, properties, tracker, relations, events, qa)
         return model
 
     def save(self, path):
@@ -94,12 +90,9 @@ class HardcodedVQAModel(_AbsVQAModel):
 
         save_path = Path(path)
         save_path.mkdir(parents=True, exist_ok=True)
-
-        detector_path = save_path / "detector.pt"
         properties_path = save_path / "properties.pt"
         meta_data_path = save_path / "meta_data.json"
 
-        self.obj_detector.save(str(detector_path))
         self.prop_classifier.save(str(properties_path))
 
         meta_data = {

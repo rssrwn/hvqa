@@ -31,7 +31,7 @@ def evaluate(model, data, verbose=True):
 
 def main(data_dir, model_type):
     detector = NeuralDetector.load(spec, DETECTOR_PATH)
-    data = VideoDataset(spec, data_dir, detector, hardcoded=False)
+    data = VideoDataset(spec, data_dir, detector, hardcoded=True)
 
     if model_type == "hardcoded":
         model = HardcodedVQAModel.load(MODEL_PATH)

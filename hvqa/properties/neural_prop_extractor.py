@@ -19,7 +19,7 @@ _transform = T.Compose([
 
 
 class NeuralPropExtractor(Component):
-    def __init__(self, spec, model, hardcoded=True, lr=0.001, batch_size=128, epochs=2, print_freq=10):
+    def __init__(self, spec, model, hardcoded=True, lr=0.001, batch_size=128, epochs=1, print_freq=10):
         super(NeuralPropExtractor, self).__init__()
 
         self.device = get_device()
@@ -44,16 +44,15 @@ class NeuralPropExtractor(Component):
             props = self._extract_props(obj_imgs)
             for idx, prop_vals in enumerate(props):
                 obj = objs[idx]
-                for prop_idx, val in enumerate(prop_vals):
-                    prop_name = self.spec.prop_names[prop_idx]
-                    obj.set_prop_val(prop_name, val)
+                for prop, val in prop_vals.items():
+                    obj.set_prop_val(prop, val)
 
     def _extract_props(self, obj_imgs):
         """
         Extracts properties of objects from images
 
         :param obj_imgs: List of PIL images of objects
-        :return: List of tuple [(prop_val1, prop_val2, ...)]
+        :return: List of dicts [{prop: val}]
         """
 
         device = get_device()
@@ -64,18 +63,20 @@ class NeuralPropExtractor(Component):
         with torch.no_grad():
             model_out = self.model(obj_imgs_batch)
 
-        preds = {prop: torch.max(pred, dim=1)[1].cpu().numpy() for prop, pred in model_out.items()}
+        batch_sizes = set([len(out) for _, out in model_out.items()])
+        assert len(batch_sizes) == 1, "Number of model predictions must be the same for each property"
 
-        prop_list = []
-        length = None
-        for prop, pred in enumerate(preds):
-            vals = [self.spec.prop_values(prop)[idx] for idx in pred]
-            length = len(vals) if length is None else length
-            assert length == len(vals), "Number of predictions must be the same"
-            prop_list.append(vals)
+        objs = []
+        for idx in range(list(batch_sizes)[0]):
+            obj = {}
+            for prop, pred in model_out.items():
+                pred = torch.max(pred, dim=1)[1].cpu().numpy()
+                val = self.spec.from_internal(prop, pred[idx])
+                obj[prop] = val
 
-        props = zip(prop_list)
-        return props
+            objs.append(obj)
+
+        return objs
 
     def train(self, train_data, eval_data, verbose=True):
         if self.hardcoded:

@@ -31,7 +31,7 @@ def main(train_dir, eval_dir):
     train_data = [train_data[idx][0] for idx in range(len(train_data))]
     eval_data = VideoDataset(spec, eval_dir, detector, hardcoded=True)
     eval_data = [eval_data[idx][0] for idx in range(len(eval_data))]
-    model = HardcodedVQAModel.new(spec, detector)
+    model = HardcodedVQAModel.new(spec)
     model.train(train_data, eval_data)
     model.save(MODEL_PATH)
 

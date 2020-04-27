@@ -27,20 +27,18 @@ class VideoDataset(Dataset):
         video_ids = []
         videos = []
         answers = []
-        num_videos = 0
 
         print("Searching videos for data...")
-
         video_infos = self._collect_videos(self.data_dir)
+        print(f"Found data from {len(video_infos)} videos")
+        print("Extracting objects...")
+
         for video_num, video_dict, frame_imgs in video_infos:
             video = self._construct_video(video_dict, frame_imgs)
             ans = video_dict["answers"]
             videos.append(video)
             video_ids.append(video_num)
             answers.append(ans)
-            num_videos += 1
-
-        print(f"Found data from {num_videos} videos")
 
         return video_ids, videos, answers
 
@@ -51,7 +49,7 @@ class VideoDataset(Dataset):
             for frame_num, frame_dict in enumerate(frame_dicts):
                 frame_img = frame_imgs[frame_num]
                 objs = self._collect_objs(frame_dict, frame_img)
-                frame = Frame(self.spec, frame_img)
+                frame = Frame(self.spec, objs)
                 frame.set_objs(objs)
                 frames.append(frame)
         else:
@@ -87,7 +85,7 @@ class VideoDataset(Dataset):
         Get item of dataset
 
         :param item: Video number (as stored in directory)
-        :return: Video obj
+        :return: Video obj, list of answers ([str])
         """
 
         idx = self.ids[item]
@@ -120,6 +118,7 @@ class VideoDataset(Dataset):
 
         videos = []
         for video_num, future in futures:
+            video_num = int(video_num)
             video_dict, imgs = future.result(future_timeout)
             videos.append((video_num, video_dict, imgs))
 

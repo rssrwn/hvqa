@@ -14,8 +14,7 @@ class _AbsVQAModel(Model):
     Models can also override methods if required
     """
 
-    def __init__(self, detector, properties, tracker, relations, events, qa):
-        self.obj_detector = detector
+    def __init__(self, properties, tracker, relations, events, qa):
         self.prop_classifier = properties
         self.tracker = tracker
         self.relation_classifier = relations
@@ -39,19 +38,17 @@ class _AbsVQAModel(Model):
             "QA": 0
         }
 
-    def run(self, frames, questions, q_types):
+    def run(self, video, questions, q_types):
         """
         Generate answers to given questions
 
-        :param frames: List of PIL Images
+        :param video: Video obj
         :param questions: Questions about video: [str]
         :param q_types: Type of each question: [int]
         :return: Answers: [str]
         """
 
-        video = self.process(frames)
-        video.questions = questions
-        video.q_types = q_types
+        self.process(video)
         self._time_func(self.qa_system.run_, (video,), "QA")
         answers = video.answers
         return answers
@@ -118,10 +115,7 @@ class _AbsVQAModel(Model):
             questions = video.questions
             q_types = video.q_types
 
-            # TODO pass in video to run instead
-            frames = [frame.img for frame in video.frames]
-
-            answers = self.run(frames, questions, q_types)
+            answers = self.run(video, questions, q_types)
 
             video_correct = 0
             for idx, predicted in enumerate(answers):
@@ -147,27 +141,12 @@ class _AbsVQAModel(Model):
 
         return correct, incorrect
 
-    def process(self, frames):
-        video = self.extract_objs(frames)
-
+    def process(self, video):
         self.tracker.reset()
         self._time_func(self.prop_classifier.run_, (video,), "Properties")
         self._time_func(self.tracker.run_, (video,), "Tracker")
         self._time_func(self.relation_classifier.run_, (video,), "Relations")
         self._time_func(self.event_detector.run_, (video,), "Events")
-
-        return video
-
-    def extract_objs(self, frames):
-        """
-        Builds structured knowledge from video frames
-        Extracts bboxs and class for each object in each frame
-
-        :param frames: List of PIL frames
-        """
-
-        video = self._time_func(self.obj_detector.detect_objs, (frames,), "Detector")
-        return video
 
     def _time_func(self, func, args, timings_key):
         start = time.time()

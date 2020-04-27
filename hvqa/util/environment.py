@@ -147,10 +147,9 @@ class Obj:
 
 
 class Frame:
-    def __init__(self, spec, img):
+    def __init__(self, spec, objs):
         self.spec = spec
-        self.img = img
-        self.objs = None
+        self.objs = objs
         self._id_idx_map = None
         self.relations = []
         self._id_idx_map = {}
