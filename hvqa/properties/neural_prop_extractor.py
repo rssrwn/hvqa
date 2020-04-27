@@ -110,17 +110,14 @@ class NeuralPropExtractor(Component):
         self.model.eval()
 
         # Setup metrics
+        num_predictions = 0
         props = self.spec.prop_names()
         losses = {prop: [] for prop in props}
         tps = {prop: {val: 0 for val in self.spec.prop_values(prop)} for prop in props}
         fps = {prop: {val: 0 for val in self.spec.prop_values(prop)} for prop in props}
         tns = {prop: {val: 0 for val in self.spec.prop_values(prop)} for prop in props}
         fns = {prop: {val: 0 for val in self.spec.prop_values(prop)} for prop in props}
-        correct = {prop: {val: 0 for val in self.spec.prop_values(prop)} for prop in props}
-
-        print(tps)
-
-        num_predictions = 0
+        correct = {prop: 0 for prop in props}
 
         for i, (imgs, objs) in enumerate(eval_loader):
             images, targets = self._prepare_data(imgs, objs)
@@ -129,17 +126,18 @@ class NeuralPropExtractor(Component):
                 preds = self.model(images)
 
             output = {self.spec.prop_names()[idx]: out.to("cpu") for idx, out in enumerate(preds)}
-            vals = {prop: self._eval_classification(pred, targets[prop], threshold) for prop, pred in output.items()}
+            results = {prop: self._eval_prop(pred, targets[prop], threshold) for prop, pred in output.items()}
 
-            for prop, val in vals.items():
-                loss_, tps_, fps_, tns_, fns_, num_correct = val
-                losses[prop].extend(loss_)
-                tps[prop][val] += tps_
-                fps[prop][val] += fps_
-                tns[prop][val] += tns_
-                fns[prop][val] += fns_
-                correct[prop][val] += num_correct
+            for prop, (loss_, tps_, fps_, tns_, fns_, num_correct) in results.items():
+                for idx, target in enumerate(self.spec.prop_values(prop)):
+                    losses[prop].extend(loss_)
+                    tps[prop][target] += tps_[idx]
+                    fps[prop][target] += fps_[idx]
+                    tns[prop][target] += tns_[idx]
+                    fns[prop][target] += fns_[idx]
 
+                print(num_correct)
+                correct[prop] += num_correct
             num_predictions += len(imgs)
 
         results = (tps, fps, tns, fns)
@@ -203,13 +201,13 @@ class NeuralPropExtractor(Component):
         return loss, losses
 
     @staticmethod
-    def _eval_classification(preds, indices, threshold=None):
+    def _eval_prop(preds, indices, threshold=None):
         """
-        Calculate metrics for classification
+        Calculate metrics for classification of a single property
 
         :param preds: Network predictions (tensor of floats, (N, C))
         :param indices: Target class indices (tensor of ints, (N))
-        :return: loss (list of floats), TP, FP, TN, FN (all 1d tensors of ints)
+        :return: loss (list of floats), TP, FP, TN, FN (all 1d tensors of ints), num_correct (int)
         """
 
         if threshold is None:
@@ -233,7 +231,10 @@ class NeuralPropExtractor(Component):
         preds_bool = torch.BoolTensor(preds >= max_vals[:, None])
         preds_bool = preds_bool & (preds >= threshold)
 
-        num_correct = torch.sum(act_bool & preds_bool)
+        _, pred_idxs = torch.max(preds_bool, dim=1)
+        _, act_idxs = torch.max(act_bool, dim=1)
+
+        num_correct = torch.sum(act_idxs == pred_idxs)
         tps = torch.sum(act_bool & preds_bool, dim=0)
         fps = torch.sum(~act_bool & preds_bool, dim=0)
         tns = torch.sum(~act_bool & ~preds_bool, dim=0)
@@ -246,8 +247,6 @@ class NeuralPropExtractor(Component):
         for prop in self.spec.prop_names():
             print(f"\nResults for {prop}:")
 
-            vals = self.spec.prop_values(prop)
-
             loss = losses[prop]
             class_tps = tps[prop]
             class_fps = fps[prop]
@@ -256,11 +255,11 @@ class NeuralPropExtractor(Component):
 
             print(f"{'Value':<12}{'Accuracy':<12}{'Precision':<12}{'Recall':<12}")
 
-            for idx, val in enumerate(vals):
-                tp = class_tps[idx].item()
-                fp = class_fps[idx].item()
-                tn = class_tns[idx].item()
-                fn = class_fns[idx].item()
+            for val in self.spec.prop_values(prop):
+                tp = class_tps[val].item()
+                fp = class_fps[val].item()
+                tn = class_tns[val].item()
+                fn = class_fns[val].item()
 
                 precision = tp / (tp + fp) if (tp + fp) != 0 else float("NaN")
                 recall = tp / (tp + fn) if (tp + fn) != 0 else float("NaN")
