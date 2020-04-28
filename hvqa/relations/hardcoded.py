@@ -1,11 +1,12 @@
-from hvqa.util.definitions import CLOSE_TO, RELATIONS
 from hvqa.util.interfaces import Component
 
 
 class HardcodedRelationClassifier(Component):
-    def __init__(self):
+    def __init__(self, spec):
         super(HardcodedRelationClassifier, self).__init__()
 
+        self.spec = spec
+        self.close_to_def = 5
         self.relation_funcs = [self._close_to]
 
     def run_(self, video):
@@ -33,32 +34,21 @@ class HardcodedRelationClassifier(Component):
 
         return rels
 
-    def train(self, train_data, eval_data, verbose=True):
-        raise NotImplementedError()
-
     @staticmethod
     def new(spec, **kwargs):
-        relations = HardcodedRelationClassifier()
+        relations = HardcodedRelationClassifier(spec)
         return relations
-
-    @staticmethod
-    def load(path):
-        raise NotImplementedError("HardcodedRelationClassifier objects must be newly created")
-
-    def save(self, path):
-        pass
 
     def _check_related(self, obj1, obj2):
         obj_relations = []
         for idx, relation_func in enumerate(self.relation_funcs):
             related = relation_func(obj1, obj2)
             if related:
-                obj_relations.append(RELATIONS[idx])
+                obj_relations.append(self.spec.relations[idx])
 
         return obj_relations
 
-    @staticmethod
-    def _close_to(obj1, obj2):
+    def _close_to(self, obj1, obj2):
         """
         Returns whether the obj1 is close to the obj2
         A border is created around the obj1, obj2 is close if it is within the border
@@ -69,10 +59,10 @@ class HardcodedRelationClassifier(Component):
         """
 
         obj1_x1, obj1_y1, obj1_x2, obj1_y2 = obj1.pos
-        obj1_x1 -= CLOSE_TO
-        obj1_x2 += CLOSE_TO
-        obj1_y1 -= CLOSE_TO
-        obj1_y2 += CLOSE_TO
+        obj1_x1 -= self.close_to_def
+        obj1_x2 += self.close_to_def
+        obj1_y1 -= self.close_to_def
+        obj1_y2 += self.close_to_def
 
         x1, y1, x2, y2 = obj2.pos
         obj_corners = [(x1, y1), (x2, y1), (x2, y2), (x1, y2)]
