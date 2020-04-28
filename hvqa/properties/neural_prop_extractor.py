@@ -126,6 +126,7 @@ class NeuralPropExtractor(Component):
                 preds = self.model(images)
 
             output = {prop: out.to("cpu") for prop, out in preds.items()}
+            targets = {prop: target.to("cpu") for prop, target in targets.items()}
             results = {prop: self._eval_prop(pred, targets[prop], threshold) for prop, pred in output.items()}
 
             for prop, (loss_, tps_, fps_, tns_, fns_, num_correct) in results.items():
@@ -167,6 +168,7 @@ class NeuralPropExtractor(Component):
             images, targets = self._prepare_data(imgs, objs)
             output = self.model(images)
             output = {prop: out.to("cpu") for prop, out in output.items()}
+            targets = {prop: target.to("cpu") for prop, target in targets.items()}
 
             loss, losses = self._calc_loss(output, targets)
             optimiser.zero_grad()
