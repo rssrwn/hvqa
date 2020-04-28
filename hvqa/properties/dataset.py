@@ -1,23 +1,25 @@
 from torch.utils.data import Dataset
 
 
-class PropDataset(Dataset):
-    def __init__(self, spec, videos, hardcoded, transform=None):
+class _AbsPropDataset(Dataset):
+    def __init__(self, spec, videos, answers=None, transform=None):
         """
         Create a dataset for property extraction
 
         :param spec: EnvSpec object
         :param videos: List of Video objects
-        :param hardcoded: Is object data in the videos hardcoded (bool)
+        :param answers: List of list of answers ([[str]])
         :param transform: Torchvision Transform to apply to PIL image of object
         """
 
         self.spec = spec
-        self.hardcoded = hardcoded
         self.transform = transform
+        self.answers = answers
+
+        # This needs to be run after setting the others
         self.obj_data = self._collect_data(videos)
 
-        super(PropDataset, self).__init__()
+        super(_AbsPropDataset, self).__init__()
 
     def __len__(self):
         return len(self.obj_data)
@@ -29,39 +31,89 @@ class PropDataset(Dataset):
 
         return img, target
 
-    @staticmethod
-    def from_qa_dataset(spec, dataset, transform=None):
-        """
-        Construct the properties dataset using the data in a given QADataset
-
-        :param spec: EnvSpec object
-        :param dataset: QADataset object
-        :param transform: Torchvision Transform to apply to PIL image of object
-        :return: PropDataset obj
-        """
-
-        hardcoded = dataset.is_hardcoded()
-        videos = [dataset[idx] for idx in range(len(dataset))]
-        prop_dataset = PropDataset(spec, videos, hardcoded, transform)
-        return prop_dataset
-
     def _collect_data(self, videos):
         """
         Collect data for the dataset
 
         :param videos: List of Video objs
-        :return: Data: tuple of (PIL Image, dict of {prop: val})
+        :return: Data: List of tuple of (PIL Image, dict of {prop: val})
         """
 
+        raise NotImplementedError("_AbsPropDataset is abstract and should not instantiated")
+
+    @classmethod
+    def from_video_dataset(cls, spec, dataset, transform=None):
+        data = [dataset[idx] for idx in range(len(dataset))]
+        videos, answers = tuple(zip(*data))
+        prop_dataset = cls(spec, videos, answers=answers, transform=transform)
+        return prop_dataset
+
+
+class HardcodedPropDataset(_AbsPropDataset):
+    def __init__(self, spec, videos, answers=None, transform=None):
+        super(HardcodedPropDataset, self).__init__(spec, videos, answers, transform)
+
+    def _collect_data(self, videos):
         data = []
         for video in videos:
             for frame in video.frames:
-                if self.hardcoded:
-                    [data.append((obj.img, obj.prop_vals)) for obj in frame.objs]
-                else:
-                    raise NotImplementedError()
+                [data.append((obj.img, obj.prop_vals)) for obj in frame.objs]
 
         return data
+
+
+class QAPropDataset(_AbsPropDataset):
+    def __init__(self, spec, videos, answers=None, transform=None):
+        super(QAPropDataset, self).__init__(spec, videos, answers, transform)
+
+    def _collect_data(self, videos):
+        data = []
+        for video_idx, video in enumerate(videos):
+            questions = video.questions
+            q_types = video.q_types
+            answers = self.answers[video_idx]
+            frames = video.frames
+
+            # TODO put this in spec (or a new question spec obj)
+            prop_q_type = 0
+
+            q_idxs = [idx for idx, q_type in enumerate(q_types) if q_type == prop_q_type]
+            for q_idx in q_idxs:
+                question = questions[q_idx]
+                answer = answers[q_idx]
+                obj_tuple = self._collect_obj(frames, question, answer)
+                if obj_tuple is not None:
+                    data.append(obj_tuple)
+
+        return data
+
+    def _collect_obj(self, frames, question, answer):
+        objs = []
+        prop, val, cls, frame_idx = self._parse_question(question)
+        frame = frames[frame_idx]
+        for obj in frame.objs:
+            prop_for_val = self.spec.find_prop(val)
+            obj_val = obj.prop_vals.get(prop_for_val)
+
+            # Match an obj (if val is None we can still match if data has not been loaded)
+            if obj.cls == cls and val == obj_val:
+                target = {prop: answer}
+
+                # Add the val given in the question as well (if we can)
+                if val is not None:
+                    target[prop_for_val] = val
+
+                objs.append((obj.img, target))
+
+        if len(objs) == 0:
+            print(f"WARNING: Did not find object for frame {frame_idx}, question {question}")
+            return None
+
+        obj = objs[0]
+        if len(objs) > 1:
+            print(f"WARNING: Found multiple objects for frame {frame_idx}, question {question}")
+
+        return obj
 
     # TODO create separate question parsing class
     def _parse_question(self, question):
@@ -71,9 +123,9 @@ class PropDataset(Dataset):
 
         # Assume only one property value given in question
         cls = splits[4]
-        prop_val = None
+        val = None
         if cls not in self.spec.obj_types():
-            prop_val = cls
+            val = cls
             cls = splits[5]
 
-        return prop, prop_val, cls, frame_idx
+        return prop, val, cls, frame_idx

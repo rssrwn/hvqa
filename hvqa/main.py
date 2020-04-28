@@ -15,11 +15,9 @@ spec = EnvSpec.from_dict({
     "obj_types": [("octopus", False), ("fish", True), ("rock", True), ("bag", True)],
     "properties": {
         "colour": ["red", "blue", "purple", "brown", "green", "silver", "white"],
-        # TODO
-        # "rotation": ["upward-facing", "left-facing", "downward-facing", "right-facing"]
-        "rotation": [0, 1, 2, 3]
+        "rotation": ["upward-facing", "left-facing", "downward-facing", "right-facing"]
     },
-    "relations": ["close to"],
+    "relations": ["close"],
     "actions": ["move", "rotate left", "rotate right"],
     "events": ["change colour", "eat a bag", "eat a fish"],
 })
@@ -33,7 +31,7 @@ def main(train_dir, eval_dir):
     model.train(train_data, eval_data)
     model.save(MODEL_PATH)
 
-    model = HardcodedVQAModel.load(MODEL_PATH)
+    model = HardcodedVQAModel.load(MODEL_PATH, spec=spec)
     model.eval_components(eval_data)
 
 

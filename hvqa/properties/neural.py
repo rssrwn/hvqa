@@ -6,7 +6,7 @@ import torchvision.transforms as T
 from torch.utils.data import DataLoader
 from pathlib import Path
 
-from hvqa.properties.dataset import PropDataset
+from hvqa.properties.dataset import HardcodedPropDataset
 from hvqa.properties.models import PropertyExtractionModel
 from hvqa.util.func import get_device, load_model, save_model, collate_func
 from hvqa.util.interfaces import Component, Trainable
@@ -78,32 +78,39 @@ class NeuralPropExtractor(Component, Trainable):
 
         return objs
 
-    def train(self, train_data, eval_data, verbose=True):
+    @staticmethod
+    def new(spec, **kwargs):
+        model = PropertyExtractionModel(spec)
+        model.eval()
+        prop_extractor = NeuralPropExtractor(spec, model)
+        return prop_extractor
+
+    @staticmethod
+    def load(spec, path):
+        model = load_model(PropertyExtractionModel, path, spec)
+        model.eval()
+        prop_extractor = NeuralPropExtractor(spec, model)
+        return prop_extractor
+
+    def save(self, path):
+        save_model(self.model, path)
+
+    def train(self, train_data, eval_data, verbose=True, from_qa=False):
         """
         Train the property classification component
 
         :param train_data: Training data (QADataset)
         :param eval_data: Evaluating data (QADataset)
         :param verbose: Verbose printing (bool)
+        :param from_qa: Train using data from QA pairs only (bool)
         """
 
-        train_dataset = PropDataset.from_qa_dataset(self.spec, train_data, transform=_transform)
-        train_loader = DataLoader(train_dataset, batch_size=self.batch_size, shuffle=True, collate_fn=collate_func)
-        optimiser = optim.Adam(self.model.parameters(), lr=self.lr)
-
-        print(f"Training property extraction model using device {self.device}...")
-
-        for epoch in range(self.epochs):
-            self._train_one_epoch(train_loader, optimiser, epoch, verbose)
-
-            # Save a temp model every epoch
-            current_save = f"{self._temp_save}/after_{epoch + 1}_epochs.pt"
-            torch.save(self.model.state_dict(), current_save)
-
-            # Evaluate performance every epoch
-            self.eval(eval_data)
-
-        print(f"Completed training, final model saved to {current_save}")
+        if from_qa:
+            assert not train_data.is_hardcoded(), "VideoQADataset must not be hardcoded when training using QA data"
+            self._train_from_qa(train_data, eval_data, verbose)
+        else:
+            assert train_data.is_hardcoded(), "VideoQADataset must be hardcoded when training using hardcoded data"
+            self._train_from_hardcoded(train_data, eval_data, verbose)
 
     def eval(self, eval_data, threshold=0.5):
         """
@@ -113,9 +120,11 @@ class NeuralPropExtractor(Component, Trainable):
         :param threshold: Threshold for accepting a property classification
         """
 
+        assert eval_data.is_hardcoded(), "VideoQADataset must be hardcoded when evaluating the NeuralPropEctractor"
+
         print("Evaluating neural property extraction component...")
 
-        eval_dataset = PropDataset.from_qa_dataset(self.spec, eval_data, transform=_transform)
+        eval_dataset = HardcodedPropDataset.from_video_dataset(self.spec, eval_data, transform=_transform)
         eval_loader = DataLoader(eval_dataset, batch_size=self.batch_size, shuffle=False, collate_fn=collate_func)
 
         self.model.eval()
@@ -155,22 +164,41 @@ class NeuralPropExtractor(Component, Trainable):
         results = (tps, fps, tns, fns)
         self._print_results(results, correct, losses, num_predictions)
 
-    @staticmethod
-    def new(spec, **kwargs):
-        model = PropertyExtractionModel(spec)
-        model.eval()
-        prop_extractor = NeuralPropExtractor(spec, model)
-        return prop_extractor
+    def _train_from_hardcoded(self, train_data, eval_data, verbose):
+        train_dataset = HardcodedPropDataset.from_video_dataset(self.spec, train_data, transform=_transform)
+        train_loader = DataLoader(train_dataset, batch_size=self.batch_size, shuffle=True, collate_fn=collate_func)
+        optimiser = optim.Adam(self.model.parameters(), lr=self.lr)
 
-    @staticmethod
-    def load(spec, path):
-        model = load_model(PropertyExtractionModel, path, spec)
-        model.eval()
-        prop_extractor = NeuralPropExtractor(spec, model)
-        return prop_extractor
+        print(f"Training property extraction model using device {self.device}...")
 
-    def save(self, path):
-        save_model(self.model, path)
+        current_save = None
+        for epoch in range(self.epochs):
+            self._train_one_epoch(train_loader, optimiser, epoch, verbose)
+
+            # Save a temp model every epoch
+            current_save = f"{self._temp_save}/after_{epoch + 1}_epochs.pt"
+            torch.save(self.model.state_dict(), current_save)
+
+            # Evaluate performance every epoch
+            self.eval(eval_data)
+
+        print(f"Completed training, final model saved to {current_save}")
+
+    def _train_from_qa(self, train_data, eval_data, verbose):
+        """
+        Train the model from the QA data only via bootstrapping
+        The model is first trained on QA pairs which do not have a property value in the question
+        Eg. Q: What colour was the rock in frame 4? A: blue
+        This model is then used to classify properties for all the training data
+        The model is then trained over all the classified training data
+
+        :param train_data: Training data (QADataset)
+        :param eval_data: Eval data (QADataset)
+        :param verbose: Verbose printing (bool)
+        """
+
+        data = [train_data[idx] for idx in range(len(train_data))]
+        videos, answers = tuple(zip(*data))
 
     def _train_one_epoch(self, train_loader, optimiser, epoch, verbose):
         num_batches = len(train_loader)

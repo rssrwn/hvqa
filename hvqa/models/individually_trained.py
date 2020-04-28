@@ -32,8 +32,8 @@ class IndTrainedModel(_AbsVQAModel):
         :param verbose: Print additional info during training
         """
 
-        # TODO
         print("\nTraining individually trained model...")
+
         print("Completed model training.")
 
     @staticmethod
