@@ -19,17 +19,34 @@ class EnvSpec:
         Note: Properties should not include class or position, these are implicit
         """
 
+        # Public members
         self.num_frames = num_frames
-        self._obj_types = [cls for cls, _ in obj_types]
-        self._static = [is_static for _, is_static in obj_types]
-        self._obj_idx_map = {obj: idx for idx, obj in enumerate(self._obj_types)}
-        self._props = properties
-        self._prop_names = list(self._props.keys())
         self.relations = relations
         self.actions = actions
         self.events = events
+
+        # Property helpers
+        self._props = properties
+        self._prop_names = list(self._props.keys())
+
+        # Object helpers
+        self._obj_types = [cls for cls, _ in obj_types]
+        self._static = [is_static for _, is_static in obj_types]
+
+        # Helper maps (must be done after properties and objects)
+        self._val_to_prop_map = self._setup_val_to_prop_map()
+        self._obj_idx_map = {obj: idx for idx, obj in enumerate(self._obj_types)}
         self._prop_idx_map = {prop: idx for idx, prop in enumerate(self._prop_names)}
         self._val_to_internal_map, self._internal_to_val_map = self._setup_prop_val_maps()
+
+    # TODO Currently assumes that each val is unique
+    def _setup_val_to_prop_map(self):
+        val_to_prop = {}
+        for prop, vals in self._props.items():
+            for val in vals:
+                val_to_prop[val] = prop
+
+        return val_to_prop
 
     def _setup_prop_val_maps(self):
         val_to_int = {}
@@ -86,6 +103,17 @@ class EnvSpec:
         cls_idx = self._obj_idx_map[cls]
         is_static = self._static[cls_idx]
         return is_static
+
+    def find_prop(self, val):
+        """
+        Find which property a particular property value belongs to
+        Note: Currently returns a single property if a value can be in two properties
+
+        :param val: Property value
+        :return: Property
+        """
+
+        return self._val_to_prop_map[val]
 
 
 class Obj:

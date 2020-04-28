@@ -64,7 +64,7 @@ class HardcodedVQAModel(_AbsVQAModel):
         The path should be a json file created by model.save(<path>)
 
         :param path: Path of json file to load model from (str)
-        :return: _AbsModel
+        :return: HardcodedVQAModel
         """
 
         save_path = Path(path)
@@ -85,10 +85,10 @@ class HardcodedVQAModel(_AbsVQAModel):
         spec_dict = meta_data["spec"]
         spec = EnvSpec.from_dict(spec_dict)
         properties = NeuralPropExtractor.load(spec, properties_path)
-        tracker = ObjTracker(err_corr)
-        relations = HardcodedRelationClassifier()
-        events = ASPEventDetector(al_model)
-        qa = HardcodedASPQASystem()
+        tracker = ObjTracker.new(spec, err_corr=err_corr)
+        relations = HardcodedRelationClassifier.new(spec)
+        events = ASPEventDetector.new(spec, al_model=al_model)
+        qa = HardcodedASPQASystem.new(spec)
 
         model = HardcodedVQAModel(spec, properties, tracker, relations, events, qa)
         return model

@@ -2,12 +2,14 @@ from pathlib import Path
 import clingo
 
 from hvqa.util.interfaces import Component
-from hvqa.util.definitions import CLASSES, PROP_LOOKUP
+from hvqa.util.definitions import CLASSES
 from hvqa.util.func import format_prop_val, format_prop_str, event_to_asp_str, asp_str_to_event, format_occ
 
 
 class HardcodedASPQASystem(Component):
-    def __init__(self):
+    def __init__(self, spec):
+        self.spec = spec
+
         path = Path("hvqa/qa")
         self.qa_system = path / "qa.lp"
         self.features = path / "background_knowledge.lp"
@@ -73,7 +75,7 @@ class HardcodedASPQASystem(Component):
 
     @staticmethod
     def new(spec, **kwargs):
-        qa = HardcodedASPQASystem()
+        qa = HardcodedASPQASystem(spec)
         return qa
 
     def _answer(self, video):
@@ -351,11 +353,10 @@ class HardcodedASPQASystem(Component):
         asp_q = template.format(asp_obj=asp_obj, event=event, occ=occ)
         return asp_q
 
-    @staticmethod
-    def _gen_asp_obj(cls, prop_val, frame_idx, id_str):
+    def _gen_asp_obj(self, cls, prop_val, frame_idx, id_str):
         asp_obj_str = f"holds(class({cls}, {id_str}), {str(frame_idx)})"
         if prop_val is not None:
-            prop = PROP_LOOKUP[prop_val]
+            prop = self.spec.find_prop(prop_val)
             prop_val = format_prop_val(prop, prop_val)
 
             asp_obj_str += f", holds({prop}({prop_val}, {id_str}), {str(frame_idx)})"
