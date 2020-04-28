@@ -1,11 +1,21 @@
 # *** File for interfaces common to multiple objects ***
 
+from torch.utils.data import Dataset
+
 
 class _AbsEvaluator:
     def __init__(self, test_loader):
         self.test_loader = test_loader
 
     def eval_model(self, model, threshold):
+        raise NotImplementedError()
+
+
+class QADataset(Dataset):
+    def __len__(self):
+        raise NotImplementedError()
+
+    def __getitem__(self, item):
         raise NotImplementedError()
 
 
@@ -75,13 +85,11 @@ class Component(Trainable):
 
 
 class Model(Trainable):
-    def run(self, frames, questions, q_types):
+    def run(self, video):
         """
         Generate answers to given questions
 
-        :param frames: List of PIL Images
-        :param questions: Questions about video: [str]
-        :param q_types: Type of each question: [int]
+        :param video: Video object
         :return: Answers: [str]
         """
 

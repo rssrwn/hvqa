@@ -79,6 +79,14 @@ class NeuralPropExtractor(Component):
         return objs
 
     def train(self, train_data, eval_data, verbose=True):
+        """
+        Train the property classification component
+
+        :param train_data: Training data (list of Video)
+        :param eval_data: Evaluating data (list of Video)
+        :param verbose: Verbose printing (bool)
+        """
+
         if self.hardcoded:
             train_dataset = PropDataset(self.spec, train_data, True, transform=_transform)
         else:
@@ -102,6 +110,13 @@ class NeuralPropExtractor(Component):
         print(f"Completed training, final model saved to {current_save}")
 
     def eval(self, eval_data, threshold=0.5):
+        """
+        Evaluate the trained property component individually
+
+        :param eval_data: List of Video objects
+        :param threshold: Threshold for accepting a property classification
+        """
+
         print("Evaluating neural property extraction component...")
 
         eval_dataset = PropDataset(self.spec, eval_data, True, transform=_transform)
@@ -125,6 +140,7 @@ class NeuralPropExtractor(Component):
             with torch.no_grad():
                 preds = self.model(images)
 
+            # TODO apply softmax before threshold
             output = {prop: out.to("cpu") for prop, out in preds.items()}
             targets = {prop: target.to("cpu") for prop, target in targets.items()}
             results = {prop: self._eval_prop(pred, targets[prop], threshold) for prop, pred in output.items()}

@@ -38,13 +38,11 @@ class _AbsVQAModel(Model):
             "QA": 0
         }
 
-    def run(self, video, questions, q_types):
+    def run(self, video):
         """
         Generate answers to given questions
 
         :param video: Video obj
-        :param questions: Questions about video: [str]
-        :param q_types: Type of each question: [int]
         :return: Answers: [str]
         """
 
@@ -116,8 +114,7 @@ class _AbsVQAModel(Model):
             video, expected = data[video_idx]
             questions = video.questions
             q_types = video.q_types
-
-            answers = self.run(video, questions, q_types)
+            answers = self.run(video)
 
             video_correct = 0
             for idx, predicted in enumerate(answers):
