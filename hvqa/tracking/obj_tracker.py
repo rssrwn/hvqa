@@ -30,9 +30,6 @@ class ObjTracker(Component):
             ids = self._process_frame(frame.objs)
             frame.set_obj_ids(ids)
 
-    def train(self, train_data, eval_data, verbose=True):
-        raise NotImplementedError("ObjTracker cannot be trained")
-
     @staticmethod
     def new(spec, **kwargs):
         err_corr = kwargs["err_corr"]

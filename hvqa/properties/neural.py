@@ -9,7 +9,7 @@ from pathlib import Path
 from hvqa.properties.dataset import PropDataset
 from hvqa.properties.models import PropertyExtractionModel
 from hvqa.util.func import get_device, load_model, save_model, collate_func
-from hvqa.util.interfaces import Component
+from hvqa.util.interfaces import Component, Trainable
 
 
 _transform = T.Compose([
@@ -18,7 +18,7 @@ _transform = T.Compose([
 ])
 
 
-class NeuralPropExtractor(Component):
+class NeuralPropExtractor(Component, Trainable):
     def __init__(self, spec, model, hardcoded=True, lr=0.001, batch_size=128, epochs=1, print_freq=10):
         super(NeuralPropExtractor, self).__init__()
 

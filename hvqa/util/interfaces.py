@@ -72,7 +72,7 @@ class Detector(Trainable):
         raise NotImplementedError()
 
 
-class Component(Trainable):
+class Component:
     def run_(self, video):
         """
         Run the component for a given video
@@ -91,17 +91,6 @@ class Component(Trainable):
         :param spec: Environment specification
         :param kwargs: Other component specific params
         :return: Instance of the Component
-        """
-
-        raise NotImplementedError()
-
-    def train(self, train_data, eval_data, verbose=True):
-        """
-        Train the Component individually
-
-        :param train_data: QADataset obj for training
-        :param eval_data: QADataset obj for evaluation
-        :param verbose: Print additional info during training
         """
 
         raise NotImplementedError()
