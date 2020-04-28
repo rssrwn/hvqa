@@ -1,4 +1,5 @@
 import json
+import time
 from pathlib import Path
 from concurrent.futures import ThreadPoolExecutor
 
@@ -23,6 +24,8 @@ class VideoDataset(QADataset):
         ids, self.videos, self.answers = self._find_videos()
         self.ids = {id_: idx for idx, id_ in enumerate(ids)}
 
+        self._detector_timing = 0
+
     def __len__(self):
         return len(self.ids)
 
@@ -41,6 +44,9 @@ class VideoDataset(QADataset):
 
     def is_hardcoded(self):
         return self.hardcoded
+
+    def detector_timing(self):
+        return self._detector_timing
 
     def _find_videos(self):
         video_ids = []
@@ -71,7 +77,9 @@ class VideoDataset(QADataset):
                 frame = Frame(self.spec, objs)
                 frames.append(frame)
         else:
+            start_time = time.time()
             frames = self.detector.detect_objs(frame_imgs)
+            self._detector_timing += (time.time() - start_time)
 
         questions = video_dict["questions"]
         q_types = video_dict["question_types"]

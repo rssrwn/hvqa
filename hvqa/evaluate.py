@@ -16,8 +16,8 @@ spec = EnvSpec.from_dict({
     "properties": {
         "colour": ["red", "blue", "purple", "brown", "green", "silver", "white"],
         # TODO
-        # "rotation": ["upward-facing", "left-facing", "downward-facing", "right-facing"]
-        "rotation": [0, 1, 2, 3]
+        "rotation": ["upward-facing", "left-facing", "downward-facing", "right-facing"]
+        # "rotation": [0, 1, 2, 3]
     },
     "relations": ["close"],
     "actions": ["move", "rotate_left", "rotate_right", "nothing"],

@@ -41,6 +41,15 @@ class QADataset(Dataset):
 
         raise NotImplementedError()
 
+    def detector_timing(self):
+        """
+        Return the time taken by the detector (for debug and informational purposes)
+
+        :return: Seconds
+        """
+
+        raise NotImplementedError()
+
 
 class Trainable:
     def train(self, train_data, eval_data, verbose=True):

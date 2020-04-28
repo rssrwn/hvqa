@@ -29,7 +29,7 @@ class _AbsVQAModel(Model):
             self.qa_system
         ]
 
-        self._timings = {
+        self._eval_timings = {
             "Detector": 0,
             "Properties": 0,
             "Tracker": 0,
@@ -76,6 +76,7 @@ class _AbsVQAModel(Model):
 
         assert not data.is_hardcoded(), "Dataset must not be hardcoded when evaluating"
 
+        self._eval_timings["Detector"] = data.detector_timing()
         start_time = time.time()
 
         correct, incorrect = self._eval_videos(data, verbose)
@@ -151,11 +152,11 @@ class _AbsVQAModel(Model):
         start = time.time()
         result = func(*args)
         total = time.time() - start
-        self._timings[timings_key] += total
+        self._eval_timings[timings_key] += total
         return result
 
     def print_timings(self):
-        timings = list(self._timings.items())
+        timings = list(self._eval_timings.items())
         sorted(timings, key=lambda pair: pair[1], reverse=True)
         total = sum(list(map(lambda pair: pair[1], timings)))
 
