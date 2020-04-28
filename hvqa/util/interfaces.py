@@ -13,9 +13,32 @@ class _AbsEvaluator:
 
 class QADataset(Dataset):
     def __len__(self):
+        """
+        Get the length of the dataset
+
+        :return: Number of items in the dataset (int)
+        """
+
         raise NotImplementedError()
 
     def __getitem__(self, item):
+        """
+        Get an item from the dataset
+
+        :param item: Idx of item in the dataset
+        :return: Pair of Video and answers (Video, [str])
+        """
+
+        raise NotImplementedError()
+
+    def is_hardcoded(self):
+        """
+        Return whether the dataset contains hardcoded data or requires the Model to fill in data itself
+        The hardcoded data should mostly be object properties
+
+        :return: Bool
+        """
+
         raise NotImplementedError()
 
 
@@ -76,8 +99,8 @@ class Component(Trainable):
         """
         Train the Component individually
 
-        :param train_data: VideoDataset obj for training
-        :param eval_data: VideoDataset obj for evaluation
+        :param train_data: QADataset obj for training
+        :param eval_data: QADataset obj for evaluation
         :param verbose: Print additional info during training
         """
 
@@ -109,8 +132,8 @@ class Model(Trainable):
         """
         Train the Model
 
-        :param train_data: List of training Video objects
-        :param eval_data: List of eval Video objects
+        :param train_data: QADataset object
+        :param eval_data: QADataset object
         :param verbose: Print additional info during training
         """
 
@@ -153,7 +176,7 @@ class Model(Trainable):
         """
         Evaluate the performance of the model
 
-        :param data: VideoDataset obj of evaluation data
+        :param data: QADataset obj of evaluation data
         :param verbose: Boolean
         """
 

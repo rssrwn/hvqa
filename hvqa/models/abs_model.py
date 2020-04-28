@@ -74,7 +74,7 @@ class _AbsVQAModel(Model):
         :param verbose: Boolean
         """
 
-        assert not data.hardcoded, "Dataset must not be hardcoded when evaluating"
+        assert not data.is_hardcoded(), "Dataset must not be hardcoded when evaluating"
 
         start_time = time.time()
 

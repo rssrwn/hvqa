@@ -23,6 +23,14 @@ class HardcodedVQAModel(_AbsVQAModel):
         super(HardcodedVQAModel, self).__init__(properties, tracker, relations, events, qa)
 
     def train(self, train_data, eval_data, verbose=True):
+        """
+        Train the Model
+
+        :param train_data: QADataset object
+        :param eval_data: QADataset object
+        :param verbose: Print additional info during training
+        """
+
         print("\nTraining hardcoded model...")
         self.prop_classifier.train(train_data, eval_data, verbose=verbose)
         print("Completed hardcoded model training.")

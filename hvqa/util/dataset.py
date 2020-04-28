@@ -1,13 +1,13 @@
 import json
 from pathlib import Path
 from concurrent.futures import ThreadPoolExecutor
-from torch.utils.data.dataset import Dataset
 
 import hvqa.util.func as util
+from hvqa.util.interfaces import QADataset
 from hvqa.util.environment import Video, Frame, Obj
 
 
-class VideoDataset(Dataset):
+class VideoDataset(QADataset):
     """
     Dataset for storing and fetching videos
     """
@@ -22,6 +22,25 @@ class VideoDataset(Dataset):
 
         ids, self.videos, self.answers = self._find_videos()
         self.ids = {id_: idx for idx, id_ in enumerate(ids)}
+
+    def __len__(self):
+        return len(self.ids)
+
+    def __getitem__(self, item):
+        """
+        Get item of dataset
+
+        :param item: Video number (as stored in directory)
+        :return: Video obj, list of answers ([str])
+        """
+
+        idx = self.ids[item]
+        video = self.videos[idx]
+        ans = self.answers[idx]
+        return video, ans
+
+    def is_hardcoded(self):
+        return self.hardcoded
 
     def _find_videos(self):
         video_ids = []
@@ -76,22 +95,6 @@ class VideoDataset(Dataset):
             objs.append(obj)
 
         return objs
-
-    def __len__(self):
-        return len(self.ids)
-
-    def __getitem__(self, item):
-        """
-        Get item of dataset
-
-        :param item: Video number (as stored in directory)
-        :return: Video obj, list of answers ([str])
-        """
-
-        idx = self.ids[item]
-        video = self.videos[idx]
-        ans = self.answers[idx]
-        return video, ans
 
     def _collect_videos(self, path):
         """

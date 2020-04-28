@@ -82,16 +82,12 @@ class NeuralPropExtractor(Component):
         """
         Train the property classification component
 
-        :param train_data: Training data (list of Video)
-        :param eval_data: Evaluating data (list of Video)
+        :param train_data: Training data (QADataset)
+        :param eval_data: Evaluating data (QADataset)
         :param verbose: Verbose printing (bool)
         """
 
-        if self.hardcoded:
-            train_dataset = PropDataset(self.spec, train_data, True, transform=_transform)
-        else:
-            raise NotImplementedError()
-
+        train_dataset = PropDataset.from_qa_dataset(self.spec, train_data, transform=_transform)
         train_loader = DataLoader(train_dataset, batch_size=self.batch_size, shuffle=True, collate_fn=collate_func)
         optimiser = optim.Adam(self.model.parameters(), lr=self.lr)
 
@@ -119,7 +115,7 @@ class NeuralPropExtractor(Component):
 
         print("Evaluating neural property extraction component...")
 
-        eval_dataset = PropDataset(self.spec, eval_data, True, transform=_transform)
+        eval_dataset = PropDataset.from_qa_dataset(self.spec, eval_data, transform=_transform)
         eval_loader = DataLoader(eval_dataset, batch_size=self.batch_size, shuffle=False, collate_fn=collate_func)
 
         self.model.eval()
