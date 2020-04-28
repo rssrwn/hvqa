@@ -3,11 +3,11 @@ from pathlib import Path
 
 from hvqa.util.environment import EnvSpec
 from hvqa.models.abs_model import _AbsVQAModel
-from hvqa.properties.neural_prop_extractor import NeuralPropExtractor
+from hvqa.properties.neural import NeuralPropExtractor
 from hvqa.tracking.obj_tracker import ObjTracker
-from hvqa.relations.hardcoded_relations import HardcodedRelationClassifier
-from hvqa.events.asp_event_detector import ASPEventDetector
-from hvqa.qa.hardcoded_qa_system import HardcodedASPQASystem
+from hvqa.relations.hardcoded import HardcodedRelationClassifier
+from hvqa.events.hardcoded_asp import ASPEventDetector
+from hvqa.qa.hardcoded_asp import HardcodedASPQASystem
 
 
 ERR_CORR_DEFAULT = True

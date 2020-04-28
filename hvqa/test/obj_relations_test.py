@@ -1,7 +1,7 @@
 import unittest
 
 from hvqa.util.environment import Obj
-from hvqa.relations.hardcoded_relations import HardcodedRelationClassifier
+from hvqa.relations.hardcoded import HardcodedRelationClassifier
 
 
 obj1 = Obj("octopus", (10, 100, 20, 110))

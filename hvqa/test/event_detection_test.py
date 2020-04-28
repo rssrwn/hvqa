@@ -1,7 +1,7 @@
 import unittest
 
 from hvqa.util.environment import Obj, Frame
-from hvqa.events.asp_event_detector import ASPEventDetector
+from hvqa.events.hardcoded_asp import ASPEventDetector
 
 
 obj1 = Obj("octopus", (10, 50, 27, 67))
