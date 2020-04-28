@@ -108,14 +108,6 @@ holds(F, I+1) :-
   step(I+1),
   step(I).
 
-% Assume only one object can do actions
-% non_static(Id) :- occurs(move(Id), Frame).
-% non_static(Id) :- occurs(rotate_left(Id), Frame).
-% non_static(Id) :- occurs(rotate_right(Id), Frame).
-% non_static(Id) :- occurs(nothing(Id), Frame).
-%
-% :- non_static(Id1), non_static(Id2), Id1 != Id2.
-
 
 % ***** Domain Dependent *****
 

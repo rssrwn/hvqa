@@ -3,7 +3,7 @@ import clingo
 
 from hvqa.util.interfaces import Component
 from hvqa.util.definitions import CLASSES
-from hvqa.util.func import format_prop_val, format_prop_str, event_to_asp_str, asp_str_to_event, format_occ
+from hvqa.util.func import event_to_asp_str, asp_str_to_event, format_occ
 
 
 class HardcodedASPQASystem(Component):
@@ -159,14 +159,14 @@ class HardcodedASPQASystem(Component):
 
         return ans_strs
 
-    @staticmethod
-    def _answer_q_type_0(args, template):
+    def _answer_q_type_0(self, args, template):
         assert len(args) == 2, "Args is not correct length for question type 0"
 
         prop, prop_val = args
 
         # TODO Update dataset to use readable version of rotation (eg. upward-facing)
-        # prop_val = format_prop_str(prop, prop_val)
+        if prop != "rotation":
+            prop_val = self.spec.from_internal(prop, int(prop_val))
 
         ans_str = template.format(prop_val=prop_val)
         return ans_str
@@ -192,13 +192,12 @@ class HardcodedASPQASystem(Component):
         ans_str = template.format(action=action)
         return ans_str
 
-    @staticmethod
-    def _answer_q_type_3(args, template):
+    def _answer_q_type_3(self, args, template):
         assert len(args) == 3, "Args is not correct length for question type 3"
 
         prop, before, after = args
-        before = format_prop_str(prop, before)
-        after = format_prop_str(prop, after)
+        before = self.spec.from_internal(prop, int(before))
+        after = self.spec.from_internal(prop, int(after))
         ans_str = template.format(prop=prop, before=before, after=after)
         return ans_str
 
@@ -357,8 +356,7 @@ class HardcodedASPQASystem(Component):
         asp_obj_str = f"holds(class({cls}, {id_str}), {str(frame_idx)})"
         if prop_val is not None:
             prop = self.spec.find_prop(prop_val)
-            prop_val = format_prop_val(prop, prop_val)
-
+            prop_val = self.spec.to_internal(prop, prop_val)
             asp_obj_str += f", holds({prop}({prop_val}, {id_str}), {str(frame_idx)})"
 
         return asp_obj_str

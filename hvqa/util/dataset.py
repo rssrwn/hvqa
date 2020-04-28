@@ -16,6 +16,8 @@ class VideoDataset(QADataset):
     def __init__(self, spec, data_dir, detector, hardcoded=False):
         super(VideoDataset, self).__init__()
 
+        self._detector_timing = 0
+
         self.spec = spec
         self.data_dir = Path(data_dir)
         self.detector = detector
@@ -23,8 +25,6 @@ class VideoDataset(QADataset):
 
         ids, self.videos, self.answers = self._find_videos()
         self.ids = {id_: idx for idx, id_ in enumerate(ids)}
-
-        self._detector_timing = 0
 
     def __len__(self):
         return len(self.ids)
@@ -96,6 +96,10 @@ class VideoDataset(QADataset):
             position = tuple(map(round, position))
             colour = obj_dict["colour"]
             rotation = obj_dict["rotation"]
+
+            # TODO Fix dataset to use external rotation value
+            rotation = self.spec.from_internal("rotation", rotation)
+
             obj = Obj(self.spec, obj_type, position)
             obj.set_prop_val("colour", colour)
             obj.set_prop_val("rotation", rotation)

@@ -19,6 +19,13 @@ def inc_in_map(coll, key):
     coll[key] += 1
 
 
+def get_or_default(coll, meta_data, key):
+    default = meta_data[key]
+    val = coll.get(key)
+    val = val if val is not None else default
+    return val
+
+
 def load_model(model_class, path, *model_args):
     """
     Load a model whose state_dict has been saved

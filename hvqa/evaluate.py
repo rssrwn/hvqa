@@ -15,9 +15,7 @@ spec = EnvSpec.from_dict({
     "obj_types": [("octopus", False), ("fish", True), ("rock", True), ("bag", True)],
     "properties": {
         "colour": ["red", "blue", "purple", "brown", "green", "silver", "white"],
-        # TODO
-        "rotation": ["upward-facing", "left-facing", "downward-facing", "right-facing"]
-        # "rotation": [0, 1, 2, 3]
+        "rotation": ["upward-facing", "right-facing", "downward-facing", "left-facing"]
     },
     "relations": ["close"],
     "actions": ["move", "rotate_left", "rotate_right", "nothing"],
@@ -37,7 +35,7 @@ def main(data_dir, model_type):
     data = VideoDataset(spec, data_dir, detector, hardcoded=False)
 
     if model_type == "hardcoded":
-        model = HardcodedVQAModel.load(MODEL_PATH, err_corr=ERR_CORR, al_model=AL_EVENT_MODEL)
+        model = HardcodedVQAModel.load(MODEL_PATH, err_corr=ERR_CORR, al_model=AL_EVENT_MODEL, spec=spec)
     else:
         print("That type of model is not supported")
         return

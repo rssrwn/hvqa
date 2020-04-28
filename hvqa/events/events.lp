@@ -9,22 +9,8 @@ obs_disappear(Id, Frame) :-
   not obs_exists(Id, Frame+1),
   step(Frame+1).
 
-% Map to internal representation if we think it is not an error
-obs(F, true, I) :-
-  obs(F, I),
-  not nn_error(F, I),
-  not obs(F, false, I).
-
-% % Error if a new object appears (which wasn't in initial frame)
-% error_obj(Id, Frame) :-
-%   obs(class(Class, Id), Frame),
-%   not obs(class(Class, Id), 0).
-%
-% % If an object is detected in error, assume all properties are erroneous
-% nn_error(class(Class, Id), Frame) :-  error_obj(Id, Frame), obs(class(Class, Id), Frame).
-% nn_error(colour(Colour, Id), Frame) :- error_obj(Id, Frame), obs(colour(Colour, Id), Frame).
-% nn_error(rotation(Rot, Id), Frame) :- error_obj(Id, Frame), obs(rotation(Rot, Id), Frame).
-% nn_error(position(Pos, Id), Frame) :- error_obj(Id, Frame), obs(position(Pos, Id), Frame).
+% Map to internal representation
+obs(F, true, I) :- obs(F, I).
 
 % Assume correct initial state
 holds(F, 0) :- obs(F, true, 0).

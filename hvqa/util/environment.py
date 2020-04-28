@@ -172,7 +172,8 @@ class Obj:
                    f"obs(position({str(self.pos)}, {self.id}), {frame_num}){body_str}.\n"
 
         for prop, val in self.prop_vals.items():
-            encoding += f"obs({prop}({str(val)}, {self.id}), {frame_num}){body_str}.\n"
+            asp_val = str(self.spec.to_internal(prop, val))
+            encoding += f"obs({prop}({asp_val}, {self.id}), {frame_num}){body_str}.\n"
 
         return encoding
 
