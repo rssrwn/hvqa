@@ -130,17 +130,15 @@ class Obj:
         assert self.cls is not None, "Class must be set"
         assert self.pos is not None, "Position must be set"
         assert self.id is not None, "Id must be set"
-        for prop, val in self.prop_vals:
+        for prop, val in self.prop_vals.items():
             assert val is not None, f"{prop} must be set"
-
-        self.pos = tuple(map(int, self.pos))
 
         body_str = "" if body is None else " :- " + body
         frame_num = str(frame_num)
         encoding = f"obs(class({self.cls}, {self.id}), {frame_num}){body_str}.\n" \
                    f"obs(position({str(self.pos)}, {self.id}), {frame_num}){body_str}.\n"
 
-        for prop, val in self.prop_vals:
+        for prop, val in self.prop_vals.items():
             encoding += f"obs({prop}({str(val)}, {self.id}), {frame_num}){body_str}.\n"
 
         return encoding
@@ -150,17 +148,18 @@ class Frame:
     def __init__(self, spec, objs):
         self.spec = spec
         self.objs = objs
-        self._id_idx_map = None
         self.relations = []
+        # self._id_idx_map = self._find_duplicate_idxs()
         self._id_idx_map = {}
         self._try_id_idx_map = {}
 
     def set_objs(self, objs):
         self.objs = objs
         self._id_idx_map = self._find_duplicate_idxs()
+        self._id_idx_map = {}
 
     def set_relation(self, idx1, idx2, relation):
-        assert relation in self.spec.relations, f"Relation arg must be one of {self.spec.relations}"
+        assert relation in self.spec.relations, f"Relation {relation} must be one of {self.spec.relations}"
 
         id1 = self.objs[idx1].id
         id2 = self.objs[idx2].id

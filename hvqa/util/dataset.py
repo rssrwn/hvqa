@@ -66,7 +66,8 @@ class VideoDataset(Dataset):
         objs = []
         for obj_idx, obj_dict in enumerate(obj_dicts):
             obj_type = obj_dict["class"]
-            position = map(int, obj_dict["position"])
+            position = obj_dict["position"]
+            position = tuple(map(round, position))
             colour = obj_dict["colour"]
             rotation = obj_dict["rotation"]
             obj = Obj(self.spec, obj_type, position)

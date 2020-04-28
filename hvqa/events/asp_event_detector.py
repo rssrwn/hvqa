@@ -1,6 +1,6 @@
-from pathlib import Path
-import clingo
 import time
+import clingo
+from pathlib import Path
 
 from hvqa.util.interfaces import Component
 

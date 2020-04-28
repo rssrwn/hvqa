@@ -19,9 +19,9 @@ spec = EnvSpec.from_dict({
         # "rotation": ["upward-facing", "left-facing", "downward-facing", "right-facing"]
         "rotation": [0, 1, 2, 3]
     },
-    "relations": ["close to"],
-    "actions": ["move", "rotate left", "rotate right"],
-    "events": ["change colour", "eat a bag", "eat a fish"],
+    "relations": ["close"],
+    "actions": ["move", "rotate_left", "rotate_right", "nothing"],
+    "events": ["change_colour", "eat_bag", "eat_fish"],
 })
 
 

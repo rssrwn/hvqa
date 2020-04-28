@@ -29,8 +29,8 @@ class ObjTracker(Component):
         for frame in video.frames:
             self._process_frame_(frame.objs)
 
-    def train(self, data):
-        pass
+    def train(self, train_data, eval_data, verbose=True):
+        raise NotImplementedError("ObjTracker cannot be trained")
 
     @staticmethod
     def new(spec, **kwargs):
