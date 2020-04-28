@@ -50,7 +50,6 @@ class VideoDataset(Dataset):
                 frame_img = frame_imgs[frame_num]
                 objs = self._collect_objs(frame_dict, frame_img)
                 frame = Frame(self.spec, objs)
-                frame.set_objs(objs)
                 frames.append(frame)
         else:
             frames = self.detector.detect_objs(frame_imgs)

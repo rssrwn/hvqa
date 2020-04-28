@@ -27,7 +27,8 @@ class ObjTracker(Component):
 
     def run_(self, video):
         for frame in video.frames:
-            self._process_frame_(frame.objs)
+            ids = self._process_frame(frame.objs)
+            frame.set_obj_ids(ids)
 
     def train(self, train_data, eval_data, verbose=True):
         raise NotImplementedError("ObjTracker cannot be trained")
@@ -38,14 +39,13 @@ class ObjTracker(Component):
         tracker = ObjTracker(err_corr)
         return tracker
 
-    def _process_frame_(self, objs):
+    def _process_frame(self, objs):
         """
         Process a frame (list of objects)
         Returns object ids which correspond to the tracker's best guess of the object in the frame
-        Note: Updates objs in-place
 
         :param objs: List of Obj objects
-        :return: List indices (len = len(objs))
+        :return: Ids
         """
 
         if self._objs is None:
@@ -56,9 +56,7 @@ class ObjTracker(Component):
             else:
                 ids = self._process_next_frame(objs)
 
-        # Assign ids
-        for idx, obj in enumerate(objs):
-            obj.id = ids[idx]
+        return ids
 
     def _initial_frame(self, objs):
         self._objs = objs

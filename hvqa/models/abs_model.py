@@ -76,6 +76,8 @@ class _AbsVQAModel(Model):
         :param verbose: Boolean
         """
 
+        assert data.hardcoded == False, "Dataset must not be hardcoded when evaluating"
+
         start_time = time.time()
 
         correct, incorrect = self._eval_videos(data, verbose)

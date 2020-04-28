@@ -109,6 +109,9 @@ class Obj:
         self.img = None
         self.prop_vals = {prop: None for prop in spec.prop_names()}
 
+    def set_id(self, id_):
+        self.id = id_
+
     def set_prop_val(self, prop, val):
         vals = self.spec.prop_values(prop)
         assert prop in self.spec.prop_names(), f"Unknown property {prop}"
@@ -133,6 +136,8 @@ class Obj:
         for prop, val in self.prop_vals.items():
             assert val is not None, f"{prop} must be set"
 
+        self.pos = tuple(map(int, self.pos))
+
         body_str = "" if body is None else " :- " + body
         frame_num = str(frame_num)
         encoding = f"obs(class({self.cls}, {self.id}), {frame_num}){body_str}.\n" \
@@ -149,14 +154,16 @@ class Frame:
         self.spec = spec
         self.objs = objs
         self.relations = []
-        # self._id_idx_map = self._find_duplicate_idxs()
         self._id_idx_map = {}
         self._try_id_idx_map = {}
 
-    def set_objs(self, objs):
-        self.objs = objs
+    def set_obj_ids(self, ids):
+        assert len(self.objs) == len(ids), "Number of ids must the same as the number of objects"
+        for id_, obj in zip(ids, self.objs):
+            obj.set_id(id_)
+
+        # Find which objs are duplicate for err_corr
         self._id_idx_map = self._find_duplicate_idxs()
-        self._id_idx_map = {}
 
     def set_relation(self, idx1, idx2, relation):
         assert relation in self.spec.relations, f"Relation {relation} must be one of {self.spec.relations}"
