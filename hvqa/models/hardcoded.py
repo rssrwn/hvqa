@@ -35,7 +35,7 @@ class HardcodedVQAModel(_AbsVQAModel):
         err_corr = ERR_CORR_DEFAULT
         al_model = AL_MODEL_DEFAULT
         if kwargs is not None:
-            err_corr_param = kwargs.get("error_correction")
+            err_corr_param = kwargs.get("err_corr")
             al_model_param = kwargs.get("al_model")
             err_corr = err_corr_param if err_corr_param is not None else err_corr
             al_model = al_model_param if al_model_param is not None else al_model
