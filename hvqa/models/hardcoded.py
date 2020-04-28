@@ -34,7 +34,7 @@ class HardcodedVQAModel(_AbsVQAModel):
 
         print("\nTraining hardcoded model...")
         self.prop_classifier.train(train_data, eval_data, verbose=verbose)
-        print("Completed hardcoded model training.")
+        print("Completed model training.")
 
     def eval_components(self, eval_data):
         self.prop_classifier.eval(eval_data)
@@ -78,7 +78,6 @@ class HardcodedVQAModel(_AbsVQAModel):
         err_corr = get_or_default(kwargs, meta_data, "err_corr")
         al_model = get_or_default(kwargs, meta_data, "al_model")
         spec = get_or_default(kwargs, meta_data, "spec")
-
         if type(spec) == dict:
             spec = EnvSpec.from_dict(spec)
 

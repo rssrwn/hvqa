@@ -138,12 +138,11 @@ class Model(Trainable):
         raise NotImplementedError()
 
     @staticmethod
-    def new(spec, detector, **kwargs):
+    def new(spec, **kwargs):
         """
         Create a new instance of the Model
 
         :param spec: Environment specification (dict)
-        :param detector: Object detector (instance of Detector interface)
         :param kwargs: Other model specific params
         :return: Instance of Model
         """
