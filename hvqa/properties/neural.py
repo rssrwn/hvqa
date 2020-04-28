@@ -6,7 +6,7 @@ import torchvision.transforms as T
 from torch.utils.data import DataLoader
 from pathlib import Path
 
-from hvqa.properties.dataset import HardcodedPropDataset
+from hvqa.properties.dataset import HardcodedPropDataset, QAPropDataset
 from hvqa.properties.models import PropertyExtractionModel
 from hvqa.util.func import get_device, load_model, save_model, collate_func
 from hvqa.util.interfaces import Component, Trainable
@@ -169,20 +169,11 @@ class NeuralPropExtractor(Component, Trainable):
         train_loader = DataLoader(train_dataset, batch_size=self.batch_size, shuffle=True, collate_fn=collate_func)
         optimiser = optim.Adam(self.model.parameters(), lr=self.lr)
 
-        print(f"Training property extraction model using device {self.device}...")
+        print(f"Training property extraction model using hardcoded data with device {self.device}...")
 
-        current_save = None
         for epoch in range(self.epochs):
             self._train_one_epoch(train_loader, optimiser, epoch, verbose)
-
-            # Save a temp model every epoch
-            current_save = f"{self._temp_save}/after_{epoch + 1}_epochs.pt"
-            torch.save(self.model.state_dict(), current_save)
-
-            # Evaluate performance every epoch
             self.eval(eval_data)
-
-        print(f"Completed training, final model saved to {current_save}")
 
     def _train_from_qa(self, train_data, eval_data, verbose):
         """
@@ -199,6 +190,27 @@ class NeuralPropExtractor(Component, Trainable):
 
         data = [train_data[idx] for idx in range(len(train_data))]
         videos, answers = tuple(zip(*data))
+
+        train_dataset = QAPropDataset(self.spec, videos, answers, transform=_transform)
+        train_loader = DataLoader(train_dataset, batch_size=self.batch_size, shuffle=True, collate_fn=collate_func)
+        optimiser = optim.Adam(self.model.parameters(), lr=self.lr)
+
+        print(f"Training property extraction model using QA data with device {self.device}...")
+        print(f"Number of objects in bootstrap data: {len(train_dataset)}")
+
+        # Train the initial bootstrap
+        self._train_one_epoch(train_loader, optimiser, -1, verbose)
+
+        print("Evaluating model after training for one epoch with bootstrap data...")
+        self.eval(eval_data)
+
+        # Apply the rest of the dataset to the current network and train again
+        train_iters = 2  # TODO move somewhere else
+        for train_iter in range(train_iters):
+            print(f"Running training iteration {train_iter}/{train_iters}")
+            [self.run_(video) for video in videos]
+            self._train_one_epoch(train_loader, optimiser, -1, verbose)
+            self.eval(eval_data)
 
     def _train_one_epoch(self, train_loader, optimiser, epoch, verbose):
         num_batches = len(train_loader)
@@ -220,6 +232,10 @@ class NeuralPropExtractor(Component, Trainable):
                 for prop, loss in losses.items():
                     loss_str += f" -- {prop} loss = {loss.item():.6f}"
                 print(loss_str)
+
+        # Save a temp model every epoch
+        current_save = f"{self._temp_save}/after_{epoch + 1}_epochs.pt"
+        torch.save(self.model.state_dict(), current_save)
 
     def _prepare_data(self, imgs, objs):
         targets = {}
