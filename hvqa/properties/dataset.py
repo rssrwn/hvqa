@@ -92,8 +92,10 @@ class QAPropDataset(_AbsPropDataset):
         prop, val, cls, frame_idx = self._parse_question(question)
         frame = frames[frame_idx]
         for obj in frame.objs:
-            prop_for_val = self.spec.find_prop(val)
-            obj_val = obj.prop_vals.get(prop_for_val)
+            obj_val = None
+            if val is not None:
+                prop_for_val = self.spec.find_prop(val)
+                obj_val = obj.prop_vals.get(prop_for_val)
 
             # Match an obj (if val is None we can still match if data has not been loaded)
             if obj.cls == cls and val == obj_val:
@@ -106,7 +108,6 @@ class QAPropDataset(_AbsPropDataset):
                 objs.append((obj.img, target))
 
         if len(objs) == 0:
-            print(f"WARNING: Did not find object for frame {frame_idx}, question {question}")
             return None
 
         obj = objs[0]

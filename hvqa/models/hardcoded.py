@@ -33,7 +33,7 @@ class HardcodedVQAModel(_AbsVQAModel):
         """
 
         print("\nTraining hardcoded model...")
-        self.prop_classifier.train(train_data, eval_data, verbose=verbose)
+        self.prop_classifier.train(train_data, eval_data, verbose=verbose, from_qa=False)
         print("Completed model training.")
 
     def eval_components(self, eval_data):

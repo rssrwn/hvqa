@@ -33,7 +33,7 @@ class IndTrainedModel(_AbsVQAModel):
         """
 
         print("\nTraining individually trained model...")
-
+        self.prop_classifier.train(train_data, eval_data, verbose=verbose, from_qa=True)
         print("Completed model training.")
 
     @staticmethod

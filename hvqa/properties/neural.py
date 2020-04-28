@@ -179,7 +179,7 @@ class NeuralPropExtractor(Component, Trainable):
         """
         Train the model from the QA data only via bootstrapping
         The model is first trained on QA pairs which do not have a property value in the question
-        Eg. Q: What colour was the rock in frame 4? A: blue
+        Eg. Q: What colour was the rock in frame 4? A: blue -> target = {colour: blue}
         This model is then used to classify properties for all the training data
         The model is then trained over all the classified training data
 
@@ -199,7 +199,9 @@ class NeuralPropExtractor(Component, Trainable):
         print(f"Number of objects in bootstrap data: {len(train_dataset)}")
 
         # Train the initial bootstrap
-        self._train_one_epoch(train_loader, optimiser, -1, verbose)
+        # self._train_one_epoch(train_loader, optimiser, -1, verbose)
+        # TODO write separate training function for this (also may need more than one epoch)
+        # TODO ensure all object types are equally represented in the training data
 
         print("Evaluating model after training for one epoch with bootstrap data...")
         self.eval(eval_data)
@@ -238,6 +240,14 @@ class NeuralPropExtractor(Component, Trainable):
         torch.save(self.model.state_dict(), current_save)
 
     def _prepare_data(self, imgs, objs):
+        """
+        Prepare the data to be passed to the network
+
+        :param imgs: List of PIL images
+        :param objs: List of dicts: {prop: val}
+        :return: 4d torch Tensor, {prop: Tensor}
+        """
+
         targets = {}
 
         # Convert to tensors

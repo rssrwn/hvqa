@@ -4,6 +4,7 @@ from hvqa.util.dataset import VideoDataset
 from hvqa.util.environment import EnvSpec
 from hvqa.detection.detector import NeuralDetector
 from hvqa.models.hardcoded import HardcodedVQAModel
+from hvqa.models.individually_trained import IndTrainedModel
 
 
 DETECTOR_PATH = "saved-models/detection/v1_0/after_20_epochs.pt"
@@ -24,13 +25,17 @@ spec = EnvSpec.from_dict({
 
 
 def main(train_dir, eval_dir):
+    # Create data
     detector = NeuralDetector.load(spec, DETECTOR_PATH)
-    train_data = VideoDataset(spec, train_dir, detector, hardcoded=True)
+    train_data = VideoDataset(spec, train_dir, detector, hardcoded=False)
     eval_data = VideoDataset(spec, eval_dir, detector, hardcoded=True)
-    model = HardcodedVQAModel.new(spec, err_corr=False, al_model=True)
+
+    # Create model
+    model = IndTrainedModel.new(spec, err_corr=False, al_model=True)
     model.train(train_data, eval_data)
     model.save(MODEL_PATH)
 
+    # Load model and evaluate again
     model = HardcodedVQAModel.load(MODEL_PATH, spec=spec)
     model.eval_components(eval_data)
 
