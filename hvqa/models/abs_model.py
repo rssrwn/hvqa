@@ -77,7 +77,6 @@ class _AbsVQAModel(Model):
         assert not data.is_hardcoded(), "Dataset must not be hardcoded when evaluating"
 
         self._eval_timings["Detector"] = data.detector_timing()
-        start_time = time.time()
 
         correct, incorrect = self._eval_videos(data, verbose)
         q_types = list(set(correct.keys()).union(set(incorrect.keys())))
@@ -102,9 +101,6 @@ class _AbsVQAModel(Model):
         print(f"Accuracy: {acc:.1%}\n")
 
         self.print_timings()
-
-        end_time = time.time()
-        print(f"Total time: {end_time - start_time:.1f} seconds.\n")
 
     def _eval_videos(self, data, verbose):
         correct = {}
@@ -164,4 +160,5 @@ class _AbsVQAModel(Model):
         print(f"{'Component':<15}{'Time':<15}Share")
         for component, t in timings:
             print(f"{component:<15}{t:<15.2f}{t / total:.1%}")
-        print()
+
+        print(f"\nTotal time: {total:.1f} seconds.\n")
