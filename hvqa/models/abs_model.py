@@ -61,7 +61,7 @@ class _AbsVQAModel(Model):
         raise NotImplementedError("AbsModel is abstract; objects should not be created")
 
     @staticmethod
-    def load(path):
+    def load(path, **kwargs):
         raise NotImplementedError("AbsModel is abstract; objects should not be created")
 
     def save(self, path):
@@ -76,7 +76,7 @@ class _AbsVQAModel(Model):
         :param verbose: Boolean
         """
 
-        assert data.hardcoded == False, "Dataset must not be hardcoded when evaluating"
+        assert not data.hardcoded, "Dataset must not be hardcoded when evaluating"
 
         start_time = time.time()
 

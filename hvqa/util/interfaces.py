@@ -122,7 +122,7 @@ class Model(Trainable):
         raise NotImplementedError()
 
     @staticmethod
-    def load(path):
+    def load(path, **kwargs):
         """
         Load the Model object
 

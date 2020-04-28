@@ -24,6 +24,9 @@ spec = EnvSpec.from_dict({
     "events": ["change_colour", "eat_bag", "eat_fish"],
 })
 
+ERR_CORR = True
+AL_EVENT_MODEL = True
+
 
 def evaluate(model, data, verbose=True):
     model.eval(data, verbose)
@@ -34,7 +37,7 @@ def main(data_dir, model_type):
     data = VideoDataset(spec, data_dir, detector, hardcoded=False)
 
     if model_type == "hardcoded":
-        model = HardcodedVQAModel.load(MODEL_PATH)
+        model = HardcodedVQAModel.load(MODEL_PATH, err_corr=ERR_CORR, al_model=AL_EVENT_MODEL)
     else:
         print("That type of model is not supported")
         return

@@ -50,7 +50,7 @@ class HardcodedVQAModel(_AbsVQAModel):
         return model
 
     @staticmethod
-    def load(path):
+    def load(path, **kwargs):
         """
         Loads the model using metadata from the json object saved at <path>
         The path should be a json file created by model.save(<path>)
@@ -67,9 +67,14 @@ class HardcodedVQAModel(_AbsVQAModel):
             meta_data = json.load(f)
 
         err_corr = meta_data["err_corr"]
-        al_model = meta_data["al_model"]
-        spec_dict = meta_data["spec"]
+        err_corr_param = kwargs.get("err_corr")
+        err_corr = err_corr_param if err_corr_param is not None else err_corr
 
+        al_model = meta_data["al_model"]
+        al_model_param = kwargs.get("al_model")
+        al_model = al_model_param if al_model_param is not None else al_model
+
+        spec_dict = meta_data["spec"]
         spec = EnvSpec.from_dict(spec_dict)
         properties = NeuralPropExtractor.load(spec, properties_path)
         tracker = ObjTracker(err_corr)
