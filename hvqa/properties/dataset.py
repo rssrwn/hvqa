@@ -4,7 +4,52 @@ from torch.utils.data import Dataset
 from hvqa.util.func import append_in_map
 
 
-class _AbsPropDataset(Dataset):
+class VideoPropDataset(Dataset):
+    def __init__(self, spec, videos, transform=None):
+        """
+        Create a dataset for property extraction
+
+        :param spec: EnvSpec object
+        :param videos: List of Video objects
+        :param transform: Torchvision Transform to apply to PIL image of object
+        """
+
+        self.spec = spec
+        self.transform = transform
+
+        # This needs to be run after setting the others
+        self.obj_data = self._collect_data(videos)
+
+        super(VideoPropDataset, self).__init__()
+
+    def __len__(self):
+        return len(self.obj_data)
+
+    def __getitem__(self, item):
+        img, target = self.obj_data[item]
+        if self.transform is not None:
+            img = self.transform(img)
+
+        return img, target
+
+    @staticmethod
+    def _collect_data(videos):
+        data = []
+        for video in videos:
+            for frame in video.frames:
+                [data.append((obj.img, obj.prop_vals)) for obj in frame.objs]
+
+        return data
+
+    @classmethod
+    def from_video_dataset(cls, spec, dataset, transform=None):
+        data = [dataset[idx] for idx in range(len(dataset))]
+        videos, answers = tuple(zip(*data))
+        prop_dataset = cls(spec, videos, transform=transform)
+        return prop_dataset
+
+
+class QAPropDataset(Dataset):
     def __init__(self, spec, videos, answers=None, transform=None):
         """
         Create a dataset for property extraction
@@ -20,54 +65,16 @@ class _AbsPropDataset(Dataset):
         self.answers = answers
 
         # This needs to be run after setting the others
-        self.obj_data = self._collect_data(videos)
+        self.obj_data, self.num_items = self._collect_data(videos)
 
-        super(_AbsPropDataset, self).__init__()
+        super(QAPropDataset, self).__init__()
 
     def __len__(self):
-        return len(self.obj_data)
+        return self.num_items
 
     def __getitem__(self, item):
-        img, target = self.obj_data[item]
-        if self.transform is not None:
-            img = self.transform(img)
-
-        return img, target
-
-    def _collect_data(self, videos):
-        """
-        Collect data for the dataset
-
-        :param videos: List of Video objs
-        :return: Data: List of tuple of (PIL Image, dict of {prop: val})
-        """
-
-        raise NotImplementedError("_AbsPropDataset is abstract and should not instantiated")
-
-    @classmethod
-    def from_video_dataset(cls, spec, dataset, transform=None):
-        data = [dataset[idx] for idx in range(len(dataset))]
-        videos, answers = tuple(zip(*data))
-        prop_dataset = cls(spec, videos, answers=answers, transform=transform)
-        return prop_dataset
-
-
-class VideoPropDataset(_AbsPropDataset):
-    def __init__(self, spec, videos, answers=None, transform=None):
-        super(VideoPropDataset, self).__init__(spec, videos, answers, transform)
-
-    def _collect_data(self, videos):
-        data = []
-        for video in videos:
-            for frame in video.frames:
-                [data.append((obj.img, obj.prop_vals)) for obj in frame.objs]
-
-        return data
-
-
-class QAPropDataset(_AbsPropDataset):
-    def __init__(self, spec, videos, answers=None, transform=None):
-        super(QAPropDataset, self).__init__(spec, videos, answers, transform)
+        targets = {prop: items[item] for prop, items in self.obj_data.items()}
+        return targets
 
     def _collect_data(self, videos):
         objs = {}
@@ -104,7 +111,16 @@ class QAPropDataset(_AbsPropDataset):
                 sampled = [items[idx] for idx in idxs]
                 sampled_data.extend(sampled)
 
-        return sampled_data
+        prop_map = {}
+        for img, targets in sampled_data:
+            for prop, val in targets.items():
+                append_in_map(prop_map, prop, (img, {prop: val}))
+
+        # Sample from each property equally
+        num_items = max([len(items) for prop, items in prop_map.items()])
+        sampled_prop_map = {prop: random.choices(items, num_items) for prop, items in prop_map.items()}
+
+        return sampled_prop_map, num_items
 
     def _collect_obj(self, frames, question, answer):
         objs = []
