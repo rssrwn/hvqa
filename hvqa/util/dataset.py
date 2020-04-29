@@ -93,7 +93,7 @@ class VideoDataset(QADataset):
             self._detector_timing += (time.time() - start_time)
             assert len(frames) == self.spec.num_frames * len(video_dicts), "Wrong number of frames returned"
             videos_frames = grouper(frames, self.spec.num_frames)
-        
+
         videos = []
         for video_idx, frames in enumerate(videos_frames):
             video_dict = video_dicts[video_idx]

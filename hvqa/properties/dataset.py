@@ -143,6 +143,12 @@ class QAPropDataset(Dataset):
 
                 # TODO remove
                 if prop == "rotation":
+                    try:
+                        answer = int(answer)
+                    except ValueError:
+                        print(f"Question: {question} -- answer: {answer}")
+                        continue
+
                     answer = self.spec.from_internal(prop, int(answer))
 
                 target = {prop: answer}
