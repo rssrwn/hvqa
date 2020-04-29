@@ -357,7 +357,7 @@ class NeuralPropExtractor(Component, Trainable):
             class_tns = tns[prop]
             class_fns = fns[prop]
 
-            print(f"{'Value':<12}{'Accuracy':<12}{'Precision':<12}{'Recall':<12}")
+            print(f"{'Value':<18}{'Accuracy':<12}{'Precision':<12}{'Recall':<12}")
 
             for val in self.spec.prop_values(prop):
                 tp = class_tps[val].item()
@@ -369,7 +369,7 @@ class NeuralPropExtractor(Component, Trainable):
                 recall = tp / (tp + fn) if (tp + fn) != 0 else float("NaN")
                 accuracy = (tp + tn) / (tp + tn + fp + fn)
 
-                print(f"{val:<12}{accuracy:<12.4f}{precision:<12.4f}{recall:<12.4f}")
+                print(f"{val:<18}{accuracy:<12.4f}{precision:<12.4f}{recall:<12.4f}")
 
             avg_loss = torch.tensor(loss).mean()
             acc = correct[prop] / num_predictions
