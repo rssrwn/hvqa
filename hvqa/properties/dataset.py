@@ -140,6 +140,9 @@ class QAPropDataset(Dataset):
 
             # Match an obj (if val is None we can still match if data has not been loaded)
             if obj.cls == cls and val == obj_val:
+                if prop == "rotation":
+                    answer = self.spec.from_internal(prop, int(answer))
+
                 target = {prop: answer}
 
                 # Add the val given in the question as well (if we can)

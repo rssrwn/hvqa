@@ -106,7 +106,7 @@ class NeuralPropExtractor(Component, Trainable):
         """
 
         if from_qa:
-            # assert not train_data.is_hardcoded(), "VideoQADataset must not be hardcoded when training using QA data"
+            assert not train_data.is_hardcoded(), "VideoQADataset must not be hardcoded when training using QA data"
             self._train_from_qa(train_data, eval_data, verbose)
         else:
             assert train_data.is_hardcoded(), "VideoQADataset must be hardcoded when training using hardcoded data"
@@ -196,26 +196,22 @@ class NeuralPropExtractor(Component, Trainable):
         optimiser = optim.Adam(self.model.parameters(), lr=self.lr)
 
         print(f"Training property extraction model using QA data with device {self.device}...")
-        print(f"Number of objects in bootstrap data: {len(data)}")
+        print(f"Length of bootstrap data: {len(data)}")
 
         # Train the initial bootstrap
         self._train_one_epoch_qa(loader, optimiser, -1, verbose)
-
-        # TODO write separate training function for this (also may need more than one epoch)
-        # TODO ensure all object types are equally represented in the training data
 
         print("Evaluating model after training for one epoch with bootstrap data...")
         self.eval(eval_data)
 
         # Apply the rest of the dataset to the current network and train again
         # Assume that all properties will be filled in, so we can use generic training function
-        train_iters = 2  # TODO move somewhere else
-        for train_iter in range(train_iters):
-            print(f"Running training iteration {train_iter}/{train_iters}")
+        epochs = 2  # TODO move somewhere else
+        for epoch in range(epochs):
             [self.run_(video) for video in videos]
             train_dataset = VideoPropDataset(self.spec, videos, transform=_transform)
             train_loader = DataLoader(train_dataset, batch_size=self.batch_size, shuffle=True, collate_fn=collate_func)
-            self._train_one_epoch(train_loader, optimiser, -1, verbose)
+            self._train_one_epoch(train_loader, optimiser, epoch, verbose)
             self.eval(eval_data)
 
     def _train_one_epoch_qa(self, train_loader, optimiser, epoch, verbose):
@@ -226,7 +222,7 @@ class NeuralPropExtractor(Component, Trainable):
             for prop, items in data.items():
                 imgs, objs = tuple(zip(*items))
 
-                images, targets = self._prepare_data(imgs, objs)
+                images, targets = self._prepare_data(imgs, objs, prop=prop)
                 output = self.model(images)
                 output = {prop: out.to("cpu") for prop, out in output.items()}
                 targets = {prop: target.to("cpu") for prop, target in targets.items()}
@@ -236,10 +232,10 @@ class NeuralPropExtractor(Component, Trainable):
                 loss.backward()
                 optimiser.step()
 
-                if verbose and (t + 1) % self.print_freq == 0:
+                if verbose:
                     loss_str = f"Epoch {epoch:>3}, batch [{t + 1:>4}/{num_batches}] -- overall loss = {loss.item():.6f}"
-                    for prop, loss in losses.items():
-                        loss_str += f" -- {prop} loss = {loss.item():.6f}"
+                    for loss_prop, loss in losses.items():
+                        loss_str += f" -- {loss_prop} loss = {loss.item():.6f}"
                     print(loss_str)
 
     @staticmethod
@@ -276,20 +272,22 @@ class NeuralPropExtractor(Component, Trainable):
         current_save = f"{self._temp_save}/after_{epoch + 1}_epochs.pt"
         torch.save(self.model.state_dict(), current_save)
 
-    def _prepare_data(self, imgs, objs):
+    def _prepare_data(self, imgs, objs, prop=None):
         """
         Prepare the data to be passed to the network
 
         :param imgs: List of PIL images
         :param objs: List of dicts: {prop: val}
+        :param prop: Generate only targets with this property
         :return: 4d torch Tensor, {prop: Tensor}
         """
 
         targets = {}
+        props = self.spec.prop_names() if prop is None else [prop]
 
         # Convert to tensors
         images = torch.cat([img[None, :, :, :] for img in imgs])
-        for prop in self.spec.prop_names():
+        for prop in props:
             prop_vals = [torch.tensor([self.spec.to_internal(prop, obj[prop])]) for obj in objs]
             targets[prop] = torch.cat(prop_vals)
 
@@ -300,7 +298,7 @@ class NeuralPropExtractor(Component, Trainable):
         return images, targets
 
     def _calc_loss(self, preds, targets):
-        losses = {prop: self.loss_fn(pred, targets[prop]) for prop, pred in preds.items()}
+        losses = {prop: self.loss_fn(preds[prop], target) for prop, target in targets.items()}
         loss = sum(losses.values())
         return loss, losses
 
