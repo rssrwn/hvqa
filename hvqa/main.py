@@ -9,7 +9,7 @@ from hvqa.models.individually_trained import IndTrainedModel
 
 DETECTOR_PATH = "saved-models/detection/v1_0/after_20_epochs.pt"
 
-MODEL_PATH = "saved-models/hardcoded"
+MODEL_PATH = "saved-models/ind-trained"
 
 spec = EnvSpec.from_dict({
     "num_frames": 32,
