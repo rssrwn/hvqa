@@ -1,6 +1,7 @@
 import json
 import time
 from pathlib import Path
+from more_itertools import grouper
 from concurrent.futures import ThreadPoolExecutor
 
 import hvqa.util.func as util
@@ -22,6 +23,7 @@ class VideoDataset(QADataset):
         self.data_dir = Path(data_dir)
         self.detector = detector
         self.hardcoded = hardcoded
+        self.group_videos = 8
 
         ids, self.videos, self.answers = self._find_videos()
         self.ids = {id_: idx for idx, id_ in enumerate(ids)}
@@ -58,34 +60,46 @@ class VideoDataset(QADataset):
         print(f"Found data from {len(video_infos)} videos")
         print("Extracting objects...")
 
-        for video_num, video_dict, frame_imgs in video_infos:
-            video = self._construct_video(video_dict, frame_imgs)
-            ans = video_dict["answers"]
-            videos.append(video)
-            video_ids.append(video_num)
-            answers.append(ans)
+        # Group videos together for faster object detection
+        for video_info in grouper(video_infos, self.group_videos):
+            video_nums, video_dicts, frame_imgs = tuple(zip(*video_info))
+            grouped_videos = self._construct_videos(video_dicts, frame_imgs)
+            videos.extend(grouped_videos)
+            video_ids.extend(video_nums)
+            ans = [video_dict["answers"] for video_dict in video_dicts]
+            answers.extend(ans)
 
         return video_ids, videos, answers
 
-    def _construct_video(self, video_dict, frame_imgs):
-        frames = []
-        frame_dicts = video_dict["frames"]
+    def _construct_videos(self, video_dicts, imgs):
         if self.hardcoded:
-            for frame_num, frame_dict in enumerate(frame_dicts):
-                frame_img = frame_imgs[frame_num]
-                objs = self._collect_objs(frame_dict, frame_img)
-                frame = Frame(self.spec, objs)
-                frames.append(frame)
+            frames = []
+            for idx, video_dict in enumerate(video_dicts):
+                frame_imgs = imgs[idx]
+                frame_dicts = video_dict["frames"]
+                for frame_num, frame_dict in enumerate(frame_dicts):
+                    frame_img = frame_imgs[frame_num]
+                    objs = self._collect_objs(frame_dict, frame_img)
+                    frame = Frame(self.spec, objs)
+                    frames.append(frame)
         else:
             start_time = time.time()
+            frame_imgs = [img for frame in imgs for img in frame]
             frames = self.detector.detect_objs(frame_imgs)
             self._detector_timing += (time.time() - start_time)
+            assert len(frames) == self.spec.num_frames * self.group_videos, "Wrong number of frames returned"
+            frames = grouper(frames, self.spec.num_frames)
 
-        questions = video_dict["questions"]
-        q_types = video_dict["question_types"]
-        video = Video(self.spec, frames)
-        video.set_questions(questions, q_types)
-        return video
+        videos = []
+        for video_idx, frame in enumerate(frames):
+            video_dict = video_dicts[video_idx]
+            questions = video_dict["questions"]
+            q_types = video_dict["question_types"]
+            video = Video(self.spec, frames)
+            video.set_questions(questions, q_types)
+            videos.append(video)
+
+        return videos
 
     def _collect_objs(self, frame_dict, frame_img):
         obj_dicts = frame_dict["objects"]
