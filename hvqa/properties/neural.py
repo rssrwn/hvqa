@@ -6,9 +6,9 @@ import torchvision.transforms as T
 from torch.utils.data import DataLoader
 from pathlib import Path
 
-from hvqa.properties.dataset import HardcodedPropDataset, QAPropDataset
+from hvqa.properties.dataset import VideoPropDataset, QAPropDataset
 from hvqa.properties.models import PropertyExtractionModel
-from hvqa.util.func import get_device, load_model, save_model, collate_func
+from hvqa.util.func import get_device, load_model, save_model, collate_func, append_in_map
 from hvqa.util.interfaces import Component, Trainable
 
 
@@ -106,7 +106,7 @@ class NeuralPropExtractor(Component, Trainable):
         """
 
         if from_qa:
-            assert not train_data.is_hardcoded(), "VideoQADataset must not be hardcoded when training using QA data"
+            # assert not train_data.is_hardcoded(), "VideoQADataset must not be hardcoded when training using QA data"
             self._train_from_qa(train_data, eval_data, verbose)
         else:
             assert train_data.is_hardcoded(), "VideoQADataset must be hardcoded when training using hardcoded data"
@@ -124,7 +124,7 @@ class NeuralPropExtractor(Component, Trainable):
 
         print("Evaluating neural property extraction component...")
 
-        eval_dataset = HardcodedPropDataset.from_video_dataset(self.spec, eval_data, transform=_transform)
+        eval_dataset = VideoPropDataset.from_video_dataset(self.spec, eval_data, transform=_transform)
         eval_loader = DataLoader(eval_dataset, batch_size=self.batch_size, shuffle=False, collate_fn=collate_func)
 
         self.model.eval()
@@ -165,7 +165,7 @@ class NeuralPropExtractor(Component, Trainable):
         self._print_results(results, correct, losses, num_predictions)
 
     def _train_from_hardcoded(self, train_data, eval_data, verbose):
-        train_dataset = HardcodedPropDataset.from_video_dataset(self.spec, train_data, transform=_transform)
+        train_dataset = VideoPropDataset.from_video_dataset(self.spec, train_data, transform=_transform)
         train_loader = DataLoader(train_dataset, batch_size=self.batch_size, shuffle=True, collate_fn=collate_func)
         optimiser = optim.Adam(self.model.parameters(), lr=self.lr)
 
@@ -191,15 +191,16 @@ class NeuralPropExtractor(Component, Trainable):
         data = [train_data[idx] for idx in range(len(train_data))]
         videos, answers = tuple(zip(*data))
 
-        train_dataset = QAPropDataset(self.spec, videos, answers, transform=_transform)
-        train_loader = DataLoader(train_dataset, batch_size=self.batch_size, shuffle=True, collate_fn=collate_func)
+        data = QAPropDataset(self.spec, videos, answers, transform=_transform)
+        loader = DataLoader(data, batch_size=self.batch_size, shuffle=True, collate_fn=self._collate_dicts)
         optimiser = optim.Adam(self.model.parameters(), lr=self.lr)
 
         print(f"Training property extraction model using QA data with device {self.device}...")
-        print(f"Number of objects in bootstrap data: {len(train_dataset)}")
+        print(f"Number of objects in bootstrap data: {len(data)}")
 
         # Train the initial bootstrap
-        # self._train_one_epoch(train_loader, optimiser, -1, verbose)
+        self._train_one_epoch_qa(loader, optimiser, -1, verbose)
+
         # TODO write separate training function for this (also may need more than one epoch)
         # TODO ensure all object types are equally represented in the training data
 
@@ -207,12 +208,48 @@ class NeuralPropExtractor(Component, Trainable):
         self.eval(eval_data)
 
         # Apply the rest of the dataset to the current network and train again
+        # Assume that all properties will be filled in, so we can use generic training function
         train_iters = 2  # TODO move somewhere else
         for train_iter in range(train_iters):
             print(f"Running training iteration {train_iter}/{train_iters}")
             [self.run_(video) for video in videos]
+            train_dataset = VideoPropDataset(self.spec, videos, transform=_transform)
+            train_loader = DataLoader(train_dataset, batch_size=self.batch_size, shuffle=True, collate_fn=collate_func)
             self._train_one_epoch(train_loader, optimiser, -1, verbose)
             self.eval(eval_data)
+
+    def _train_one_epoch_qa(self, train_loader, optimiser, epoch, verbose):
+        num_batches = len(train_loader)
+        for t, data in enumerate(train_loader):
+            self.model.train()
+
+            for prop, items in data.items():
+                imgs, objs = tuple(zip(*items))
+
+                images, targets = self._prepare_data(imgs, objs)
+                output = self.model(images)
+                output = {prop: out.to("cpu") for prop, out in output.items()}
+                targets = {prop: target.to("cpu") for prop, target in targets.items()}
+
+                loss, losses = self._calc_loss(output, targets)
+                optimiser.zero_grad()
+                loss.backward()
+                optimiser.step()
+
+                if verbose and (t + 1) % self.print_freq == 0:
+                    loss_str = f"Epoch {epoch:>3}, batch [{t + 1:>4}/{num_batches}] -- overall loss = {loss.item():.6f}"
+                    for prop, loss in losses.items():
+                        loss_str += f" -- {prop} loss = {loss.item():.6f}"
+                    print(loss_str)
+
+    @staticmethod
+    def _collate_dicts(dicts):
+        props = {}
+        for coll in dicts:
+            for prop, data in coll.items():
+                append_in_map(props, prop, data)
+
+        return props
 
     def _train_one_epoch(self, train_loader, optimiser, epoch, verbose):
         num_batches = len(train_loader)
