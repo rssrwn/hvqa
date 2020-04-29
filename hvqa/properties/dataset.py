@@ -74,6 +74,7 @@ class QAPropDataset(Dataset):
 
     def __getitem__(self, item):
         targets = {prop: items[item] for prop, items in self.obj_data.items()}
+        targets = {prop: (self.transform(img), target) for prop, (img, target) in targets.items()}
         return targets
 
     def _collect_data(self, videos):
@@ -107,7 +108,7 @@ class QAPropDataset(Dataset):
             if len(items) == items_per_cls:
                 sampled_data.extend(items)
             else:
-                idxs = random.choices(range(len(items)), items_per_cls)
+                idxs = random.choices(range(len(items)), k=items_per_cls)
                 sampled = [items[idx] for idx in idxs]
                 sampled_data.extend(sampled)
 
@@ -117,8 +118,13 @@ class QAPropDataset(Dataset):
                 append_in_map(prop_map, prop, (img, {prop: val}))
 
         # Sample from each property equally
+        sampled_prop_map = {}
         num_items = max([len(items) for prop, items in prop_map.items()])
-        sampled_prop_map = {prop: random.choices(items, num_items) for prop, items in prop_map.items()}
+        for prop, items in prop_map.items():
+            if len(items) == num_items:
+                sampled_prop_map[prop] = items
+            else:
+                sampled_prop_map[prop] = random.choices(items, k=num_items)
 
         return sampled_prop_map, num_items
 
