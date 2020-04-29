@@ -62,6 +62,7 @@ class VideoDataset(QADataset):
 
         # Group videos together for faster object detection
         for video_info in grouper(video_infos, self.group_videos):
+            video_info = [info for info in video_info if info is not None]
             video_nums, video_dicts, frame_imgs = tuple(zip(*video_info))
             grouped_videos = self._construct_videos(video_dicts, frame_imgs)
             videos.extend(grouped_videos)
@@ -73,25 +74,27 @@ class VideoDataset(QADataset):
 
     def _construct_videos(self, video_dicts, imgs):
         if self.hardcoded:
-            frames = []
+            videos_frames = []
             for idx, video_dict in enumerate(video_dicts):
                 frame_imgs = imgs[idx]
                 frame_dicts = video_dict["frames"]
+                frames = []
                 for frame_num, frame_dict in enumerate(frame_dicts):
                     frame_img = frame_imgs[frame_num]
                     objs = self._collect_objs(frame_dict, frame_img)
                     frame = Frame(self.spec, objs)
                     frames.append(frame)
+                videos_frames.append(frames)
+
         else:
             start_time = time.time()
             frame_imgs = [img for frame in imgs for img in frame]
-            frames = self.detector.detect_objs(frame_imgs)
+            videos_frames = self.detector.detect_objs(frame_imgs)
             self._detector_timing += (time.time() - start_time)
-            assert len(frames) == self.spec.num_frames * self.group_videos, "Wrong number of frames returned"
-            frames = grouper(frames, self.spec.num_frames)
-
+            assert len(videos_frames) == self.spec.num_frames * len(video_dicts), "Wrong number of frames returned"
+        
         videos = []
-        for video_idx, frame in enumerate(frames):
+        for video_idx, frames in enumerate(videos_frames):
             video_dict = video_dicts[video_idx]
             questions = video_dict["questions"]
             q_types = video_dict["question_types"]
