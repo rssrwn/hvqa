@@ -1,4 +1,7 @@
+import random
 from torch.utils.data import Dataset
+
+from hvqa.util.func import append_in_map
 
 
 class _AbsPropDataset(Dataset):
@@ -49,9 +52,9 @@ class _AbsPropDataset(Dataset):
         return prop_dataset
 
 
-class HardcodedPropDataset(_AbsPropDataset):
+class VideoPropDataset(_AbsPropDataset):
     def __init__(self, spec, videos, answers=None, transform=None):
-        super(HardcodedPropDataset, self).__init__(spec, videos, answers, transform)
+        super(VideoPropDataset, self).__init__(spec, videos, answers, transform)
 
     def _collect_data(self, videos):
         data = []
@@ -67,7 +70,7 @@ class QAPropDataset(_AbsPropDataset):
         super(QAPropDataset, self).__init__(spec, videos, answers, transform)
 
     def _collect_data(self, videos):
-        data = []
+        objs = {}
         for video_idx, video in enumerate(videos):
             questions = video.questions
             q_types = video.q_types
@@ -83,9 +86,25 @@ class QAPropDataset(_AbsPropDataset):
                 answer = answers[q_idx]
                 obj_tuple = self._collect_obj(frames, question, answer)
                 if obj_tuple is not None:
-                    data.append(obj_tuple)
+                    obj_cls, img, targets = obj_tuple
+                    append_in_map(objs, obj_cls, (img, targets))
 
-        return data
+        print(f"{'Class':<15}{'Num Objs'}")
+        for cls, items in objs.items():
+            print(f"{cls:<15}{len(items)}")
+
+        # Sample from each class equally
+        sampled_data = []
+        items_per_cls = max([len(items) for cls, items in objs.items()])
+        for cls, items in objs.items():
+            if len(items) == items_per_cls:
+                sampled_data.extend(items)
+            else:
+                idxs = random.choices(range(len(items)), items_per_cls)
+                sampled = [items[idx] for idx in idxs]
+                sampled_data.extend(sampled)
+
+        return sampled_data
 
     def _collect_obj(self, frames, question, answer):
         objs = []
@@ -105,7 +124,7 @@ class QAPropDataset(_AbsPropDataset):
                 if val is not None:
                     target[prop_for_val] = val
 
-                objs.append((obj.img, target))
+                objs.append((cls, obj.img, target))
 
         if len(objs) == 0:
             return None

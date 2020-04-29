@@ -19,6 +19,13 @@ def inc_in_map(coll, key):
     coll[key] += 1
 
 
+def append_in_map(coll, key, item):
+    items = coll.get(key)
+    items = [] if items is None else items
+    items.append(item)
+    coll[key] = items
+
+
 def get_or_default(coll, meta_data, key):
     default = meta_data[key]
     val = coll.get(key)
