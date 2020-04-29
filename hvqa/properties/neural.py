@@ -196,7 +196,6 @@ class NeuralPropExtractor(Component, Trainable):
         optimiser = optim.Adam(self.model.parameters(), lr=self.lr)
 
         print(f"Training property extraction model using QA data with device {self.device}...")
-        print(f"Length of bootstrap data: {len(data)}")
 
         # Train the initial bootstrap
         self._train_one_epoch_qa(loader, optimiser, -1, verbose)
@@ -206,11 +205,14 @@ class NeuralPropExtractor(Component, Trainable):
 
         # Apply the rest of the dataset to the current network and train again
         # Assume that all properties will be filled in, so we can use generic training function
-        epochs = 2  # TODO move somewhere else
+        epochs = 1  # TODO move somewhere else
         for epoch in range(epochs):
+            print("Applying current network to all videos for further training...")
             [self.run_(video) for video in videos]
             train_dataset = VideoPropDataset(self.spec, videos, transform=_transform)
             train_loader = DataLoader(train_dataset, batch_size=self.batch_size, shuffle=True, collate_fn=collate_func)
+
+            print(f"Training epoch {epoch+1}/{epochs} with full dataset bootstrapped using property network")
             self._train_one_epoch(train_loader, optimiser, epoch, verbose)
             self.eval(eval_data)
 

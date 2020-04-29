@@ -142,8 +142,8 @@ class QAPropDataset(Dataset):
             if obj.cls == cls and val == obj_val:
 
                 # TODO remove
-                # if prop == "rotation":
-                #     answer = self.spec.from_internal(prop, int(answer))
+                if prop == "rotation":
+                    answer = self.spec.from_internal(prop, int(answer))
 
                 target = {prop: answer}
 
