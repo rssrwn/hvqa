@@ -14,7 +14,7 @@ class VideoDataset(QADataset):
     Dataset for storing and fetching videos
     """
 
-    def __init__(self, spec, data_dir, detector, hardcoded=False):
+    def __init__(self, spec, data_dir, detector, hardcoded=False, group_videos=8):
         super(VideoDataset, self).__init__()
 
         self._detector_timing = 0
@@ -23,7 +23,7 @@ class VideoDataset(QADataset):
         self.data_dir = Path(data_dir)
         self.detector = detector
         self.hardcoded = hardcoded
-        self.group_videos = 8
+        self.group_videos = group_videos
 
         ids, self.videos, self.answers = self._find_videos()
         self.ids = {id_: idx for idx, id_ in enumerate(ids)}
