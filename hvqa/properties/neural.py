@@ -14,6 +14,7 @@ from hvqa.properties.dataset import VideoPropDataset, QAPropDataset
 from hvqa.properties.models import PropertyExtractionModel, ObjectAutoEncoder
 from hvqa.util.func import get_device, load_model, save_model, collate_func, append_in_map
 from hvqa.util.interfaces import Component, Trainable
+from hvqa.util.asp_runner import ASPRunner
 
 
 _transform = T.Compose([
@@ -46,6 +47,9 @@ class NeuralPropExtractor(Component, Trainable):
 
         self._temp_save = Path("saved-models/properties/temp")
         self._temp_save.mkdir(exist_ok=True, parents=True)
+
+        self._temp_asp_file = "hvqa/properties/.temp_qa_training"
+        self.asp_runner = ASPRunner(self._temp_asp_file)
 
     def run_(self, video):
         for frame in video.frames:
@@ -394,11 +398,14 @@ class NeuralPropExtractor(Component, Trainable):
                     labels = self._find_labels(imgs, ae_model, label_centre_map)
                     cls_asp_data_map[cls].append((q_idx, q_props, labels))
 
+        cls_label_prop_map = {}
         for cls, data_list in cls_asp_data_map.items():
             q_idxs, q_props, labels = tuple(zip(*data_list))
             asp_str = self._gen_unsup_prop_asp_str(q_idxs, q_props, labels)
+            label_prop_map = self._run_asp_label_props(asp_str)
+            cls_label_prop_map[cls] = label_prop_map
 
-        return {}
+        return cls_label_prop_map
 
     def _find_labels(self, imgs, ae_model, centres):
         images = torch.stack(imgs).to(self.device)
