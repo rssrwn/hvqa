@@ -8,3 +8,5 @@ pycocotools
 matplotlib
 scikit-image
 more-itertools
+scikit-learn
+scipy

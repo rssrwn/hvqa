@@ -1,19 +1,28 @@
+from pathlib import Path
+from sklearn.cluster import AgglomerativeClustering
+from sklearn.preprocessing import MinMaxScaler
+from scipy.spatial.distance import cosine
+
 import torch
 import torch.optim as optim
 import torch.nn as nn
 import torch.nn.functional as F
 import torchvision.transforms as T
 from torch.utils.data import DataLoader
-from pathlib import Path
 
 from hvqa.properties.dataset import VideoPropDataset, QAPropDataset
-from hvqa.properties.models import PropertyExtractionModel
+from hvqa.properties.models import PropertyExtractionModel, ObjectAutoEncoder
 from hvqa.util.func import get_device, load_model, save_model, collate_func, append_in_map
 from hvqa.util.interfaces import Component, Trainable
 
 
 _transform = T.Compose([
     T.Resize((32, 32)),
+    T.ToTensor(),
+])
+
+_ae_transform = T.Compose([
+    T.Resize((16, 16)),
     T.ToTensor(),
 ])
 
@@ -33,6 +42,7 @@ class NeuralPropExtractor(Component, Trainable):
         self.print_freq = print_freq
 
         self.loss_fn = nn.CrossEntropyLoss()
+        self._loss_fn_ae = nn.L1Loss(reduction="none")
 
         self._temp_save = Path("saved-models/properties/temp")
         self._temp_save.mkdir(exist_ok=True, parents=True)
@@ -175,70 +185,144 @@ class NeuralPropExtractor(Component, Trainable):
             self._train_one_epoch(train_loader, optimiser, epoch, verbose)
             self.eval(eval_data)
 
+    # def _train_from_qa(self, train_data, eval_data, verbose):
+    #     """
+    #     Train the model from the QA data only via bootstrapping
+    #     The model is first trained on QA pairs which do not have a property value in the question
+    #     Eg. Q: What colour was the rock in frame 4? A: blue -> target = {colour: blue}
+    #     This model is then used to classify properties for all the training data
+    #     The model is then trained over all the classified training data
+    #
+    #     :param train_data: Training data (QADataset)
+    #     :param eval_data: Eval data (QADataset)
+    #     :param verbose: Verbose printing (bool)
+    #     """
+    #
+    #     data = [train_data[idx] for idx in range(len(train_data))]
+    #     videos, answers = tuple(zip(*data))
+    #
+    #     data = QAPropDataset(self.spec, videos, answers, transform=_transform)
+    #     loader = DataLoader(data, batch_size=self.batch_size, shuffle=True, collate_fn=self._collate_dicts)
+    #     optimiser = optim.Adam(self.model.parameters(), lr=self.lr)
+    #
+    #     print(f"Training property extraction model using QA data with device {self.device}...")
+    #
+    #     # Train the initial bootstrap
+    #     self._train_one_epoch_qa(loader, optimiser, -1, verbose)
+    #
+    #     print("Evaluating model after training for one epoch with bootstrap data...")
+    #     self.eval(eval_data)
+    #
+    #     # Apply the rest of the dataset to the current network and train again
+    #     # Assume that all properties will be filled in, so we can use generic training function
+    #     epochs = 1  # TODO move somewhere else
+    #     for epoch in range(epochs):
+    #         print("Applying current network to all videos for further training...")
+    #         [self.run_(video) for video in videos]
+    #         train_dataset = VideoPropDataset(self.spec, videos, transform=_transform)
+    #         train_loader = DataLoader(train_dataset, batch_size=self.batch_size, shuffle=True, collate_fn=collate_func)
+    #
+    #         print(f"Training epoch {epoch+1}/{epochs} with full dataset bootstrapped using property network")
+    #         self._train_one_epoch(train_loader, optimiser, epoch, verbose)
+    #         self.eval(eval_data)
+
     def _train_from_qa(self, train_data, eval_data, verbose):
         """
-        Train the model from the QA data only via bootstrapping
-        The model is first trained on QA pairs which do not have a property value in the question
-        Eg. Q: What colour was the rock in frame 4? A: blue -> target = {colour: blue}
-        This model is then used to classify properties for all the training data
-        The model is then trained over all the classified training data
 
         :param train_data: Training data (QADataset)
         :param eval_data: Eval data (QADataset)
         :param verbose: Verbose printing (bool)
         """
 
-        data = [train_data[idx] for idx in range(len(train_data))]
-        videos, answers = tuple(zip(*data))
+        train_dataset = VideoPropDataset.from_video_dataset(self.spec, train_data, transform=_ae_transform)
+        ae = self._train_obj_ae(train_dataset, verbose)
 
-        data = QAPropDataset(self.spec, videos, answers, transform=_transform)
-        loader = DataLoader(data, batch_size=self.batch_size, shuffle=True, collate_fn=self._collate_dicts)
-        optimiser = optim.Adam(self.model.parameters(), lr=self.lr)
+    def _train_obj_ae(self, train_dataset, verbose, lr=0.001, batch_size=256, epochs=5):
+        """
 
-        print(f"Training property extraction model using QA data with device {self.device}...")
+        :param train_dataset: Training data, we only use the objects (VideoPropDataset)
+        :param verbose: Verbose printing (bool)
+        :return: ObjectAutoEncoder object
+        """
 
-        # Train the initial bootstrap
-        self._train_one_epoch_qa(loader, optimiser, -1, verbose)
+        model = ObjectAutoEncoder(self.spec)
+        train_loader = DataLoader(train_dataset, batch_size=batch_size, shuffle=True, collate_fn=collate_func)
+        optimiser = optim.Adam(model.parameters(), lr=lr)
 
-        print("Evaluating model after training for one epoch with bootstrap data...")
-        self.eval(eval_data)
+        print(f"Training object autoencoder with device {self.device}...")
 
-        # Apply the rest of the dataset to the current network and train again
-        # Assume that all properties will be filled in, so we can use generic training function
-        epochs = 1  # TODO move somewhere else
         for epoch in range(epochs):
-            print("Applying current network to all videos for further training...")
-            [self.run_(video) for video in videos]
-            train_dataset = VideoPropDataset(self.spec, videos, transform=_transform)
-            train_loader = DataLoader(train_dataset, batch_size=self.batch_size, shuffle=True, collate_fn=collate_func)
+            self._train_one_epoch_ae(model, train_loader, optimiser, epoch, verbose)
 
-            print(f"Training epoch {epoch+1}/{epochs} with full dataset bootstrapped using property network")
-            self._train_one_epoch(train_loader, optimiser, epoch, verbose)
-            self.eval(eval_data)
+        print("Completed object autoencoder training.")
 
-    def _train_one_epoch_qa(self, train_loader, optimiser, epoch, verbose):
+        return model
+
+    def _train_one_epoch_ae(self, model, train_loader, optimiser, epoch, verbose, print_freq=50):
         num_batches = len(train_loader)
-        for t, data in enumerate(train_loader):
-            self.model.train()
+        for t, (imgs, _) in enumerate(train_loader):
+            model.train()
 
-            for prop, items in data.items():
-                imgs, objs = tuple(zip(*items))
+            images = torch.stack(imgs).to(self.device)
+            output = model(images).cpu()
+            target = images.cpu()
 
-                images, targets = self._prepare_data(imgs, objs, prop=prop)
-                output = self.model(images)
-                output = {prop: out.to("cpu") for prop, out in output.items()}
-                targets = {prop: target.to("cpu") for prop, target in targets.items()}
+            loss = self._calc_loss_ae(output, target)
+            optimiser.zero_grad()
+            loss.backward()
+            optimiser.step()
 
-                loss, losses = self._calc_loss(output, targets)
-                optimiser.zero_grad()
-                loss.backward()
-                optimiser.step()
+            if verbose and (t+1) % print_freq == 0:
+                print(f"Epoch {epoch:>3}, batch [{t+1:>4}/{num_batches}] -- overall loss = {loss.item():.6f}")
 
-                if verbose:
-                    loss_str = f"Epoch {epoch:>3}, batch [{t + 1:>4}/{num_batches}] -- overall loss = {loss.item():.6f}"
-                    for loss_prop, loss in losses.items():
-                        loss_str += f" -- {loss_prop} loss = {loss.item():.6f}"
-                    print(loss_str)
+    def _calc_loss_ae(self, output, target):
+        loss = self._loss_fn_ae(output, target)
+        loss = loss.sum(dim=(1, 2, 3))
+        loss = loss.mean()
+        return loss
+
+    # def _cluster_objects(self, ae, train_dataset, batch_size=256):
+    #     """
+    #
+    #     :param ae: ObjectAutoEncoder object
+    #     :param train_dataset: Training data, we only use the objects (VideoPropDataset)
+    #     :param batch_size: Number of elements to pass through AE at a time
+    #     :return:
+    #     """
+    #
+    #     train_loader = DataLoader(train_dataset, batch_size=batch_size, shuffle=False, collate_fn=collate_func)
+    #
+    #     latents = []
+    #     for objs in train_loader:
+    #         obj_latents = list(ae.encode(objs).cpu().numpy())
+    #         latents.extend(obj_latents)
+    #
+    #     clustering = AgglomerativeClustering()
+
+
+    # def _train_one_epoch_qa(self, train_loader, optimiser, epoch, verbose):
+    #     num_batches = len(train_loader)
+    #     for t, data in enumerate(train_loader):
+    #         self.model.train()
+    #
+    #         for prop, items in data.items():
+    #             imgs, objs = tuple(zip(*items))
+    #
+    #             images, targets = self._prepare_data(imgs, objs, prop=prop)
+    #             output = self.model(images)
+    #             output = {prop: out.to("cpu") for prop, out in output.items()}
+    #             targets = {prop: target.to("cpu") for prop, target in targets.items()}
+    #
+    #             loss, losses = self._calc_loss(output, targets)
+    #             optimiser.zero_grad()
+    #             loss.backward()
+    #             optimiser.step()
+    #
+    #             if verbose:
+    #                 loss_str = f"Epoch {epoch:>3}, batch [{t + 1:>4}/{num_batches}] -- overall loss = {loss.item():.6f}"
+    #                 for loss_prop, loss in losses.items():
+    #                     loss_str += f" -- {loss_prop} loss = {loss.item():.6f}"
+    #                 print(loss_str)
 
     @staticmethod
     def _collate_dicts(dicts):
