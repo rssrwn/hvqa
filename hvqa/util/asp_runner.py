@@ -1,10 +1,11 @@
 import time
 import clingo
+from pathlib import Path
 
 
 class ASPRunner:
     def __init__(self, temp_file):
-        self.temp_file = temp_file
+        self.temp_file = Path(temp_file)
 
     def run(self, asp_str, additional_files=None, timeout=5, prog_name=""):
         f = open(self.temp_file, "w")
@@ -39,9 +40,9 @@ class ASPRunner:
                     handle.cancel()
                     break
 
+        assert len(models) != 0, f"ASP {prog_name} program is unsatisfiable"
+
         # Cleanup temp file
         self.temp_file.unlink()
-
-        assert len(models) != 0, f"ASP {prog_name} program is unsatisfiable"
 
         return models

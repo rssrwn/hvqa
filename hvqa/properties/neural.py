@@ -48,7 +48,7 @@ class NeuralPropExtractor(Component, Trainable):
         self._temp_save = Path("saved-models/properties/temp")
         self._temp_save.mkdir(exist_ok=True, parents=True)
 
-        self._temp_asp_file = "hvqa/properties/.temp_qa_training"
+        self._temp_asp_file = "hvqa/properties/.temp_qa_training.lp"
         self.asp_runner = ASPRunner(self._temp_asp_file)
 
     def run_(self, video):
@@ -244,8 +244,9 @@ class NeuralPropExtractor(Component, Trainable):
         ae_model = self._train_obj_ae(train_prop_dataset, verbose)
         cls_label_centre_map = self._cluster_objects(ae_model, train_prop_dataset, cls_cluster_map)
         cls_label_prop_map = self._find_label_prop_maps(train_prop_qa_dataset, ae_model, cls_label_centre_map)
+        print(cls_label_prop_map)
 
-    def _train_obj_ae(self, train_dataset, verbose, lr=0.001, batch_size=256, epochs=5):
+    def _train_obj_ae(self, train_dataset, verbose, lr=0.001, batch_size=256, epochs=3):
         """
         Train an autoencoder NN to compress each object image to a 16-d vector
 
@@ -269,7 +270,7 @@ class NeuralPropExtractor(Component, Trainable):
 
     def _train_one_epoch_ae(self, model, train_loader, optimiser, epoch, verbose, print_freq=50):
         num_batches = len(train_loader)
-        for t, (imgs, _) in enumerate(train_loader):
+        for t, (imgs, _, _) in enumerate(train_loader):
             model.train()
 
             images = torch.stack(imgs).to(self.device)
@@ -282,7 +283,7 @@ class NeuralPropExtractor(Component, Trainable):
             optimiser.step()
 
             if verbose and (t+1) % print_freq == 0:
-                print(f"Epoch {epoch:>3}, batch [{t+1:>4}/{num_batches}] -- overall loss = {loss.item():.6f}")
+                print(f"Epoch {epoch:>3}, batch [{t+1:>4}/{num_batches}] -- overall loss = {loss.item():.2f}")
 
     def _calc_loss_ae(self, output, target):
         loss = self._loss_fn_ae(output, target)
@@ -301,14 +302,21 @@ class NeuralPropExtractor(Component, Trainable):
         :return: Dict mapping from cls to dict mapping label to cluster centre
         """
 
+        print("Clustering latent vectors of objects in the training data...")
+
         train_loader = DataLoader(train_dataset, batch_size=batch_size, shuffle=False, collate_fn=collate_func)
 
         latents = []
         classes = []
 
+        ae_model.eval()
+
         # Apply images to AE
-        for objs, clss, _ in train_loader:
-            obj_latents = list(ae_model.encode(objs).cpu().numpy())
+        for imgs, clss, _ in train_loader:
+            images = torch.stack(imgs).to(self.device)
+            with torch.no_grad():
+                obj_latents = list(ae_model.encode(images).cpu().numpy())
+
             latents.extend(obj_latents)
             classes.extend(clss)
 
@@ -323,7 +331,6 @@ class NeuralPropExtractor(Component, Trainable):
         for cls, latents in cls_latents.items():
             num_clusters = cls_cluster_map[cls]
             clustering = AgglomerativeClustering(n_clusters=num_clusters)
-            # data = MinMaxScaler().fit_transform(latents)
             labels = clustering.fit_predict(latents)
 
             # Sort latents by label
@@ -339,6 +346,8 @@ class NeuralPropExtractor(Component, Trainable):
                 label_centre_map[label] = centre
 
             cls_label_centre_map[cls] = label_centre_map
+
+        print("Completed clustering.")
 
         return cls_label_centre_map
 
@@ -390,6 +399,8 @@ class NeuralPropExtractor(Component, Trainable):
         :return: Dict mapping from cls to a dict mapping labels to a dict mapping from property to property value
         """
 
+        print("Searching over mappings from cluster labels to property values...")
+
         cls_asp_data_map = {cls: [] for cls in set(cls_label_centre_map.keys())}
         for cls, label_centre_map in cls_label_centre_map.items():
             for q_idx in range(len(dataset)):
@@ -406,11 +417,16 @@ class NeuralPropExtractor(Component, Trainable):
             label_prop_map = self._parse_asp_models(asp_models)
             cls_label_prop_map[cls] = label_prop_map
 
+        print("Completed label property map search.")
+
         return cls_label_prop_map
 
     def _find_labels(self, imgs, ae_model, centres):
+        ae_model.eval()
+
         images = torch.stack(imgs).to(self.device)
-        latents = list(ae_model.encode(images).cpu().numpy())
+        with torch.no_grad():
+            latents = list(ae_model.encode(images).cpu().numpy())
 
         labels = []
         for latent in latents:
@@ -429,6 +445,8 @@ class NeuralPropExtractor(Component, Trainable):
         exp_str = "expected({q_idx}, {prop}, {val})"
         labelled_obj_str = "labelled_obj({id}, {label}, {q_idx})"
 
+        asp_str += "\n%Choice rules for generating possible label to property mappings\n"
+
         # Generate choice rules for generating all possible mappings
         label_set = set([item for obj_labels in labels for item in obj_labels])
         for label in label_set:
@@ -436,12 +454,13 @@ class NeuralPropExtractor(Component, Trainable):
             for prop in self.spec.prop_names():
                 choice_str = "1 { "
                 for val in self.spec.prop_values(prop):
+                    val = self.spec.to_internal(prop, val)
                     choice_str += mapping_str.format(prop=prop, label=label, val=val) + " ; "
 
                 ans_set_gen_str += choice_str[:-2] + "} 1.\n"
             asp_str += ans_set_gen_str
 
-        asp_str += "\n"
+        asp_str += "\n%Rules to generate holds() from mappings\n"
 
         # Generate rules for generating holds() from property mappings
         for prop in self.spec.prop_names():
@@ -450,6 +469,14 @@ class NeuralPropExtractor(Component, Trainable):
             rule_str += mapping_str.format(prop=prop, label="Label", val="Val") + ".\n"
             asp_str += rule_str
 
+        asp_str += "\n%Helper rules\n"
+
+        # Generate helper rules
+        asp_str += "obj_id(Id, Q) :- labelled_obj(Id, _, Q).\n"
+
+        asp_str += "\n%Rules and data for each question\n"
+
+        # Some rules and data needs to be generated for each question
         for idx, q_idx in enumerate(q_idxs):
             q_prop_vals = prop_vals[idx]
             obj_labels = labels[idx]
@@ -459,9 +486,14 @@ class NeuralPropExtractor(Component, Trainable):
                 ans_rule = answer_head_str.format(prop=head_prop, q_idx=q_idx) + " :- "
                 for body_prop, body_val in q_prop_vals.items():
                     if head_prop != body_prop:
-                        ans_rule += holds_prop_str.format(prop=body_prop, val=body_val, q_idx=q_idx) + ", "
+                        val = self.spec.to_internal(body_prop, body_val)
+                        ans_rule += holds_prop_str.format(prop=body_prop, val=val, q_idx=q_idx) + ", "
 
-                    ans_rule += holds_prop_str.format(prop=head_prop, val="Val", q_idx=q_idx) + ".\n"
+                ans_rule += holds_prop_str.format(prop=head_prop, val="Val", q_idx=q_idx) + ", "
+                ans_rule += f"obj_id(Id, {q_idx}).\n"
+
+                # Expected value
+                exp_val = self.spec.to_internal(head_prop, exp_val)
                 ans_rule += exp_str.format(prop=head_prop, val=exp_val, q_idx=q_idx) + ".\n"
                 asp_str += ans_rule
 
@@ -469,12 +501,15 @@ class NeuralPropExtractor(Component, Trainable):
 
             # Generate labelled object data
             for obj_idx, label in enumerate(obj_labels):
-                asp_str += labelled_obj_str.format(id=obj_idx, label=label) + ".\n"
+                asp_str += labelled_obj_str.format(id=obj_idx, label=label, q_idx=q_idx) + ".\n"
+
+            asp_str += "\n"
 
         # Finally, add weak constraint and show commands
-        asp_str += ":~ answer(Q, Prop, Val), expected(Q, Prop, Val). [1@1, Q, Prop, Val]"
+        asp_str += "%Optimisation\n"
+        asp_str += ":~ answer(Q, Prop, Val), expected(Q, Prop, Val). [-1@1, Q, Prop, Val]\n"
         for prop in self.spec.prop_names():
-            asp_str += f"#show {prop}_mapping/2."
+            asp_str += f"#show {prop}_mapping/2.\n"
 
         return asp_str
 
@@ -485,6 +520,8 @@ class NeuralPropExtractor(Component, Trainable):
         :param models: List of list of Symbol objects from clingo API
         :return: Dict mapping labels to a dict mapping from prop to val
         """
+
+        print(f"Found {len(models)} optimal label-property mappings.")
 
         # Take a single model since they are all optimal
         model = models[0]
@@ -497,12 +534,14 @@ class NeuralPropExtractor(Component, Trainable):
                 if sym.name == f"{prop}_mapping":
                     label, val = sym.arguments
                     label = label.number
-                    val = val.name
+                    val = val.number
 
                     # Add prop -> val mapping for this label
                     prop_vals = label_prop_map.get(label)
                     prop_vals = {} if prop_vals is None else prop_vals
                     assert prop_vals.get(prop) is None
+
+                    val = self.spec.from_internal(prop, val)
                     prop_vals[prop] = val
                     label_prop_map[label] = prop_vals
 
