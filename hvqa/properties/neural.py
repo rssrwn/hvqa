@@ -1,7 +1,6 @@
 import numpy as np
 from pathlib import Path
 from sklearn.cluster import AgglomerativeClustering
-from sklearn.preprocessing import MinMaxScaler
 from scipy.spatial.distance import cosine
 
 import torch
@@ -240,7 +239,7 @@ class NeuralPropExtractor(Component, Trainable):
         cls_cluster_map = self._find_num_clusters(train_prop_qa_dataset)
         ae_model = self._train_obj_ae(train_prop_dataset, verbose)
         cls_label_centre_map = self._cluster_objects(ae_model, train_prop_dataset, cls_cluster_map)
-        cls_label_prop_map = self._find_label_prop_maps(train_prop_qa_dataset, cls_label_centre_map)
+        cls_label_prop_map = self._find_label_prop_maps(train_prop_qa_dataset, ae_model, cls_label_centre_map)
 
     def _train_obj_ae(self, train_dataset, verbose, lr=0.001, batch_size=256, epochs=5):
         """
@@ -320,8 +319,8 @@ class NeuralPropExtractor(Component, Trainable):
         for cls, latents in cls_latents.items():
             num_clusters = cls_cluster_map[cls]
             clustering = AgglomerativeClustering(n_clusters=num_clusters)
-            data = MinMaxScaler().fit_transform(latents)
-            labels = clustering.fit_predict(data)
+            # data = MinMaxScaler().fit_transform(latents)
+            labels = clustering.fit_predict(latents)
 
             # Sort latents by label
             label_latents_map = {label: [] for label in set(labels)}
@@ -376,41 +375,100 @@ class NeuralPropExtractor(Component, Trainable):
 
         return cls_cluster_map
 
-    def _find_label_prop_maps(self, dataset, cls_label_centre_map):
+    def _find_label_prop_maps(self, dataset, ae_model, cls_label_centre_map):
         """
         For each cls find the mapping from labels to property values
         Uses ASP to find the mapping which maximises the number of questions answered correctly
 
         :param dataset: Training data (QAPropDataset)
+        :param ae_model: Autoencoder NN (ObjectAutoEncoder)
         :param cls_label_centre_map: Dict mapping from cls to a dict mapping from label to cluster centre
         :return: Dict mapping from cls to a dict mapping labels to a dict mapping from property to property value
         """
 
+        cls_asp_data_map = {cls: [] for cls in set(cls_label_centre_map.keys())}
+        for cls, label_centre_map in cls_label_centre_map.items():
+            for q_idx in range(len(dataset)):
+                imgs, q_cls, q_props = dataset[q_idx]
+                if cls == q_cls:
+                    labels = self._find_labels(imgs, ae_model, label_centre_map)
+                    cls_asp_data_map[cls].append((q_idx, q_props, labels))
+
+        for cls, data_list in cls_asp_data_map.items():
+            q_idxs, q_props, labels = tuple(zip(*data_list))
+            asp_str = self._gen_unsup_prop_asp_str(q_idxs, q_props, labels)
+
         return {}
 
-    # def _train_one_epoch_qa(self, train_loader, optimiser, epoch, verbose):
-    #     num_batches = len(train_loader)
-    #     for t, data in enumerate(train_loader):
-    #         self.model.train()
-    #
-    #         for prop, items in data.items():
-    #             imgs, objs = tuple(zip(*items))
-    #
-    #             images, targets = self._prepare_data(imgs, objs, prop=prop)
-    #             output = self.model(images)
-    #             output = {prop: out.to("cpu") for prop, out in output.items()}
-    #             targets = {prop: target.to("cpu") for prop, target in targets.items()}
-    #
-    #             loss, losses = self._calc_loss(output, targets)
-    #             optimiser.zero_grad()
-    #             loss.backward()
-    #             optimiser.step()
-    #
-    #             if verbose:
-    #                 loss_str = f"Epoch {epoch:>3}, batch [{t + 1:>4}/{num_batches}] -- overall loss = {loss.item():.6f}"
-    #                 for loss_prop, loss in losses.items():
-    #                     loss_str += f" -- {loss_prop} loss = {loss.item():.6f}"
-    #                 print(loss_str)
+    def _find_labels(self, imgs, ae_model, centres):
+        images = torch.stack(imgs).to(self.device)
+        latents = list(ae_model.encode(images).cpu().numpy())
+
+        labels = []
+        for latent in latents:
+            dists = [(label, cosine(latent, centre)) for label, centre in centres.items()]
+            label, _ = min(dists, key=lambda label_dist: label_dist[1])
+            labels.append(label)
+
+        return labels
+
+    def _gen_unsup_prop_asp_str(self, q_idxs, prop_vals, labels):
+        asp_str = ""
+
+        mapping_str = "{prop}_mapping({label}, {val})"
+        answer_head_str = "answer({q_idx}, {prop}, Val)"
+        holds_prop_str = "holds({prop}({val}, Id), {q_idx})"
+        exp_str = "expected({q_idx}, {prop}, {val})"
+        labelled_obj_str = "labelled_obj({id}, {label}, {q_idx})"
+
+        # Generate choice rules for generating all possible mappings
+        label_set = set([item for obj_labels in labels for item in obj_labels])
+        for label in label_set:
+            ans_set_gen_str = ""
+            for prop in self.spec.prop_names():
+                choice_str = "1 { "
+                for val in self.spec.prop_values(prop):
+                    choice_str += mapping_str.format(prop=prop, label=label, val=val) + " ; "
+
+                ans_set_gen_str += choice_str[:-2] + "} 1.\n"
+            asp_str += ans_set_gen_str
+
+        asp_str += "\n"
+
+        # Generate rules for generating holds() from property mappings
+        for prop in self.spec.prop_names():
+            rule_str = holds_prop_str.format(prop=prop, val="Val", q_idx="Q") + " :- "
+            rule_str += labelled_obj_str.format(id="Id", label="Label", q_idx="Q") + ", "
+            rule_str += mapping_str.format(prop=prop, label="Label", val="Val") + ".\n"
+            asp_str += rule_str
+
+        for idx, q_idx in enumerate(q_idxs):
+            q_prop_vals = prop_vals[idx]
+            obj_labels = labels[idx]
+
+            # Generate answer rules
+            for head_prop, exp_val in q_prop_vals.items():
+                ans_rule = answer_head_str.format(prop=head_prop, q_idx=q_idx) + " :- "
+                for body_prop, body_val in q_prop_vals.items():
+                    if head_prop != body_prop:
+                        ans_rule += holds_prop_str.format(prop=body_prop, val=body_val, q_idx=q_idx) + ", "
+
+                    ans_rule += holds_prop_str.format(prop=head_prop, val="Val", q_idx=q_idx) + ".\n"
+                ans_rule += exp_str.format(prop=head_prop, val=exp_val, q_idx=q_idx) + ".\n"
+                asp_str += ans_rule
+
+            asp_str += "\n"
+
+            # Generate labelled object data
+            for obj_idx, label in enumerate(obj_labels):
+                asp_str += labelled_obj_str.format(id=obj_idx, label=label) + ".\n"
+
+        # Finally, add weak constraint and show commands
+        asp_str += ":~ answer(Q, Prop, Val), expected(Q, Prop, Val). [1@1, Q, Prop, Val]"
+        for prop in self.spec.prop_names():
+            asp_str += f"#show {prop}_mapping/2."
+
+        return asp_str
 
     @staticmethod
     def _collate_dicts(dicts):

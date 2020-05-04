@@ -92,17 +92,17 @@ class QAPropDataset(Dataset):
             for q_idx in q_idxs:
                 question = video.questions[q_idx]
                 ans = video_ans[q_idx]
-                prop, val, cls, frame_idx = self._parse_question(question)
+                prop, val, q_cls, frame_idx = self._parse_question(question)
 
                 frame = video.frames[frame_idx]
-                frame_imgs = [obj.img for obj in frame.objs]
+                frame_imgs = [obj.img for obj in frame.objs if obj.cls == q_cls]
                 q_props = {prop: ans}
                 if val is not None:
                     val_prop = self.spec.find_prop(val)
                     q_props[val_prop] = val
 
                 imgs.append(frame_imgs)
-                cls.append(cls)
+                cls.append(q_cls)
                 props.append(q_props)
 
         return imgs, cls, props
