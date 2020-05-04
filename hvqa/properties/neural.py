@@ -402,7 +402,8 @@ class NeuralPropExtractor(Component, Trainable):
         for cls, data_list in cls_asp_data_map.items():
             q_idxs, q_props, labels = tuple(zip(*data_list))
             asp_str = self._gen_unsup_prop_asp_str(q_idxs, q_props, labels)
-            label_prop_map = self._run_asp_label_props(asp_str)
+            asp_models = self.asp_runner.run(asp_str, timeout=10, prog_name="Property component training")
+            label_prop_map = self._parse_asp_models(asp_models)
             cls_label_prop_map[cls] = label_prop_map
 
         return cls_label_prop_map
@@ -476,6 +477,36 @@ class NeuralPropExtractor(Component, Trainable):
             asp_str += f"#show {prop}_mapping/2."
 
         return asp_str
+
+    def _parse_asp_models(self, models):
+        """
+        Parse the result of the ASP run and construct the label_prop_map for a single class
+
+        :param models: List of list of Symbol objects from clingo API
+        :return: Dict mapping labels to a dict mapping from prop to val
+        """
+
+        # Take a single model since they are all optimal
+        model = models[0]
+
+        props = self.spec.prop_names()
+
+        label_prop_map = {}
+        for sym in model:
+            for prop in props:
+                if sym.name == f"{prop}_mapping":
+                    label, val = sym.arguments
+                    label = label.number
+                    val = val.name
+
+                    # Add prop -> val mapping for this label
+                    prop_vals = label_prop_map.get(label)
+                    prop_vals = {} if prop_vals is None else prop_vals
+                    assert prop_vals.get(prop) is None
+                    prop_vals[prop] = val
+                    label_prop_map[label] = prop_vals
+
+        return label_prop_map
 
     @staticmethod
     def _collate_dicts(dicts):
