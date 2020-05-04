@@ -244,7 +244,7 @@ class NeuralPropExtractor(Component, Trainable):
 
     def _train_obj_ae(self, train_dataset, verbose, lr=0.001, batch_size=256, epochs=5):
         """
-
+        Train an autoencoder NN to compress each object image to a 16-d vector
 
         :param train_dataset: Training data, we only use the objects (VideoPropDataset)
         :param verbose: Verbose printing (bool)
@@ -287,12 +287,13 @@ class NeuralPropExtractor(Component, Trainable):
         loss = loss.mean()
         return loss
 
-    def _cluster_objects(self, ae_model, train_dataset, batch_size=256):
+    def _cluster_objects(self, ae_model, train_dataset, cls_cluster_map, batch_size=256):
         """
         Find the centre of each cluster (of labels) for each class
 
         :param ae_model: ObjectAutoEncoder object
         :param train_dataset: Training data, we only use the objects (VideoPropDataset)
+        :param cls_cluster_map: Dict from cls to number of clusters ({str: int})
         :param batch_size: Number of elements to pass through AE at a time
         :return: Dict mapping from cls to dict mapping label to cluster centre
         """
@@ -317,7 +318,8 @@ class NeuralPropExtractor(Component, Trainable):
         # Create a dict mapping from cls to a dict mapping each label to its centre
         cls_label_centre_map = {}
         for cls, latents in cls_latents.items():
-            clustering = AgglomerativeClustering(n_clusters=0)  # TODO
+            num_clusters = cls_cluster_map[cls]
+            clustering = AgglomerativeClustering(n_clusters=num_clusters)
             data = MinMaxScaler().fit_transform(latents)
             labels = clustering.fit_predict(data)
 
@@ -346,7 +348,33 @@ class NeuralPropExtractor(Component, Trainable):
         :return: Dict from cls to expected number of clusters ({cls (str): num_clusters (int)})
         """
 
-        return {}
+        cls_prop_vals_map = {}
+
+        # Sort data into a set of property values for each property, for each class
+        for q_idx in range(len(dataset)):
+            imgs, q_cls, q_props = dataset[q_idx]
+            cls_props = cls_prop_vals_map.get(q_cls)
+            cls_props = {} if cls_props is None else cls_props
+
+            for prop, val in q_props.items():
+                val_set = cls_props.get(prop)
+                val_set = set() if val_set is None else val_set
+                val_set.add(val)
+                cls_props[prop] = val_set
+
+            cls_prop_vals_map[q_cls] = cls_props
+
+        cls_cluster_map = {}
+
+        # Find the number of clusters for each class by multiplying the number of property values together
+        for cls, prop_vals in cls_prop_vals_map.items():
+            num_clusters = 1
+            for prop, vals in prop_vals.items():
+                num_clusters *= len(vals)
+
+            cls_cluster_map[cls] = num_clusters
+
+        return cls_cluster_map
 
     def _find_label_prop_maps(self, dataset, cls_label_centre_map):
         """
