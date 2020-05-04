@@ -235,11 +235,16 @@ class NeuralPropExtractor(Component, Trainable):
         :param verbose: Verbose printing (bool)
         """
 
-        train_dataset = VideoPropDataset.from_video_dataset(self.spec, train_data, transform=_ae_transform)
-        ae_model = self._train_obj_ae(train_dataset, verbose)
+        train_prop_dataset = VideoPropDataset.from_video_dataset(self.spec, train_data, transform=_ae_transform)
+        train_prop_qa_dataset = QAPropDataset.from_video_dataset(self.spec, train_data, transform=_ae_transform)
+        cls_cluster_map = self._find_num_clusters(train_prop_qa_dataset)
+        ae_model = self._train_obj_ae(train_prop_dataset, verbose)
+        cls_label_centre_map = self._cluster_objects(ae_model, train_prop_dataset, cls_cluster_map)
+        cls_label_prop_map = self._find_label_prop_maps(train_prop_qa_dataset, cls_label_centre_map)
 
     def _train_obj_ae(self, train_dataset, verbose, lr=0.001, batch_size=256, epochs=5):
         """
+
 
         :param train_dataset: Training data, we only use the objects (VideoPropDataset)
         :param verbose: Verbose printing (bool)
@@ -331,6 +336,29 @@ class NeuralPropExtractor(Component, Trainable):
             cls_label_centre_map[cls] = label_centre_map
 
         return cls_label_centre_map
+
+    def _find_num_clusters(self, dataset):
+        """
+        Calculate the number of expected clusters for each class by looking at the QA pairs
+        This is done by listing all possible (ie. in the QA pairs) values of each property
+
+        :param dataset: Data used to calc number of clusters (QAPropDataset)
+        :return: Dict from cls to expected number of clusters ({cls (str): num_clusters (int)})
+        """
+
+        return {}
+
+    def _find_label_prop_maps(self, dataset, cls_label_centre_map):
+        """
+        For each cls find the mapping from labels to property values
+        Uses ASP to find the mapping which maximises the number of questions answered correctly
+
+        :param dataset: Training data (QAPropDataset)
+        :param cls_label_centre_map: Dict mapping from cls to a dict mapping from label to cluster centre
+        :return: Dict mapping from cls to a dict mapping labels to a dict mapping from property to property value
+        """
+
+        return {}
 
     # def _train_one_epoch_qa(self, train_loader, optimiser, epoch, verbose):
     #     num_batches = len(train_loader)
