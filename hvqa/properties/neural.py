@@ -1,3 +1,4 @@
+import numpy as np
 from pathlib import Path
 from sklearn.cluster import AgglomerativeClustering
 from sklearn.preprocessing import MinMaxScaler
@@ -149,7 +150,7 @@ class NeuralPropExtractor(Component, Trainable):
         fns = {prop: {val: 0 for val in self.spec.prop_values(prop)} for prop in props}
         correct = {prop: 0 for prop in props}
 
-        for i, (imgs, objs) in enumerate(eval_loader):
+        for i, (imgs, _, objs) in enumerate(eval_loader):
             images, targets = self._prepare_data(imgs, objs)
 
             with torch.no_grad():
@@ -235,7 +236,7 @@ class NeuralPropExtractor(Component, Trainable):
         """
 
         train_dataset = VideoPropDataset.from_video_dataset(self.spec, train_data, transform=_ae_transform)
-        ae = self._train_obj_ae(train_dataset, verbose)
+        ae_model = self._train_obj_ae(train_dataset, verbose)
 
     def _train_obj_ae(self, train_dataset, verbose, lr=0.001, batch_size=256, epochs=5):
         """
@@ -281,24 +282,55 @@ class NeuralPropExtractor(Component, Trainable):
         loss = loss.mean()
         return loss
 
-    # def _cluster_objects(self, ae, train_dataset, batch_size=256):
-    #     """
-    #
-    #     :param ae: ObjectAutoEncoder object
-    #     :param train_dataset: Training data, we only use the objects (VideoPropDataset)
-    #     :param batch_size: Number of elements to pass through AE at a time
-    #     :return:
-    #     """
-    #
-    #     train_loader = DataLoader(train_dataset, batch_size=batch_size, shuffle=False, collate_fn=collate_func)
-    #
-    #     latents = []
-    #     for objs in train_loader:
-    #         obj_latents = list(ae.encode(objs).cpu().numpy())
-    #         latents.extend(obj_latents)
-    #
-    #     clustering = AgglomerativeClustering()
+    def _cluster_objects(self, ae_model, train_dataset, batch_size=256):
+        """
+        Find the centre of each cluster (of labels) for each class
 
+        :param ae_model: ObjectAutoEncoder object
+        :param train_dataset: Training data, we only use the objects (VideoPropDataset)
+        :param batch_size: Number of elements to pass through AE at a time
+        :return: Dict mapping from cls to dict mapping label to cluster centre
+        """
+
+        train_loader = DataLoader(train_dataset, batch_size=batch_size, shuffle=False, collate_fn=collate_func)
+
+        latents = []
+        classes = []
+
+        # Apply images to AE
+        for objs, clss, _ in train_loader:
+            obj_latents = list(ae_model.encode(objs).cpu().numpy())
+            latents.extend(obj_latents)
+            classes.extend(clss)
+
+        # Sort by class
+        cls_latents = {cls: [] for cls in set(classes)}
+        for idx, latent in enumerate(latents):
+            cls = classes[idx]
+            cls_latents[cls].append(latent)
+
+        # Create a dict mapping from cls to a dict mapping each label to its centre
+        cls_label_centre_map = {}
+        for cls, latents in cls_latents.items():
+            clustering = AgglomerativeClustering(n_clusters=0)  # TODO
+            data = MinMaxScaler().fit_transform(latents)
+            labels = clustering.fit_predict(data)
+
+            # Sort latents by label
+            label_latents_map = {label: [] for label in set(labels)}
+            for idx, label in enumerate(labels):
+                latent = latents[idx]
+                label_latents_map[label].append(latent)
+
+            # Calc centre for each label
+            label_centre_map = {}
+            for label, latents_ in label_latents_map.items():
+                centre = np.average(latents_, axis=0)
+                label_centre_map[label] = centre
+
+            cls_label_centre_map[cls] = label_centre_map
+
+        return cls_label_centre_map
 
     # def _train_one_epoch_qa(self, train_loader, optimiser, epoch, verbose):
     #     num_batches = len(train_loader)
@@ -335,7 +367,7 @@ class NeuralPropExtractor(Component, Trainable):
 
     def _train_one_epoch(self, train_loader, optimiser, epoch, verbose):
         num_batches = len(train_loader)
-        for t, (imgs, objs) in enumerate(train_loader):
+        for t, (imgs, _, objs) in enumerate(train_loader):
             self.model.train()
 
             images, targets = self._prepare_data(imgs, objs)

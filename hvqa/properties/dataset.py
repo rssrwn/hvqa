@@ -26,18 +26,18 @@ class VideoPropDataset(Dataset):
         return len(self.obj_data)
 
     def __getitem__(self, item):
-        img, target = self.obj_data[item]
+        img, cls, target = self.obj_data[item]
         if self.transform is not None:
             img = self.transform(img)
 
-        return img, target
+        return img, cls, target
 
     @staticmethod
     def _collect_data(videos):
         data = []
         for video in videos:
             for frame in video.frames:
-                [data.append((obj.img, obj.prop_vals)) for obj in frame.objs]
+                [data.append((obj.img, obj.cls, obj.prop_vals)) for obj in frame.objs]
 
         return data
 
