@@ -50,10 +50,12 @@ class NeuralDetector(Detector, Trainable):
         :return: List of Frame objs
         """
 
+        device = get_device()
+
+        print(f"Detecting objects using device {device}...")
+
         imgs_trans = [_transform(img) for img in frames]
         imgs_batch = torch.stack(imgs_trans)
-
-        device = get_device()
         imgs_batch = imgs_batch.to(device)
 
         with torch.no_grad():

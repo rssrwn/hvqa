@@ -269,7 +269,7 @@ class NeuralPropExtractor(Component, Trainable):
         :return: ObjectAutoEncoder object
         """
 
-        model = ObjectAutoEncoder(self.spec)
+        model = ObjectAutoEncoder(self.spec).to(self.device)
         train_loader = DataLoader(train_dataset, batch_size=batch_size, shuffle=True, collate_fn=collate_func)
         optimiser = optim.Adam(model.parameters(), lr=lr)
 
