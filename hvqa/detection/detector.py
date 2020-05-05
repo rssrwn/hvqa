@@ -52,6 +52,7 @@ class NeuralDetector(Detector, Trainable):
 
         device = get_device()
         self.model = self.model.to(device)
+        self.model.eval()
 
         imgs_trans = [_transform(img) for img in frames]
         imgs_batch = torch.stack(imgs_trans)
