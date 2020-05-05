@@ -14,19 +14,15 @@ class VideoDataset(QADataset):
     Dataset for storing and fetching videos
     """
 
-    def __init__(self, spec, data_dir, detector, hardcoded=False, group_videos=8):
+    def __init__(self, spec, videos, answers, ids, timing=0, hardcoded=False):
         super(VideoDataset, self).__init__()
 
-        self._detector_timing = 0
-
         self.spec = spec
-        self.data_dir = Path(data_dir)
-        self.detector = detector
+        self._detector_timing = timing
         self.hardcoded = hardcoded
-        self.group_videos = group_videos
-
-        ids, self.videos, self.answers = self._find_videos()
-        self.ids = {id_: idx for idx, id_ in enumerate(ids)}
+        self.videos = videos
+        self.answers = answers
+        self.ids = ids
 
     def __len__(self):
         return len(self.ids)
@@ -50,32 +46,46 @@ class VideoDataset(QADataset):
     def detector_timing(self):
         return self._detector_timing
 
-    def _find_videos(self):
+    @classmethod
+    def from_data_dir(cls, spec, data_dir, detector, hardcoded=False, group_videos=8):
+        data_dir = Path(data_dir)
+        ids, videos, answers, timing = cls._find_videos(spec, data_dir, detector, hardcoded, group_videos)
+        ids = {id_: idx for idx, id_ in enumerate(ids)}
+        dataset = VideoDataset(spec, videos, answers, ids, timing, hardcoded=hardcoded)
+        return dataset
+
+    @classmethod
+    def _find_videos(cls, spec, data_dir, detector, hardcoded, group_videos):
         video_ids = []
         videos = []
         answers = []
 
-        print(f"Searching videos for data under directory {self.data_dir}")
-        video_infos = self._collect_videos(self.data_dir)
+        detector_timing = 0
+
+        print(f"Searching directory {data_dir} for videos...")
+        video_infos = cls._collect_videos(data_dir)
         print(f"Found data from {len(video_infos)} videos")
         print("Extracting objects...")
 
         # Group videos together for faster object detection
-        for video_info in grouper(video_infos, self.group_videos):
+        for video_info in grouper(video_infos, group_videos):
             video_info = [info for info in video_info if info is not None]
             video_nums, video_dicts, frame_imgs = tuple(zip(*video_info))
-            grouped_videos = self._construct_videos(video_dicts, frame_imgs)
+            grouped_videos, timing = cls._construct_videos(spec, video_dicts, frame_imgs, detector, hardcoded)
             videos.extend(grouped_videos)
             video_ids.extend(video_nums)
             ans = [video_dict["answers"] for video_dict in video_dicts]
             answers.extend(ans)
+            detector_timing += timing
 
         print("Completed object extraction.\n")
 
-        return video_ids, videos, answers
+        return video_ids, videos, answers, detector_timing
 
-    def _construct_videos(self, video_dicts, imgs):
-        if self.hardcoded:
+    @classmethod
+    def _construct_videos(cls, spec, video_dicts, imgs, detector, hardcoded):
+        detector_timing = 0
+        if hardcoded:
             videos_frames = []
             for idx, video_dict in enumerate(video_dicts):
                 frame_imgs = imgs[idx]
@@ -83,31 +93,32 @@ class VideoDataset(QADataset):
                 frames = []
                 for frame_num, frame_dict in enumerate(frame_dicts):
                     frame_img = frame_imgs[frame_num]
-                    objs = self._collect_objs(frame_dict, frame_img)
-                    frame = Frame(self.spec, objs)
+                    objs = cls._collect_objs(spec, frame_dict, frame_img)
+                    frame = Frame(spec, objs)
                     frames.append(frame)
                 videos_frames.append(frames)
 
         else:
             start_time = time.time()
             frame_imgs = [img for frame in imgs for img in frame]
-            frames = self.detector.detect_objs(frame_imgs)
-            self._detector_timing += (time.time() - start_time)
-            assert len(frames) == self.spec.num_frames * len(video_dicts), "Wrong number of frames returned"
-            videos_frames = grouper(frames, self.spec.num_frames)
+            frames = detector.detect_objs(frame_imgs)
+            detector_timing += (time.time() - start_time)
+            assert len(frames) == spec.num_frames * len(video_dicts), "Wrong number of frames returned"
+            videos_frames = grouper(frames, spec.num_frames)
 
         videos = []
         for video_idx, frames in enumerate(videos_frames):
             video_dict = video_dicts[video_idx]
             questions = video_dict["questions"]
             q_types = video_dict["question_types"]
-            video = Video(self.spec, frames)
+            video = Video(spec, frames)
             video.set_questions(questions, q_types)
             videos.append(video)
 
-        return videos
+        return videos, detector_timing
 
-    def _collect_objs(self, frame_dict, frame_img):
+    @classmethod
+    def _collect_objs(cls, spec, frame_dict, frame_img):
         obj_dicts = frame_dict["objects"]
         objs = []
         for obj_idx, obj_dict in enumerate(obj_dicts):
@@ -118,9 +129,9 @@ class VideoDataset(QADataset):
             rotation = obj_dict["rotation"]
 
             # TODO Fix dataset to use external rotation value
-            rotation = self.spec.from_internal("rotation", rotation)
+            rotation = spec.from_internal("rotation", rotation)
 
-            obj = Obj(self.spec, obj_type, position)
+            obj = Obj(spec, obj_type, position)
             obj.set_prop_val("colour", colour)
             obj.set_prop_val("rotation", rotation)
             obj.set_image(frame_img)
@@ -128,7 +139,8 @@ class VideoDataset(QADataset):
 
         return objs
 
-    def _collect_videos(self, path):
+    @classmethod
+    def _collect_videos(cls, path):
         """
         Collect all videos under <path> as list of PIL images, ids and dicts
         This function executes asynchronously
@@ -148,7 +160,7 @@ class VideoDataset(QADataset):
                 print(f"WARNING: {video_dir} could not be parsed into an integer")
                 continue
 
-            future = executor.submit(self._collect_video, video_dir, video_num)
+            future = executor.submit(cls._collect_video, video_dir)
             futures.append((video_num, future))
 
         videos = []
@@ -159,14 +171,15 @@ class VideoDataset(QADataset):
 
         return videos
 
-    def _collect_video(self, video_dir, video_num):
+    @classmethod
+    def _collect_video(cls, video_dir):
         json_file = video_dir / "video.json"
         with json_file.open() as f:
             json_text = f.read()
 
         video_dict = json.loads(json_text)
         num_frames = len(video_dict["frames"])
-        images = [self._collect_img(self.data_dir / str(video_num), frame) for frame in range(num_frames)]
+        images = [cls._collect_img(video_dir, frame) for frame in range(num_frames)]
 
         return video_dict, images
 
