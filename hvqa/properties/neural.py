@@ -411,7 +411,7 @@ class NeuralPropExtractor(Component, Trainable):
         exp_str = "expected({q_idx}, {prop}, {val})"
         labelled_obj_str = "labelled_obj({id}, {label}, {q_idx})"
 
-        asp_str += "\n%Choice rules for generating possible label to property mappings\n"
+        asp_str += "\n% Choice rules for generating possible label to property mappings\n"
 
         # Generate choice rules for generating all possible mappings
         label_set = set([item for obj_labels in labels for item in obj_labels])
@@ -426,7 +426,7 @@ class NeuralPropExtractor(Component, Trainable):
                 ans_set_gen_str += choice_str[:-2] + "} 1.\n"
             asp_str += ans_set_gen_str
 
-        asp_str += "\n%Rules to generate holds() from mappings\n"
+        asp_str += "\n% Rules to generate holds() from mappings\n"
 
         # Generate rules for generating holds() from property mappings
         for prop in self.spec.prop_names():
@@ -435,12 +435,13 @@ class NeuralPropExtractor(Component, Trainable):
             rule_str += mapping_str.format(prop=prop, label="Label", val="Val") + ".\n"
             asp_str += rule_str
 
-        asp_str += "\n%Helper rules\n"
+        asp_str += "\n% Helper rules\n"
 
         # Generate helper rules
         asp_str += "obj_id(Id, Q) :- labelled_obj(Id, _, Q).\n"
+        asp_str += "mapping(Label, Col, Rot) :- colour_mapping(Label, Col), rotation_mapping(Label, Rot).\n"
 
-        asp_str += "\n%Rules and data for each question\n"
+        asp_str += "\n% Rules and data for each question\n"
 
         # Some rules and data needs to be generated for each question
         for idx, q_idx in enumerate(q_idxs):
@@ -472,8 +473,11 @@ class NeuralPropExtractor(Component, Trainable):
             asp_str += "\n"
 
         # Finally, add weak constraint and show commands
-        asp_str += "%Optimisation\n"
+        asp_str += "% Optimisation\n"
         asp_str += ":~ answer(Q, Prop, Val), expected(Q, Prop, Val). [-1@1, Q, Prop, Val]\n"
+        asp_str += ":~ mapping(Label1, Col, Rot), mapping(Label2, Col, Rot), " \
+                   "Label1 != Label2. [1@0, Label1, Label2, Col, Rot]\n\n"
+
         for prop in self.spec.prop_names():
             asp_str += f"#show {prop}_mapping/2.\n"
 

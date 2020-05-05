@@ -43,6 +43,6 @@ class ASPRunner:
         assert len(models) != 0, f"ASP {prog_name} program is unsatisfiable"
 
         # Cleanup temp file
-        # self.temp_file.unlink()
+        self.temp_file.unlink()
 
         return models

@@ -55,7 +55,7 @@ class VideoDataset(QADataset):
         videos = []
         answers = []
 
-        print("Searching videos for data...")
+        print(f"Searching videos for data under directory {self.data_dir}")
         video_infos = self._collect_videos(self.data_dir)
         print(f"Found data from {len(video_infos)} videos")
         print("Extracting objects...")
@@ -69,6 +69,8 @@ class VideoDataset(QADataset):
             video_ids.extend(video_nums)
             ans = [video_dict["answers"] for video_dict in video_dicts]
             answers.extend(ans)
+
+        print("Completed object extraction.\n")
 
         return video_ids, videos, answers
 
