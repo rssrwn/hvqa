@@ -120,7 +120,7 @@ class NeuralPropExtractor(Component, Trainable):
         """
 
         if from_qa:
-            assert not train_data.is_hardcoded(), "VideoQADataset must not be hardcoded when training using QA data"
+            # assert not train_data.is_hardcoded(), "VideoQADataset must not be hardcoded when training using QA data"
             self._train_from_qa(train_data, eval_data, verbose)
         else:
             assert train_data.is_hardcoded(), "VideoQADataset must be hardcoded when training using hardcoded data"
@@ -189,47 +189,6 @@ class NeuralPropExtractor(Component, Trainable):
             self._train_one_epoch(train_loader, optimiser, epoch, verbose)
             self.eval(eval_data)
 
-    # def _train_from_qa(self, train_data, eval_data, verbose):
-    #     """
-    #     Train the model from the QA data only via bootstrapping
-    #     The model is first trained on QA pairs which do not have a property value in the question
-    #     Eg. Q: What colour was the rock in frame 4? A: blue -> target = {colour: blue}
-    #     This model is then used to classify properties for all the training data
-    #     The model is then trained over all the classified training data
-    #
-    #     :param train_data: Training data (QADataset)
-    #     :param eval_data: Eval data (QADataset)
-    #     :param verbose: Verbose printing (bool)
-    #     """
-    #
-    #     data = [train_data[idx] for idx in range(len(train_data))]
-    #     videos, answers = tuple(zip(*data))
-    #
-    #     data = QAPropDataset(self.spec, videos, answers, transform=_transform)
-    #     loader = DataLoader(data, batch_size=self.batch_size, shuffle=True, collate_fn=self._collate_dicts)
-    #     optimiser = optim.Adam(self.model.parameters(), lr=self.lr)
-    #
-    #     print(f"Training property extraction model using QA data with device {self.device}...")
-    #
-    #     # Train the initial bootstrap
-    #     self._train_one_epoch_qa(loader, optimiser, -1, verbose)
-    #
-    #     print("Evaluating model after training for one epoch with bootstrap data...")
-    #     self.eval(eval_data)
-    #
-    #     # Apply the rest of the dataset to the current network and train again
-    #     # Assume that all properties will be filled in, so we can use generic training function
-    #     epochs = 1  # TODO move somewhere else
-    #     for epoch in range(epochs):
-    #         print("Applying current network to all videos for further training...")
-    #         [self.run_(video) for video in videos]
-    #         train_dataset = VideoPropDataset(self.spec, videos, transform=_transform)
-    #         train_loader = DataLoader(train_dataset, batch_size=self.batch_size, shuffle=True, collate_fn=collate_func)
-    #
-    #         print(f"Training epoch {epoch+1}/{epochs} with full dataset bootstrapped using property network")
-    #         self._train_one_epoch(train_loader, optimiser, epoch, verbose)
-    #         self.eval(eval_data)
-
     def _train_from_qa(self, train_data, eval_data, verbose):
         """
 
@@ -238,7 +197,14 @@ class NeuralPropExtractor(Component, Trainable):
         :param verbose: Verbose printing (bool)
         """
 
-        train_prop_dataset = VideoPropDataset.from_video_dataset(self.spec, train_data, transform=_ae_transform)
+        num_obj_per_cls = 10000
+
+        train_prop_dataset = VideoPropDataset.from_video_dataset(
+            self.spec,
+            train_data,
+            transform=_ae_transform,
+            num_obj=num_obj_per_cls
+        )
         train_prop_qa_dataset = QAPropDataset.from_video_dataset(self.spec, train_data, transform=_ae_transform)
         cls_cluster_map = self._find_num_clusters(train_prop_qa_dataset)
         ae_model = self._train_obj_ae(train_prop_dataset, verbose)
@@ -246,7 +212,7 @@ class NeuralPropExtractor(Component, Trainable):
         cls_label_prop_map = self._find_label_prop_maps(train_prop_qa_dataset, ae_model, cls_label_centre_map)
         print(cls_label_prop_map)
 
-    def _train_obj_ae(self, train_dataset, verbose, lr=0.001, batch_size=256, epochs=3):
+    def _train_obj_ae(self, train_dataset, verbose, lr=0.001, batch_size=128, epochs=5):
         """
         Train an autoencoder NN to compress each object image to a 16-d vector
 
@@ -414,7 +380,7 @@ class NeuralPropExtractor(Component, Trainable):
             q_idxs, q_props, labels = tuple(zip(*data_list))
             asp_str = self._gen_unsup_prop_asp_str(q_idxs, q_props, labels)
             asp_models = self.asp_runner.run(asp_str, timeout=10, prog_name="Property component training")
-            label_prop_map = self._parse_asp_models(asp_models)
+            label_prop_map = self._parse_asp_models(asp_models, cls)
             cls_label_prop_map[cls] = label_prop_map
 
         print("Completed label property map search.")
@@ -513,15 +479,16 @@ class NeuralPropExtractor(Component, Trainable):
 
         return asp_str
 
-    def _parse_asp_models(self, models):
+    def _parse_asp_models(self, models, cls):
         """
         Parse the result of the ASP run and construct the label_prop_map for a single class
 
         :param models: List of list of Symbol objects from clingo API
+        :param cls: Class of objects for which the ASP program was run
         :return: Dict mapping labels to a dict mapping from prop to val
         """
 
-        print(f"Found {len(models)} optimal label-property mappings.")
+        print(f"Found {len(models)} optimal label-property mappings for object type: {cls}")
 
         # Take a single model since they are all optimal
         model = models[0]

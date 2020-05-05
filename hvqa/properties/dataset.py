@@ -1,21 +1,24 @@
+import random
+
 from torch.utils.data import Dataset
 
 
 class VideoPropDataset(Dataset):
-    def __init__(self, spec, videos, transform=None):
+    def __init__(self, spec, videos, transform=None, num_obj_per_cls=None):
         """
         Create a dataset for property extraction
 
         :param spec: EnvSpec object
         :param videos: List of Video objects
         :param transform: Torchvision Transform to apply to PIL image of object
+        :param num_obj_per_cls: Number of objects from each class (sampled randomly)
         """
 
         self.spec = spec
         self.transform = transform
 
         # This needs to be run after setting the others
-        self.obj_data = self._collect_data(videos)
+        self.obj_data = self._collect_data(videos, num_obj_per_cls)
 
         super(VideoPropDataset, self).__init__()
 
@@ -29,20 +32,29 @@ class VideoPropDataset(Dataset):
 
         return img, cls, target
 
-    @staticmethod
-    def _collect_data(videos):
+    def _collect_data(self, videos, num_obj):
         data = []
+        cls_data = {cls: [] for cls in self.spec.obj_types()}
         for video in videos:
             for frame in video.frames:
-                [data.append((obj.img, obj.cls, obj.prop_vals)) for obj in frame.objs]
+                if num_obj is None:
+                    [data.append((obj.img, obj.cls, obj.prop_vals)) for obj in frame.objs]
+                else:
+                    [cls_data[obj.cls].append((obj.img, obj.cls, obj.prop_vals)) for obj in frame.objs]
+
+        # Sample data evenly from each class
+        if num_obj is not None:
+            for cls, items in cls_data.items():
+                sampled = random.choices(items, k=num_obj)
+                data.extend(sampled)
 
         return data
 
     @classmethod
-    def from_video_dataset(cls, spec, dataset, transform=None):
+    def from_video_dataset(cls, spec, dataset, transform=None, num_obj=None):
         data = [dataset[idx] for idx in range(len(dataset))]
         videos, answers = tuple(zip(*data))
-        prop_dataset = cls(spec, videos, transform=transform)
+        prop_dataset = cls(spec, videos, transform=transform, num_obj_per_cls=num_obj)
         return prop_dataset
 
 

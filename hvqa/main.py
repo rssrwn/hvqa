@@ -27,7 +27,7 @@ spec = EnvSpec.from_dict({
 def main(train_dir, eval_dir):
     # Create data
     detector = NeuralDetector.load(spec, DETECTOR_PATH)
-    train_data = VideoDataset(spec, train_dir, detector, hardcoded=False)
+    train_data = VideoDataset(spec, train_dir, detector, hardcoded=True)
     eval_data = VideoDataset(spec, eval_dir, detector, hardcoded=True)
 
     # Create model
@@ -36,8 +36,8 @@ def main(train_dir, eval_dir):
     model.save(MODEL_PATH)
 
     # Load model and evaluate again
-    model = HardcodedVQAModel.load(MODEL_PATH, spec=spec)
-    model.eval_components(eval_data)
+    # model = HardcodedVQAModel.load(MODEL_PATH, spec=spec)
+    # model.eval_components(eval_data)
 
 
 if __name__ == '__main__':
