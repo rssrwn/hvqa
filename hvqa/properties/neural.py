@@ -2,6 +2,7 @@ import numpy as np
 from pathlib import Path
 from sklearn.cluster import AgglomerativeClustering
 from scipy.spatial.distance import cosine
+from more_itertools import grouper
 
 import torch
 import torch.optim as optim
@@ -15,6 +16,7 @@ from hvqa.properties.models import PropertyExtractionModel, ObjectAutoEncoder
 from hvqa.util.func import get_device, load_model, save_model, collate_func, append_in_map
 from hvqa.util.interfaces import Component, Trainable
 from hvqa.util.asp_runner import ASPRunner
+from hvqa.util.dataset import VideoDataset
 
 
 _transform = T.Compose([
@@ -134,7 +136,7 @@ class NeuralPropExtractor(Component, Trainable):
         :param threshold: Threshold for accepting a property classification
         """
 
-        assert eval_data.is_hardcoded(), "VideoQADataset must be hardcoded when evaluating the NeuralPropEctractor"
+        assert eval_data.is_hardcoded(), "VideoQADataset must be hardcoded when evaluating the NeuralPropExtractor"
 
         print("Evaluating neural property extraction component...")
 
@@ -206,11 +208,58 @@ class NeuralPropExtractor(Component, Trainable):
             num_obj=num_obj_per_cls
         )
         train_prop_qa_dataset = QAPropDataset.from_video_dataset(self.spec, train_data, transform=_ae_transform)
+
+        # Train AE, cluster and find optimal label -> property mappings
         cls_cluster_map = self._find_num_clusters(train_prop_qa_dataset)
         ae_model = self._train_obj_ae(train_prop_dataset, verbose)
         cls_label_centre_map = self._cluster_objects(ae_model, train_prop_dataset, cls_cluster_map)
         cls_label_prop_map = self._find_label_prop_maps(train_prop_qa_dataset, ae_model, cls_label_centre_map)
+
+        # Label data in train_prop_dataset and train NN with labelled data
+        videos = [train_prop_dataset[idx] for idx in range(len(train_prop_dataset))]
+
+
         print(cls_label_prop_map)
+
+    def _label_prop_data(self, dataset, ae_model, cls_label_centre_map, cls_label_prop_map):
+        """
+        Produce a new dataset which the emulates the original but whose objects have all their properties filled
+
+        :param dataset: VideoQA dataset (VideoDataset)
+        :param ae_model: Autoencoder model (AutoEncoderModel)
+        :param cls_label_centre_map: Dict mapping cls to dict mapping label to centre
+        :param cls_label_prop_map: Dict mapping cls to dict mapping label to dict mapping property to value
+        :return: VideoDataset object where each object in the Video objects has all properties filled in
+        """
+
+        videos = []
+        answers = []
+
+        cls_obj_map = {cls: [] for cls in self.spec.object_types()}
+        for video_idx in range(len(dataset)):
+            video, ans = dataset[video_idx]
+            videos.append(video)
+            answers.append(ans)
+            for frame_idx, frame in enumerate(video.frames):
+                for obj in frame.objs:
+                    cls_obj_map[obj.cls].append(obj)
+
+        for cls, objs in cls_obj_map.items():
+            imgs = [_ae_transform(obj.img) for obj in objs]
+            label_centre_map = cls_label_centre_map[cls]
+            labels = self._find_labels(imgs, ae_model, label_centre_map)
+
+            for obj_idx, obj in enumerate(objs):
+                label = labels[obj_idx]
+                props = cls_label_prop_map[cls][label]
+                for prop, val in props.items():
+                    obj.set_prop_val(prop, val)
+
+        spec = dataset.spec
+        hardcoded = dataset.is_hardcoded()
+        timing = dataset.detector_timing()
+        new_dataset = VideoDataset(spec, videos, answers, timing=timing, hardcoded=hardcoded)
+        return new_dataset
 
     def _train_obj_ae(self, train_dataset, verbose, lr=0.001, batch_size=128, epochs=5):
         """
@@ -387,12 +436,31 @@ class NeuralPropExtractor(Component, Trainable):
 
         return cls_label_prop_map
 
-    def _find_labels(self, imgs, ae_model, centres):
-        ae_model.eval()
+    def _find_labels(self, imgs, ae_model, centres, batch_size=256):
+        """
+        Find label for each image by calculating latent vector and finding the closest cluster centre
+        Will group images into batches if there are than <batch_size> of them
 
-        images = torch.stack(imgs).to(self.device)
-        with torch.no_grad():
-            latents = list(ae_model.encode(images).cpu().numpy())
+        :param imgs: List of images ([Tensor])
+        :param ae_model: Autoencoder model (AutoEncoderModel)
+        :param centres: Dict mapping from label to centre np vector
+        :param batch_size: Maximum number of images to pass through AE network at once
+        :return: List of labels ([int])
+        """
+
+        ae_model.eval()
+        latents = []
+
+        image_batches = [imgs]
+        if len(imgs) > batch_size:
+            image_batches = grouper(imgs, batch_size)
+
+        for images in image_batches:
+            images = [img for img in images if img is not None]
+            images = torch.stack(images).to(self.device)
+            with torch.no_grad():
+                obj_latents = list(ae_model.encode(images).cpu().numpy())
+                latents.extend(obj_latents)
 
         labels = []
         for latent in latents:
