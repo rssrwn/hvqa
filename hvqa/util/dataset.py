@@ -14,7 +14,7 @@ class VideoDataset(QADataset):
     Dataset for storing and fetching videos
     """
 
-    def __init__(self, spec, videos, answers, ids, timing=0, hardcoded=False):
+    def __init__(self, spec, videos, answers, timing=0, hardcoded=False):
         super(VideoDataset, self).__init__()
 
         self.spec = spec
@@ -22,10 +22,9 @@ class VideoDataset(QADataset):
         self.hardcoded = hardcoded
         self.videos = videos
         self.answers = answers
-        self.ids = ids
 
     def __len__(self):
-        return len(self.ids)
+        return len(self.videos)
 
     def __getitem__(self, item):
         """
@@ -35,9 +34,8 @@ class VideoDataset(QADataset):
         :return: Video obj, list of answers ([str])
         """
 
-        idx = self.ids[item]
-        video = self.videos[idx]
-        ans = self.answers[idx]
+        video = self.videos[item]
+        ans = self.answers[item]
         return video, ans
 
     def is_hardcoded(self):
@@ -50,8 +48,10 @@ class VideoDataset(QADataset):
     def from_data_dir(cls, spec, data_dir, detector, hardcoded=False, group_videos=8):
         data_dir = Path(data_dir)
         ids, videos, answers, timing = cls._find_videos(spec, data_dir, detector, hardcoded, group_videos)
-        ids = {id_: idx for idx, id_ in enumerate(ids)}
-        dataset = VideoDataset(spec, videos, answers, ids, timing, hardcoded=hardcoded)
+        ids = sorted(enumerate(ids), key=lambda idx, id_: id_)
+        videos = [videos[idx] for idx, _ in ids]
+        answers = [answers[idx] for idx, _ in ids]
+        dataset = VideoDataset(spec, videos, answers, timing=timing, hardcoded=hardcoded)
         return dataset
 
     @classmethod
