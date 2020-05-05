@@ -31,7 +31,7 @@ _ae_transform = T.Compose([
 
 
 class NeuralPropExtractor(Component, Trainable):
-    def __init__(self, spec, model, hardcoded=True, lr=0.001, batch_size=128, epochs=1, print_freq=10):
+    def __init__(self, spec, model, hardcoded=True):
         super(NeuralPropExtractor, self).__init__()
 
         self.device = get_device()
@@ -39,10 +39,6 @@ class NeuralPropExtractor(Component, Trainable):
         self.spec = spec
         self.model = model.to(self.device)
         self.hardcoded = hardcoded
-        self.lr = lr
-        self.batch_size = batch_size
-        self.epochs = epochs
-        self.print_freq = print_freq
 
         self.loss_fn = nn.CrossEntropyLoss()
         self._loss_fn_ae = nn.L1Loss(reduction="none")
@@ -122,18 +118,19 @@ class NeuralPropExtractor(Component, Trainable):
         """
 
         if from_qa:
-            # assert not train_data.is_hardcoded(), "VideoQADataset must not be hardcoded when training using QA data"
+            assert not train_data.is_hardcoded(), "VideoQADataset must not be hardcoded when training using QA data"
             self._train_from_qa(train_data, eval_data, verbose)
         else:
             assert train_data.is_hardcoded(), "VideoQADataset must be hardcoded when training using hardcoded data"
             self._train_from_hardcoded(train_data, eval_data, verbose)
 
-    def eval(self, eval_data, threshold=0.5):
+    def eval(self, eval_data, threshold=0.5, batch_size=256):
         """
         Evaluate the trained property component individually
 
         :param eval_data: List of Video objects
         :param threshold: Threshold for accepting a property classification
+        :param batch_size: Maximum number of objects to pass through network at once
         """
 
         assert eval_data.is_hardcoded(), "VideoQADataset must be hardcoded when evaluating the NeuralPropExtractor"
@@ -141,7 +138,7 @@ class NeuralPropExtractor(Component, Trainable):
         print("Evaluating neural property extraction component...")
 
         eval_dataset = VideoPropDataset.from_video_dataset(self.spec, eval_data, transform=_transform)
-        eval_loader = DataLoader(eval_dataset, batch_size=self.batch_size, shuffle=False, collate_fn=collate_func)
+        eval_loader = DataLoader(eval_dataset, batch_size=batch_size, shuffle=False, collate_fn=collate_func)
 
         self.model.eval()
 
@@ -180,14 +177,14 @@ class NeuralPropExtractor(Component, Trainable):
         results = (tps, fps, tns, fns)
         self._print_results(results, correct, losses, num_predictions)
 
-    def _train_from_hardcoded(self, train_data, eval_data, verbose):
+    def _train_from_hardcoded(self, train_data, eval_data, verbose, lr=0.001, batch_size=256, epochs=2):
         train_dataset = VideoPropDataset.from_video_dataset(self.spec, train_data, transform=_transform)
-        train_loader = DataLoader(train_dataset, batch_size=self.batch_size, shuffle=True, collate_fn=collate_func)
-        optimiser = optim.Adam(self.model.parameters(), lr=self.lr)
+        train_loader = DataLoader(train_dataset, batch_size=batch_size, shuffle=True, collate_fn=collate_func)
+        optimiser = optim.Adam(self.model.parameters(), lr=lr)
 
-        print(f"Training property extraction model using hardcoded data with device {self.device}...")
+        print(f"Training property extraction model using object data from VideoDataset with device {self.device}...")
 
-        for epoch in range(self.epochs):
+        for epoch in range(epochs):
             self._train_one_epoch(train_loader, optimiser, epoch, verbose)
             self.eval(eval_data)
 
@@ -216,10 +213,8 @@ class NeuralPropExtractor(Component, Trainable):
         cls_label_prop_map = self._find_label_prop_maps(train_prop_qa_dataset, ae_model, cls_label_centre_map)
 
         # Label data in train_prop_dataset and train NN with labelled data
-        videos = [train_prop_dataset[idx] for idx in range(len(train_prop_dataset))]
-
-
-        print(cls_label_prop_map)
+        train_dataset = self._label_prop_data(train_data, ae_model, cls_label_centre_map, cls_label_prop_map)
+        self._train_from_hardcoded(train_dataset, eval_data, verbose)
 
     def _label_prop_data(self, dataset, ae_model, cls_label_centre_map, cls_label_prop_map):
         """
@@ -235,7 +230,9 @@ class NeuralPropExtractor(Component, Trainable):
         videos = []
         answers = []
 
-        cls_obj_map = {cls: [] for cls in self.spec.object_types()}
+        print("Labelling object properties using autoencoder model...")
+
+        cls_obj_map = {cls: [] for cls in self.spec.obj_types()}
         for video_idx in range(len(dataset)):
             video, ans = dataset[video_idx]
             videos.append(video)
@@ -254,6 +251,8 @@ class NeuralPropExtractor(Component, Trainable):
                 props = cls_label_prop_map[cls][label]
                 for prop, val in props.items():
                     obj.set_prop_val(prop, val)
+
+        print("Completed labelling.")
 
         spec = dataset.spec
         hardcoded = dataset.is_hardcoded()
@@ -595,7 +594,7 @@ class NeuralPropExtractor(Component, Trainable):
 
         return props
 
-    def _train_one_epoch(self, train_loader, optimiser, epoch, verbose):
+    def _train_one_epoch(self, train_loader, optimiser, epoch, verbose, print_freq=50):
         num_batches = len(train_loader)
         for t, (imgs, _, objs) in enumerate(train_loader):
             self.model.train()
@@ -610,7 +609,7 @@ class NeuralPropExtractor(Component, Trainable):
             loss.backward()
             optimiser.step()
 
-            if verbose and (t+1) % self.print_freq == 0:
+            if verbose and (t+1) % print_freq == 0:
                 loss_str = f"Epoch {epoch:>3}, batch [{t+1:>4}/{num_batches}] -- overall loss = {loss.item():.6f}"
                 for prop, loss in losses.items():
                     loss_str += f" -- {prop} loss = {loss.item():.6f}"

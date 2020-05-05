@@ -126,7 +126,7 @@ class Obj:
         :param pos: Position of object (4-tuple of int)
         """
 
-        assert cls in spec.obj_types(), f"Class must be one of {spec.obj_types}"
+        assert cls in spec.obj_types(), f"Class must be one of {spec.obj_types()}"
 
         self.spec = spec
 

@@ -48,7 +48,7 @@ class VideoDataset(QADataset):
     def from_data_dir(cls, spec, data_dir, detector, hardcoded=False, group_videos=8):
         data_dir = Path(data_dir)
         ids, videos, answers, timing = cls._find_videos(spec, data_dir, detector, hardcoded, group_videos)
-        ids = sorted(enumerate(ids), key=lambda idx, id_: id_)
+        ids = sorted(enumerate(ids), key=lambda idx_id: idx_id[1])
         videos = [videos[idx] for idx, _ in ids]
         answers = [answers[idx] for idx, _ in ids]
         dataset = VideoDataset(spec, videos, answers, timing=timing, hardcoded=hardcoded)
@@ -62,7 +62,7 @@ class VideoDataset(QADataset):
 
         detector_timing = 0
 
-        print(f"Searching directory {data_dir} for videos...")
+        print(f"\nSearching directory {data_dir} for videos...")
         video_infos = cls._collect_videos(data_dir)
         print(f"Found data from {len(video_infos)} videos")
         print("Extracting objects...")
@@ -78,7 +78,7 @@ class VideoDataset(QADataset):
             answers.extend(ans)
             detector_timing += timing
 
-        print("Completed object extraction.\n")
+        print("Completed object extraction.")
 
         return video_ids, videos, answers, detector_timing
 
