@@ -2,7 +2,7 @@ import torch
 import torchvision.transforms as T
 
 from hvqa.detection.models import DetectionBackbone, DetectionModel
-from hvqa.util.environment import Obj, Frame, Video
+from hvqa.util.environment import Obj, Frame
 from hvqa.util.definitions import CLASSES
 from hvqa.util.func import get_device, load_model, save_model
 from hvqa.util.interfaces import Detector, Trainable
@@ -51,8 +51,7 @@ class NeuralDetector(Detector, Trainable):
         """
 
         device = get_device()
-
-        print(f"Detecting objects using device {device}...")
+        self.model = self.model.to(device)
 
         imgs_trans = [_transform(img) for img in frames]
         imgs_batch = torch.stack(imgs_trans)
