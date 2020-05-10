@@ -76,6 +76,7 @@ class HardcodedASPQASystem(Component):
         qa = HardcodedASPQASystem(spec)
         return qa
 
+    # TODO Use ASPRunner
     def _answer(self, video):
         """
         Answer a question on a video

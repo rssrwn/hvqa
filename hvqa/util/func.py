@@ -5,8 +5,6 @@ import json
 from pathlib import Path
 from PIL import Image
 
-from hvqa.util.exceptions import UnknownPropertyValueException
-
 
 _USE_GPU = True
 
@@ -141,93 +139,3 @@ def add_bboxs(drawer, positions, colour):
 
 def collate_func(batch):
     return tuple(zip(*batch))
-
-
-def format_prop_val(prop, prop_val):
-    if prop == "rotation":
-        if prop_val == "upward-facing":
-            prop_val = 0
-        elif prop_val == "right-facing":
-            prop_val = 1
-        elif prop_val == "downward-facing":
-            prop_val = 2
-        elif prop_val == "left-facing":
-            prop_val = 3
-        else:
-            raise UnknownPropertyValueException(f"Rotation {prop_val} unknown")
-
-    return prop_val
-
-
-def format_prop_str(prop, prop_val):
-    if prop == "rotation":
-        if prop_val == 0 or prop_val == "0":
-            prop_val = "upward-facing"
-        elif prop_val == 1 or prop_val == "1":
-            prop_val = "right-facing"
-        elif prop_val == 2 or prop_val == "2":
-            prop_val = "downward-facing"
-        elif prop_val == 3 or prop_val == "3":
-            prop_val = "left-facing"
-        else:
-            raise UnknownPropertyValueException(f"Rotation {prop} unknown")
-
-    return prop_val
-
-
-def event_to_asp_str(event):
-    if event == "move" or event == "moving":
-        asp_str = "move"
-    elif event == "rotate left" or event == "rotating left":
-        asp_str = "rotate_left"
-    elif event == "rotate right" or event == "rotating right":
-        asp_str = "rotate_right"
-    elif event == "change colour" or event == "changing colour":
-        asp_str = "change_colour"
-    elif event == "eat a fish" or event == "eating a fish":
-        asp_str = "eat_fish"
-    elif event == "eat a bag" or event == "eating a bag":
-        asp_str = "eat_bag"
-    else:
-        raise UnknownPropertyValueException(f"Unknown event {event}")
-
-    return asp_str
-
-
-def asp_str_to_event(asp_event):
-    if asp_event == "move":
-        event = "move"
-    elif asp_event == "rotate_left":
-        event = "rotate left"
-    elif asp_event == "rotate_right":
-        event = "rotate right"
-    elif asp_event == "change_colour":
-        event = "change colour"
-    elif asp_event == "eat_fish":
-        event = "eat a fish"
-    elif asp_event == "eat_bag":
-        event = "eat a bag"
-    elif asp_event == "unknown":
-        event = "unknown"
-    else:
-        raise UnknownPropertyValueException(f"Unknown ASP event {asp_event}")
-
-    return event
-
-
-# TODO Fix firth
-occurrences = {
-    "first": 1,
-    "second": 2,
-    "third": 3,
-    "fourth": 4,
-    "firth": 5
-}
-
-
-def format_occ(occ_str):
-    occ = occurrences.get(occ_str)
-    if occ is None:
-        raise UnknownPropertyValueException(f"Unknown occurrence value {occ_str}")
-
-    return occ
