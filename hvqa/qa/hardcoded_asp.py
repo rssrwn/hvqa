@@ -2,7 +2,6 @@ from pathlib import Path
 import clingo
 
 from hvqa.util.interfaces import Component
-from hvqa.util.func import asp_str_to_event
 
 
 class HardcodedASPQASystem(Component):
@@ -169,46 +168,27 @@ class HardcodedASPQASystem(Component):
         return ans_str
 
     def _answer_q_type_2(self, args, template):
-        assert len(args) == 1, "Args is not correct length for question type 2"
-
-        action = args[0]
-        if action == "rotate_left":
-            action = "rotate left"
-        elif action == "rotate_right":
-            action = "rotate right"
-
+        action = self.spec.qa.parse_ans_2(args)
         ans_str = template.format(action=action)
         return ans_str
 
     def _answer_q_type_3(self, args, template):
-        assert len(args) == 3, "Args is not correct length for question type 3"
-
-        prop, before, after = args
-        before = self.spec.from_internal(prop, int(before))
-        after = self.spec.from_internal(prop, int(after))
+        prop, before, after = self.spec.qa.parse_ans_3(args)
         ans_str = template.format(prop=prop, before=before, after=after)
         return ans_str
 
     def _answer_q_type_4(self, args, template):
-        assert len(args) == 1, "Args is not correct length for question type 4"
-
-        num = args[0]
+        num = self.spec.qa.parse_ans_4(args)
         ans_str = template.format(ans=num)
         return ans_str
 
     def _answer_q_type_5(self, args, template):
-        assert len(args) == 1, "Args is not correct length for question type 5"
-
-        event = args[0]
-        event = asp_str_to_event(event)
+        event = self.spec.qa.parse_ans_5(args)
         ans_str = template.format(event=event)
         return ans_str
 
     def _answer_q_type_6(self, args, template):
-        assert len(args) == 1, "Args is not correct length for question type 6"
-
-        action = args[0]
-        action = asp_str_to_event(action)
+        action = self.spec.qa.parse_ans_6(args)
         ans_str = template.format(action=action)
         return ans_str
 

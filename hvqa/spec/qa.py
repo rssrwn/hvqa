@@ -5,7 +5,7 @@ from hvqa.util.exceptions import UnknownPropertyValueException
 
 class QASpec:
     def __init__(self, spec):
-        self.env_spec = spec
+        self.spec = spec
 
         self.prop_q = 0
         self.relation_q = 1
@@ -26,7 +26,7 @@ class QASpec:
 
         # TODO Update dataset to use readable version of rotation (eg. upward-facing)
         if prop != "rotation":
-            prop_val = self.env_spec.from_internal(prop, int(prop_val))
+            prop_val = self.spec.from_internal(prop, int(prop_val))
 
         return prop, prop_val
 
@@ -35,20 +35,41 @@ class QASpec:
         yes_no = args[0]
         return yes_no
 
-    def parse_ans_2(self, ans):
-        pass
+    def parse_ans_2(self, args):
+        assert len(args) == 1, "Args is not correct length for question type 2"
 
-    def parse_ans_3(self, ans):
-        pass
+        action = args[0]
+        if action == "rotate_left":
+            action = "rotate left"
+        elif action == "rotate_right":
+            action = "rotate right"
 
-    def parse_ans_4(self, ans):
-        pass
+        return action
 
-    def parse_ans_5(self, ans):
-        pass
+    def parse_ans_3(self, args):
+        assert len(args) == 3, "Args is not correct length for question type 3"
 
-    def parse_ans_6(self, ans):
-        pass
+        prop, before, after = args
+        before = self.spec.from_internal(prop, int(before))
+        after = self.spec.from_internal(prop, int(after))
+        return prop, before, after
+
+    def parse_ans_4(self, args):
+        assert len(args) == 1, "Args is not correct length for question type 4"
+        num = args[0]
+        return num
+
+    def parse_ans_5(self, args):
+        assert len(args) == 1, "Args is not correct length for question type 5"
+        event = args[0]
+        event = self.spec.from_internal(event)
+        return event
+
+    def parse_ans_6(self, args):
+        assert len(args) == 1, "Args is not correct length for question type 6"
+        action = args[0]
+        action = self.spec.from_internal(action)
+        return action
 
     def parse_prop_question(self, question):
         splits = question.split(" ")
@@ -58,7 +79,7 @@ class QASpec:
         # Assume only one property value given in question
         cls = splits[4]
         val = None
-        if cls not in self.env_spec.obj_types():
+        if cls not in self.spec.obj_types():
             val = cls
             cls = splits[5]
 
@@ -71,7 +92,7 @@ class QASpec:
         obj1_cls = splits[2]
         obj1_prop_val = None
         rel_idx = 3  # Note: hardcoded for 'close to' other relations will be different
-        if obj1_cls not in self.env_spec.obj_tpyes():
+        if obj1_cls not in self.spec.obj_tpyes():
             obj1_prop_val = obj1_cls
             obj1_cls = splits[3]
             rel_idx = 4
@@ -80,7 +101,7 @@ class QASpec:
 
         obj2_cls = splits[rel_idx + 3]
         obj2_prop_val = None
-        if obj2_cls not in self.env_spec.obj_tpyes():
+        if obj2_cls not in self.spec.obj_tpyes():
             obj2_prop_val = obj2_cls
             obj2_cls = splits[rel_idx + 4]
 
@@ -97,7 +118,7 @@ class QASpec:
 
         cls = splits[4]
         prop_val = None
-        if cls not in self.env_spec.obj_types():
+        if cls not in self.spec.obj_types():
             prop_val = cls
             cls = splits[5]
 
@@ -109,7 +130,7 @@ class QASpec:
         cls_idx = 5
         cls = splits[cls_idx]
         prop_val = None
-        if cls not in self.env_spec.obj_types():
+        if cls not in self.spec.obj_types():
             prop_val = cls
             cls_idx = 6
             cls = splits[cls_idx]
@@ -117,7 +138,7 @@ class QASpec:
         event = splits[cls_idx + 1:]
         event = " ".join(event)
         event = event[:-1]
-        event = self.env_spec.to_internal(event)
+        event = self.spec.to_internal(event)
 
         return prop_val, cls, event
 
@@ -128,7 +149,7 @@ class QASpec:
 
         cls = splits[3]
         prop_val = None
-        if cls not in self.env_spec.obj_types():
+        if cls not in self.spec.obj_types():
             prop_val = cls
             cls = splits[4]
 
@@ -140,7 +161,7 @@ class QASpec:
         cls = splits[3]
         event_idx = 7
         prop_val = None
-        if cls not in self.env_spec.obj_types():
+        if cls not in self.spec.obj_types():
             prop_val = cls
             cls = splits[4]
             event_idx = 8
@@ -156,7 +177,7 @@ class QASpec:
             occ = 1
 
         event = " ".join(event)
-        event = self.env_spec.to_internal(event)
+        event = self.spec.to_internal(event)
 
         return prop_val, cls, occ, event
 
