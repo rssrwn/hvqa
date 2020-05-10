@@ -19,7 +19,7 @@ spec = EnvSpec.from_dict({
     },
     "relations": ["close"],
     "actions": ["move", "rotate_left", "rotate_right", "nothing"],
-    "events": ["change_colour", "eat_bag", "eat_fish"],
+    "effects": ["change_colour", "eat_bag", "eat_fish"],
 })
 
 ERR_CORR = True

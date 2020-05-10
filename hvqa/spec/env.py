@@ -4,7 +4,7 @@ from hvqa.spec.qa import QASpec
 
 
 class EnvSpec:
-    def __init__(self, num_frames, obj_types, properties, relations, actions, events):
+    def __init__(self, num_frames, obj_types, properties, relations, actions, effects):
         """
         A class for storing a specification of an environment
         This specification is used to create each Component in a VideoQA Model
@@ -14,7 +14,7 @@ class EnvSpec:
         :param properties: Dict of non-obj detection properties and their values (dict from str to list of str)
         :param relations: Binary relations between objects (list of str)
         :param actions: Actions for objects (list of str)
-        :param events: Effects of actions (list of str)
+        :param effects: Effects of actions (list of str)
 
         Note: Properties should not include class or position, these are implicit
         """
@@ -23,7 +23,7 @@ class EnvSpec:
         self.num_frames = num_frames
         self.relations = relations
         self.actions = actions
-        self.events = events
+        self.effects = effects
 
         # Property helpers
         self._props = properties
@@ -66,7 +66,7 @@ class EnvSpec:
         properties = coll["properties"]
         relations = coll["relations"]
         actions = coll["actions"]
-        events = coll["events"]
+        events = coll["effects"]
 
         spec = EnvSpec(num_frames, obj_types, properties, relations, actions, events)
         return spec
@@ -79,7 +79,7 @@ class EnvSpec:
             "properties": self._props,
             "relations": self.relations,
             "actions": self.actions,
-            "events": self.events
+            "effects": self.effects
         }
         return spec
 

@@ -2,8 +2,7 @@ from pathlib import Path
 import clingo
 
 from hvqa.util.interfaces import Component
-from hvqa.spec.definitions import CLASSES
-from hvqa.util.func import event_to_asp_str, asp_str_to_event, format_occ
+from hvqa.util.func import asp_str_to_event
 
 
 class HardcodedASPQASystem(Component):
@@ -241,85 +240,31 @@ class HardcodedASPQASystem(Component):
         return asp_q
 
     def _parse_q_type_2(self, question, template):
-        splits = question.split(" ")
-        frame_idx = int(splits[-1][:-1])
+        frame_idx = self.spec.qa.parse_q_2(question)
         asp_q = template.format(frame_idx=str(frame_idx))
         return asp_q
 
     def _parse_q_type_3(self, question, template):
-        splits = question.split(" ")
-        frame_idx = int(splits[-1][:-1])
-
-        cls = splits[4]
-        prop_val = None
-        if cls not in CLASSES:
-            prop_val = cls
-            cls = splits[5]
-
+        prop_val, cls, frame_idx = self.spec.qa.parse_q_3(question)
         asp_obj = self._gen_asp_obj(cls, prop_val, frame_idx, "Id")
         asp_q = template.format(asp_obj=asp_obj, frame_idx=frame_idx)
         return asp_q
 
     def _parse_q_type_4(self, question, template):
-        splits = question.split(" ")
-
-        cls_idx = 5
-        cls = splits[cls_idx]
-        prop_val = None
-        if cls not in CLASSES:
-            prop_val = cls
-            cls_idx = 6
-            cls = splits[cls_idx]
-
-        event = splits[cls_idx + 1:]
-        event = " ".join(event)
-        event = event[:-1]
-        event = event_to_asp_str(event)
-
+        prop_val, cls, event = self.spec.qa.parse_q_4(question)
         asp_obj = self._gen_asp_obj(cls, prop_val, "Frame", "Id")
         asp_q = template.format(asp_obj=asp_obj, event=event)
         return asp_q
 
     def _parse_q_type_5(self, question, template):
-        splits = question.split(" ")
-
-        num = int(splits[-2])
-
-        cls = splits[3]
-        prop_val = None
-        if cls not in CLASSES:
-            prop_val = cls
-            cls = splits[4]
-
+        num, prop_val, cls = self.spec.qa.parse_q_5(question)
         asp_obj = self._gen_asp_obj(cls, prop_val, "Frame", "Id")
         asp_q = template.format(asp_obj=asp_obj, num=num)
         return asp_q
 
     def _parse_q_type_6(self, question, template):
-        splits = question.split(" ")
-
-        cls = splits[3]
-        event_idx = 7
-        prop_val = None
-        if cls not in CLASSES:
-            prop_val = cls
-            cls = splits[4]
-            event_idx = 8
-
+        prop_val, cls, occ, event = self.spec.qa.parse_q_6(question)
         asp_obj = self._gen_asp_obj(cls, prop_val, "Frame", "Id")
-
-        # Check if there is an occurrence string
-        if splits[-1] == "time?":
-            occ_str = splits[-2]
-            occ = format_occ(occ_str)
-            event = splits[event_idx:-4]
-        else:
-            splits[-1] = splits[-1][:-1]
-            event = splits[event_idx:]
-            occ = 1
-
-        event = " ".join(event)
-        event = event_to_asp_str(event)
         asp_q = template.format(asp_obj=asp_obj, event=event, occ=occ)
         return asp_q
 

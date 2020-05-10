@@ -20,7 +20,7 @@ spec = EnvSpec.from_dict({
     },
     "relations": ["close"],
     "actions": ["move", "rotate left", "rotate right"],
-    "events": ["change colour", "eat a bag", "eat a fish"],
+    "effects": ["change colour", "eat a bag", "eat a fish"],
 })
 
 
