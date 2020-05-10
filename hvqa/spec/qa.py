@@ -20,6 +20,36 @@ class QASpec:
             "firth": 5
         }
 
+    def parse_ans_0(self, args):
+        assert len(args) == 2, "Args is not correct length for question type 0"
+        prop, prop_val = args
+
+        # TODO Update dataset to use readable version of rotation (eg. upward-facing)
+        if prop != "rotation":
+            prop_val = self.env_spec.from_internal(prop, int(prop_val))
+
+        return prop, prop_val
+
+    def parse_ans_1(self, args):
+        assert len(args) == 1, "Args is not correct length for question type 1"
+        yes_no = args[0]
+        return yes_no
+
+    def parse_ans_2(self, ans):
+        pass
+
+    def parse_ans_3(self, ans):
+        pass
+
+    def parse_ans_4(self, ans):
+        pass
+
+    def parse_ans_5(self, ans):
+        pass
+
+    def parse_ans_6(self, ans):
+        pass
+
     def parse_prop_question(self, question):
         splits = question.split(" ")
         prop = splits[1]
