@@ -6,7 +6,7 @@ from torch.utils.data import Dataset
 
 from hvqa.util.exceptions import *
 from hvqa.util.func import collect_img
-from hvqa.util.definitions import IMG_SIZE
+from hvqa.spec.definitions import IMG_SIZE
 
 
 class _AbsHVQADataset(Dataset):

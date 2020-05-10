@@ -5,7 +5,7 @@ import torch.optim as optim
 from torch.utils.data import DataLoader
 
 from hvqa.util.func import get_device, load_model, collate_func
-from hvqa.util.definitions import detector_transforms
+from hvqa.spec.definitions import detector_transforms
 from hvqa.detection.models import DetectionModel, ClassifierModel, DetectionBackboneWrapper, DetectionBackbone
 from hvqa.detection.dataset import DetectionDataset
 from hvqa.detection.evaluation import DetectionEvaluator

@@ -6,7 +6,7 @@ import torch.optim as optim
 from torch.utils.data import DataLoader
 
 from hvqa.util.func import get_device
-from hvqa.util.definitions import detector_transforms, DTYPE
+from hvqa.spec.definitions import detector_transforms, DTYPE
 from hvqa.detection.models import ClassifierModel
 from hvqa.detection.dataset import ClassificationDataset
 from hvqa.detection.evaluation import ClassificationEvaluator

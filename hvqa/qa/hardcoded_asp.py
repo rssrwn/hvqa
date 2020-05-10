@@ -2,7 +2,7 @@ from pathlib import Path
 import clingo
 
 from hvqa.util.interfaces import Component
-from hvqa.util.definitions import CLASSES
+from hvqa.spec.definitions import CLASSES
 from hvqa.util.func import event_to_asp_str, asp_str_to_event, format_occ
 
 
