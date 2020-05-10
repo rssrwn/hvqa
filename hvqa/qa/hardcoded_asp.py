@@ -228,44 +228,15 @@ class HardcodedASPQASystem(Component):
         return ans_str
 
     def _parse_q_type_0(self, question, template):
-        splits = question.split(" ")
-        prop = splits[1]
-        frame_idx = int(splits[-1][:-1])
-
-        # Assume only one property value given in question
-        cls = splits[4]
-        prop_val = None
-        if cls not in CLASSES:
-            prop_val = cls
-            cls = splits[5]
-
+        prop, prop_val, cls, frame_idx = self.spec.qa.parse_prop_question(question)
         asp_obj = self._gen_asp_obj(cls, prop_val, frame_idx, "Id")
         asp_q = template.format(asp_obj=asp_obj, prop=prop, frame_idx=str(frame_idx))
         return asp_q
 
     def _parse_q_type_1(self, question, template):
-        splits = question.split(" ")
-        frame_idx = int(splits[-1][:-1])
-
-        obj1_cls = splits[2]
-        obj1_prop_val = None
-        rel_idx = 3  # Note: hardcoded for 'close to' other relations will be different TODO
-        if obj1_cls not in CLASSES:
-            obj1_prop_val = obj1_cls
-            obj1_cls = splits[3]
-            rel_idx = 4
-
-        rel = splits[rel_idx]
-
-        obj2_cls = splits[rel_idx + 3]
-        obj2_prop_val = None
-        if obj2_cls not in CLASSES:
-            obj2_prop_val = obj2_cls
-            obj2_cls = splits[rel_idx + 4]
-
-        asp_obj1 = self._gen_asp_obj(obj1_cls, obj1_prop_val, frame_idx, "Id1")
-        asp_obj2 = self._gen_asp_obj(obj2_cls, obj2_prop_val, frame_idx, "Id2")
-
+        rel, obj1_cls, obj1_val, obj2_cls, obj2_val, frame_idx = self.spec.qa.parse_relation_question(question)
+        asp_obj1 = self._gen_asp_obj(obj1_cls, obj1_val, frame_idx, "Id1")
+        asp_obj2 = self._gen_asp_obj(obj2_cls, obj2_val, frame_idx, "Id2")
         asp_q = template.format(rel=rel, asp_obj1=asp_obj1, asp_obj2=asp_obj2, frame_idx=str(frame_idx))
         return asp_q
 
