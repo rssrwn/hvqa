@@ -30,6 +30,8 @@ _ae_transform = T.Compose([
 ])
 
 
+# TODO Add evaluation of component with AE, before Prop network is trained
+
 class NeuralPropExtractor(Component, Trainable):
     def __init__(self, spec, model, hardcoded=True):
         super(NeuralPropExtractor, self).__init__()

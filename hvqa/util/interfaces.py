@@ -65,6 +65,18 @@ class Trainable:
 
         raise NotImplementedError()
 
+    @staticmethod
+    def load(spec, path):
+        """
+        Create a object by loading from a path
+
+        :param spec: EnvSpec object
+        :param path: Path to load from (str)
+        :return: Instance of Trainable interface
+        """
+
+        raise NotImplementedError()
+
 
 class Detector(Trainable):
     def detect_objs(self, frames):
@@ -78,6 +90,10 @@ class Detector(Trainable):
         raise NotImplementedError()
 
     def train(self, train_data, eval_data, verbose=True):
+        raise NotImplementedError()
+
+    @staticmethod
+    def load(spec, path):
         raise NotImplementedError()
 
 
@@ -150,10 +166,11 @@ class Model(Trainable):
         raise NotImplementedError()
 
     @staticmethod
-    def load(path, **kwargs):
+    def load(spec, path, **kwargs):
         """
         Load the Model object
 
+        :param spec: EnvSpec object
         :param path: Path to where the object information was saved
         :return: Model obj
         """

@@ -2,7 +2,6 @@ import json
 from pathlib import Path
 
 from hvqa.util.func import get_or_default
-from hvqa.spec.env import EnvSpec
 from hvqa.models.abs_model import _AbsVQAModel
 from hvqa.properties.neural import NeuralPropExtractor
 from hvqa.tracking.obj_tracker import ObjTracker
@@ -56,11 +55,12 @@ class IndTrainedModel(_AbsVQAModel):
         return model
 
     @staticmethod
-    def load(path, **kwargs):
+    def load(spec, path, **kwargs):
         """
         Loads the model using metadata from the json object saved at <path>
         The path should be a json file created by model.save(<path>)
 
+        :param spec: EnvSpec object
         :param path: Path of json file to load model from (str)
         :return: IndTrainedModel object
         """
@@ -74,9 +74,6 @@ class IndTrainedModel(_AbsVQAModel):
 
         err_corr = get_or_default(kwargs, meta_data, "err_corr")
         al_model = get_or_default(kwargs, meta_data, "al_model")
-        spec = get_or_default(kwargs, meta_data, "spec")
-        if type(spec) == dict:
-            spec = EnvSpec.from_dict(spec)
 
         properties = NeuralPropExtractor.load(spec, properties_path)
         tracker = ObjTracker.new(spec, err_corr=err_corr)

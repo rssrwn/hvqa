@@ -59,7 +59,7 @@ class _AbsVQAModel(Model):
         raise NotImplementedError("AbsModel is abstract; objects should not be created")
 
     @staticmethod
-    def load(path, **kwargs):
+    def load(spec, path, **kwargs):
         raise NotImplementedError("AbsModel is abstract; objects should not be created")
 
     def save(self, path):
