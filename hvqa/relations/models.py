@@ -1,3 +1,4 @@
+import torch
 import torch.nn as nn
 
 
@@ -33,6 +34,7 @@ class RelationClassifierModel(nn.Module):
         rel_outs = {}
         for rel in self.spec.relations:
             rel_out = self.rel_layers[rel](feat)
+            rel_out = torch.sigmoid(rel_out)
             rel_outs[rel] = rel_out
 
         return rel_outs

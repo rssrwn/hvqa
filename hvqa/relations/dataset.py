@@ -18,7 +18,7 @@ class RelationDataset(Dataset):
         return self.items_per_rel
 
     def __getitem__(self, item):
-        rel_data = [self.rel_data_map[rel][item] for rel in self.spec.relations]
+        rel_data = {rel: self.rel_data_map[rel][item] for rel in self.spec.relations}
         return rel_data
 
     def _collect_data(self, videos, answers):

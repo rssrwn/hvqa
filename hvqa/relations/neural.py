@@ -1,3 +1,5 @@
+import torch
+import torch.nn as nn
 import torch.optim as optim
 from torch.utils.data import DataLoader
 
@@ -13,6 +15,7 @@ class NeuralRelationClassifier(Component, Trainable):
 
         self.spec = spec
 
+        self._loss_fn = nn.MSELoss()
         self.model = RelationClassifierModel(spec)
 
     def run_(self, video):
@@ -49,18 +52,52 @@ class NeuralRelationClassifier(Component, Trainable):
             self._train_one_epoch(train_loader, optimiser, epoch, verbose)
             self.eval(eval_loader)
 
-    def _train_one_epoch(self, train_loader, optimiser, epoch, verbose):
-        pass
+    def _train_one_epoch(self, train_loader, optimiser, epoch, verbose, print_freq=50):
+        num_batches = len(train_loader)
+        for t, data in enumerate(train_loader):
+            self.model.train()
 
-    def eval(self, eval_loader):
-        pass
+            outputs = {}
+            targets = {}
+            for rel, (objs_enc, rel_cls) in data.items():
+                output = self.model(objs_enc)
+                outputs[rel] = output[rel]
+                targets[rel] = rel_cls
 
-    @staticmethod
-    def _collate_fn(data):
-        out_data = [[] for _ in range(len(data[0]))]
+            loss, losses = self._calc_loss(outputs, targets)
+            optimiser.zero_grad()
+            loss.backward()
+            optimiser.step()
+
+            if verbose and (t+1) % print_freq == 0:
+                loss_str = f"Epoch {epoch:>3}, batch [{t+1:>4}/{num_batches}] -- overall loss = {loss.item():.6f}"
+                for rel, loss in losses.items():
+                    loss_str += f" -- {rel} loss = {loss.item():.6f}"
+                print(loss_str)
+
+    def _calc_loss(self, outputs, targets):
+        losses = {rel: self._loss_fn(output, targets[rel]) for rel, output in outputs.items()}
+        loss = sum(losses.values())
+        return loss, losses
+
+    # def eval(self, eval_loader):
+    #     self.model.eval()
+    #
+    #     outputs = {rel: [] for rel in self.spec.relations}
+    #     targets = {rel: [] for rel in self.spec.relations}
+    #     for t, data in enumerate(eval_loader):
+    #         for rel, (objs_enc, rel_cls) in data.items():
+    #             with torch.no_grad():
+    #                 output = self.model(objs_enc)
+    #
+    #             outputs[rel].append(output[rel])
+    #             targets[rel].append(rel_cls)
+
+    def _collate_fn(self, data):
+        out_data = {rel: [] for rel in self.spec.relations}
         for item in data:
-            for rel_idx, rel_data in enumerate(item):
-                out_data[rel_idx].append(rel_data)
+            for rel, rel_data in item.items():
+                out_data[rel].append(rel_data)
 
-        out_data = [collate_func(batch) for batch in out_data]
+        out_data = {rel: collate_func(batch) for rel, batch in out_data.items()}
         return out_data
