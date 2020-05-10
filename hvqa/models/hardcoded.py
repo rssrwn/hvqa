@@ -2,7 +2,7 @@ import json
 from pathlib import Path
 
 from hvqa.util.func import get_or_default
-from hvqa.util.environment import EnvSpec
+from hvqa.spec.env import EnvSpec
 from hvqa.models.abs_model import _AbsVQAModel
 from hvqa.properties.neural import NeuralPropExtractor
 from hvqa.tracking.obj_tracker import ObjTracker

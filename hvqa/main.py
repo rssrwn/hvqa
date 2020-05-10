@@ -1,7 +1,7 @@
 import argparse
 
 from hvqa.util.dataset import VideoDataset
-from hvqa.util.environment import EnvSpec
+from hvqa.spec.env import EnvSpec
 from hvqa.detection.detector import NeuralDetector
 from hvqa.models.hardcoded import HardcodedVQAModel
 from hvqa.models.individually_trained import IndTrainedModel
