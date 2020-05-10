@@ -6,7 +6,7 @@ from torch.utils.data import DataLoader
 from hvqa.util.interfaces import Component, Trainable
 from hvqa.relations.dataset import RelationDataset
 from hvqa.relations.models import RelationClassifierModel
-from hvqa.util.func import collate_func
+from hvqa.util.func import collate_func, get_device
 
 
 class NeuralRelationClassifier(Component, Trainable):
@@ -16,7 +16,8 @@ class NeuralRelationClassifier(Component, Trainable):
         self.spec = spec
 
         self._loss_fn = nn.MSELoss()
-        self.model = RelationClassifierModel(spec)
+        self._device = get_device()
+        self.model = RelationClassifierModel(spec).to(self._device)
 
     def run_(self, video):
         pass
@@ -60,9 +61,11 @@ class NeuralRelationClassifier(Component, Trainable):
             outputs = {}
             targets = {}
             for rel, (objs_enc, rel_cls) in data.items():
+                objs_enc = objs_enc.to(self._device)
+                rel_cls = rel_cls.to(self._device)
                 output = self.model(objs_enc)
-                outputs[rel] = output[rel]
-                targets[rel] = rel_cls
+                outputs[rel] = output[rel].to("cpu").numpy()
+                targets[rel] = rel_cls.tp("cpu").numpy()
 
             loss, losses = self._calc_loss(outputs, targets)
             optimiser.zero_grad()
@@ -80,18 +83,22 @@ class NeuralRelationClassifier(Component, Trainable):
         loss = sum(losses.values())
         return loss, losses
 
-    # def eval(self, eval_loader):
-    #     self.model.eval()
-    #
-    #     outputs = {rel: [] for rel in self.spec.relations}
-    #     targets = {rel: [] for rel in self.spec.relations}
-    #     for t, data in enumerate(eval_loader):
-    #         for rel, (objs_enc, rel_cls) in data.items():
-    #             with torch.no_grad():
-    #                 output = self.model(objs_enc)
-    #
-    #             outputs[rel].append(output[rel])
-    #             targets[rel].append(rel_cls)
+    def eval(self, eval_loader):
+        self.model.eval()
+
+        outputs = {rel: [] for rel in self.spec.relations}
+        targets = {rel: [] for rel in self.spec.relations}
+        for t, data in enumerate(eval_loader):
+            for rel, (objs_enc, rel_cls) in data.items():
+                objs_enc = objs_enc.to(self._device)
+                rel_cls = rel_cls.to(self._device)
+                with torch.no_grad():
+                    output = self.model(objs_enc)
+
+                out = output[rel].to("cpu").numpy()
+                target = rel_cls.tp("cpu").numpy()
+                outputs[rel].append(out)
+                targets[rel].append(target)
 
     def _collate_fn(self, data):
         out_data = {rel: [] for rel in self.spec.relations}
