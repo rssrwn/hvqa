@@ -1,5 +1,3 @@
-# File for modelling the environment
-
 from hvqa.util.func import collect_obj
 
 

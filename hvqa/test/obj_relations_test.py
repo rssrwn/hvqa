@@ -1,6 +1,6 @@
 import unittest
 
-from hvqa.util.environment import Obj
+from hvqa.spec.repr import Obj
 from hvqa.relations.hardcoded import HardcodedRelationClassifier
 
 

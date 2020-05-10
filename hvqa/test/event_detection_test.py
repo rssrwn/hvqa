@@ -1,6 +1,6 @@
 import unittest
 
-from hvqa.util.environment import Obj, Frame
+from hvqa.spec.repr import Obj, Frame
 from hvqa.events.hardcoded_asp import ASPEventDetector
 
 

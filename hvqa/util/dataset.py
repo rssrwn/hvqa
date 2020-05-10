@@ -6,7 +6,7 @@ from concurrent.futures import ThreadPoolExecutor
 
 import hvqa.util.func as util
 from hvqa.util.interfaces import QADataset
-from hvqa.util.environment import Video, Frame, Obj
+from hvqa.spec.repr import Obj, Frame, Video
 
 
 class VideoDataset(QADataset):
