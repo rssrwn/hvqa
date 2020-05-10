@@ -3,6 +3,7 @@ from torch.utils.data import DataLoader
 
 from hvqa.util.interfaces import Component, Trainable
 from hvqa.relations.dataset import RelationDataset
+from hvqa.relations.models import RelationClassifierModel
 from hvqa.util.func import collate_func
 
 
@@ -12,7 +13,7 @@ class NeuralRelationClassifier(Component, Trainable):
 
         self.spec = spec
 
-        self.model =
+        self.model = RelationClassifierModel(spec)
 
     def run_(self, video):
         pass
@@ -53,7 +54,7 @@ class NeuralRelationClassifier(Component, Trainable):
 
     def eval(self, eval_loader):
         pass
-    
+
     @staticmethod
     def _collate_fn(data):
         out_data = [[] for _ in range(len(data[0]))]
