@@ -42,6 +42,8 @@ class NeuralRelationClassifier(Component, Trainable):
         :param epochs: Number of epochs to train for
         """
 
+        print(f"Training neural relation classifier with device {self._device}...")
+
         videos, answers = train_data
         train_dataset = RelationDataset(self.spec, videos, answers)
         eval_dataset = RelationDataset.from_video_dataset(self.spec, eval_data)
@@ -52,6 +54,8 @@ class NeuralRelationClassifier(Component, Trainable):
         for epoch in range(epochs):
             self._train_one_epoch(train_loader, optimiser, epoch, verbose)
             self.eval(eval_loader)
+
+        print("Completed training.")
 
     def _train_one_epoch(self, train_loader, optimiser, epoch, verbose, print_freq=50):
         num_batches = len(train_loader)
@@ -86,8 +90,10 @@ class NeuralRelationClassifier(Component, Trainable):
     def eval(self, eval_loader):
         self.model.eval()
 
-        outputs = {rel: [] for rel in self.spec.relations}
-        targets = {rel: [] for rel in self.spec.relations}
+        print("Evaluating neural relation classifier...")
+
+        rel_outputs = {rel: [] for rel in self.spec.relations}
+        rel_targets = {rel: [] for rel in self.spec.relations}
         for t, data in enumerate(eval_loader):
             for rel, (objs_enc, rel_cls) in data.items():
                 objs_enc = objs_enc.to(self._device)
@@ -97,8 +103,49 @@ class NeuralRelationClassifier(Component, Trainable):
 
                 out = output[rel].to("cpu").numpy()
                 target = rel_cls.tp("cpu").numpy()
-                outputs[rel].append(out)
-                targets[rel].append(target)
+                rel_outputs[rel].append(out)
+                rel_targets[rel].append(target)
+
+        rel_metrics = {}
+        for rel, outputs in rel_outputs.items():
+            targets = rel_targets[rel]
+            metrics = self._eval_rel(outputs, targets)
+            rel_metrics[rel] = metrics
+
+        total = 0
+        correct = 0
+        for rel, (tp, tn, fp, fn) in rel_metrics.items():
+            correct_rel = tp + tn
+            total_rel = tp + tn + fp + fn
+            correct += correct_rel
+            total += total_rel
+
+            acc = correct_rel / total_rel
+            precision = tp / (tp + fp) if (tp + fp) != 0 else "NaN"
+            recall = tp / (tp + fn) if (tp + fn) != 0 else "NaN"
+            f1 = (2 * precision * recall) / (precision + recall) if precision != "NaN" and recall != "NaN" else "NaN"
+
+            print(f"\nResults for {rel}")
+            print(f"{'Accuracy':<15}: {acc:.2f}")
+            print(f"{'Precision':<15}: {precision:.2f}")
+            print(f"{'Recall':<15}: {recall:.2f}")
+            print(f"{'F1 Score':<15}: {f1:.2f}")
+
+        overall_acc = correct / total
+        print(f"\nOverall accuracy: {overall_acc:.2f}")
+
+    def _eval_rel(self, outputs, targets):
+        outputs_bool = torch.BoolTensor(outputs >= 0.5)
+        targets_bool = torch.BoolTensor(targets == 1.0)
+        num_correct = torch.sum(outputs_bool == targets_bool).item()
+        tp = torch.sum(outputs_bool & targets_bool).item()
+        tn = torch.sum(~outputs_bool & ~targets_bool).item()
+        fp = torch.sum(outputs_bool & ~targets_bool).item()
+        fn = torch.sum(~outputs_bool & targets_bool).item()
+
+        assert num_correct == tp + tn
+
+        return tp, tn, fp, fn
 
     def _collate_fn(self, data):
         out_data = {rel: [] for rel in self.spec.relations}
