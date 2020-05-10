@@ -41,7 +41,8 @@ class EnvSpec:
 
         self.qa = QASpec(self)
 
-    # TODO Currently assumes that each val is unique
+    # TODO Currently assuming that each val is unique for all vals in {props, relations, actions, effects}
+
     def _setup_val_to_prop_map(self):
         val_to_prop = {}
         for prop, vals in self._props.items():
@@ -53,9 +54,17 @@ class EnvSpec:
     def _setup_prop_val_maps(self):
         val_to_int = {}
         int_to_val = {}
+
         for prop in self.prop_names():
             val_to_int[prop] = {val: idx for idx, val in enumerate(self.prop_values(prop))}
             int_to_val[prop] = {idx: val for idx, val in enumerate(self.prop_values(prop))}
+
+        str_vals = [self.relations, self.actions, self.effects]
+        for vals in str_vals:
+            for val in vals:
+                internal = "_".join(val.split(" "))
+                val_to_int[val] = internal
+                int_to_val[internal] = val
 
         return val_to_int, int_to_val
 

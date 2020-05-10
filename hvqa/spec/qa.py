@@ -87,7 +87,7 @@ class QASpec:
         event = splits[cls_idx + 1:]
         event = " ".join(event)
         event = event[:-1]
-        event = event_to_asp_str(event)
+        event = self.env_spec.to_internal(event)
 
         return prop_val, cls, event
 
@@ -126,47 +126,9 @@ class QASpec:
             occ = 1
 
         event = " ".join(event)
-        event = event_to_asp_str(event)
-        
+        event = self.env_spec.to_internal(event)
+
         return prop_val, cls, occ, event
-
-    def _event_to_asp_str(event):
-        if event == "move" or event == "moving":
-            asp_str = "move"
-        elif event == "rotate left" or event == "rotating left":
-            asp_str = "rotate_left"
-        elif event == "rotate right" or event == "rotating right":
-            asp_str = "rotate_right"
-        elif event == "change colour" or event == "changing colour":
-            asp_str = "change_colour"
-        elif event == "eat a fish" or event == "eating a fish":
-            asp_str = "eat_fish"
-        elif event == "eat a bag" or event == "eating a bag":
-            asp_str = "eat_bag"
-        else:
-            raise UnknownPropertyValueException(f"Unknown event {event}")
-
-        return asp_str
-
-    def _asp_str_to_event(asp_event):
-        if asp_event == "move":
-            event = "move"
-        elif asp_event == "rotate_left":
-            event = "rotate left"
-        elif asp_event == "rotate_right":
-            event = "rotate right"
-        elif asp_event == "change_colour":
-            event = "change colour"
-        elif asp_event == "eat_fish":
-            event = "eat a fish"
-        elif asp_event == "eat_bag":
-            event = "eat a bag"
-        elif asp_event == "unknown":
-            event = "unknown"
-        else:
-            raise UnknownPropertyValueException(f"Unknown ASP event {asp_event}")
-
-        return event
 
     def _format_occ(self, occ_str):
         occ = self._occurrences.get(occ_str)
