@@ -96,15 +96,12 @@ class QAPropDataset(Dataset):
         props = []
         for idx, video in enumerate(videos):
             video_ans = answers[idx]
-
-            # TODO Move this
-            prop_q_type = 0
-            q_idxs = [idx for idx, q_type in enumerate(video.q_types) if q_type == prop_q_type]
+            q_idxs = [idx for idx, q_type in enumerate(video.q_types) if q_type == self.spec.qa.prop_q]
 
             for q_idx in q_idxs:
                 question = video.questions[q_idx]
                 ans = video_ans[q_idx]
-                prop, val, q_cls, frame_idx = self._parse_question(question)
+                prop, val, q_cls, frame_idx = self.spec.qa.parse_prop_question(question)
 
                 frame = video.frames[frame_idx]
                 frame_imgs = [obj.img for obj in frame.objs if obj.cls == q_cls]
@@ -120,18 +117,3 @@ class QAPropDataset(Dataset):
                 props.append(q_props)
 
         return imgs, cls, props
-
-    # TODO create separate question parsing class
-    def _parse_question(self, question):
-        splits = question.split(" ")
-        prop = splits[1]
-        frame_idx = int(splits[-1][:-1])
-
-        # Assume only one property value given in question
-        cls = splits[4]
-        val = None
-        if cls not in self.spec.obj_types():
-            val = cls
-            cls = splits[5]
-
-        return prop, val, cls, frame_idx

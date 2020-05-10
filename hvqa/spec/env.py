@@ -1,5 +1,7 @@
 # Video environment specification class
 
+from hvqa.spec.qa import QASpec
+
 
 class EnvSpec:
     def __init__(self, num_frames, obj_types, properties, relations, actions, events):
@@ -36,6 +38,8 @@ class EnvSpec:
         self._obj_idx_map = {obj: idx for idx, obj in enumerate(self._obj_types)}
         self._prop_idx_map = {prop: idx for idx, prop in enumerate(self._prop_names)}
         self._val_to_internal_map, self._internal_to_val_map = self._setup_prop_val_maps()
+
+        self.qa = QASpec(self)
 
     # TODO Currently assumes that each val is unique
     def _setup_val_to_prop_map(self):
