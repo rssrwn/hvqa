@@ -6,7 +6,7 @@ import torch.optim as optim
 from torch.utils.data import DataLoader
 
 from hvqa.util.interfaces import Component, Trainable
-from hvqa.relations.dataset import RelationDataset
+from hvqa.relations.dataset import QARelationDataset, HardcodedRelationDataset
 from hvqa.relations.models import RelationClassifierModel
 from hvqa.util.func import collate_func, get_device, load_model, save_model
 
@@ -56,7 +56,7 @@ class NeuralRelationClassifier(Component, Trainable):
         print(f"Training neural relation classifier with device {self._device}...")
 
         videos, answers = train_data
-        train_dataset = RelationDataset(self.spec, videos, answers)
+        train_dataset = QARelationDataset(self.spec, videos, answers)
         train_loader = DataLoader(train_dataset, batch_size=batch_size, shuffle=True, collate_fn=self._collate_fn)
         optimiser = optim.Adam(self.model.parameters(), lr=lr)
 
@@ -66,7 +66,7 @@ class NeuralRelationClassifier(Component, Trainable):
 
         print("Completed relation classifier training.")
 
-    def _train_one_epoch(self, train_loader, optimiser, epoch, verbose, print_freq=50):
+    def _train_one_epoch(self, train_loader, optimiser, epoch, verbose, print_freq=20):
         num_batches = len(train_loader)
         for t, data in enumerate(train_loader):
             self.model.train()
@@ -76,7 +76,7 @@ class NeuralRelationClassifier(Component, Trainable):
             for rel, rel_data in data.items():
                 objs_enc, rel_cls = rel_data
                 objs_enc = torch.stack(objs_enc).to(self._device)
-                rel_cls = torch.stack(rel_cls)[:, None].to(self._device)
+                rel_cls = torch.stack(rel_cls).to(self._device)
                 output = self.model(objs_enc)
                 outputs[rel] = output[rel].to("cpu")
                 targets[rel] = rel_cls.to("cpu")
@@ -98,19 +98,27 @@ class NeuralRelationClassifier(Component, Trainable):
         return loss, losses
 
     def eval(self, eval_data, batch_size=256):
-        eval_dataset = RelationDataset.from_video_dataset(self.spec, eval_data)
-        eval_loader = DataLoader(eval_dataset, batch_size=batch_size, shuffle=False, collate_fn=self._collate_fn)
+        qa_data = QARelationDataset.from_video_dataset(self.spec, eval_data)
+        qa_loader = DataLoader(qa_data, batch_size=batch_size, shuffle=False, collate_fn=self._collate_fn)
 
+        print("\nEvaluating neural relation classifier on QA relation data...")
+        self._eval_data(qa_loader)
+
+        hardcoded_data = HardcodedRelationDataset.from_video_dataset(self.spec, eval_data)
+        hardcoded_loader = DataLoader(hardcoded_data, batch_size=batch_size, shuffle=False, collate_fn=self._collate_fn)
+
+        print("\nEvaluating neural relation classifier on hardcoded relation data...")
+        self._eval_data(hardcoded_loader)
+
+    def _eval_data(self, eval_loader):
         self.model.eval()
-
-        print("\nEvaluating neural relation classifier...")
 
         rel_outputs = {rel: [] for rel in self.spec.relations}
         rel_targets = {rel: [] for rel in self.spec.relations}
         for t, data in enumerate(eval_loader):
             for rel, (objs_enc, rel_cls) in data.items():
                 objs_enc = torch.stack(objs_enc).to(self._device)
-                rel_cls = torch.stack(rel_cls)[:, None].to(self._device)
+                rel_cls = torch.stack(rel_cls).to(self._device)
                 with torch.no_grad():
                     output = self.model(objs_enc)
 
