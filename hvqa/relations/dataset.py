@@ -120,31 +120,39 @@ class HardcodedRelationDataset(_AbsRelationDataset):
         super(HardcodedRelationDataset, self).__init__(spec, videos, answers, items_per_rel)
 
     def _collect_data(self, videos, answers):
-        data = []
+        true_data = []
+        false_data = []
         for video in videos:
-            # Collect data only from first frame of each video to speed things up
-            frame_data = self._collect_objs(video.frames[0])
-            data.extend(frame_data)
+            for frame in video.frames:
+                true_data_frame, false_data_frame = self._collect_objs(frame)
+                true_data.extend(true_data_frame)
+                false_data.extend(false_data_frame)
 
-        sampled = random.choices(data, k=self.items_per_rel)
-        sampled_dict = {"close": sampled}
+        # Sample equally from each set
+        sample_num = self.items_per_rel // 2
+        false_sample_num = self.items_per_rel - sample_num
+        true_sampled = random.choices(true_data, k=sample_num)
+        false_sampled = random.choices(false_data, k=false_sample_num)
+        data = true_sampled + false_sampled
+        random.shuffle(data)
+
+        sampled_dict = {"close": data}
         return sampled_dict
 
     def _collect_objs(self, frame):
-        enc_objs = []
-        classifications = []
+        true_data = []
+        false_data = []
         for obj1 in frame.objs:
             for obj2 in frame.objs:
                 obj_enc = self._obj_encoding(obj1)
                 obj_enc.extend(self._obj_encoding(obj2))
-                enc_objs.append(torch.tensor(obj_enc))
+                obj_enc = torch.tensor(obj_enc)
                 if obj1.pos != obj2.pos and self._close_to(obj1, obj2):
-                    classifications.append(torch.ones(1))
-                else:
-                    classifications.append(torch.zeros(1))
+                    true_data.append((obj_enc, torch.ones(1)))
+                elif obj1.pos != obj2.pos:
+                    false_data.append((obj_enc, torch.zeros(1)))
 
-        data = zip(enc_objs, classifications)
-        return data
+        return true_data, false_data
 
     def _close_to(self, obj1, obj2):
         """
