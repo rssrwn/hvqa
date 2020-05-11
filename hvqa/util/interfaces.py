@@ -77,6 +77,15 @@ class Trainable:
 
         raise NotImplementedError()
 
+    def save(self, path):
+        """
+        Save the component
+
+        :param path: Path to save component to
+        """
+
+        raise NotImplementedError()
+
 
 class Detector(Trainable):
     def detect_objs(self, frames):
@@ -94,6 +103,9 @@ class Detector(Trainable):
 
     @staticmethod
     def load(spec, path):
+        raise NotImplementedError()
+
+    def save(self, path):
         raise NotImplementedError()
 
 

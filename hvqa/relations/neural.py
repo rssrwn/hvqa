@@ -6,29 +6,38 @@ from torch.utils.data import DataLoader
 from hvqa.util.interfaces import Component, Trainable
 from hvqa.relations.dataset import RelationDataset
 from hvqa.relations.models import RelationClassifierModel
-from hvqa.util.func import collate_func, get_device
+from hvqa.util.func import collate_func, get_device, load_model, save_model
 
 
 class NeuralRelationClassifier(Component, Trainable):
-    def __init__(self, spec):
+    def __init__(self, spec, model):
         super(NeuralRelationClassifier, self).__init__()
 
         self.spec = spec
 
         self._loss_fn = nn.MSELoss()
         self._device = get_device()
-        self.model = RelationClassifierModel(spec).to(self._device)
+        self.model = model.to(self._device)
 
     def run_(self, video):
         pass
 
     @staticmethod
     def load(spec, path):
-        pass
+        model = load_model(RelationClassifierModel, path, spec)
+        model.eval()
+        relations = NeuralRelationClassifier(spec, model)
+        return relations
 
     @staticmethod
     def new(spec, **kwargs):
-        pass
+        model = RelationClassifierModel(spec)
+        model.eval()
+        relations = NeuralRelationClassifier(spec, model)
+        return relations
+
+    def save(self, path):
+        save_model(self.model, path)
 
     def train(self, train_data, eval_data, verbose=True, lr=0.001, batch_size=256, epochs=10):
         """
