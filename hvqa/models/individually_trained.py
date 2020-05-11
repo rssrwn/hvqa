@@ -41,10 +41,14 @@ class IndTrainedModel(_AbsVQAModel):
 
         # Train property component and label all objects with their properties
         # self.prop_classifier.train((videos, answers), eval_data, verbose=verbose, from_qa=True)  # TODO uncomment
+
+        print("Labelling object properties...")
         [self.prop_classifier.run_(video) for video in videos]
 
         # Train relation component and add relations to each frame
         self.relation_classifier.train((videos, answers), eval_data, verbose=verbose)
+
+        print("Labelling relations between objects...")
         # [self.relation_classifier.run_(video) for video in videos]
 
         print("Completed individually-trained model training.")

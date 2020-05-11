@@ -3,7 +3,6 @@ import argparse
 from hvqa.util.dataset import VideoDataset
 from hvqa.spec.env import EnvSpec
 from hvqa.detection.detector import NeuralDetector
-from hvqa.models.hardcoded import HardcodedVQAModel
 from hvqa.models.individually_trained import IndTrainedModel
 
 
@@ -37,8 +36,8 @@ def main(train_dir, eval_dir):
     model.save(MODEL_PATH)
 
     # Load model and evaluate again
-    model = IndTrainedModel.load(spec, MODEL_PATH)
-    model.eval_components(eval_data)
+    # model = IndTrainedModel.load(spec, MODEL_PATH)
+    # model.eval_components(eval_data)
 
 
 if __name__ == '__main__':

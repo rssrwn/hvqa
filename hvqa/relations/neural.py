@@ -41,7 +41,7 @@ class NeuralRelationClassifier(Component, Trainable):
     def save(self, path):
         save_model(self.model, path)
 
-    def train(self, train_data, eval_data, verbose=True, lr=0.001, batch_size=256, epochs=2):
+    def train(self, train_data, eval_data, verbose=True, lr=0.001, batch_size=256, epochs=10):
         """
         Train the relation classification component
 
@@ -53,16 +53,20 @@ class NeuralRelationClassifier(Component, Trainable):
         :param epochs: Number of epochs to train for
         """
 
-        print(f"Training neural relation classifier with device {self._device}...")
-
         videos, answers = train_data
+
+        print("\nConstructing training and evaluating relation datasets...")
+        qa_loader, hardcoded_loader = self._construct_eval_datasets(eval_data, batch_size)
         train_dataset = QARelationDataset(self.spec, videos, answers)
         train_loader = DataLoader(train_dataset, batch_size=batch_size, shuffle=True, collate_fn=self._collate_fn)
+
+        print(f"Training neural relation classifier with device {self._device}...")
+
         optimiser = optim.Adam(self.model.parameters(), lr=lr)
 
         for epoch in range(epochs):
             self._train_one_epoch(train_loader, optimiser, epoch, verbose)
-            self.eval(eval_data, batch_size=batch_size)
+            self._eval(qa_loader, hardcoded_loader)
 
         print("Completed relation classifier training.")
 
@@ -97,18 +101,28 @@ class NeuralRelationClassifier(Component, Trainable):
         loss = sum(losses.values())
         return loss, losses
 
-    def eval(self, eval_data, batch_size=256):
-        print("\nEvaluating neural relation classifier on QA relation data...")
+    def _construct_eval_datasets(self, eval_data, batch_size):
         qa_data = QARelationDataset.from_video_dataset(self.spec, eval_data)
         qa_loader = DataLoader(qa_data, batch_size=batch_size, shuffle=False, collate_fn=self._collate_fn)
-        self._eval_data(qa_loader)
 
-        print("\nEvaluating neural relation classifier on hardcoded relation data...")
         hardcoded_data = HardcodedRelationDataset.from_video_dataset(self.spec, eval_data)
         hardcoded_loader = DataLoader(hardcoded_data, batch_size=batch_size, shuffle=False, collate_fn=self._collate_fn)
-        self._eval_data(hardcoded_loader)
 
-    def _eval_data(self, eval_loader):
+        return qa_loader, hardcoded_loader
+
+    def eval(self, eval_data, batch_size=256):
+        print("\nConstructing evaluation data...")
+        qa_loader, hardcoded_loader = self._construct_eval_datasets(eval_data, batch_size)
+        self._eval(qa_loader, hardcoded_loader)
+
+    def _eval(self, qa_loader, hardcoded_loader):
+        print("\nEvaluating neural relation classifier on QA relation data...")
+        self._eval_from_data(qa_loader)
+
+        print("\nEvaluating neural relation classifier on hardcoded relation data...")
+        self._eval_from_data(hardcoded_loader)
+
+    def _eval_from_data(self, eval_loader):
         self.model.eval()
 
         rel_outputs = {rel: [] for rel in self.spec.relations}
