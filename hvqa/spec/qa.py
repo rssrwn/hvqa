@@ -20,56 +20,44 @@ class QASpec:
             "firth": 5
         }
 
-    def parse_ans_0(self, args):
-        assert len(args) == 2, "Args is not correct length for question type 0"
-        prop, prop_val = args
+    def parse_ans_0(self, ans_str):
+        prop_val = ans_str
+        prop = self.spec.find_prop(prop_val)
 
         # TODO Update dataset to use readable version of rotation (eg. upward-facing)
-        if prop != "rotation":
+        if prop == "rotation":
             prop_val = self.spec.from_internal(prop, int(prop_val))
 
         return prop, prop_val
 
-    def parse_ans_1(self, args):
-        assert len(args) == 1, "Args is not correct length for question type 1"
-        yes_no = args[0]
-        return yes_no
+    def parse_ans_1(self, ans_str):
+        return ans_str
 
-    def parse_ans_2(self, args):
-        assert len(args) == 1, "Args is not correct length for question type 2"
+    def parse_ans_2(self, ans_str):
+        return ans_str
 
-        action = args[0]
-        if action == "rotate_left":
-            action = "rotate left"
-        elif action == "rotate_right":
-            action = "rotate right"
+    def parse_ans_3(self, ans_str):
+        splits = ans_str.split(" ")
+        prop = splits[1]
+        before = splits[4]
+        after = splits[6]
 
-        return action
+        # TODO remove this after dataset is updated
+        if prop == "rotation":
+            before = self.spec.from_internal(prop, int(before))
+            after = self.spec.from_internal(prop, int(after))
 
-    def parse_ans_3(self, args):
-        assert len(args) == 3, "Args is not correct length for question type 3"
-
-        prop, before, after = args
-        before = self.spec.from_internal(prop, int(before))
-        after = self.spec.from_internal(prop, int(after))
         return prop, before, after
 
-    def parse_ans_4(self, args):
-        assert len(args) == 1, "Args is not correct length for question type 4"
-        num = args[0]
+    def parse_ans_4(self, ans_str):
+        num = int(ans_str)
         return num
 
-    def parse_ans_5(self, args):
-        assert len(args) == 1, "Args is not correct length for question type 5"
-        event = args[0]
-        event = self.spec.from_internal(event)
-        return event
+    def parse_ans_5(self, ans_str):
+        return ans_str
 
-    def parse_ans_6(self, args):
-        assert len(args) == 1, "Args is not correct length for question type 6"
-        action = args[0]
-        action = self.spec.from_internal(action)
-        return action
+    def parse_ans_6(self, ans_str):
+        return ans_str
 
     def parse_prop_question(self, question):
         splits = question.split(" ")
@@ -92,7 +80,7 @@ class QASpec:
         obj1_cls = splits[2]
         obj1_prop_val = None
         rel_idx = 3  # Note: hardcoded for 'close to' other relations will be different
-        if obj1_cls not in self.spec.obj_tpyes():
+        if obj1_cls not in self.spec.obj_types():
             obj1_prop_val = obj1_cls
             obj1_cls = splits[3]
             rel_idx = 4
@@ -101,7 +89,7 @@ class QASpec:
 
         obj2_cls = splits[rel_idx + 3]
         obj2_prop_val = None
-        if obj2_cls not in self.spec.obj_tpyes():
+        if obj2_cls not in self.spec.obj_types():
             obj2_prop_val = obj2_cls
             obj2_cls = splits[rel_idx + 4]
 
