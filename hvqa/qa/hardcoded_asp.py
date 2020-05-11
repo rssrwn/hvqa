@@ -159,37 +159,65 @@ class HardcodedASPQASystem(Component):
         return ans_strs
 
     def _answer_q_type_0(self, args, template):
-        prop, prop_val = self.spec.qa.parse_ans_0(args)
+        assert len(args) == 2, "Args is not correct length for question type 0"
+
+        prop, prop_val = args
+
+        # TODO Update dataset to use readable version of rotation (eg. upward-facing)
+        if prop != "rotation":
+            prop_val = self.spec.from_internal(prop, int(prop_val))
+
         ans_str = template.format(prop_val=prop_val)
         return ans_str
 
     def _answer_q_type_1(self, args, template):
-        yes_no = self.spec.qa.parse_ans_1(args)
+        assert len(args) == 1, "Args is not correct length for question type 1"
+
+        yes_no = args[0]
         ans_str = template.format(ans=yes_no)
         return ans_str
 
     def _answer_q_type_2(self, args, template):
-        action = self.spec.qa.parse_ans_2(args)
+        assert len(args) == 1, "Args is not correct length for question type 2"
+
+        action = args[0]
+        if action == "rotate_left":
+            action = "rotate left"
+        elif action == "rotate_right":
+            action = "rotate right"
+
         ans_str = template.format(action=action)
         return ans_str
 
     def _answer_q_type_3(self, args, template):
-        prop, before, after = self.spec.qa.parse_ans_3(args)
+        assert len(args) == 3, "Args is not correct length for question type 3"
+
+        prop, before, after = args
+        before = self.spec.from_internal(prop, int(before))
+        after = self.spec.from_internal(prop, int(after))
         ans_str = template.format(prop=prop, before=before, after=after)
         return ans_str
 
     def _answer_q_type_4(self, args, template):
-        num = self.spec.qa.parse_ans_4(args)
+        assert len(args) == 1, "Args is not correct length for question type 4"
+
+        num = args[0]
         ans_str = template.format(ans=num)
         return ans_str
 
     def _answer_q_type_5(self, args, template):
-        event = self.spec.qa.parse_ans_5(args)
+        assert len(args) == 1, "Args is not correct length for question type 5"
+
+        event = args[0]
+        event = self.spec.from_internal(event)
         ans_str = template.format(event=event)
         return ans_str
 
     def _answer_q_type_6(self, args, template):
-        action = self.spec.qa.parse_ans_6(args)
+        assert len(args) == 1, "Args is not correct length for question type 6"
+
+        action = args[0]
+        action = self.spec.from_internal(action)
         ans_str = template.format(action=action)
         return ans_str
 
