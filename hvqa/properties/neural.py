@@ -113,17 +113,15 @@ class NeuralPropExtractor(Component, Trainable):
         """
         Train the property classification component
 
-        :param train_data: Training data (QADataset)
+        :param train_data: Training data ((Videos, answers))
         :param eval_data: Evaluating data (QADataset)
         :param verbose: Verbose printing (bool)
         :param from_qa: Train using data from QA pairs only (bool)
         """
 
         if from_qa:
-            assert not train_data.is_hardcoded(), "VideoQADataset must not be hardcoded when training using QA data"
             self._train_from_qa(train_data, eval_data, verbose)
         else:
-            assert train_data.is_hardcoded(), "VideoQADataset must be hardcoded when training using hardcoded data"
             self._train_from_hardcoded(train_data, eval_data, verbose)
 
     def eval(self, eval_data, threshold=0.5, batch_size=256):
@@ -180,7 +178,8 @@ class NeuralPropExtractor(Component, Trainable):
         self._print_results(results, correct, losses, num_predictions)
 
     def _train_from_hardcoded(self, train_data, eval_data, verbose, lr=0.001, batch_size=256, epochs=2):
-        train_dataset = VideoPropDataset.from_video_dataset(self.spec, train_data, transform=_transform)
+        videos, answers = train_data
+        train_dataset = VideoPropDataset(self.spec, videos, transform=_transform)
         train_loader = DataLoader(train_dataset, batch_size=batch_size, shuffle=True, collate_fn=collate_func)
         optimiser = optim.Adam(self.model.parameters(), lr=lr)
 
@@ -192,21 +191,23 @@ class NeuralPropExtractor(Component, Trainable):
 
     def _train_from_qa(self, train_data, eval_data, verbose):
         """
+        Train the properties component in _ steps:
+            1. Train an autoencoder to encode object images
+            2. Cluster the latent space separately for each class (the number of clusters is an estimate based on QA)
+            3. Find the optimal property values for each cluster, for each class using ASP
+            4. Label the full training dataset using: AE, cluster centres and label->property mapping
+            5. Train the property component as if the full dataset was given (ie. same as train_from_hardcoded)
 
-        :param train_data: Training data (QADataset)
+        :param train_data: Training data ((Videos, answers))
         :param eval_data: Eval data (QADataset)
         :param verbose: Verbose printing (bool)
         """
 
-        num_obj_per_cls = 10000
+        num_obj = 10000
 
-        train_prop_dataset = VideoPropDataset.from_video_dataset(
-            self.spec,
-            train_data,
-            transform=_ae_transform,
-            num_obj=num_obj_per_cls
-        )
-        train_prop_qa_dataset = QAPropDataset.from_video_dataset(self.spec, train_data, transform=_ae_transform)
+        videos, answers = train_data
+        train_prop_dataset = VideoPropDataset(self.spec, videos, transform=_ae_transform, num_obj_per_cls=num_obj)
+        train_prop_qa_dataset = QAPropDataset(self.spec, videos, answers, transform=_ae_transform)
 
         # Train AE, cluster and find optimal label -> property mappings
         cls_cluster_map = self._find_num_clusters(train_prop_qa_dataset)

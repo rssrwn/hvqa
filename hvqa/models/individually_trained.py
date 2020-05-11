@@ -31,9 +31,23 @@ class IndTrainedModel(_AbsVQAModel):
         :param verbose: Print additional info during training
         """
 
-        print("\nTraining individually trained model...")
-        self.prop_classifier.train(train_data, eval_data, verbose=verbose, from_qa=True)
-        print("Completed model training.")
+        assert not train_data.is_hardcoded(), "Training data must not be hardcoded when training an IndTrainedModel"
+        assert eval_data.is_hardcoded(), "Evaluation data must always be hardcoded when training an IndTrainedModel"
+
+        print("\nTraining individually-trained model...")
+
+        data = [train_data[idx] for idx in range(len(train_data))]
+        videos, answers = tuple(zip(*data))
+
+        # Train property component and label all objects with their properties
+        # self.prop_classifier.train((videos, answers), eval_data, verbose=verbose, from_qa=True)
+        [self.prop_classifier.run_(video) for video in videos]
+
+        # Train relation component and add relations to each frame
+        self.relation_classifier.train((videos, answers), eval_data, verbose=verbose)
+        # [self.relation_classifier.run_(video) for video in videos]
+
+        print("Completed individually-trained model training.")
 
     @staticmethod
     def new(spec, **kwargs):

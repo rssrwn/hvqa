@@ -31,9 +31,14 @@ class HardcodedVQAModel(_AbsVQAModel):
         :param verbose: Print additional info during training
         """
 
+        assert train_data.is_hardcoded(), "Training data must be hardcoded when training HardcodedVQAModel"
+        assert eval_data.is_hardcoded(), "Evaluation must be hardcoded when training HardcodedVQAModel"
+
         print("\nTraining hardcoded model...")
+
         self.prop_classifier.train(train_data, eval_data, verbose=verbose, from_qa=False)
-        print("Completed model training.")
+
+        print("Completed hardcoded model training.")
 
     def eval_components(self, eval_data):
         self.prop_classifier.eval(eval_data)

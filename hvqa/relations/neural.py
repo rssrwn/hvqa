@@ -64,7 +64,7 @@ class NeuralRelationClassifier(Component, Trainable):
             self._train_one_epoch(train_loader, optimiser, epoch, verbose)
             self.eval(eval_loader)
 
-        print("Completed training.")
+        print("Completed relation classifier training.")
 
     def _train_one_epoch(self, train_loader, optimiser, epoch, verbose, print_freq=50):
         num_batches = len(train_loader)
