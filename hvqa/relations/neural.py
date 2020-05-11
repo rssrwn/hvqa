@@ -98,16 +98,14 @@ class NeuralRelationClassifier(Component, Trainable):
         return loss, losses
 
     def eval(self, eval_data, batch_size=256):
+        print("\nEvaluating neural relation classifier on QA relation data...")
         qa_data = QARelationDataset.from_video_dataset(self.spec, eval_data)
         qa_loader = DataLoader(qa_data, batch_size=batch_size, shuffle=False, collate_fn=self._collate_fn)
-
-        print("\nEvaluating neural relation classifier on QA relation data...")
         self._eval_data(qa_loader)
 
+        print("\nEvaluating neural relation classifier on hardcoded relation data...")
         hardcoded_data = HardcodedRelationDataset.from_video_dataset(self.spec, eval_data)
         hardcoded_loader = DataLoader(hardcoded_data, batch_size=batch_size, shuffle=False, collate_fn=self._collate_fn)
-
-        print("\nEvaluating neural relation classifier on hardcoded relation data...")
         self._eval_data(hardcoded_loader)
 
     def _eval_data(self, eval_loader):
@@ -141,16 +139,31 @@ class NeuralRelationClassifier(Component, Trainable):
             correct += correct_rel
             total += total_rel
 
+            tp_perc = f"{tp / total_rel:.2f}"
+            tn_perc = f"{tn / total_rel:.2f}"
+            fp_perc = f"{fp / total_rel:.2f}"
+            fn_perc = f"{fn / total_rel:.2f}"
+
+            print(f"\nConfusion matrix for {rel}:")
+            print(f"{'Actual:':<10}")
+            print(f"{'Pred:':>10}{'Yes':^10}{'No':^10}")
+            print(f"{'Yes':<10}{'TP ' + tp_perc:^10}{'FN ' + fn_perc:^10}")
+            print(f"{'No':<10}{'FP ' + fp_perc:^10}{'TN ' + tn_perc:^10}")
+
             acc = correct_rel / total_rel
             precision = tp / (tp + fp) if (tp + fp) != 0 else "NaN"
             recall = tp / (tp + fn) if (tp + fn) != 0 else "NaN"
             f1 = (2 * precision * recall) / (precision + recall) if precision != "NaN" and recall != "NaN" else "NaN"
 
-            print(f"\nResults for {rel}")
+            precision = f"{precision:.2f}" if type(precision) == float else precision
+            recall = f"{recall:.2f}" if type(recall) == float else recall
+            f1 = f"{f1:.2f}" if type(f1) == float else f1
+
+            print(f"\nResults for {rel}:")
             print(f"{'Accuracy:':<10} {acc:.2f}")
-            print(f"{'Precision:':<10} {precision:.2f}")
-            print(f"{'Recall:':<10} {recall:.2f}")
-            print(f"{'F1 Score:':<10} {f1:.2f}")
+            print(f"{'Precision:':<10} {precision}")
+            print(f"{'Recall:':<10} {recall}")
+            print(f"{'F1 Score:':<10} {f1}")
 
         overall_acc = correct / total
         print(f"\nOverall accuracy: {overall_acc:.2f}\n")
