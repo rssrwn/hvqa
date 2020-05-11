@@ -43,6 +43,6 @@ class RelationClassifierModel(nn.Module):
         enc_size = 4
         enc_size += len(self.spec.obj_types())
         for prop in self.spec.prop_names():
-            enc_size += self.spec.prop_values(prop)
+            enc_size += len(self.spec.prop_values(prop))
 
         return enc_size

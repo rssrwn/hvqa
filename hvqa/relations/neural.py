@@ -1,3 +1,5 @@
+import numpy as np
+
 import torch
 import torch.nn as nn
 import torch.optim as optim
@@ -39,7 +41,7 @@ class NeuralRelationClassifier(Component, Trainable):
     def save(self, path):
         save_model(self.model, path)
 
-    def train(self, train_data, eval_data, verbose=True, lr=0.001, batch_size=256, epochs=10):
+    def train(self, train_data, eval_data, verbose=True, lr=0.001, batch_size=256, epochs=5):
         """
         Train the relation classification component
 
@@ -66,19 +68,20 @@ class NeuralRelationClassifier(Component, Trainable):
 
         print("Completed relation classifier training.")
 
-    def _train_one_epoch(self, train_loader, optimiser, epoch, verbose, print_freq=50):
+    def _train_one_epoch(self, train_loader, optimiser, epoch, verbose, print_freq=5):
         num_batches = len(train_loader)
         for t, data in enumerate(train_loader):
             self.model.train()
 
             outputs = {}
             targets = {}
-            for rel, (objs_enc, rel_cls) in data.items():
-                objs_enc = objs_enc.to(self._device)
-                rel_cls = rel_cls.to(self._device)
+            for rel, rel_data in data.items():
+                objs_enc, rel_cls = rel_data
+                objs_enc = torch.stack(objs_enc).to(self._device)
+                rel_cls = torch.stack(rel_cls)[:, None].to(self._device)
                 output = self.model(objs_enc)
-                outputs[rel] = output[rel].to("cpu").numpy()
-                targets[rel] = rel_cls.tp("cpu").numpy()
+                outputs[rel] = output[rel].to("cpu")
+                targets[rel] = rel_cls.to("cpu")
 
             loss, losses = self._calc_loss(outputs, targets)
             optimiser.zero_grad()
@@ -99,26 +102,26 @@ class NeuralRelationClassifier(Component, Trainable):
     def eval(self, eval_loader):
         self.model.eval()
 
-        print("Evaluating neural relation classifier...")
+        print("\nEvaluating neural relation classifier...")
 
         rel_outputs = {rel: [] for rel in self.spec.relations}
         rel_targets = {rel: [] for rel in self.spec.relations}
         for t, data in enumerate(eval_loader):
             for rel, (objs_enc, rel_cls) in data.items():
-                objs_enc = objs_enc.to(self._device)
-                rel_cls = rel_cls.to(self._device)
+                objs_enc = torch.stack(objs_enc).to(self._device)
+                rel_cls = torch.stack(rel_cls)[:, None].to(self._device)
                 with torch.no_grad():
                     output = self.model(objs_enc)
 
-                out = output[rel].to("cpu").numpy()
-                target = rel_cls.tp("cpu").numpy()
-                rel_outputs[rel].append(out)
-                rel_targets[rel].append(target)
+                out = list(output[rel].to("cpu").numpy())
+                target = list(rel_cls.to("cpu").numpy())
+                rel_outputs[rel].extend(out)
+                rel_targets[rel].extend(target)
 
         rel_metrics = {}
         for rel, outputs in rel_outputs.items():
             targets = rel_targets[rel]
-            metrics = self._eval_rel(outputs, targets)
+            metrics = self._eval_rel(np.array(outputs), np.array(targets))
             rel_metrics[rel] = metrics
 
         total = 0
@@ -141,7 +144,7 @@ class NeuralRelationClassifier(Component, Trainable):
             print(f"{'F1 Score':<15}: {f1:.2f}")
 
         overall_acc = correct / total
-        print(f"\nOverall accuracy: {overall_acc:.2f}")
+        print(f"\nOverall accuracy: {overall_acc:.2f}\n")
 
     def _eval_rel(self, outputs, targets):
         outputs_bool = torch.BoolTensor(outputs >= 0.5)

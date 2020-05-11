@@ -28,23 +28,17 @@ class RelationDataset(Dataset):
             for q_idx in q_idxs:
                 question = video.questions[q_idx]
                 answer = answers[video_idx][q_idx]
+                parsed_q = self.spec.qa.parse_relation_question(question)
+                rel, obj1_cls, obj1_val, obj2_cls, obj2_val, frame_idx = parsed_q
 
-                rel, obj1_cls, obj1_val, obj2_cls, obj2_val, frame_idx = self.spec.qa.parse_relation_question(question)
-                obj1_prop = self.spec.find_prop(obj1_val)
-                obj2_prop = self.spec.find_prop(obj2_val)
-                yes_no = self.spec.qa.parse_q_1(answer)
+                yes_no = self.spec.qa.parse_ans_1(answer)
                 yes_no = 1.0 if yes_no == "yes" else 0.0
 
-                obj1 = None
-                obj2 = None
-                for obj in video.frames[frame_idx].objs:
-                    if obj.prop_vals[obj1_prop] == obj1_val:
-                        obj1 = obj
-                    if obj.prop_vals[obj2_prop] == obj2_val:
-                        obj2 = obj
+                obj1 = self._match_obj(obj1_cls, obj1_val, video.frames[frame_idx].objs)
+                obj2 = self._match_obj(obj2_cls, obj2_val, video.frames[frame_idx].objs)
 
-                assert obj1 is not None, f"Cannot find obj with {obj1_prop} {obj1_val} in frame {frame_idx}"
-                assert obj2 is not None, f"Cannot find obj with {obj2_prop} {obj2_val} in frame {frame_idx}"
+                assert obj1 is not None, f"Cannot find {obj1_val} {obj1_cls} in frame {frame_idx}"
+                assert obj2 is not None, f"Cannot find {obj2_val} {obj2_cls} in frame {frame_idx}"
 
                 obj_enc = self._obj_encoding(obj1)
                 obj2_enc = self._obj_encoding(obj2)
@@ -60,6 +54,16 @@ class RelationDataset(Dataset):
             sampled_rel_data_map[rel] = sampled
 
         return sampled_rel_data_map
+
+    def _match_obj(self, obj_cls, obj_val, objs):
+        obj_prop = self.spec.find_prop(obj_val) if obj_val is not None else None
+        for obj_ in objs:
+            if obj_.cls == obj_cls and obj_val is None:
+                return obj_
+            elif obj_.cls == obj_cls and obj_.prop_vals[obj_prop] == obj_val:
+                return obj_
+
+        return None
 
     def _obj_encoding(self, obj):
         obj_enc = list(map(lambda v: 1.0 if v == obj.cls else 0.0, self.spec.obj_types()))
