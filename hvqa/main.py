@@ -36,7 +36,7 @@ def main(train_dir, eval_dir):
     model.save(MODEL_PATH)
 
     # Load model and evaluate again
-    model = HardcodedVQAModel.load(MODEL_PATH, spec=spec)
+    model = IndTrainedModel.load(spec, MODEL_PATH)
     model.eval_components(eval_data)
 
 

@@ -49,6 +49,12 @@ class IndTrainedModel(_AbsVQAModel):
 
         print("Completed individually-trained model training.")
 
+    def eval_components(self, eval_data):
+        print("\nEvaluating components of IndTrainedModel...")
+        self.prop_classifier.eval(eval_data)
+        self.relation_classifier.eval(eval_data)
+        print("Completed component evaluation.")
+
     @staticmethod
     def new(spec, **kwargs):
         err_corr = ERR_CORR_DEFAULT

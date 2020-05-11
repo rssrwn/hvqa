@@ -41,7 +41,9 @@ class HardcodedVQAModel(_AbsVQAModel):
         print("Completed hardcoded model training.")
 
     def eval_components(self, eval_data):
+        print("Evaluating components of HardcodedModel...")
         self.prop_classifier.eval(eval_data)
+        print("Completed component evaluation.")
 
     @staticmethod
     def new(spec, **kwargs):

@@ -207,3 +207,12 @@ class Model(Trainable):
         """
 
         raise NotImplementedError()
+
+    def eval_components(self, eval_data):
+        """
+        Evaluate components of the model individually
+
+        :param eval_data: QADataset object of evaluation data
+        """
+
+        raise NotImplementedError()

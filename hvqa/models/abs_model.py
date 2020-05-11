@@ -65,6 +65,9 @@ class _AbsVQAModel(Model):
     def save(self, path):
         raise NotImplementedError("AbsModel is abstract; objects should not be created")
 
+    def eval_components(self, eval_data):
+        raise NotImplementedError("AbsModel is abstract; objects should not be created")
+
     def eval(self, data, verbose=True):
         """
         Evaluate the performance of the model
