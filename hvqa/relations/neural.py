@@ -41,7 +41,7 @@ class NeuralRelationClassifier(Component, Trainable):
     def save(self, path):
         save_model(self.model, path)
 
-    def train(self, train_data, eval_data, verbose=True, lr=0.001, batch_size=256, epochs=5):
+    def train(self, train_data, eval_data, verbose=True, lr=0.001, batch_size=256, epochs=2):
         """
         Train the relation classification component
 
@@ -57,18 +57,16 @@ class NeuralRelationClassifier(Component, Trainable):
 
         videos, answers = train_data
         train_dataset = RelationDataset(self.spec, videos, answers)
-        eval_dataset = RelationDataset.from_video_dataset(self.spec, eval_data)
         train_loader = DataLoader(train_dataset, batch_size=batch_size, shuffle=True, collate_fn=self._collate_fn)
-        eval_loader = DataLoader(eval_dataset, batch_size=batch_size, shuffle=False, collate_fn=self._collate_fn)
         optimiser = optim.Adam(self.model.parameters(), lr=lr)
 
         for epoch in range(epochs):
             self._train_one_epoch(train_loader, optimiser, epoch, verbose)
-            self.eval(eval_loader)
+            self.eval(eval_data, batch_size=batch_size)
 
         print("Completed relation classifier training.")
 
-    def _train_one_epoch(self, train_loader, optimiser, epoch, verbose, print_freq=5):
+    def _train_one_epoch(self, train_loader, optimiser, epoch, verbose, print_freq=50):
         num_batches = len(train_loader)
         for t, data in enumerate(train_loader):
             self.model.train()
@@ -99,7 +97,10 @@ class NeuralRelationClassifier(Component, Trainable):
         loss = sum(losses.values())
         return loss, losses
 
-    def eval(self, eval_loader):
+    def eval(self, eval_data, batch_size=256):
+        eval_dataset = RelationDataset.from_video_dataset(self.spec, eval_data)
+        eval_loader = DataLoader(eval_dataset, batch_size=batch_size, shuffle=False, collate_fn=self._collate_fn)
+
         self.model.eval()
 
         print("\nEvaluating neural relation classifier...")
@@ -138,10 +139,10 @@ class NeuralRelationClassifier(Component, Trainable):
             f1 = (2 * precision * recall) / (precision + recall) if precision != "NaN" and recall != "NaN" else "NaN"
 
             print(f"\nResults for {rel}")
-            print(f"{'Accuracy':<15}: {acc:.2f}")
-            print(f"{'Precision':<15}: {precision:.2f}")
-            print(f"{'Recall':<15}: {recall:.2f}")
-            print(f"{'F1 Score':<15}: {f1:.2f}")
+            print(f"{'Accuracy:':<10} {acc:.2f}")
+            print(f"{'Precision:':<10} {precision:.2f}")
+            print(f"{'Recall:':<10} {recall:.2f}")
+            print(f"{'F1 Score:':<10} {f1:.2f}")
 
         overall_acc = correct / total
         print(f"\nOverall accuracy: {overall_acc:.2f}\n")

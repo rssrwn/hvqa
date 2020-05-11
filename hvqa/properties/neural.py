@@ -114,7 +114,7 @@ class NeuralPropExtractor(Component, Trainable):
         Train the property classification component
 
         :param train_data: Training data ((Videos, answers))
-        :param eval_data: Evaluating data (QADataset)
+        :param eval_data: Evaluation data (QADataset)
         :param verbose: Verbose printing (bool)
         :param from_qa: Train using data from QA pairs only (bool)
         """
@@ -128,7 +128,7 @@ class NeuralPropExtractor(Component, Trainable):
         """
         Evaluate the trained property component individually
 
-        :param eval_data: List of Video objects
+        :param eval_data: Evaluation data (VideoDataset)
         :param threshold: Threshold for accepting a property classification
         :param batch_size: Maximum number of objects to pass through network at once
         """

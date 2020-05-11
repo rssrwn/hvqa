@@ -31,7 +31,8 @@ def main(train_dir, eval_dir):
     eval_data = VideoDataset.from_data_dir(spec, eval_dir, detector, hardcoded=True)
 
     # Create model
-    model = IndTrainedModel.new(spec, err_corr=False, al_model=True)
+    # model = IndTrainedModel.new(spec, err_corr=False, al_model=True)
+    model = IndTrainedModel.load(spec, MODEL_PATH)
     model.train(train_data, eval_data)
     model.save(MODEL_PATH)
 

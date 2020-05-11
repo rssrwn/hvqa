@@ -40,7 +40,7 @@ class IndTrainedModel(_AbsVQAModel):
         videos, answers = tuple(zip(*data))
 
         # Train property component and label all objects with their properties
-        # self.prop_classifier.train((videos, answers), eval_data, verbose=verbose, from_qa=True)
+        # self.prop_classifier.train((videos, answers), eval_data, verbose=verbose, from_qa=True)  # TODO uncomment
         [self.prop_classifier.run_(video) for video in videos]
 
         # Train relation component and add relations to each frame
@@ -98,7 +98,10 @@ class IndTrainedModel(_AbsVQAModel):
 
         properties = NeuralPropExtractor.load(spec, properties_path)
         tracker = ObjTracker.new(spec, err_corr=err_corr)
-        relations = NeuralRelationClassifier.load(spec, relations_path)
+
+        # relations = NeuralRelationClassifier.load(spec, relations_path)
+        relations = NeuralRelationClassifier.new(spec)  # TODO remove
+
         events = ASPEventDetector.new(spec, al_model=al_model)
         qa = HardcodedASPQASystem.new(spec)
 
