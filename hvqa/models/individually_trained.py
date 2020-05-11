@@ -5,7 +5,7 @@ from hvqa.util.func import get_or_default
 from hvqa.models.abs_model import _AbsVQAModel
 from hvqa.properties.neural import NeuralPropExtractor
 from hvqa.tracking.obj_tracker import ObjTracker
-from hvqa.relations.hardcoded import HardcodedRelationClassifier
+from hvqa.relations.neural import NeuralRelationClassifier
 from hvqa.events.hardcoded_asp import ASPEventDetector
 from hvqa.qa.hardcoded_asp import HardcodedASPQASystem
 
@@ -61,7 +61,7 @@ class IndTrainedModel(_AbsVQAModel):
 
         properties = NeuralPropExtractor.new(spec)
         tracker = ObjTracker.new(spec, err_corr=err_corr)
-        relations = HardcodedRelationClassifier.new(spec)
+        relations = NeuralRelationClassifier.new(spec)
         events = ASPEventDetector.new(spec, al_model=al_model)
         qa = HardcodedASPQASystem.new(spec)
 
@@ -81,6 +81,7 @@ class IndTrainedModel(_AbsVQAModel):
 
         save_path = Path(path)
         properties_path = str(save_path / "properties.pt")
+        relations_path = str(save_path / "relations.pt")
         meta_data_path = save_path / "meta_data.json"
 
         with meta_data_path.open() as f:
@@ -91,7 +92,7 @@ class IndTrainedModel(_AbsVQAModel):
 
         properties = NeuralPropExtractor.load(spec, properties_path)
         tracker = ObjTracker.new(spec, err_corr=err_corr)
-        relations = HardcodedRelationClassifier.new(spec)
+        relations = NeuralRelationClassifier.load(spec, relations_path)
         events = ASPEventDetector.new(spec, al_model=al_model)
         qa = HardcodedASPQASystem.new(spec)
 
@@ -109,9 +110,11 @@ class IndTrainedModel(_AbsVQAModel):
         save_path = Path(path)
         save_path.mkdir(parents=True, exist_ok=True)
         properties_path = save_path / "properties.pt"
+        relations_path = save_path / "relations.pt"
         meta_data_path = save_path / "meta_data.json"
 
         self.prop_classifier.save(str(properties_path))
+        self.relation_classifier.save(str(relations_path))
 
         meta_data = {
             "err_corr": self.err_corr,
