@@ -1,9 +1,14 @@
+from pathlib import Path
+
 from hvqa.util.interfaces import Component
 
 
 class _AbsEventDetector(Component):
     def __init__(self, spec):
         self.spec = spec
+
+        path = Path("hvqa/events")
+        self._video_info = path / "_temp_video_info.lp"
 
     def run_(self, video):
         frames = video.frames

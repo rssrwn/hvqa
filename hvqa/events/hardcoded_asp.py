@@ -1,5 +1,3 @@
-from pathlib import Path
-
 from hvqa.events.abs_asp import _AbsEventDetector
 from hvqa.util.asp_runner import ASPRunner
 
@@ -10,14 +8,11 @@ class ASPEventDetector(_AbsEventDetector):
 
         self.al_model = al_model
 
-        path = Path("hvqa/events")
-        self._video_info = path / "_temp_video_info.lp"
-
         if al_model:
-            self.detector_file = path / "events.lp"
-            self.al_model_file = path / "model.lp"
+            self.detector_file = self._video_info / "events.lp"
+            self.al_model_file = self._video_info / "model.lp"
         else:
-            self.detector_file = path / "occurs_events.lp"
+            self.detector_file = self._video_info / "occurs_events.lp"
 
         self.timeout = 5
 
