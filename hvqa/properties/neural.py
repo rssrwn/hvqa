@@ -49,7 +49,6 @@ class NeuralPropExtractor(Component, Trainable):
         self._temp_save.mkdir(exist_ok=True, parents=True)
 
         self._temp_asp_file = "hvqa/properties/.temp_qa_training.lp"
-        self.asp_runner = ASPRunner(self._temp_asp_file)
 
     def run_(self, video):
         for frame in video.frames:
@@ -430,7 +429,8 @@ class NeuralPropExtractor(Component, Trainable):
         for cls, data_list in cls_asp_data_map.items():
             q_idxs, q_props, labels = tuple(zip(*data_list))
             asp_str = self._gen_unsup_prop_asp_str(q_idxs, q_props, labels)
-            asp_models = self.asp_runner.run(asp_str, timeout=10, prog_name="Property component training")
+            name = "Property component training"
+            asp_models = ASPRunner.run(self._temp_asp_file, asp_str, timeout=10, prog_name=name, opt_proven=True)
             label_prop_map = self._parse_asp_models(asp_models, cls)
             cls_label_prop_map[cls] = label_prop_map
 

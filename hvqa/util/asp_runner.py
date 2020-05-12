@@ -4,26 +4,31 @@ from pathlib import Path
 
 
 class ASPRunner:
-    def __init__(self, temp_file):
-        self.temp_file = Path(temp_file)
+    @staticmethod
+    def run(temp_file,
+            asp_str,
+            additional_files=None,
+            timeout=5,
+            prog_name="",
+            opt_mode="optN",
+            opt_proven=True):
 
-    def run(self, asp_str, additional_files=None, timeout=5, prog_name=""):
-        f = open(self.temp_file, "w")
+        temp_file = Path(temp_file)
+        f = open(temp_file, "w")
         f.write(asp_str)
         f.close()
 
+        additional_files = [] if additional_files is None else additional_files
+
         # Add files
         ctl = clingo.Control(message_limit=0)
-        ctl.load(str(self.temp_file))
-
-        # TODO Additional files
-
-        # TODO config (inc optimality, shown, etc)
+        ctl.load(str(temp_file))
+        [ctl.load(str(f)) for f in additional_files]
 
         # Configure the solver
         config = ctl.configuration
         config.solve.models = 0
-        config.solve.opt_mode = "optN"
+        config.solve.opt_mode = opt_mode
 
         ctl.ground([("base", [])])
 
@@ -32,7 +37,7 @@ class ASPRunner:
         start_time = time.time()
         with ctl.solve(yield_=True) as handle:
             for model in handle:
-                if model.optimality_proven:
+                if (opt_proven and model.optimality_proven) or not opt_proven:
                     models.append(model.symbols(shown=True))
 
                 if time.time() - start_time > timeout:
@@ -40,9 +45,7 @@ class ASPRunner:
                     handle.cancel()
                     break
 
-        assert len(models) != 0, f"ASP {prog_name} program is unsatisfiable"
-
         # Cleanup temp file
-        self.temp_file.unlink()
+        temp_file.unlink()
 
         return models

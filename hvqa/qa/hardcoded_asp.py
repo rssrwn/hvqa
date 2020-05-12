@@ -1,7 +1,7 @@
 from pathlib import Path
-import clingo
 
 from hvqa.util.interfaces import Component
+from hvqa.util.asp_runner import ASPRunner
 
 
 class HardcodedASPQASystem(Component):
@@ -76,7 +76,6 @@ class HardcodedASPQASystem(Component):
         qa = HardcodedASPQASystem(spec)
         return qa
 
-    # TODO Use ASPRunner
     def _answer(self, video):
         """
         Answer a question on a video
@@ -97,28 +96,9 @@ class HardcodedASPQASystem(Component):
             question_enc = question_enc.format(q_idx=str(q_idx))
             asp_enc += f"\n{question_enc}\n"
 
-        f = open(self._video_info, "w")
-        f.write(asp_enc)
-        f.close()
-
-        # Add files
-        ctl = clingo.Control(message_limit=0)
-        ctl.load(str(self.qa_system))
-        ctl.load(str(self.features))
-        ctl.load(str(self._video_info))
-
-        # Configure the solver
-        config = ctl.configuration
-        config.solve.models = 0
-        config.solve.opt_mode = "optN"
-
-        ctl.ground([("base", [])])
-
-        # Solve AL model with video info
-        models = []
-        with ctl.solve(yield_=True) as handle:
-            for model in handle:
-                models.append(model.symbols(shown=True))
+        name = "QA component"
+        files = [self.qa_system, self.features]
+        models = ASPRunner.run(self._video_info, asp_enc, additional_files=files, prog_name=name, opt_proven=False)
 
         assert len(models) <= 1, "ASP QA program must contain only a single answer set"
 
@@ -152,9 +132,6 @@ class HardcodedASPQASystem(Component):
                 ans_str = q_func(args[0], template)
 
             ans_strs[q_idx] = ans_str
-
-        # Cleanup temp file
-        self._video_info.unlink()
 
         return ans_strs
 

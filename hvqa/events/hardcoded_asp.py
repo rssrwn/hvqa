@@ -1,8 +1,7 @@
-import time
-import clingo
 from pathlib import Path
 
 from hvqa.util.interfaces import Component
+from hvqa.util.asp_runner import ASPRunner
 
 
 class ASPEventDetector(Component):
@@ -51,41 +50,13 @@ class ASPEventDetector(Component):
         for idx, frame in enumerate(frames):
             asp_enc += frame.gen_asp_encoding(idx) + "\n"
 
-        f = open(self._video_info, "w")
-        f.write(asp_enc)
-        f.close()
-
-        # Add files
-        ctl = clingo.Control(message_limit=0)
-        ctl.load(str(self.detector_file))
-        ctl.load(str(self._video_info))
+        name = "Event detection"
+        files = [self.detector_file]
         if self.al_model:
-            ctl.load(str(self.al_model_file))
+            files.append(self.al_model_file)
 
-        # Configure the solver
-        config = ctl.configuration
-        config.solve.models = 0
-        config.solve.opt_mode = "optN"
-
-        ctl.ground([("base", [])])
-
-        # Solve AL model with video info
-        models = []
-        start_time = time.time()
-        with ctl.solve(yield_=True) as handle:
-            for model in handle:
-                if self.al_model and model.optimality_proven:
-                    models.append(model.symbols(shown=True))
-                elif not self.al_model:
-                    models.append(model.symbols(shown=True))
-
-                if time.time() - start_time > self.timeout:
-                    print("WARNING: Event detection program reached timeout")
-                    handle.cancel()
-                    break
-
-        # Cleanup temp file
-        self._video_info.unlink()
+        models = ASPRunner.run(self._video_info, asp_enc, additional_files=files, timeout=self.timeout,
+                               opt_mode="optN", opt_proven=self.al_model, prog_name=name)
 
         assert len(models) != 0, "ASP event detection program is unsatisfiable"
 
