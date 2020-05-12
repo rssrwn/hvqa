@@ -42,7 +42,7 @@ def main(train_dir, eval_dir):
     # model.eval_components(eval_data)
 
     # Remove
-    model = HardcodedVQAModel.load(spec, HARDCODED_MODEL_PATH)
+    model = HardcodedVQAModel.load(spec, HARDCODED_MODEL_PATH, al_model=False)
     model.eval_components(eval_data)
 
 

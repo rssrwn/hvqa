@@ -35,7 +35,7 @@ def main(data_dir, model_type):
     data = VideoDataset.from_data_dir(spec, data_dir, detector, hardcoded=False)
 
     if model_type == "hardcoded":
-        model = HardcodedVQAModel.load(MODEL_PATH, err_corr=ERR_CORR, al_model=AL_EVENT_MODEL, spec=spec)
+        model = HardcodedVQAModel.load(spec, MODEL_PATH, err_corr=ERR_CORR, al_model=AL_EVENT_MODEL)
     else:
         print("That type of model is not supported")
         return

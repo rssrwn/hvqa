@@ -20,8 +20,9 @@ class ASPEventDetector(Component):
 
         self.timeout = 5
 
-        assert self.al_model_file.exists(), f"File {self.al_model_file} does not exist"
         assert self.detector_file.exists(), f"File {self.detector_file} does not exist"
+        if al_model:
+            assert self.al_model_file.exists(), f"File {self.al_model_file} does not exist"
 
     def run_(self, video):
         frames = video.frames
@@ -122,7 +123,11 @@ class ASPEventDetector(Component):
             for events in pred_events:
                 if len(events) == 1:
                     pred_actions.append(events[0][1])
+                elif len(events) == 0:
+                    print("No actions detected")
+                    pred_actions.append("nothing")
                 else:
+                    print(f"Multiple actions detected: {events}")
                     pred_actions.append(None)
 
             act_actions = []
@@ -133,7 +138,7 @@ class ASPEventDetector(Component):
                 elif len(actions) == 0:
                     act_actions.append("nothing")
                 else:
-                    print(f"Multiple actions: {actions}")
+                    print(f"Multiple actions from dataset: {actions}")
                     act_actions.append(None)
 
             video_correct = 0
