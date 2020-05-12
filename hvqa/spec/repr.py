@@ -169,6 +169,7 @@ class Video:
         self.questions = None
         self.q_types = None
         self.answers = None
+        self.eval_events = None
 
     def add_action(self, action, obj_id, start_idx):
         assert action in self.spec.actions, f"Action {action} is not one of {self.spec.actions}"

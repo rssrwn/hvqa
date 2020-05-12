@@ -59,12 +59,10 @@ class EnvSpec:
             val_to_int[prop] = {val: idx for idx, val in enumerate(self.prop_values(prop))}
             int_to_val[prop] = {idx: val for idx, val in enumerate(self.prop_values(prop))}
 
-        str_vals = [self.relations, self.actions, self.effects]
-        for vals in str_vals:
-            for val in vals:
-                internal = "_".join(val.split(" "))
-                val_to_int[val] = internal
-                int_to_val[internal] = val
+        str_vals = [("relation", self.relations), ("action", self.actions), ("effect", self.effects)]
+        for name, vals in str_vals:
+            val_to_int[name] = {val: "_".join(val.split(" ")) for val in vals}
+            int_to_val[name] = {"_".join(val.split(" ")): val for val in vals}
 
         return val_to_int, int_to_val
 

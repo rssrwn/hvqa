@@ -113,6 +113,9 @@ class VideoDataset(QADataset):
             q_types = video_dict["question_types"]
             video = Video(spec, frames)
             video.set_questions(questions, q_types)
+            if hardcoded:
+                video.eval_events = video_dict["events"]
+
             videos.append(video)
 
         return videos, detector_timing
