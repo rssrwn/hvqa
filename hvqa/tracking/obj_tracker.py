@@ -26,6 +26,7 @@ class ObjTracker(Component):
         self._timeouts = deque()
 
     def run_(self, video):
+        self.reset()
         for frame in video.frames:
             ids = self._process_frame(frame.objs)
             frame.set_obj_ids(ids)
