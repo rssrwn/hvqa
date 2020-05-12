@@ -3,12 +3,14 @@ import argparse
 from hvqa.util.dataset import VideoDataset
 from hvqa.spec.env import EnvSpec
 from hvqa.detection.detector import NeuralDetector
+from hvqa.models.hardcoded import HardcodedVQAModel
 from hvqa.models.individually_trained import IndTrainedModel
 
 
 DETECTOR_PATH = "saved-models/detection/v1_0/after_20_epochs.pt"
 
-MODEL_PATH = "saved-models/ind-trained"
+HARDCODED_MODEL_PATH = "saved-models/hardcoded"
+IND_MODEL_PATH = "saved-models/ind-trained"
 
 spec = EnvSpec.from_dict({
     "num_frames": 32,
@@ -18,7 +20,7 @@ spec = EnvSpec.from_dict({
         "rotation": ["upward-facing", "right-facing", "downward-facing", "left-facing"]
     },
     "relations": ["close"],
-    "actions": ["move", "rotate left", "rotate right"],
+    "actions": ["move", "rotate left", "rotate right", "nothing"],
     "effects": ["change colour", "eat a bag", "eat a fish"],
 })
 
@@ -26,18 +28,22 @@ spec = EnvSpec.from_dict({
 def main(train_dir, eval_dir):
     # Create data
     detector = NeuralDetector.load(spec, DETECTOR_PATH)
-    train_data = VideoDataset.from_data_dir(spec, train_dir, detector, hardcoded=False)
+    # train_data = VideoDataset.from_data_dir(spec, train_dir, detector, hardcoded=False)
     eval_data = VideoDataset.from_data_dir(spec, eval_dir, detector, hardcoded=True)
 
     # Create model
     # model = IndTrainedModel.new(spec, err_corr=False, al_model=True)
-    model = IndTrainedModel.load(spec, MODEL_PATH)
-    model.train(train_data, eval_data)
-    model.save(MODEL_PATH)
+    # model = IndTrainedModel.load(spec, IND_MODEL_PATH)
+    # model.train(train_data, eval_data)
+    # model.save(IND_MODEL_PATH)
 
     # Load model and evaluate again
-    # model = IndTrainedModel.load(spec, MODEL_PATH)
+    # model = IndTrainedModel.load(spec, IND_MODEL_PATH)
     # model.eval_components(eval_data)
+
+    # Remove
+    model = HardcodedVQAModel.load(spec, HARDCODED_MODEL_PATH)
+    model.eval_components(eval_data)
 
 
 if __name__ == '__main__':

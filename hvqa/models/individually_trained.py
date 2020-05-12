@@ -57,6 +57,7 @@ class IndTrainedModel(_AbsVQAModel):
         print("\nEvaluating components of IndTrainedModel...")
         self.prop_classifier.eval(eval_data)
         self.relation_classifier.eval(eval_data)
+        self.event_detector.eval(eval_data)
         print("Completed component evaluation.")
 
     @staticmethod
