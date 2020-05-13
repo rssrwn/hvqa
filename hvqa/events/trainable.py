@@ -6,7 +6,7 @@ class ILASPEventDetector(_AbsEventDetector, Trainable):
     def __init__(self, spec):
         super(ILASPEventDetector, self).__init__(spec)
 
-        self.pos_combs = ["{p1}<{p2}", "{p1}>{p2}", "{p1}={p2}", ""]
+        self._pos_combs = ["{p1}<{p2}", "{p1}>{p2}", "{p1}={p2}", ""]
         self.background_knowledge = self._gen_background_knowledge()
         self.show_occurs = "\n#show occurs/2.\n"
 
@@ -26,7 +26,44 @@ class ILASPEventDetector(_AbsEventDetector, Trainable):
         pass
 
     def train(self, train_data, eval_data, verbose=True):
-        pass
+        """
+        Train the event detection component using ILASP to find rules for each action
+
+        :param train_data: Training data ((videos, answers))
+        :param eval_data: Evaluation data
+        :param verbose: Print additional info during training
+        """
+
+        videos, answers = train_data
+
+        action_ilasp_map = self._gen_data(videos, answers)
+
+        action = "move"
+        rules = self._gen_bias_rules(action)
+        examples = action_ilasp_map[action]
+
+        f = open("temp.las", "w")
+        f.write(self.background_knowledge)
+        f.write("\n".join(rules))
+        f.write("\n".join(examples))
+        f.close()
+
+    def _gen_data(self, videos, answers):
+        action_ilasp_enc_map = {action: [] for action in self.spec.actions if action != "nothing"}
+        for video_idx, video in enumerate(videos):
+            q_idxs = [q_idx for q_idx, q_type in enumerate(video.q_types) if q_type == self.spec.qa.event_q]
+            for q_idx in q_idxs:
+                frame_idx = self.spec.qa.parse_event_question(video.questions[q_idx])
+                action = self.spec.qa.parse_event_ans(answers[video_idx][q_idx])
+                initial = video.frames[frame_idx].gen_asp_encoding("initial_frame")
+                next_frame = video.frames[frame_idx].gen_asp_encoding("next_frame")
+                act = self.spec.to_internal("action", action)
+                asp_enc = f"#pos({act}_p1@1, {{ occurs_{act} }}, {{}}, {{\n" \
+                          f"{initial}{next_frame}}}).\n"
+
+                action_ilasp_enc_map[action].append(asp_enc)
+
+        return action_ilasp_enc_map
 
     def _gen_background_knowledge(self):
         back_know = "holds(F, I) :- obs(F, I).\n\n" \
@@ -40,8 +77,17 @@ class ILASPEventDetector(_AbsEventDetector, Trainable):
         # Add static predicate for each class (from spec)
         for obj_type in self.spec.obj_types():
             static_bool = "true" if self.spec.is_static(obj_type) else "false"
-            static_rule = f"static(Id, I, {static_bool}) :- holds(class({obj_type}, Id), I)."
+            static_rule = f"static(Id, I, {static_bool}) :- holds(class({obj_type}, Id), I).\n"
             back_know += static_rule
+
+        back_know += "\n"
+
+        for action in self.spec.actions:
+            if action != "nothing":
+                act = self.spec.to_internal("action", action)
+                back_know += f"1 {{ occurs({act}(Id)) : static(Id, initial_frame, false) }} :- occurs_{act}.\n"
+
+        back_know += "\n"
 
         # Add rule for nothing action
         occurs_nothing = "occurs(nothing(Id), I) :- {neg_actions}static(Id, I, false), step(I+1), step(I)."
@@ -50,10 +96,10 @@ class ILASPEventDetector(_AbsEventDetector, Trainable):
         neg_actions = ""
         for action in self.spec.actions:
             if action != "nothing":
-                neg_actions += action_template.format(action=action)
+                neg_actions += action_template.format(action=self.spec.to_internal("action", action))
 
         occurs_nothing = occurs_nothing.format(neg_actions=neg_actions)
-        back_know += occurs_nothing
+        back_know += occurs_nothing + "\n\n"
 
         return back_know
 
@@ -61,32 +107,34 @@ class ILASPEventDetector(_AbsEventDetector, Trainable):
     def _extend_rules(rules, ext_strs):
         new_rules = []
         for ext in ext_strs:
-            ext_str = ",\n  " + ext if ext != "" else ext
+            ext_str = ", " + ext if ext != "" else ext
             [new_rules.append(rule + ext_str) for rule in rules]
 
         return new_rules
 
     def _gen_bias_rules(self, action):
-        rule_start = f"1 ~ occurs({action}(Id), initial_frame) :- \n" \
-                     f"  static(Id, initial_frame, False),\n" \
-                     f"  obj_pos((X1, Y1), Id, initial_frame),\n" \
-                     f"  obj_pos((X2, Y2), Id, next_frame)"
+        internal_action = self.spec.to_internal("action", action)
+        rule_start = f"1 ~ occurs({internal_action}(Id), initial_frame) :- " \
+                     f"static(Id, initial_frame, False), " \
+                     f"obj_pos((X1, Y1), Id, initial_frame), " \
+                     f"obj_pos((X2, Y2), Id, next_frame)"
 
         rules = [rule_start]
 
         # Add combinations for xs
-        exts = [comb.format(p1="X1", p2="X2") for comb in self.pos_combs]
+        exts = [comb.format(p1="X1", p2="X2") for comb in self._pos_combs]
         rules = self._extend_rules(rules, exts)
 
         # Add combinations for ys
-        exts = [comb.format(p1="Y1", p2="Y2") for comb in self.pos_combs]
+        exts = [comb.format(p1="Y1", p2="Y2") for comb in self._pos_combs]
         rules = self._extend_rules(rules, exts)
 
         # Add combinations for each property
         for prop in self.spec.prop_names():
             for frame_str in ["initial_frame", "next_frame"]:
                 holds_prop_str = f"holds({prop}({{val}}, Id), {frame_str})"
-                exts = [holds_prop_str.format(val=val) for val in self.spec.prop_values(prop)]
+                prop_vals = [self.spec.to_internal(prop, val) for val in self.spec.prop_values(prop)]
+                exts = [holds_prop_str.format(val=val) for val in prop_vals]
                 exts += [""]
                 rules = self._extend_rules(rules, exts)
 

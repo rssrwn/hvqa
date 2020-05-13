@@ -82,7 +82,7 @@ class QARelationDataset(_AbsRelationDataset):
                 parsed_q = self.spec.qa.parse_relation_question(question)
                 rel, obj1_cls, obj1_val, obj2_cls, obj2_val, frame_idx = parsed_q
 
-                yes_no = self.spec.qa.parse_ans_1(answer)
+                yes_no = self.spec.qa.parse_relation_ans(answer)
                 yes_no = 1.0 if yes_no == "yes" else 0.0
 
                 obj1 = self._match_obj(obj1_cls, obj1_val, video.frames[frame_idx].objs)

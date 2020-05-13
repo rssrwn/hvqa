@@ -20,7 +20,7 @@ class QASpec:
             "firth": 5
         }
 
-    def parse_ans_0(self, ans_str):
+    def parse_prop_ans(self, ans_str):
         prop_val = ans_str
         prop = self.spec.find_prop(prop_val)
 
@@ -30,10 +30,10 @@ class QASpec:
 
         return prop, prop_val
 
-    def parse_ans_1(self, ans_str):
+    def parse_relation_ans(self, ans_str):
         return ans_str
 
-    def parse_ans_2(self, ans_str):
+    def parse_event_ans(self, ans_str):
         return ans_str
 
     def parse_ans_3(self, ans_str):
@@ -95,7 +95,7 @@ class QASpec:
 
         return rel, obj1_cls, obj1_prop_val, obj2_cls, obj2_prop_val, frame_idx
 
-    def parse_q_2(self, question):
+    def parse_event_question(self, question):
         splits = question.split(" ")
         frame_idx = int(splits[-1][:-1])
         return frame_idx

@@ -7,6 +7,7 @@ from hvqa.properties.neural import NeuralPropExtractor
 from hvqa.tracking.obj_tracker import ObjTracker
 from hvqa.relations.neural import NeuralRelationClassifier
 from hvqa.events.hardcoded_asp import ASPEventDetector
+from hvqa.events.trainable import ILASPEventDetector
 from hvqa.qa.hardcoded_asp import HardcodedASPQASystem
 
 
@@ -18,7 +19,7 @@ class IndTrainedModel(_AbsVQAModel):
     def __init__(self, spec, properties, tracker, relations, events, qa):
         self.spec = spec
         self.err_corr = tracker.err_corr
-        self.al_model = events.al_model
+        # self.al_model = events.al_model
 
         super(IndTrainedModel, self).__init__(properties, tracker, relations, events, qa)
 
@@ -31,7 +32,7 @@ class IndTrainedModel(_AbsVQAModel):
         :param verbose: Print additional info during training
         """
 
-        assert not train_data.is_hardcoded(), "Training data must not be hardcoded when training an IndTrainedModel"
+        # assert not train_data.is_hardcoded(), "Training data must not be hardcoded when training an IndTrainedModel"
         assert eval_data.is_hardcoded(), "Evaluation data must always be hardcoded when training an IndTrainedModel"
 
         print("\nTraining individually-trained model...")
@@ -43,13 +44,19 @@ class IndTrainedModel(_AbsVQAModel):
         # self.prop_classifier.train((videos, answers), eval_data, verbose=verbose, from_qa=True)  # TODO uncomment
 
         print("Labelling object properties...")
-        [self.prop_classifier.run_(video) for video in videos]
+        # [self.prop_classifier.run_(video) for video in videos]  # TODO uncomment
 
         # Train relation component and add relations to each frame
-        self.relation_classifier.train((videos, answers), eval_data, verbose=verbose)
+        # self.relation_classifier.train((videos, answers), eval_data, verbose=verbose)  # TODO uncomment
 
         print("Labelling relations between objects...")
-        # [self.relation_classifier.run_(video) for video in videos]
+        # [self.relation_classifier.run_(video) for video in videos]  # TODO uncomment
+
+        print("Adding tracking ids to objects...")
+        [self.tracker.run_(video) for video in videos]
+
+        print("Training event detector...")
+        self.event_detector.train((videos, answers), eval_data, verbose=verbose)
 
         print("Completed individually-trained model training.")
 
@@ -73,7 +80,8 @@ class IndTrainedModel(_AbsVQAModel):
         properties = NeuralPropExtractor.new(spec)
         tracker = ObjTracker.new(spec, err_corr=err_corr)
         relations = NeuralRelationClassifier.new(spec)
-        events = ASPEventDetector.new(spec, al_model=al_model)
+        # events = ASPEventDetector.new(spec, al_model=al_model)
+        events = ILASPEventDetector.new(spec)
         qa = HardcodedASPQASystem.new(spec)
 
         model = IndTrainedModel(spec, properties, tracker, relations, events, qa)
@@ -107,7 +115,9 @@ class IndTrainedModel(_AbsVQAModel):
         # relations = NeuralRelationClassifier.load(spec, relations_path)
         relations = NeuralRelationClassifier.new(spec)  # TODO remove
 
-        events = ASPEventDetector.new(spec, al_model=al_model)
+        # events = ASPEventDetector.new(spec, al_model=al_model)
+        events = ILASPEventDetector.new(spec)  # TODO remove
+
         qa = HardcodedASPQASystem.new(spec)
 
         model = IndTrainedModel(spec, properties, tracker, relations, events, qa)

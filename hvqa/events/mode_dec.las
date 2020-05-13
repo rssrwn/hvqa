@@ -12,7 +12,7 @@ disappear(Id, Frame+1) :-
   step(Frame+1),
   step(Frame).
 
-move_direction(left, Id, I) :- obj_pos((X1, Y1), Id, I), obj_pos((X2, Y2), Id, I+1),
+1 { occurs(move(Id)) : static(Id, initial_frame, false) } 1 :- occurs_move.
 
 
 % *** Language bias for move ***
@@ -45,11 +45,7 @@ move_direction(left, Id, I) :- obj_pos((X1, Y1), Id, I), obj_pos((X2, Y2), Id, I
   X1>X2, Y1>Y2.
 
 
-#pos(p1, {
-occurs(move(0), initial_frame).
-}, {
-
-}, {
+#pos(move_p1@1, { occurs_move }, {}, {
 obs(position((20,30,100,110), 0), initial_frame).
 obs(position((20,50,100,130), 0), next_frame).
 }).

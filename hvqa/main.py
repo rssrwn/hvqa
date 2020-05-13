@@ -6,6 +6,8 @@ from hvqa.detection.detector import NeuralDetector
 from hvqa.models.hardcoded import HardcodedVQAModel
 from hvqa.models.individually_trained import IndTrainedModel
 
+from hvqa.events.trainable import ILASPEventDetector
+
 
 DETECTOR_PATH = "saved-models/detection/v1_0/after_20_epochs.pt"
 
@@ -38,28 +40,20 @@ def main(train_dir, eval_dir):
     # model.save(IND_MODEL_PATH)
 
     # Load model and evaluate again
-    # model = IndTrainedModel.load(spec, IND_MODEL_PATH)
-    # model.eval_components(eval_data)
+    model = IndTrainedModel.load(spec, IND_MODEL_PATH)
+    model.train(eval_data, eval_data)
 
     # Remove
-    model = HardcodedVQAModel.load(spec, HARDCODED_MODEL_PATH, al_model=False)
-    model.eval_components(eval_data)
+    # data = [eval_data[idx] for idx in range(len(eval_data))]
+    # videos, answers = tuple(zip(*data))
 
+    # events = ILASPEventDetector.new(spec)
+    # events.train((videos, answers), eval_data)
 
-# if __name__ == '__main__':
-#     parser = argparse.ArgumentParser(description="Script for running VideoQA pipeline on a video")
-#     parser.add_argument("train_dir", type=str)
-#     parser.add_argument("eval_dir", type=str)
-#     args = parser.parse_args()
-#     main(args.train_dir, args.eval_dir)
 
 if __name__ == '__main__':
-    from hvqa.events.trainable import ILASPEventDetector
-
-    events = ILASPEventDetector.new(spec)
-    rules = events._gen_bias_rules("move")
-    print(len(rules))
-
-    f = open("temp.las", "w")
-    f.write("\n".join(rules))
-    f.close()
+    parser = argparse.ArgumentParser(description="Script for running VideoQA pipeline on a video")
+    parser.add_argument("train_dir", type=str)
+    parser.add_argument("eval_dir", type=str)
+    args = parser.parse_args()
+    main(args.train_dir, args.eval_dir)
