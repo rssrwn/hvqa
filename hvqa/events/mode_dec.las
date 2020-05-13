@@ -12,7 +12,7 @@ disappear(Id, Frame+1) :-
   step(Frame+1),
   step(Frame).
 
-1 { occurs(move(Id)) : static(Id, initial_frame, false) } 1 :- occurs_move.
+occurs_move :- occurs(move(Id), initial_frame).
 
 
 % *** Language bias for move ***

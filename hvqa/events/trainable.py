@@ -6,7 +6,7 @@ class ILASPEventDetector(_AbsEventDetector, Trainable):
     def __init__(self, spec):
         super(ILASPEventDetector, self).__init__(spec)
 
-        self._pos_combs = ["{p1}<{p2}", "{p1}>{p2}", "{p1}={p2}", ""]
+        self._pos_combs = ["{p1}<{p2}", "{p1}>{p2}", "{p1}={p2}", "{p1}!={p2}", ""]
         self.background_knowledge = self._gen_background_knowledge()
         self.show_occurs = "\n#show occurs/2.\n"
 
@@ -44,24 +44,36 @@ class ILASPEventDetector(_AbsEventDetector, Trainable):
 
         f = open("temp.las", "w")
         f.write(self.background_knowledge)
-        f.write("\n".join(rules))
-        f.write("\n".join(examples))
+        f.write("\n".join(rules) + "\n\n\n")
+        f.write("\n".join(examples) + "\n")
         f.close()
 
     def _gen_data(self, videos, answers):
-        action_ilasp_enc_map = {action: [] for action in self.spec.actions if action != "nothing"}
+        action_set = {action for action in self.spec.actions if action != "nothing"}
+
+        action_ilasp_enc_map = {action: [] for action in action_set}
+        action_example_num_map = {action: 0 for action in action_set}
+
         for video_idx, video in enumerate(videos):
             q_idxs = [q_idx for q_idx, q_type in enumerate(video.q_types) if q_type == self.spec.qa.event_q]
             for q_idx in q_idxs:
                 frame_idx = self.spec.qa.parse_event_question(video.questions[q_idx])
                 action = self.spec.qa.parse_event_ans(answers[video_idx][q_idx])
-                initial = video.frames[frame_idx].gen_asp_encoding("initial_frame")
-                next_frame = video.frames[frame_idx].gen_asp_encoding("next_frame")
-                act = self.spec.to_internal("action", action)
-                asp_enc = f"#pos({act}_p1@1, {{ occurs_{act} }}, {{}}, {{\n" \
-                          f"{initial}{next_frame}}}).\n"
 
-                action_ilasp_enc_map[action].append(asp_enc)
+                initial = video.frames[frame_idx].gen_asp_encoding("initial_frame")
+                next_frame = video.frames[frame_idx+1].gen_asp_encoding("next_frame")
+                example_num = action_example_num_map[action]
+
+                # Add the example for each action (making it negative if it is a different action)
+                for action_ in action_set:
+                    act_ = self.spec.to_internal("action", action_)
+                    pos_neg = "pos" if action == action_ else "neg"
+                    example_name = f"{act_}_p{example_num}" if pos_neg == "pos" else f"{act_}_n{example_num}"
+                    asp_enc = f"#{pos_neg}({example_name}@1, {{ occurs_{act_} }}, {{}}, {{\n" \
+                              f"{initial}{next_frame}}}).\n"
+
+                    action_ilasp_enc_map[action_].append(asp_enc)
+                action_example_num_map[action] += 1
 
         return action_ilasp_enc_map
 
@@ -85,7 +97,7 @@ class ILASPEventDetector(_AbsEventDetector, Trainable):
         for action in self.spec.actions:
             if action != "nothing":
                 act = self.spec.to_internal("action", action)
-                back_know += f"1 {{ occurs({act}(Id)) : static(Id, initial_frame, false) }} :- occurs_{act}.\n"
+                back_know += f"occurs_{act} :- occurs({act}(Id), initial_frame).\n"
 
         back_know += "\n"
 
@@ -115,7 +127,7 @@ class ILASPEventDetector(_AbsEventDetector, Trainable):
     def _gen_bias_rules(self, action):
         internal_action = self.spec.to_internal("action", action)
         rule_start = f"1 ~ occurs({internal_action}(Id), initial_frame) :- " \
-                     f"static(Id, initial_frame, False), " \
+                     f"static(Id, initial_frame, false), " \
                      f"obj_pos((X1, Y1), Id, initial_frame), " \
                      f"obj_pos((X2, Y2), Id, next_frame)"
 
