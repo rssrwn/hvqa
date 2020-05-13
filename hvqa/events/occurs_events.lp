@@ -91,6 +91,7 @@ occurs(nothing(Id), Frame) :-
   not occurs(move(Id), Frame),
   not occurs(rotate_left(Id), Frame),
   not occurs(rotate_right(Id), Frame),
+  static(Id, Frame, false),
   step(Frame+1),
   step(Frame),
   octo_id(Id).
