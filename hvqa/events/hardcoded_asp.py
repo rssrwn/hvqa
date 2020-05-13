@@ -1,10 +1,15 @@
-from hvqa.events.abs_asp import _AbsEventDetector
+from pathlib import Path
+
+from hvqa.events.abs_detector import _AbsEventDetector
 from hvqa.util.asp_runner import ASPRunner
 
 
 class ASPEventDetector(_AbsEventDetector):
     def __init__(self, spec, al_model=True):
         super(ASPEventDetector, self).__init__(spec)
+
+        path = Path("hvqa/events")
+        self._video_info = path / "_temp_video_info.lp"
 
         self.al_model = al_model
 

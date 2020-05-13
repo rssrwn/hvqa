@@ -46,9 +46,20 @@ def main(train_dir, eval_dir):
     model.eval_components(eval_data)
 
 
+# if __name__ == '__main__':
+#     parser = argparse.ArgumentParser(description="Script for running VideoQA pipeline on a video")
+#     parser.add_argument("train_dir", type=str)
+#     parser.add_argument("eval_dir", type=str)
+#     args = parser.parse_args()
+#     main(args.train_dir, args.eval_dir)
+
 if __name__ == '__main__':
-    parser = argparse.ArgumentParser(description="Script for running VideoQA pipeline on a video")
-    parser.add_argument("train_dir", type=str)
-    parser.add_argument("eval_dir", type=str)
-    args = parser.parse_args()
-    main(args.train_dir, args.eval_dir)
+    from hvqa.events.trainable import ILASPEventDetector
+
+    events = ILASPEventDetector.new(spec)
+    rules = events._gen_bias_rules("move")
+    print(len(rules))
+
+    f = open("temp.las", "w")
+    f.write("\n".join(rules))
+    f.close()

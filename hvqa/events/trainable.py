@@ -1,4 +1,4 @@
-from hvqa.events.abs_asp import _AbsEventDetector
+from hvqa.events.abs_detector import _AbsEventDetector
 from hvqa.util.interfaces import Trainable
 
 
