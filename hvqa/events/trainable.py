@@ -43,25 +43,25 @@ class ILASPEventDetector(_AbsEventDetector, Trainable):
         f.write("\n".join(asp_encs))
         f.close()
 
-    # def _gen_asp_opt_data(self, videos, answers):
-    #     examples = []
-    #     example_num = 1
-    #
-    #     for video_idx, video in enumerate(videos):
-    #         q_idxs = [q_idx for q_idx, q_type in enumerate(video.q_types) if q_type == self.spec.qa.event_q]
-    #         for q_idx in q_idxs:
-    #             frame_idx = self.spec.qa.parse_event_question(video.questions[q_idx])
-    #             action = self.spec.qa.parse_event_ans(answers[video_idx][q_idx])
-    #             action_internal = self.spec.to_internal("action", action)
-    #
-    #             initial = video.frames[frame_idx].gen_asp_encoding(str(example_num))
-    #             next_frame = video.frames[frame_idx+1].gen_asp_encoding("-" + str(example_num))
-    #             asp_enc = f"actual({action_internal}, {example_num}).\n\n{initial}{next_frame}"
-    #             examples.append(asp_enc)
-    #
-    #             example_num += 1
-    #
-    #     return examples
+    def _gen_asp_opt_data(self, videos, answers):
+        examples = []
+        example_num = 1
+
+        for video_idx, video in enumerate(videos):
+            q_idxs = [q_idx for q_idx, q_type in enumerate(video.q_types) if q_type == self.spec.qa.event_q]
+            for q_idx in q_idxs:
+                frame_idx = self.spec.qa.parse_event_question(video.questions[q_idx])
+                action = self.spec.qa.parse_event_ans(answers[video_idx][q_idx])
+                action_internal = self.spec.to_internal("action", action)
+
+                initial = video.frames[frame_idx].gen_asp_encoding(str(example_num))
+                next_frame = video.frames[frame_idx+1].gen_asp_encoding("-" + str(example_num))
+                asp_enc = f"actual({action_internal}, {example_num}).\n\n{initial}{next_frame}"
+                examples.append(asp_enc)
+
+                example_num += 1
+
+        return examples
 
     def _gen_data(self, videos, answers):
         action_set = {action for action in self.spec.actions if action != "nothing"}
