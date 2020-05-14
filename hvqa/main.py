@@ -6,8 +6,6 @@ from hvqa.detection.detector import NeuralDetector
 from hvqa.models.hardcoded import HardcodedVQAModel
 from hvqa.models.individually_trained import IndTrainedModel
 
-from hvqa.events.trainable import ILASPEventDetector
-
 
 DETECTOR_PATH = "saved-models/detection/v1_0/after_20_epochs.pt"
 
