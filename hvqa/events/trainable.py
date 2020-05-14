@@ -36,17 +36,32 @@ class ILASPEventDetector(_AbsEventDetector, Trainable):
 
         videos, answers = train_data
 
-        action_ilasp_map = self._gen_data(videos, answers)
+        asp_encs = self._gen_asp_opt_data(videos, answers)
 
-        action = "move"
-        rules = self._gen_bias_rules(action)
-        examples = action_ilasp_map[action]
-
-        f = open("temp.las", "w")
-        f.write(self.background_knowledge)
-        f.write("\n".join(rules) + "\n\n\n")
-        f.write("\n".join(examples) + "\n")
+        filename = "asp_opt_data.lp"
+        f = open(filename, "w")
+        f.write("\n".join(asp_encs))
         f.close()
+
+    # def _gen_asp_opt_data(self, videos, answers):
+    #     examples = []
+    #     example_num = 1
+    #
+    #     for video_idx, video in enumerate(videos):
+    #         q_idxs = [q_idx for q_idx, q_type in enumerate(video.q_types) if q_type == self.spec.qa.event_q]
+    #         for q_idx in q_idxs:
+    #             frame_idx = self.spec.qa.parse_event_question(video.questions[q_idx])
+    #             action = self.spec.qa.parse_event_ans(answers[video_idx][q_idx])
+    #             action_internal = self.spec.to_internal("action", action)
+    #
+    #             initial = video.frames[frame_idx].gen_asp_encoding(str(example_num))
+    #             next_frame = video.frames[frame_idx+1].gen_asp_encoding("-" + str(example_num))
+    #             asp_enc = f"actual({action_internal}, {example_num}).\n\n{initial}{next_frame}"
+    #             examples.append(asp_enc)
+    #
+    #             example_num += 1
+    #
+    #     return examples
 
     def _gen_data(self, videos, answers):
         action_set = {action for action in self.spec.actions if action != "nothing"}
@@ -123,6 +138,26 @@ class ILASPEventDetector(_AbsEventDetector, Trainable):
             [new_rules.append(rule + ext_str) for rule in rules]
 
         return new_rules
+
+    def _gen_pos_bias(self, action):
+        internal_action = self.spec.to_internal("action", action)
+        rule_start = f"1 ~ occurs({internal_action}(Id), initial_frame) :- " \
+                     f"static(Id, initial_frame, false), " \
+                     f"obj_pos((X1, Y1), Id, initial_frame), " \
+                     f"obj_pos((X2, Y2), Id, next_frame)"
+
+        rules = [rule_start]
+
+        # Add combinations for xs
+        exts = [comb.format(p1="X1", p2="X2") for comb in self._pos_combs]
+        rules = self._extend_rules(rules, exts)
+
+        # Add combinations for ys
+        exts = [comb.format(p1="Y1", p2="Y2") for comb in self._pos_combs]
+        rules = self._extend_rules(rules, exts)
+
+        rules = [rule + "." for rule in rules]
+        return rules
 
     def _gen_bias_rules(self, action):
         internal_action = self.spec.to_internal("action", action)
