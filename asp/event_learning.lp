@@ -1,4 +1,7 @@
 
+#const action=move.
+#const max_rules=5.
+
 holds(F, I) :- obs(F, I).
 
 step(I) :- obs(_, I).
@@ -23,12 +26,11 @@ rule_size(Size, R) :- Size = #sum{ W, Fg, F_id : feature_weight(Fg, F_id, W), fe
 count_rules(Cnt) :- Cnt = #count{ R : rule(R) }.
 
 
-max_rules(5).
-1 { max_rule_id(0..Max-1) } 1 :- max_rules(Max).
+1 { max_rule_id(0..max_rules-1) } 1.
 rule(0..Max) :- max_rule_id(Max).
 
 
-predicted(move, Frame) :-
+predicted(action, Frame) :-
   static(Id, Frame, false),
   feature_value(x_pos, Id, Frame, Rule),
   feature_value(y_pos, Id, Frame, Rule),
@@ -400,8 +402,8 @@ feature_weight(disappear, 2, 0).
 
 
 % Weak constraints
-:~ predicted(move, Frame), actual(move, Frame). [-1@3, Frame]
-:~ actual(Action, Frame), Action != move, not predicted(move, Frame). [-1@3, Frame]
+:~ predicted(action, Frame), actual(action, Frame). [-1@3, Frame]
+:~ actual(Action, Frame), Action != action, not predicted(action, Frame). [-1@3, Frame]
 :~ count_rules(Cnt). [Cnt@1]
 :~ Sum = #sum{ Size, R : rule_size(Size, R), rule(R) }. [Sum@0]
 
