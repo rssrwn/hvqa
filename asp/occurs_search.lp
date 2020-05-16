@@ -1,7 +1,7 @@
 
-#const action=move.
+#const action=rotate_right.
 #const max_rules=5.
-#const fg=y_pos.
+#const fg=colour.
 
 
 holds(F, I) :- obs(F, I).
@@ -40,19 +40,60 @@ predicted(action, Frame) :-
 
 
 % We can choose to either use all these features or none, for each rule in H
-1 { use_acc(Rule) ; dont_use_acc(Rule) } 1 :- rule(Rule).
+1 { use_acc(Acc_id, Rule) ; dont_use_acc(Acc_id, Rule) } 1 :- acc_id(Acc_id), rule(Rule).
+:- use_acc(Acc_id1, Rule), use_acc(Acc_id2, Rule), Acc_id1 != Acc_id2.
 
 acc_value(Id, Frame, Rule) :-
   feature_value(x_pos, Id, Frame, Rule),
+  feature_value(y_pos, Id, Frame, Rule),
+  feature_value(rot, Id, Frame, Rule),
+  % feature_value(colour, Id, Frame, Rule),
+  % feature_value(disappear, Id, Frame, Rule),
   static(Id, Frame, false),
-  use_acc(Rule).
+  use_acc(Acc_id, Rule).
 
 acc_value(Id, Frame, Rule) :-
   static(Id, Frame, false),
-  dont_use_acc(Rule).
+  dont_use_acc(Acc_id, Rule).
 
 % Accumulated features
-feature(x_pos, 3, Rule) :- use_acc(Rule).
+acc_feature(x_pos, 4, 0).
+acc_feature(x_pos, 4, 1).
+acc_feature(x_pos, 4, 2).
+acc_feature(x_pos, 4, 3).
+acc_feature(y_pos, 4, 0).
+acc_feature(y_pos, 4, 1).
+acc_feature(y_pos, 4, 2).
+acc_feature(y_pos, 4, 3).
+acc_feature(rot, 1, 3).
+acc_feature(rot, 6, 2).
+acc_feature(rot, 12, 1).
+acc_feature(rot, 11, 0).
+
+% acc_feature(rot, 16, 0).
+% acc_feature(colour, 51, 0).
+
+acc_id(Acc_id) :- acc_feature(_, _, Acc_id).
+
+feature(Fg, F_id, Rule) :-
+  use_acc(Acc_id, Rule),
+  acc_feature(Fg, F_id, Acc_id).
+
+feature(Fg, Empty_id, Rule) :-
+  dont_use_acc(Acc_id, Rule),
+  acc_feature(Fg, F_id, Acc_id),
+  empty_id(Fg, Empty_id).
+
+% Set any feature not yet being optimised to empty
+% acc_fg(Fg) :- acc_feature(Fg, _, _).
+% feature(Fg, Empty_id, Rule) :-
+%   not acc_fg(Fg),
+%   Fg != fg,
+%   empty_id(Fg, Empty_id),
+%   rule(Rule).
+
+#show use_acc/2.
+#show dont_use_acc/2.
 
 
 % Generate all possible feature combinations
@@ -80,6 +121,8 @@ feature_weight(x_pos, 2, 1).
 feature_weight(x_pos, 3, 1).
 feature_weight(x_pos, 4, 0).
 
+empty_id(x_pos, 4).
+
 
 % Y position features
 feature_value(y_pos, Id, Frame, Rule) :-
@@ -101,6 +144,8 @@ feature_weight(y_pos, 1, 1).
 feature_weight(y_pos, 2, 1).
 feature_weight(y_pos, 3, 1).
 feature_weight(y_pos, 4, 0).
+
+empty_id(y_pos, 4).
 
 
 % Rotation features
@@ -179,6 +224,8 @@ feature_weight(rot, 15, 1).
 feature_weight(rot, 16, 1).
 feature_weight(rot, 17, 1).
 feature_weight(rot, 18, 0).
+
+empty_id(rot, 18).
 
 
 % Colour features
@@ -397,6 +444,8 @@ feature_weight(colour, 49, 1).
 feature_weight(colour, 50, 1).
 feature_weight(colour, 51, 0).
 
+empty_id(colour, 51).
+
 
 % Disappear features
 feature_value(disappear, Id, Frame, Rule) :- disappear(Id, -Frame), feature(disappear, 0, Rule).
@@ -406,6 +455,8 @@ feature_value(disappear, Id, Frame, Rule) :- object(Id, Frame), feature(disappea
 feature_weight(disappear, 0, 1).
 feature_weight(disappear, 1, 1).
 feature_weight(disappear, 2, 0).
+
+empty_id(disappear, 2).
 
 
 % Weak constraints
