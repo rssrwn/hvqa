@@ -1,7 +1,7 @@
 
 #const action=rotate_right.
 #const max_rules=5.
-#const fg=colour.
+#const fg=disappear.
 
 
 holds(F, I) :- obs(F, I).
@@ -40,21 +40,16 @@ predicted(action, Frame) :-
 
 
 % We can choose to either use all these features or none, for each rule in H
-1 { use_acc(Acc_id, Rule) ; dont_use_acc(Acc_id, Rule) } 1 :- acc_id(Acc_id), rule(Rule).
-:- use_acc(Acc_id1, Rule), use_acc(Acc_id2, Rule), Acc_id1 != Acc_id2.
+1 { use_acc(Acc_id, Rule) : acc_id(Acc_id) ; no_acc(Rule) } 1 :- rule(Rule).
+
 
 acc_value(Id, Frame, Rule) :-
   feature_value(x_pos, Id, Frame, Rule),
   feature_value(y_pos, Id, Frame, Rule),
   feature_value(rot, Id, Frame, Rule),
-  % feature_value(colour, Id, Frame, Rule),
-  % feature_value(disappear, Id, Frame, Rule),
-  static(Id, Frame, false),
-  use_acc(Acc_id, Rule).
-
-acc_value(Id, Frame, Rule) :-
-  static(Id, Frame, false),
-  dont_use_acc(Acc_id, Rule).
+  feature_value(colour, Id, Frame, Rule),
+  feature_value(disappear, Id, Frame, Rule),
+  static(Id, Frame, false).
 
 % Accumulated features
 acc_feature(x_pos, 4, 0).
@@ -69,9 +64,10 @@ acc_feature(rot, 1, 3).
 acc_feature(rot, 6, 2).
 acc_feature(rot, 12, 1).
 acc_feature(rot, 11, 0).
-
-% acc_feature(rot, 16, 0).
-% acc_feature(colour, 51, 0).
+acc_feature(colour, 51, 0).
+acc_feature(colour, 51, 1).
+acc_feature(colour, 51, 2).
+acc_feature(colour, 51, 3).
 
 acc_id(Acc_id) :- acc_feature(_, _, Acc_id).
 
@@ -79,21 +75,18 @@ feature(Fg, F_id, Rule) :-
   use_acc(Acc_id, Rule),
   acc_feature(Fg, F_id, Acc_id).
 
+acc_fg(Fg) :- acc_feature(Fg, _, _).
 feature(Fg, Empty_id, Rule) :-
-  dont_use_acc(Acc_id, Rule),
-  acc_feature(Fg, F_id, Acc_id),
-  empty_id(Fg, Empty_id).
+  acc_fg(Fg),
+  empty_id(Fg, Empty_id),
+  no_acc(Rule).
 
 % Set any feature not yet being optimised to empty
-% acc_fg(Fg) :- acc_feature(Fg, _, _).
-% feature(Fg, Empty_id, Rule) :-
-%   not acc_fg(Fg),
-%   Fg != fg,
-%   empty_id(Fg, Empty_id),
-%   rule(Rule).
-
-#show use_acc/2.
-#show dont_use_acc/2.
+feature(Fg, Empty_id, Rule) :-
+  not acc_fg(Fg),
+  Fg != fg,
+  empty_id(Fg, Empty_id),
+  rule(Rule).
 
 
 % Generate all possible feature combinations
