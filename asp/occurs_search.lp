@@ -3,6 +3,24 @@
 #const max_rules=5.
 #const fg=disappear.
 
+% Accumulated features
+acc_feature(x_pos, 4, 0).
+acc_feature(x_pos, 4, 1).
+acc_feature(x_pos, 4, 2).
+acc_feature(x_pos, 4, 3).
+acc_feature(y_pos, 4, 0).
+acc_feature(y_pos, 4, 1).
+acc_feature(y_pos, 4, 2).
+acc_feature(y_pos, 4, 3).
+acc_feature(rot, 1, 3).
+acc_feature(rot, 6, 2).
+acc_feature(rot, 12, 1).
+acc_feature(rot, 11, 0).
+acc_feature(colour, 51, 0).
+acc_feature(colour, 51, 1).
+acc_feature(colour, 51, 2).
+acc_feature(colour, 51, 3).
+
 
 holds(F, I) :- obs(F, I).
 
@@ -50,24 +68,6 @@ acc_value(Id, Frame, Rule) :-
   feature_value(colour, Id, Frame, Rule),
   feature_value(disappear, Id, Frame, Rule),
   static(Id, Frame, false).
-
-% Accumulated features
-acc_feature(x_pos, 4, 0).
-acc_feature(x_pos, 4, 1).
-acc_feature(x_pos, 4, 2).
-acc_feature(x_pos, 4, 3).
-acc_feature(y_pos, 4, 0).
-acc_feature(y_pos, 4, 1).
-acc_feature(y_pos, 4, 2).
-acc_feature(y_pos, 4, 3).
-acc_feature(rot, 1, 3).
-acc_feature(rot, 6, 2).
-acc_feature(rot, 12, 1).
-acc_feature(rot, 11, 0).
-acc_feature(colour, 51, 0).
-acc_feature(colour, 51, 1).
-acc_feature(colour, 51, 2).
-acc_feature(colour, 51, 3).
 
 acc_id(Acc_id) :- acc_feature(_, _, Acc_id).
 

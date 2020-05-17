@@ -7,7 +7,7 @@ from hvqa.properties.neural import NeuralPropExtractor
 from hvqa.tracking.obj_tracker import ObjTracker
 from hvqa.relations.neural import NeuralRelationClassifier
 from hvqa.events.hardcoded_asp import ASPEventDetector
-from hvqa.events.trainable import ILASPEventDetector
+from hvqa.events.trainable import ILPEventDetector
 from hvqa.qa.hardcoded_asp import HardcodedASPQASystem
 
 
@@ -81,7 +81,7 @@ class IndTrainedModel(_AbsVQAModel):
         tracker = ObjTracker.new(spec, err_corr=err_corr)
         relations = NeuralRelationClassifier.new(spec)
         # events = ASPEventDetector.new(spec, al_model=al_model)
-        events = ILASPEventDetector.new(spec)
+        events = ILPEventDetector.new(spec)
         qa = HardcodedASPQASystem.new(spec)
 
         model = IndTrainedModel(spec, properties, tracker, relations, events, qa)
@@ -116,7 +116,7 @@ class IndTrainedModel(_AbsVQAModel):
         relations = NeuralRelationClassifier.new(spec)  # TODO remove
 
         # events = ASPEventDetector.new(spec, al_model=al_model)
-        events = ILASPEventDetector.new(spec)  # TODO remove
+        events = ILPEventDetector.new(spec)  # TODO remove
 
         qa = HardcodedASPQASystem.new(spec)
 
