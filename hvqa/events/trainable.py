@@ -1,6 +1,7 @@
 from pathlib import Path
 
 from hvqa.events.abs_detector import _AbsEventDetector
+from hvqa.util.asp_runner import ASPRunner
 from hvqa.util.interfaces import Trainable
 
 
@@ -8,13 +9,18 @@ class ILPEventDetector(_AbsEventDetector, Trainable):
     def __init__(self, spec):
         super(ILPEventDetector, self).__init__(spec)
 
+        self.extra_features = [
+            ("disappear", self._gen_disappear_features)
+        ]
+
+        self.max_rules = 5
+        self.hyp_params_str = f"\n#const action={{action}}.\n#const max_rules={self.max_rules}.\nconst fg={{fg}}.\n"
+
         path = Path("hvqa/events")
         self.asp_data_file = path / "_asp_ilp_data.lp"
-        self.asp_opt_file = path / "_asp_opt_file.lp"
-
-        # TODO
-        # 1. Generate hyperparam file for: action, max_rules and fg
-        # 2. Add static(Id, I, true/false) rules to this file
+        self.asp_opt_file = path / "_asp_opt_file_{action}.lp"
+        self.background_knowledge_file = path / "occurs_search_bk.lp"
+        self.features_file = path / "_features.lp"
 
     @staticmethod
     def new(spec, **kwargs):
@@ -43,11 +49,56 @@ class ILPEventDetector(_AbsEventDetector, Trainable):
         videos, answers = train_data
 
         asp_data = self._gen_asp_opt_data(videos, answers)
-
-        filename = "asp_opt_data.lp"
-        f = open(filename, "w")
-        f.write("\n".join(asp_data))
+        f = open(self.asp_data_file, "w")
+        f.write("\n".join(asp_data) + "\n\n")
         f.close()
+
+        feats_str = self._gen_features()
+        f = open(self.features_file, "w")
+        f.write(feats_str)
+        f.close()
+
+        for action in self.spec.actions:
+            self._find_hypothesis(action)
+
+        # Remove temp files
+        self.asp_data_file.unlink()
+        self.features_file.unlink()
+
+    def _find_hypothesis(self, action):
+        """
+        Find hypothesis for an action which explains the observed data
+
+        :param action: Action to find hypothesis for (str)
+        :return: String of optimal hypothesis for <action>
+        """
+
+        fgs = ["x_pos", "y_pos"] + self.spec.prop_names() + [name for name, _ in self.extra_features]
+
+        completed_fgs = set()
+        acc_features = []
+
+        for fg in fgs:
+            opt_str = self.hyp_params_str + "\n"
+            opt_str += self._gen_static_predicates()
+            opt_str = opt_str.format(action=action, fg=fg)
+            opt_str += "\n\n" + "\n".join(acc_feature_strs) + "\n\n"
+            opt_file = str(self.asp_opt_file).format(action=action)
+
+            files = [self.asp_data_file, self.background_knowledge_file, self.features_file]
+            prog_name = f"ILP {action} action search with fg={fg}"
+            models = ASPRunner.run(opt_file, opt_str, additional_files=files, timeout=3600, prog_name=prog_name)
+            completed_fgs.add(fg)
+            acc_features = self._process_models(models, completed_fgs)
+
+        hyp_str = self._gen_hyp(acc_features)
+        return hyp_str
+
+    def _process_models(self, models, completed_fgs):
+        pass
+
+    def _gen_hyp(self, feature_dicts):
+        pass
 
     def _gen_asp_opt_data(self, videos, answers):
         examples = []
@@ -202,8 +253,16 @@ class ILPEventDetector(_AbsEventDetector, Trainable):
             is_static = "true" if self.spec.is_static(cls) else "false"
             statics.append(static_str.format(cls=cls, is_static=is_static))
 
-        statics_str = "\n\n" + "\n".join(statics) + "\n\n"
+        statics_str = "\n" + "\n".join(statics) + "\n"
         return statics_str
+
+    def _gen_features(self):
+        x_pos_feats = self._gen_pos_features("x")
+        y_pos_feats = self._gen_pos_features("y")
+        prop_feats = "\n\n".join([self._gen_discrete_prop_features(prop) for prop in self.spec.prop_names()])
+        extra_feats = "\n\n".join([func() for _, func in self.extra_features])
+        feats_str = f"\n{x_pos_feats}\n{y_pos_feats}\n{prop_feats}\n{extra_feats}\n"
+        return feats_str
 
     @staticmethod
     def _gen_pos_features(x_y):
@@ -211,7 +270,7 @@ class ILPEventDetector(_AbsEventDetector, Trainable):
         rule_str = f"feature_value({x_y}_pos, Id, Frame, Rule) :- {{comb}}, obj_pos((X1, Y1), Id, Frame), " \
                    f"obj_pos((X2, Y2), Id, -Frame), feature({x_y}_pos, {{f_id}}, Rule)."
 
-        asp_var = "X" if x_y == "x" else "Y"
+        asp_var = "X" if x_y == "x" or x_y == "X" else "Y"
         pos_combs = [comb.format(v=asp_var) for comb in pos_combs]
 
         pos_rules = []

@@ -1,3 +1,4 @@
+import os
 import json
 import time
 from pathlib import Path
@@ -152,7 +153,7 @@ class VideoDataset(QADataset):
         :return: [(id, dict, [PIL Image])]
         """
 
-        num_workers = 16
+        num_workers = os.cpu_count()
         future_timeout = 5
         executor = ThreadPoolExecutor(max_workers=num_workers)
 
