@@ -223,3 +223,35 @@ class ILPEventDetector(_AbsEventDetector, Trainable):
 
         return asp_str
 
+    def _gen_discrete_prop_features(self, prop):
+        rule_str = f"feature_value({prop}, Id, Frame, Rule) :- {{feature}}, holds({prop}(V1, Id), Frame), " \
+                   f"holds({prop}(V2, Id), -Frame), feature({prop}, {{f_id}}, Rule)."
+
+        f_id = 0
+        asp_rules = []
+        feature_weights = []
+
+        for val1 in self.spec.prop_values(prop):
+            for val2 in self.spec.prop_values(prop):
+                val1 = self.spec.to_internal(prop, val1)
+                val2 = self.spec.to_internal(prop, val2)
+                feature = f"V1={val1}, V2={val2}"
+                asp_rules.append(rule_str.format(feature=feature, f_id=f_id))
+                feature_weights.append(f"feature_weight({prop}, {f_id}, 1).")
+                f_id += 1
+
+        for feature in ["V1=V2", "V1!=V2"]:
+            asp_rules.append(rule_str.format(feature=feature, f_id=f_id))
+            feature_weights.append(f"feature_weight({prop}, {f_id}, 0).")
+            f_id += 1
+
+        empty_rule = f"feature_value({prop}, Id, Frame, Rule) :- object(Id, Frame), feature({prop}, {f_id}, Rule)."
+        asp_rules.append(empty_rule)
+        feature_weights.append(f"feature_weight({prop}, {f_id}, 0).")
+
+        asp_str = f"\n% {prop} features\n"
+        asp_str += "\n\n".join(asp_rules)
+        asp_str += "\n\n" + "\n".join(feature_weights)
+        asp_str += f"\nempty_id({prop}, {f_id}).\n\n"
+
+        return asp_str
