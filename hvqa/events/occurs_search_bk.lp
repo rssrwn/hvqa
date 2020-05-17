@@ -61,3 +61,13 @@ feature(Fg, Empty_id, Rule) :-
 
 % Generate all possible feature combinations
 1 { feature(fg, F_id, R) : feature_weight(fg, F_id, _) } 1 :- rule(R).
+
+
+% Weak constraints
+:~ predicted(action, Frame), actual(action, Frame). [-1@3, Frame]
+:~ actual(Action, Frame), Action != action, not predicted(action, Frame). [-1@3, Frame]
+:~ count_rules(Cnt). [Cnt@1]
+:~ Sum = #sum{ Size, R : rule_size(Size, R), rule(R) }. [Sum@0]
+
+#show feature/3.
+#show feature/3.
