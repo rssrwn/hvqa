@@ -255,3 +255,20 @@ class ILPEventDetector(_AbsEventDetector, Trainable):
         asp_str += f"\nempty_id({prop}, {f_id}).\n\n"
 
         return asp_str
+
+    @staticmethod
+    def _gen_disappear_features():
+        dis_str = "feature_value(disappear, Id, Frame, Rule) :- disappear(Id, -Frame), feature(disappear, 0, Rule)."
+        not_dis_str = "feature_value(disappear, Id, Frame, Rule) :- object(Id, Frame), " \
+                      "not disappear(Id, -Frame), feature(disappear, 1, Rule)."
+        empty_dis_str = "feature_value(disappear, Id, Frame, Rule) :- object(Id, Frame), feature(disappear, 2, Rule)."
+
+        weights = [1, 1, 0]
+        weight_str = "\n".join([f"feature_weight(disappear, {f_id}, {w})." for f_id, w in enumerate(weights)])
+
+        asp_str = "\n% Disappear features\n"
+        asp_str += f"{dis_str}\n\n{not_dis_str}\n\n{empty_dis_str}\n\n"
+        asp_str += weight_str
+        asp_str += "\n\nempty_id(disappear, 2).\n\n"
+
+        return asp_str
