@@ -221,57 +221,68 @@ class ILPEventDetector(_AbsEventDetector, Trainable):
         asp_var = "X" if x_y == "x" or x_y == "X" else "Y"
         pos_combs = [comb.format(v=asp_var) for comb in pos_combs]
 
+        id_str_map = {}
+
         pos_rules = []
         feature_weights = []
         for f_id, comb in enumerate(pos_combs):
             pos_rules.append(rule_str.format(comb=comb, f_id=f_id))
             feature_weights.append(f"feature_weight({x_y}_pos, {f_id}, 1).")
+            id_str_map[f_id] = f"obj_pos((X1, Y1), Id, Frame), obj_pos((X2, Y2), Id, Frame+1), {comb}"
 
         empty_id = str(len(pos_combs))
         empty_rule = f"feature_value({x_y}_pos, Id, Frame, Rule) :- " \
                      f"object(Id, Frame), feature(x_pos, {empty_id}, Rule)."
         pos_rules.append(empty_rule)
         feature_weights.append(f"feature_weight({x_y}_pos, {empty_id}, 0).")
+        id_str_map[empty_id] = ""
 
         asp_str = f"\n% {x_y} position features\n"
         asp_str += "\n\n".join(pos_rules)
         asp_str += "\n\n" + "\n".join(feature_weights)
         asp_str += f"\nempty_id({x_y}_pos, {empty_id}).\n\n"
 
-        return asp_str
+        return id_str_map, asp_str
 
     def _gen_discrete_prop_features(self, prop):
-        rule_str = f"feature_value({prop}, Id, Frame, Rule) :- {{feature}}, holds({prop}(V1, Id), Frame), " \
-                   f"holds({prop}(V2, Id), -Frame), feature({prop}, {{f_id}}, Rule)."
+        u_prop = prop.capitalize()
+
+        rule_str = f"feature_value({prop}, Id, Frame, Rule) :- {{feature}}, holds({prop}({u_prop}1, Id), Frame), " \
+                   f"holds({prop}({u_prop}2, Id), -Frame), feature({prop}, {{f_id}}, Rule)."
 
         f_id = 0
         asp_rules = []
         feature_weights = []
+        id_str_map = {}
 
         for val1 in self.spec.prop_values(prop):
             for val2 in self.spec.prop_values(prop):
                 val1 = self.spec.to_internal(prop, val1)
                 val2 = self.spec.to_internal(prop, val2)
-                feature = f"V1={val1}, V2={val2}"
+                feature = f"{u_prop}1={val1}, {u_prop}2={val2}"
                 asp_rules.append(rule_str.format(feature=feature, f_id=f_id))
                 feature_weights.append(f"feature_weight({prop}, {f_id}, 1).")
+                id_str_map[f_id] = f"holds({prop}({u_prop}1, Id), Frame), " \
+                                   f"holds({prop}({u_prop}2, Id), Frame+1), {feature}"
                 f_id += 1
 
-        for feature in ["V1=V2", "V1!=V2"]:
+        for feature in [f"{u_prop}1={u_prop}2", f"{u_prop}1!={u_prop}2"]:
             asp_rules.append(rule_str.format(feature=feature, f_id=f_id))
             feature_weights.append(f"feature_weight({prop}, {f_id}, 0).")
+            id_str_map[f_id] = f"holds({prop}({u_prop}1, Id), Frame), holds({prop}({u_prop}2, Id), Frame+1), {feature}"
             f_id += 1
 
         empty_rule = f"feature_value({prop}, Id, Frame, Rule) :- object(Id, Frame), feature({prop}, {f_id}, Rule)."
         asp_rules.append(empty_rule)
         feature_weights.append(f"feature_weight({prop}, {f_id}, 0).")
+        id_str_map[f_id] = ""
 
         asp_str = f"\n% {prop} features\n"
         asp_str += "\n\n".join(asp_rules)
         asp_str += "\n\n" + "\n".join(feature_weights)
         asp_str += f"\nempty_id({prop}, {f_id}).\n\n"
 
-        return asp_str
+        return id_str_map, asp_str
 
     @staticmethod
     def _gen_disappear_features():
@@ -288,4 +299,10 @@ class ILPEventDetector(_AbsEventDetector, Trainable):
         asp_str += weight_str
         asp_str += "\n\nempty_id(disappear, 2).\n\n"
 
-        return asp_str
+        id_str_map = {
+            0: "disappear(Id, Frame+1)",
+            1: "object(Id, Frame), not disappear(Id, Frame+1)",
+            2: ""
+        }
+
+        return id_str_map, asp_str
