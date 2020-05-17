@@ -82,17 +82,35 @@ class ILPEventDetector(_AbsEventDetector, Trainable):
             opt_str = self.hyp_params_str + "\n"
             opt_str += self._gen_static_predicates()
             opt_str = opt_str.format(action=action, fg=fg)
-            opt_str += "\n\n" + "\n".join(acc_feature_strs) + "\n\n"
-            opt_file = str(self.asp_opt_file).format(action=action)
 
+            acc_feature_strs = self._gen_acc_feature_strs(acc_features)
+            opt_str += "\n\n" + "\n".join(acc_feature_strs) + "\n\n"
+
+            opt_file = str(self.asp_opt_file).format(action=action)
             files = [self.asp_data_file, self.background_knowledge_file, self.features_file]
             prog_name = f"ILP {action} action search with fg={fg}"
+
             models = ASPRunner.run(opt_file, opt_str, additional_files=files, timeout=3600, prog_name=prog_name)
             completed_fgs.add(fg)
+
             acc_features = self._process_models(models, completed_fgs)
 
         hyp_str = self._gen_hyp(acc_features)
         return hyp_str
+
+    @staticmethod
+    def _gen_acc_feature_strs(acc_features):
+        acc_feature_str = "acc_feature({fg}, {f_id}, {acc_id})."
+
+        feat_strs = []
+        for acc_feat in acc_features:
+            fg = acc_feat["fg"]
+            f_id = acc_feat["f_id"]
+            acc_id = acc_feat["rule"]
+            feat_strs.append(acc_feature_str.format(fg=fg, f_id=f_id, acc_id=acc_id))
+
+        feat_str = "\n\n" + "\n".join(feat_strs) + "\n\n"
+        return feat_str
 
     def _process_models(self, models, completed_fgs):
         pass
