@@ -194,6 +194,17 @@ class ILPEventDetector(_AbsEventDetector, Trainable):
     #     rules = [rule + "." for rule in rules]
     #     return rules
 
+    def _gen_static_predicates(self):
+        static_str = "static(Id, I, {is_static}) :- holds(class({cls}, Id), I)."
+
+        statics = []
+        for cls in self.spec.obj_types():
+            is_static = "true" if self.spec.is_static(cls) else "false"
+            statics.append(static_str.format(cls=cls, is_static=is_static))
+
+        statics_str = "\n\n" + "\n".join(statics) + "\n\n"
+        return statics_str
+
     @staticmethod
     def _gen_pos_features(x_y):
         pos_combs = ["{v}1<{v}2", "{v}1>{v}2", "{v}1={v}2", "{v}1!={v}2"]
