@@ -56,7 +56,8 @@ class ILPEventDetector(_AbsEventDetector, Trainable):
         f.write("\n".join(asp_data) + "\n\n")
         f.close()
 
-        feats_str = self._gen_features()
+        feat_str_map, feats_str = self._gen_features()
+        self.feature_str_map = feat_str_map
         f = open(self.features_file, "w")
         f.write(feats_str)
         f.close()
@@ -184,12 +185,32 @@ class ILPEventDetector(_AbsEventDetector, Trainable):
         return statics_str
 
     def _gen_features(self):
-        x_pos_feats = self._gen_pos_features("x")
-        y_pos_feats = self._gen_pos_features("y")
-        prop_feats = "\n\n".join([self._gen_discrete_prop_features(prop) for prop in self.spec.prop_names()])
-        extra_feats = "\n\n".join([func() for _, func in self.extra_features])
-        feats_str = f"\n{x_pos_feats}\n{y_pos_feats}\n{prop_feats}\n{extra_feats}\n"
-        return feats_str
+        feature_str_map = {}
+
+        x_pos_feat_map, x_pos_feat_str = self._gen_pos_features("x")
+        y_pos_feat_map, y_pos_feat_str = self._gen_pos_features("y")
+
+        feature_str_map["x_pos"] = x_pos_feat_map
+        feature_str_map["y_pos"] = y_pos_feat_map
+
+        prop_feats = {prop: self._gen_discrete_prop_features(prop) for prop in self.spec.prop_names()}
+        extra_feats = {feat: func() for feat, func in self.extra_features}
+
+        prop_feat_strs = []
+        for prop, (feat_map, feat_strs) in prop_feats.items():
+            feature_str_map[prop] = feat_map
+            prop_feat_strs.append(feat_strs)
+
+        extra_feat_strs = []
+        for extra, (feat_map, feat_strs) in extra_feats.items():
+            feature_str_map[extra] = feat_map
+            extra_feat_strs.append(feat_strs)
+
+        prop_feat_str = "\n\n".join(prop_feat_strs)
+        extra_feat_str = "\n\n".join(extra_feat_strs)
+        feats_str = f"\n{x_pos_feat_str}\n{y_pos_feat_str}\n{prop_feat_str}\n{extra_feat_str}\n"
+
+        return feature_str_map, feats_str
 
     @staticmethod
     def _gen_pos_features(x_y):
