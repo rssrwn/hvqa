@@ -8,14 +8,13 @@ class ILPEventDetector(_AbsEventDetector, Trainable):
     def __init__(self, spec):
         super(ILPEventDetector, self).__init__(spec)
 
-        self._pos_combs = ["{p1}<{p2}", "{p1}>{p2}", "{p1}={p2}", "{p1}!={p2}", ""]
-        self.background_knowledge = self._gen_background_knowledge()
-
         path = Path("hvqa/events")
         self.asp_data_file = path / "_asp_ilp_data.lp"
         self.asp_opt_file = path / "_asp_opt_file.lp"
 
-        # self.show_occurs = "\n#show occurs/2.\n"
+        # TODO
+        # 1. Generate hyperparam file for: action, max_rules and fg
+        # 2. Add static(Id, I, true/false) rules to this file
 
     @staticmethod
     def new(spec, **kwargs):
@@ -99,72 +98,72 @@ class ILPEventDetector(_AbsEventDetector, Trainable):
     #
     #     return action_ilasp_enc_map
 
-    def _gen_background_knowledge(self):
-        back_know = "holds(F, I) :- obs(F, I).\n\n" \
-                    "step(I) :- obs(_, I).\n\n" \
-                    "obj_pos((X, Y), Id, I) :- holds(position((X, Y, _, _), Id), I).\n\n" \
-                    "disappear(Id, I+1) :- \n" \
-                    "  holds(class(Class, Id), I),\n" \
-                    "  not holds(class(Class, Id), I+1),\n" \
-                    "  step(I+1), step(I).\n\n"
+    # def _gen_background_knowledge(self):
+    #     back_know = "holds(F, I) :- obs(F, I).\n\n" \
+    #                 "step(I) :- obs(_, I).\n\n" \
+    #                 "obj_pos((X, Y), Id, I) :- holds(position((X, Y, _, _), Id), I).\n\n" \
+    #                 "disappear(Id, I+1) :- \n" \
+    #                 "  holds(class(Class, Id), I),\n" \
+    #                 "  not holds(class(Class, Id), I+1),\n" \
+    #                 "  step(I+1), step(I).\n\n"
+    #
+    #     # Add static predicate for each class (from spec)
+    #     for obj_type in self.spec.obj_types():
+    #         static_bool = "true" if self.spec.is_static(obj_type) else "false"
+    #         static_rule = f"static(Id, I, {static_bool}) :- holds(class({obj_type}, Id), I).\n"
+    #         back_know += static_rule
+    #
+    #     back_know += "\n"
+    #
+    #     for action in self.spec.actions:
+    #         if action != "nothing":
+    #             act = self.spec.to_internal("action", action)
+    #             back_know += f"occurs_{act} :- occurs({act}(Id), initial_frame).\n"
+    #
+    #     back_know += "\n"
+    #
+    #     # Add rule for nothing action
+    #     occurs_nothing = "occurs(nothing(Id), I) :- {neg_actions}static(Id, I, false), step(I+1), step(I)."
+    #     action_template = "not occurs({action}(Id), I), "
+    #
+    #     neg_actions = ""
+    #     for action in self.spec.actions:
+    #         if action != "nothing":
+    #             neg_actions += action_template.format(action=self.spec.to_internal("action", action))
+    #
+    #     occurs_nothing = occurs_nothing.format(neg_actions=neg_actions)
+    #     back_know += occurs_nothing + "\n\n"
+    #
+    #     return back_know
 
-        # Add static predicate for each class (from spec)
-        for obj_type in self.spec.obj_types():
-            static_bool = "true" if self.spec.is_static(obj_type) else "false"
-            static_rule = f"static(Id, I, {static_bool}) :- holds(class({obj_type}, Id), I).\n"
-            back_know += static_rule
+    # @staticmethod
+    # def _extend_rules(rules, ext_strs):
+    #     new_rules = []
+    #     for ext in ext_strs:
+    #         ext_str = ", " + ext if ext != "" else ext
+    #         [new_rules.append(rule + ext_str) for rule in rules]
+    #
+    #     return new_rules
 
-        back_know += "\n"
-
-        for action in self.spec.actions:
-            if action != "nothing":
-                act = self.spec.to_internal("action", action)
-                back_know += f"occurs_{act} :- occurs({act}(Id), initial_frame).\n"
-
-        back_know += "\n"
-
-        # Add rule for nothing action
-        occurs_nothing = "occurs(nothing(Id), I) :- {neg_actions}static(Id, I, false), step(I+1), step(I)."
-        action_template = "not occurs({action}(Id), I), "
-
-        neg_actions = ""
-        for action in self.spec.actions:
-            if action != "nothing":
-                neg_actions += action_template.format(action=self.spec.to_internal("action", action))
-
-        occurs_nothing = occurs_nothing.format(neg_actions=neg_actions)
-        back_know += occurs_nothing + "\n\n"
-
-        return back_know
-
-    @staticmethod
-    def _extend_rules(rules, ext_strs):
-        new_rules = []
-        for ext in ext_strs:
-            ext_str = ", " + ext if ext != "" else ext
-            [new_rules.append(rule + ext_str) for rule in rules]
-
-        return new_rules
-
-    def _gen_pos_bias(self, action):
-        internal_action = self.spec.to_internal("action", action)
-        rule_start = f"1 ~ occurs({internal_action}(Id), initial_frame) :- " \
-                     f"static(Id, initial_frame, false), " \
-                     f"obj_pos((X1, Y1), Id, initial_frame), " \
-                     f"obj_pos((X2, Y2), Id, next_frame)"
-
-        rules = [rule_start]
-
-        # Add combinations for xs
-        exts = [comb.format(p1="X1", p2="X2") for comb in self._pos_combs]
-        rules = self._extend_rules(rules, exts)
-
-        # Add combinations for ys
-        exts = [comb.format(p1="Y1", p2="Y2") for comb in self._pos_combs]
-        rules = self._extend_rules(rules, exts)
-
-        rules = [rule + "." for rule in rules]
-        return rules
+    # def _gen_pos_bias(self, action):
+    #     internal_action = self.spec.to_internal("action", action)
+    #     rule_start = f"1 ~ occurs({internal_action}(Id), initial_frame) :- " \
+    #                  f"static(Id, initial_frame, false), " \
+    #                  f"obj_pos((X1, Y1), Id, initial_frame), " \
+    #                  f"obj_pos((X2, Y2), Id, next_frame)"
+    #
+    #     rules = [rule_start]
+    #
+    #     # Add combinations for xs
+    #     exts = [comb.format(p1="X1", p2="X2") for comb in self._pos_combs]
+    #     rules = self._extend_rules(rules, exts)
+    #
+    #     # Add combinations for ys
+    #     exts = [comb.format(p1="Y1", p2="Y2") for comb in self._pos_combs]
+    #     rules = self._extend_rules(rules, exts)
+    #
+    #     rules = [rule + "." for rule in rules]
+    #     return rules
 
     # def _gen_bias_rules(self, action):
     #     internal_action = self.spec.to_internal("action", action)
