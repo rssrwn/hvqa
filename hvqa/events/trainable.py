@@ -93,7 +93,8 @@ class ILPEventDetector(_AbsEventDetector, Trainable):
             models = ASPRunner.run(opt_file, opt_str, additional_files=files, timeout=3600, prog_name=prog_name)
             completed_fgs.add(fg)
 
-            acc_features = self._process_models(models, completed_fgs)
+            # Choose a single model to process, since all are considered to be optimal
+            acc_features = self._process_opt_model(models[0], completed_fgs)
 
         hyp_str = self._gen_hyp(acc_features)
         return hyp_str
@@ -112,8 +113,21 @@ class ILPEventDetector(_AbsEventDetector, Trainable):
         feat_str = "\n\n" + "\n".join(feat_strs) + "\n\n"
         return feat_str
 
-    def _process_models(self, models, completed_fgs):
-        pass
+    @staticmethod
+    def _process_opt_model(model, completed_fgs):
+        feature_dicts = []
+        for sym in model:
+            if sym.name == "feature":
+                fg, f_id, rule = sym.arguments
+                fg = fg.name
+                f_id = f_id.number
+                rule = rule.number
+
+                if fg in completed_fgs:
+                    feature_dict = {"fg": fg, "f_id": f_id, "rule": rule}
+                    feature_dicts.append(feature_dict)
+
+        return feature_dicts
 
     def _gen_hyp(self, feature_dicts):
         pass
