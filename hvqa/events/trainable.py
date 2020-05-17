@@ -1,4 +1,7 @@
+import os
+import time
 from pathlib import Path
+from concurrent.futures import ThreadPoolExecutor
 
 from hvqa.events.abs_detector import _AbsEventDetector
 from hvqa.util.asp_runner import ASPRunner
@@ -62,8 +65,21 @@ class ILPEventDetector(_AbsEventDetector, Trainable):
         f.write(feats_str)
         f.close()
 
+        num_workers = os.cpu_count()
+        executor = ThreadPoolExecutor(max_workers=num_workers)
+
+        start_time = time.time()
+
+        hyp_futures = {}
         for action in self.spec.actions:
-            self._find_hypothesis(action)
+            future = executor.submit(self._find_hypothesis, action)
+            future.add_done_callback(lambda fut: print(f"\nFound hypothesis for {action} action:\n\n{fut.result()}\n"))
+            hyp_futures[action] = future
+
+        hyps = {action: future.result() for action, future in hyp_futures.items()}
+
+        total_time = time.time() - start_time
+        print(f"\nCompleted ILP hypothesis search in: {total_time} seconds.\n")
 
         # Remove temp files
         self.asp_data_file.unlink()
@@ -99,6 +115,9 @@ class ILPEventDetector(_AbsEventDetector, Trainable):
 
             # Choose a single model to process, since all are considered to be optimal
             acc_features = self._process_opt_model(models[0], completed_fgs)
+
+            curr_hyp = self._gen_hyp(action, acc_features)
+            print(f"\nFound hypothesis for {action} action after optimising feature group {fg}:\n\n{curr_hyp}\n")
 
         hyp_str = self._gen_hyp(action, acc_features)
         return hyp_str
