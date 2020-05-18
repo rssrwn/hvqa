@@ -33,20 +33,13 @@ def main(train_dir, eval_dir):
 
     # Create model
     # model = IndTrainedModel.new(spec, err_corr=False, al_model=True)
-    # model = IndTrainedModel.load(spec, IND_MODEL_PATH)
-    # model.train(train_data, eval_data)
-    # model.save(IND_MODEL_PATH)
-
-    # Load model and evaluate again
     model = IndTrainedModel.load(spec, IND_MODEL_PATH)
     model.train(train_data, eval_data)
+    model.save(IND_MODEL_PATH)
 
-    # Remove
-    # data = [eval_data[idx] for idx in range(len(eval_data))]
-    # videos, answers = tuple(zip(*data))
-
-    # events = ILASPEventDetector.new(spec)
-    # events.train((videos, answers), eval_data)
+    # Load model and evaluate again
+    # model = IndTrainedModel.load(spec, IND_MODEL_PATH)
+    # model.train(train_data, eval_data)
 
 
 if __name__ == '__main__':

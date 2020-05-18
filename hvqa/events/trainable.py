@@ -113,7 +113,7 @@ class ILPEventDetector(_AbsEventDetector, Trainable):
         :return: String of optimal hypothesis for <action>
         """
 
-        fgs = ["x_pos", "y_pos"] + self.spec.prop_names() + [name for name, _ in self.extra_features]
+        fgs = self.spec.prop_names() + ["x_pos", "y_pos"] + [name for name, _ in self.extra_features]
 
         completed_fgs = set()
         acc_features = []
@@ -173,6 +173,8 @@ class ILPEventDetector(_AbsEventDetector, Trainable):
         return feature_dicts
 
     def _gen_hyp(self, action, feature_dicts):
+        action_internal = self.spec.to_internal("action", action)
+
         rule_feature_map = {}
         for feature in feature_dicts:
             append_in_map(rule_feature_map, feature["rule"], feature)
@@ -188,7 +190,7 @@ class ILPEventDetector(_AbsEventDetector, Trainable):
                     feat_strs.append(feat_str)
 
             rule_body = ", ".join(feat_strs)
-            rule_str = f"occurs({action}(Id), Frame) :- {rule_body}."
+            rule_str = f"occurs({action_internal}(Id), Frame) :- {rule_body}."
             rules.append(rule_str)
 
         rules_str = "\n\n".join(rules)
