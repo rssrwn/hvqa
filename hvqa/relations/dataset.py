@@ -95,7 +95,7 @@ class QARelationDataset(_AbsRelationDataset):
                 obj2_enc = self._obj_encoding(obj2)
                 obj_enc.extend(obj2_enc)
 
-                objs = torch.tensor(obj_enc)
+                objs = torch.tensor(obj_enc, dtype=torch.float32)
                 classification = torch.tensor([yes_no])
                 rel_data_map[rel].append((objs, classification))
 
