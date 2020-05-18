@@ -1,5 +1,6 @@
 import os
 import time
+import json
 from pathlib import Path
 from concurrent.futures import ThreadPoolExecutor
 
@@ -10,7 +11,7 @@ from hvqa.util.func import append_in_map
 
 
 class ILPEventDetector(_AbsEventDetector, Trainable):
-    def __init__(self, spec):
+    def __init__(self, spec, hyps=None):
         super(ILPEventDetector, self).__init__(spec)
 
         self.extra_features = [
@@ -28,6 +29,8 @@ class ILPEventDetector(_AbsEventDetector, Trainable):
 
         self.feature_str_map = None
 
+        self.hyps = hyps
+
     @staticmethod
     def new(spec, **kwargs):
         events = ILPEventDetector(spec)
@@ -35,10 +38,19 @@ class ILPEventDetector(_AbsEventDetector, Trainable):
 
     @staticmethod
     def load(spec, path):
-        pass
+        f = open(path, "r")
+        hyps_json = f.read()
+        hyps = json.loads(hyps_json)
+        f.close()
+        events = ILPEventDetector(spec, hyps)
+        return events
 
     def save(self, path):
-        pass
+        assert self.hyps is not None, "ILPEventDetector has not been trained"
+        hyps_json = json.dumps(self.hyps)
+        f = open(path, "w")
+        f.write(hyps_json)
+        f.close()
 
     def _detect_events(self, frames):
         pass
@@ -79,6 +91,7 @@ class ILPEventDetector(_AbsEventDetector, Trainable):
             hyp_futures.append(future)
 
         hyps = {future.result()[0]: future.result()[1] for future in hyp_futures}
+        self.hyps = hyps
 
         total_time = time.time() - start_time
         print(f"\nCompleted ILP hypothesis search in: {total_time} seconds.\n")
