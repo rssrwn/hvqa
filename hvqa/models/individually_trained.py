@@ -95,10 +95,7 @@ class IndTrainedModel(_AbsVQAModel):
         properties = NeuralPropExtractor.load(spec, properties_path)
         tracker = ObjTracker.new(spec, err_corr=False)
         relations = NeuralRelationClassifier.load(spec, relations_path)
-
-        # events = ILPEventDetector.load(spec, events_path)
-        events = ILPEventDetector.new(spec)  # TODO update to load
-
+        events = ILPEventDetector.load(spec, events_path)
         qa = HardcodedASPQASystem.new(spec)
 
         model = IndTrainedModel(spec, properties, tracker, relations, events, qa)
