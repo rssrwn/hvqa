@@ -26,7 +26,7 @@ class IndTrainedModel(_AbsVQAModel):
         :param verbose: Print additional info during training
         """
 
-        # assert not train_data.is_hardcoded(), "Training data must not be hardcoded when training an IndTrainedModel"
+        assert not train_data.is_hardcoded(), "Training data must not be hardcoded when training an IndTrainedModel"
         assert eval_data.is_hardcoded(), "Evaluation data must always be hardcoded when training an IndTrainedModel"
 
         print("\nTraining individually-trained model...")
@@ -40,14 +40,14 @@ class IndTrainedModel(_AbsVQAModel):
         print("Labelling object properties...")
         # [self.prop_classifier.run_(video) for video in videos]  # TODO uncomment
 
+        print("Adding tracking ids to objects...")
+        [self.tracker.run_(video) for video in videos]
+
         # Train relation component and add relations to each frame
         # self.relation_classifier.train((videos, answers), eval_data, verbose=verbose)  # TODO uncomment
 
         print("Labelling relations between objects...")
         # [self.relation_classifier.run_(video) for video in videos]  # TODO uncomment
-
-        print("Adding tracking ids to objects...")
-        [self.tracker.run_(video) for video in videos]
 
         print("Training event detector...")
         self.event_detector.train((videos, answers), eval_data, verbose=verbose)
@@ -56,8 +56,8 @@ class IndTrainedModel(_AbsVQAModel):
 
     def eval_components(self, eval_data):
         print("\nEvaluating components of IndTrainedModel...")
-        # self.prop_classifier.eval(eval_data)
-        # self.relation_classifier.eval(eval_data)
+        self.prop_classifier.eval(eval_data)
+        self.relation_classifier.eval(eval_data)
         self.event_detector.eval(eval_data, self.tracker)
         print("Completed component evaluation.")
 
@@ -96,8 +96,8 @@ class IndTrainedModel(_AbsVQAModel):
         tracker = ObjTracker.new(spec, err_corr=False)
         relations = NeuralRelationClassifier.load(spec, relations_path)
 
-        events = ILPEventDetector.load(spec, events_path)
-        # events = ILPEventDetector.new(spec)  # TODO update to load
+        # events = ILPEventDetector.load(spec, events_path)
+        events = ILPEventDetector.new(spec)  # TODO update to load
 
         qa = HardcodedASPQASystem.new(spec)
 
