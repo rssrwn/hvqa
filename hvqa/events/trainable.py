@@ -72,20 +72,25 @@ class ILPEventDetector(_AbsEventDetector, Trainable):
 
         start_time = time.time()
 
-        hyp_futures = {}
+        hyp_futures = []
         for action in actions:
             future = executor.submit(self._find_hypothesis, action)
-            future.add_done_callback(lambda fut: print(f"Found hypothesis for {action} action:\n{fut.result()}\n"))
-            hyp_futures[action] = future
+            future.add_done_callback(self._print_hyp_result)
+            hyp_futures.append(future)
 
-        hyps = {action: future.result() for action, future in hyp_futures.items()}
+        hyps = {future.result()[0]: future.result()[1] for future in hyp_futures}
 
         total_time = time.time() - start_time
         print(f"\nCompleted ILP hypothesis search in: {total_time} seconds.\n")
 
         # Remove temp files
-        # self.asp_data_file.unlink()
-        # self.features_file.unlink()
+        self.asp_data_file.unlink()
+        self.features_file.unlink()
+
+    @staticmethod
+    def _print_hyp_result(future):
+        action, hyp = future.result()
+        print(f"Found hypothesis for {action} action:\n{hyp}\n")
 
     def _find_hypothesis(self, action):
         """
@@ -122,7 +127,7 @@ class ILPEventDetector(_AbsEventDetector, Trainable):
             print(f"Found hypothesis for {action} action after optimising feature group {fg}:\n{curr_hyp}\n")
 
         hyp_str = self._gen_hyp(action, acc_features)
-        return hyp_str
+        return action, hyp_str
 
     @staticmethod
     def _gen_acc_feature_str(acc_features):
@@ -165,7 +170,9 @@ class ILPEventDetector(_AbsEventDetector, Trainable):
             for feature in features:
                 fg = feature["fg"]
                 f_id = feature["f_id"]
-                feat_strs.append(self.feature_str_map[fg][f_id])
+                feat_str = self.feature_str_map[fg][f_id]
+                if feat_str != "":
+                    feat_strs.append(feat_str)
 
             rule_body = ", ".join(feat_strs)
             rule_str = f"occurs({action}(Id), Frame) :- {rule_body}."
