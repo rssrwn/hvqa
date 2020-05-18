@@ -31,14 +31,6 @@ predicted(action, Frame) :-
 1 { use_acc(Acc_id, Rule) : acc_id(Acc_id) ; no_acc(Rule) } 1 :- rule(Rule).
 
 
-acc_value(Id, Frame, Rule) :-
-  feature_value(x_pos, Id, Frame, Rule),
-  feature_value(y_pos, Id, Frame, Rule),
-  feature_value(rot, Id, Frame, Rule),
-  feature_value(colour, Id, Frame, Rule),
-  feature_value(disappear, Id, Frame, Rule),
-  static(Id, Frame, false).
-
 acc_id(Acc_id) :- acc_feature(_, _, Acc_id).
 
 feature(Fg, F_id, Rule) :-

@@ -107,16 +107,16 @@ class IndTrainedModel(_AbsVQAModel):
             meta_data = json.load(f)
 
         err_corr = get_or_default(kwargs, meta_data, "err_corr")
-        al_model = get_or_default(kwargs, meta_data, "al_model")
+        # al_model = get_or_default(kwargs, meta_data, "al_model")
 
         properties = NeuralPropExtractor.load(spec, properties_path)
         tracker = ObjTracker.new(spec, err_corr=err_corr)
 
         # relations = NeuralRelationClassifier.load(spec, relations_path)
-        relations = NeuralRelationClassifier.new(spec)  # TODO remove
+        relations = NeuralRelationClassifier.new(spec)  # TODO update to load
 
         # events = ASPEventDetector.new(spec, al_model=al_model)
-        events = ILPEventDetector.new(spec)  # TODO remove
+        events = ILPEventDetector.new(spec)  # TODO update to load
 
         qa = HardcodedASPQASystem.new(spec)
 

@@ -18,11 +18,11 @@ class ILPEventDetector(_AbsEventDetector, Trainable):
         ]
 
         self.max_rules = 5
-        self.hyp_params_str = f"\n#const action={{action}}.\n#const max_rules={self.max_rules}.\nconst fg={{fg}}.\n"
+        self.hyp_params_str = f"\n#const action={{action}}.\n#const max_rules={self.max_rules}.\n#const fg={{fg}}.\n"
 
         path = Path("hvqa/events")
         self.asp_data_file = path / "_asp_ilp_data.lp"
-        self.asp_opt_file = path / "_asp_opt_file_{action}.lp"
+        self.asp_opt_file = path / "_asp_opt_file_{action}_{fg}.lp"
         self.background_knowledge_file = path / "occurs_search_bk.lp"
         self.features_file = path / "_features.lp"
 
@@ -65,15 +65,17 @@ class ILPEventDetector(_AbsEventDetector, Trainable):
         f.write(feats_str)
         f.close()
 
+        actions = [action for action in self.spec.actions if action != "nothing"]
+
         num_workers = os.cpu_count()
         executor = ThreadPoolExecutor(max_workers=num_workers)
 
         start_time = time.time()
 
         hyp_futures = {}
-        for action in self.spec.actions:
+        for action in actions:
             future = executor.submit(self._find_hypothesis, action)
-            future.add_done_callback(lambda fut: print(f"\nFound hypothesis for {action} action:\n\n{fut.result()}\n"))
+            future.add_done_callback(lambda fut: print(f"Found hypothesis for {action} action:\n{fut.result()}\n"))
             hyp_futures[action] = future
 
         hyps = {action: future.result() for action, future in hyp_futures.items()}
@@ -82,8 +84,8 @@ class ILPEventDetector(_AbsEventDetector, Trainable):
         print(f"\nCompleted ILP hypothesis search in: {total_time} seconds.\n")
 
         # Remove temp files
-        self.asp_data_file.unlink()
-        self.features_file.unlink()
+        # self.asp_data_file.unlink()
+        # self.features_file.unlink()
 
     def _find_hypothesis(self, action):
         """
@@ -99,14 +101,14 @@ class ILPEventDetector(_AbsEventDetector, Trainable):
         acc_features = []
 
         for fg in fgs:
+            action_internal = self.spec.to_internal("action", action)
+
             opt_str = self.hyp_params_str + "\n"
             opt_str += self._gen_static_predicates()
-            opt_str = opt_str.format(action=action, fg=fg)
+            opt_str = opt_str.format(action=action_internal, fg=fg)
+            opt_str += self._gen_acc_feature_str(acc_features)
 
-            acc_feature_strs = self._gen_acc_feature_strs(acc_features)
-            opt_str += "\n\n" + "\n".join(acc_feature_strs) + "\n\n"
-
-            opt_file = str(self.asp_opt_file).format(action=action)
+            opt_file = str(self.asp_opt_file).format(action=action_internal, fg=fg)
             files = [self.asp_data_file, self.background_knowledge_file, self.features_file]
             prog_name = f"ILP {action} action search with fg={fg}"
 
@@ -117,13 +119,13 @@ class ILPEventDetector(_AbsEventDetector, Trainable):
             acc_features = self._process_opt_model(models[0], completed_fgs)
 
             curr_hyp = self._gen_hyp(action, acc_features)
-            print(f"\nFound hypothesis for {action} action after optimising feature group {fg}:\n\n{curr_hyp}\n")
+            print(f"Found hypothesis for {action} action after optimising feature group {fg}:\n{curr_hyp}\n")
 
         hyp_str = self._gen_hyp(action, acc_features)
         return hyp_str
 
     @staticmethod
-    def _gen_acc_feature_strs(acc_features):
+    def _gen_acc_feature_str(acc_features):
         acc_feature_str = "acc_feature({fg}, {f_id}, {acc_id})."
 
         feat_strs = []
@@ -227,7 +229,18 @@ class ILPEventDetector(_AbsEventDetector, Trainable):
 
         prop_feat_str = "\n\n".join(prop_feat_strs)
         extra_feat_str = "\n\n".join(extra_feat_strs)
-        feats_str = f"\n{x_pos_feat_str}\n{y_pos_feat_str}\n{prop_feat_str}\n{extra_feat_str}\n"
+
+        acc_value_str = f"acc_value(Id, Frame, Rule) :- static(Id, Frame, false), " \
+                        f"feature_value(x_pos, Id, Frame, Rule), feature_value(y_pos, Id, Frame, Rule)"
+
+        for prop in self.spec.prop_names():
+            acc_value_str += f", feature_value({prop}, Id, Frame, Rule)"
+
+        for extra, _ in extra_feats.items():
+            acc_value_str += f", feature_value({extra}, Id, Frame, Rule)"
+
+        acc_value_str += "."
+        feats_str = f"\n{acc_value_str}\n{x_pos_feat_str}\n{y_pos_feat_str}\n{prop_feat_str}\n{extra_feat_str}\n"
 
         return feature_str_map, feats_str
 
@@ -249,7 +262,7 @@ class ILPEventDetector(_AbsEventDetector, Trainable):
             feature_weights.append(f"feature_weight({x_y}_pos, {f_id}, 1).")
             id_str_map[f_id] = f"obj_pos((X1, Y1), Id, Frame), obj_pos((X2, Y2), Id, Frame+1), {comb}"
 
-        empty_id = str(len(pos_combs))
+        empty_id = len(pos_combs)
         empty_rule = f"feature_value({x_y}_pos, Id, Frame, Rule) :- " \
                      f"object(Id, Frame), feature(x_pos, {empty_id}, Rule)."
         pos_rules.append(empty_rule)
@@ -274,10 +287,10 @@ class ILPEventDetector(_AbsEventDetector, Trainable):
         feature_weights = []
         id_str_map = {}
 
-        for val1 in self.spec.prop_values(prop):
-            for val2 in self.spec.prop_values(prop):
-                val1 = self.spec.to_internal(prop, val1)
-                val2 = self.spec.to_internal(prop, val2)
+        for val1_ in self.spec.prop_values(prop):
+            for val2_ in self.spec.prop_values(prop):
+                val1 = self.spec.to_internal(prop, val1_)
+                val2 = self.spec.to_internal(prop, val2_)
                 feature = f"{u_prop}1={val1}, {u_prop}2={val2}"
                 asp_rules.append(rule_str.format(feature=feature, f_id=f_id))
                 feature_weights.append(f"feature_weight({prop}, {f_id}, 1).")
@@ -287,7 +300,7 @@ class ILPEventDetector(_AbsEventDetector, Trainable):
 
         for feature in [f"{u_prop}1={u_prop}2", f"{u_prop}1!={u_prop}2"]:
             asp_rules.append(rule_str.format(feature=feature, f_id=f_id))
-            feature_weights.append(f"feature_weight({prop}, {f_id}, 0).")
+            feature_weights.append(f"feature_weight({prop}, {f_id}, 1).")
             id_str_map[f_id] = f"holds({prop}({u_prop}1, Id), Frame), holds({prop}({u_prop}2, Id), Frame+1), {feature}"
             f_id += 1
 

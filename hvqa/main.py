@@ -28,7 +28,7 @@ spec = EnvSpec.from_dict({
 def main(train_dir, eval_dir):
     # Create data
     detector = NeuralDetector.load(spec, DETECTOR_PATH)
-    # train_data = VideoDataset.from_data_dir(spec, train_dir, detector, hardcoded=False)
+    train_data = VideoDataset.from_data_dir(spec, train_dir, detector, hardcoded=True)  # TODO remove hardcoded
     eval_data = VideoDataset.from_data_dir(spec, eval_dir, detector, hardcoded=True)
 
     # Create model
@@ -39,7 +39,7 @@ def main(train_dir, eval_dir):
 
     # Load model and evaluate again
     model = IndTrainedModel.load(spec, IND_MODEL_PATH)
-    model.train(eval_data, eval_data)
+    model.train(train_data, eval_data)
 
     # Remove
     # data = [eval_data[idx] for idx in range(len(eval_data))]
