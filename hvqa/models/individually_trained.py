@@ -56,9 +56,9 @@ class IndTrainedModel(_AbsVQAModel):
 
     def eval_components(self, eval_data):
         print("\nEvaluating components of IndTrainedModel...")
-        self.prop_classifier.eval(eval_data)
-        self.relation_classifier.eval(eval_data)
-        self.event_detector.eval(eval_data)
+        # self.prop_classifier.eval(eval_data)
+        # self.relation_classifier.eval(eval_data)
+        self.event_detector.eval(eval_data, self.tracker)
         print("Completed component evaluation.")
 
     @staticmethod
@@ -96,7 +96,8 @@ class IndTrainedModel(_AbsVQAModel):
         tracker = ObjTracker.new(spec, err_corr=False)
         relations = NeuralRelationClassifier.load(spec, relations_path)
 
-        events = ILPEventDetector.new(spec)  # TODO update to load
+        events = ILPEventDetector.load(spec, events_path)
+        # events = ILPEventDetector.new(spec)  # TODO update to load
 
         qa = HardcodedASPQASystem.new(spec)
 

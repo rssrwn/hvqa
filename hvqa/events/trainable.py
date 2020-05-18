@@ -24,9 +24,10 @@ class ILPEventDetector(_AbsEventDetector, Trainable):
         path = Path("hvqa/events")
         self.asp_data_file = path / "_asp_ilp_data.lp"
         self.feature_values_file = path / "_asp_opt_file_{action}_{fg}.lp"
-        self.background_knowledge_file = path / "occurs_bk.lp"
         self.asp_opt_file = path / "occurs_opt.lp"
         self.features_file = path / "_features.lp"
+
+        self.eval_bk_file = path / "occurs_bk.lp"
 
         self.feature_str_map = None
 
@@ -65,15 +66,17 @@ class ILPEventDetector(_AbsEventDetector, Trainable):
 
         assert self.hyps is not None, "ILPEventDetector has not been trained"
 
+        static_rules = self._gen_static_predicates()
+
         asp_strs = [frame.gen_asp_encoding(i) for i, frame in enumerate(frames)]
         asp_str = "\n\n".join(asp_strs)
 
-        hyp_strs = [hyp_str for _, hyp_str in self.hyps]
+        hyp_strs = [hyp_str for _, hyp_str in self.hyps.items()]
         hyp_str = "\n\n".join(hyp_strs)
 
-        asp_str += f"\n\n{hyp_str}\n\n#show occurs/2.\n"
+        asp_str += f"\n\n{static_rules}\n\n{hyp_str}\n\n#show occurs/2.\n"
 
-        files = [self.background_knowledge_file]
+        files = [self.eval_bk_file]
         prog_name = "Trained event detection ASP program"
         models = ASPRunner.run(self.asp_data_file, asp_str,
                                additional_files=files, prog_name=prog_name, opt_proven=False)
@@ -166,7 +169,7 @@ class ILPEventDetector(_AbsEventDetector, Trainable):
             opt_str += self._gen_acc_feature_str(acc_features)
 
             vals_file = str(self.feature_values_file).format(action=action_internal, fg=fg)
-            files = [self.asp_data_file, self.background_knowledge_file, self.features_file, self.asp_opt_file]
+            files = [self.asp_data_file, self.features_file, self.asp_opt_file]
             prog_name = f"ILP {action} action search with fg={fg}"
 
             models = ASPRunner.run(vals_file, opt_str, additional_files=files, timeout=3600, prog_name=prog_name)
@@ -229,7 +232,7 @@ class ILPEventDetector(_AbsEventDetector, Trainable):
                     feat_strs.append(feat_str)
 
             rule_body = ", ".join(feat_strs)
-            rule_str = f"occurs({action_internal}(Id), Frame) :- {rule_body}."
+            rule_str = f"occurs({action_internal}(Id), Frame) :- static(Id, Frame, false), {rule_body}."
             rules.append(rule_str)
 
         rules_str = "\n\n".join(rules)

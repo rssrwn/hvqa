@@ -36,7 +36,7 @@ class _AbsEventDetector(Component):
         :param tracker: ObjectTracker with run_ method for adding ids to objects
         """
 
-        print("Evaluating hardcoded ASP event detector...")
+        print("Evaluating event detector...")
 
         data = [eval_data[idx] for idx in range(len(eval_data))]
         videos, _ = tuple(zip(*data))
