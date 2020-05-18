@@ -1,18 +1,12 @@
 import json
 from pathlib import Path
 
-from hvqa.util.func import get_or_default
 from hvqa.models.abs_model import _AbsVQAModel
 from hvqa.properties.neural import NeuralPropExtractor
 from hvqa.tracking.obj_tracker import ObjTracker
 from hvqa.relations.neural import NeuralRelationClassifier
-from hvqa.events.hardcoded_asp import ASPEventDetector
 from hvqa.events.trainable import ILPEventDetector
 from hvqa.qa.hardcoded_asp import HardcodedASPQASystem
-
-
-ERR_CORR_DEFAULT = True
-AL_MODEL_DEFAULT = True
 
 
 class IndTrainedModel(_AbsVQAModel):
@@ -69,18 +63,9 @@ class IndTrainedModel(_AbsVQAModel):
 
     @staticmethod
     def new(spec, **kwargs):
-        err_corr = ERR_CORR_DEFAULT
-        al_model = AL_MODEL_DEFAULT
-        if kwargs is not None:
-            err_corr_param = kwargs.get("err_corr")
-            al_model_param = kwargs.get("al_model")
-            err_corr = err_corr_param if err_corr_param is not None else err_corr
-            al_model = al_model_param if al_model_param is not None else al_model
-
         properties = NeuralPropExtractor.new(spec)
-        tracker = ObjTracker.new(spec, err_corr=err_corr)
+        tracker = ObjTracker.new(spec, err_corr=False)
         relations = NeuralRelationClassifier.new(spec)
-        # events = ASPEventDetector.new(spec, al_model=al_model)
         events = ILPEventDetector.new(spec)
         qa = HardcodedASPQASystem.new(spec)
 
@@ -101,21 +86,16 @@ class IndTrainedModel(_AbsVQAModel):
         save_path = Path(path)
         properties_path = str(save_path / "properties.pt")
         relations_path = str(save_path / "relations.pt")
+        events_path = str(save_path / "event_rules.json")
         meta_data_path = save_path / "meta_data.json"
 
         with meta_data_path.open() as f:
             meta_data = json.load(f)
 
-        err_corr = get_or_default(kwargs, meta_data, "err_corr")
-        # al_model = get_or_default(kwargs, meta_data, "al_model")
-
         properties = NeuralPropExtractor.load(spec, properties_path)
-        tracker = ObjTracker.new(spec, err_corr=err_corr)
+        tracker = ObjTracker.new(spec, err_corr=False)
+        relations = NeuralRelationClassifier.load(spec, relations_path)
 
-        # relations = NeuralRelationClassifier.load(spec, relations_path)
-        relations = NeuralRelationClassifier.new(spec)  # TODO update to load
-
-        # events = ASPEventDetector.new(spec, al_model=al_model)
         events = ILPEventDetector.new(spec)  # TODO update to load
 
         qa = HardcodedASPQASystem.new(spec)
@@ -135,14 +115,14 @@ class IndTrainedModel(_AbsVQAModel):
         save_path.mkdir(parents=True, exist_ok=True)
         properties_path = save_path / "properties.pt"
         relations_path = save_path / "relations.pt"
+        events_path = save_path / "event_rules.json"
         meta_data_path = save_path / "meta_data.json"
 
         self.prop_classifier.save(str(properties_path))
         self.relation_classifier.save(str(relations_path))
+        self.event_detector.save(str(events_path))
 
         meta_data = {
-            "err_corr": self.err_corr,
-            "al_model": self.al_model,
             "spec": self.spec.to_dict()
         }
 
