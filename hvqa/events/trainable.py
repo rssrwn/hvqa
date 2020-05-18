@@ -102,7 +102,7 @@ class ILPEventDetector(_AbsEventDetector, Trainable):
         Train the event detection component using an ASP ILP search to find rules for each action
 
         :param train_data: Training data ((videos, answers))
-        :param eval_data: Evaluation data
+        :param eval_data: Evaluation data ((videos, answers))
         :param verbose: Print additional info during training
         """
 

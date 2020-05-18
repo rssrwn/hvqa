@@ -31,26 +31,29 @@ class IndTrainedModel(_AbsVQAModel):
 
         print("\nTraining individually-trained model...")
 
-        data = [train_data[idx] for idx in range(len(train_data))]
-        videos, answers = tuple(zip(*data))
+        _train_data = [train_data[idx] for idx in range(len(train_data))]
+        train_videos, train_answers = tuple(zip(*_train_data))
+
+        _eval_data = [eval_data[idx] for idx in range(len(eval_data))]
+        eval_videos, eval_answers = tuple(zip(*_eval_data))
 
         # Train property component and label all objects with their properties
         # self.prop_classifier.train((videos, answers), eval_data, verbose=verbose, from_qa=True)  # TODO uncomment
 
         print("Labelling object properties...")
-        # [self.prop_classifier.run_(video) for video in videos]  # TODO uncomment
+        [self.prop_classifier.run_(video) for video in train_videos]  # TODO uncomment
 
         print("Adding tracking ids to objects...")
-        [self.tracker.run_(video) for video in videos]
+        [self.tracker.run_(video) for video in train_videos]
 
         # Train relation component and add relations to each frame
         # self.relation_classifier.train((videos, answers), eval_data, verbose=verbose)  # TODO uncomment
 
         print("Labelling relations between objects...")
-        # [self.relation_classifier.run_(video) for video in videos]  # TODO uncomment
+        # [self.relation_classifier.run_(video) for video in train_videos]  # TODO uncomment
 
         print("Training event detector...")
-        self.event_detector.train((videos, answers), eval_data, verbose=verbose)
+        self.event_detector.train((train_videos, train_answers), (eval_videos, eval_answers), verbose=verbose)
 
         print("Completed individually-trained model training.")
 
