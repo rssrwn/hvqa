@@ -97,13 +97,14 @@ class ILPEventDetector(_AbsEventDetector, Trainable):
 
         return events
 
-    def train(self, train_data, eval_data, verbose=True):
+    def train(self, train_data, eval_data, verbose=True, tracker=None):
         """
         Train the event detection component using an ASP ILP search to find rules for each action
 
         :param train_data: Training data ((videos, answers))
         :param eval_data: Evaluation data ((videos, answers))
         :param verbose: Print additional info during training
+        :param tracker: ObjTracker object (used for adding id info to eval data, if not present no evaluation is done)
         """
 
         videos, answers = train_data
@@ -141,6 +142,10 @@ class ILPEventDetector(_AbsEventDetector, Trainable):
         # Remove temp files
         self.asp_data_file.unlink()
         self.features_file.unlink()
+
+        # Evaluate (if tracker is passed in)
+        if tracker is not None:
+            self.eval(eval_data, tracker)
 
     @staticmethod
     def _print_hyp_result(future):

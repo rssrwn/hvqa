@@ -42,7 +42,7 @@ class HardcodedVQAModel(_AbsVQAModel):
 
     def eval_components(self, eval_data):
         print("\nEvaluating components of HardcodedModel...")
-        # self.prop_classifier.eval(eval_data)
+        self.prop_classifier.eval(eval_data)
         self.event_detector.eval(eval_data, self.tracker)
         print("Completed component evaluation.")
 
