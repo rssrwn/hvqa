@@ -23,8 +23,9 @@ class ILPEventDetector(_AbsEventDetector, Trainable):
 
         path = Path("hvqa/events")
         self.asp_data_file = path / "_asp_ilp_data.lp"
-        self.asp_opt_file = path / "_asp_opt_file_{action}_{fg}.lp"
-        self.background_knowledge_file = path / "occurs_search_bk.lp"
+        self.feature_values_file = path / "_asp_opt_file_{action}_{fg}.lp"
+        self.background_knowledge_file = path / "occurs_bk.lp"
+        self.asp_opt_file = path / "occurs_opt.lp"
         self.features_file = path / "_features.lp"
 
         self.feature_str_map = None
@@ -53,7 +54,45 @@ class ILPEventDetector(_AbsEventDetector, Trainable):
         f.close()
 
     def _detect_events(self, frames):
-        pass
+        """
+        Detect events between frames
+        Returns a list of length len(frames) - 1
+        Each element, i, is a list of events which occurred between frame i and i+1
+
+        :param frames: List of Frame objects
+        :return: List of List of (id: int, event_name: str)
+        """
+
+        assert self.hyps is not None, "ILPEventDetector has not been trained"
+
+        asp_strs = [frame.gen_asp_encoding(i) for i, frame in enumerate(frames)]
+        asp_str = "\n\n".join(asp_strs)
+
+        hyp_strs = [hyp_str for _, hyp_str in self.hyps]
+        hyp_str = "\n\n".join(hyp_strs)
+
+        asp_str += f"\n\n{hyp_str}\n\n#show occurs/2.\n"
+
+        files = [self.background_knowledge_file]
+        prog_name = "Trained event detection ASP program"
+        models = ASPRunner.run(self.asp_data_file, asp_str,
+                               additional_files=files, prog_name=prog_name, opt_proven=False)
+
+        # We should only get a single model
+        assert len(models) == 1, "Found multiple answer sets for event detection program"
+
+        model = models[0]
+
+        events = [[]] * (len(frames) - 1)
+        for sym in model:
+            if sym.name == "occurs":
+                event, frame = sym.arguments
+                frame = frame.number
+                event_name = event.name
+                obj_id = event.arguments[0].number
+                events[frame] = events[frame] + [(obj_id, event_name)]
+
+        return events
 
     def train(self, train_data, eval_data, verbose=True):
         """
@@ -126,11 +165,11 @@ class ILPEventDetector(_AbsEventDetector, Trainable):
             opt_str = opt_str.format(action=action_internal, fg=fg)
             opt_str += self._gen_acc_feature_str(acc_features)
 
-            opt_file = str(self.asp_opt_file).format(action=action_internal, fg=fg)
-            files = [self.asp_data_file, self.background_knowledge_file, self.features_file]
+            vals_file = str(self.feature_values_file).format(action=action_internal, fg=fg)
+            files = [self.asp_data_file, self.background_knowledge_file, self.features_file, self.asp_opt_file]
             prog_name = f"ILP {action} action search with fg={fg}"
 
-            models = ASPRunner.run(opt_file, opt_str, additional_files=files, timeout=3600, prog_name=prog_name)
+            models = ASPRunner.run(vals_file, opt_str, additional_files=files, timeout=3600, prog_name=prog_name)
             completed_fgs.add(fg)
 
             # Choose a single model to process, since all are considered to be optimal
