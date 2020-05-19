@@ -37,7 +37,7 @@ occurs_event(eat_a_fish, Octo, Frame) :-
   holds(class(fish, Fish), Frame),
   not exists(Fish, Frame+1),
   holds(class(octopus, Octo), Frame),
-  holds(class(octopus, Octo), Frame+1).
+  step(Frame+1).
 
 occurs_event(eat_a_bag, Octo, Frame) :-
   holds(class(bag, Bag), Frame),
