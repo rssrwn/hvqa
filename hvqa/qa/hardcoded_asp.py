@@ -186,7 +186,7 @@ class HardcodedASPQASystem(Component):
         assert len(args) == 1, "Args is not correct length for question type 5"
 
         event = args[0]
-        event = self.spec.from_internal(event)
+        event = self.spec.from_internal("event", event)
         ans_str = template.format(event=event)
         return ans_str
 
@@ -194,7 +194,7 @@ class HardcodedASPQASystem(Component):
         assert len(args) == 1, "Args is not correct length for question type 6"
 
         action = args[0]
-        action = self.spec.from_internal(action)
+        action = self.spec.from_internal("action", action)
         ans_str = template.format(action=action)
         return ans_str
 
@@ -212,7 +212,7 @@ class HardcodedASPQASystem(Component):
         return asp_q
 
     def _parse_q_type_2(self, question, template):
-        frame_idx = self.spec.qa.parse_q_2(question)
+        frame_idx = self.spec.qa.parse_event_question(question)
         asp_q = template.format(frame_idx=str(frame_idx))
         return asp_q
 

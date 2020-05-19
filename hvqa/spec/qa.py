@@ -20,6 +20,15 @@ class QASpec:
             "firth": 5
         }
 
+        self._noun_to_event = {
+            "moving": "move",
+            "rotating left": "rotate left",
+            "rotating right": "rotate right",
+            "eating a fish": "eat a fish",
+            "eating a bag": "eat a bag",
+            "changing colour": "change colour"
+        }
+
     def parse_prop_ans(self, ans_str):
         prop_val = ans_str
         prop = self.spec.find_prop(prop_val)
@@ -126,7 +135,7 @@ class QASpec:
         event = splits[cls_idx + 1:]
         event = " ".join(event)
         event = event[:-1]
-        event = self.spec.to_internal(event)
+        event = self.spec.to_internal("event", event)
 
         return prop_val, cls, event
 
@@ -165,9 +174,14 @@ class QASpec:
             occ = 1
 
         event = " ".join(event)
-        event = self.spec.to_internal(event)
+        event = self._format_event_noun(event)
+        event = self.spec.to_internal("event", event)
 
         return prop_val, cls, occ, event
+
+    def _format_event_noun(self, event_noun):
+        event = self._noun_to_event[event_noun]
+        return event
 
     def _format_occ(self, occ_str):
         occ = self._occurrences.get(occ_str)
