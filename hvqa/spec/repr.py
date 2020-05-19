@@ -191,6 +191,7 @@ class Video:
 
         for frame_idx, events in enumerate(self.actions):
             for event, obj_id in events:
-                enc += f"occurs({event}({obj_id}), {frame_idx}).\n"
+                event_internal = self.spec.to_internal("action", event)
+                enc += f"occurs({event_internal}({obj_id}), {frame_idx}).\n"
 
         return enc
