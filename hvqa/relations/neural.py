@@ -8,7 +8,7 @@ from torch.utils.data import DataLoader
 from hvqa.util.interfaces import Component, Trainable
 from hvqa.relations.dataset import QARelationDataset, HardcodedRelationDataset
 from hvqa.relations.models import RelationClassifierModel
-from hvqa.util.func import collate_func, get_device, load_model, save_model
+from hvqa.util.func import collate_func, get_device, load_model, save_model, obj_encoding
 
 
 class NeuralRelationClassifier(Component, Trainable):
@@ -21,8 +21,32 @@ class NeuralRelationClassifier(Component, Trainable):
         self._device = get_device()
         self.model = model.to(self._device)
 
+        self._prob_threshold = 0.5
+
     def run_(self, video):
-        pass
+        for frame in video.frames:
+            self._run_frame(frame)
+
+    def _run_frame(self, frame):
+        objs_encs = []
+        obj_idxs = []
+        for idx1, obj1 in enumerate(frame.objs):
+            for idx2, obj2 in enumerate(frame.objs):
+                obj_enc = obj_encoding(self.spec, obj1)
+                obj2_enc = obj_encoding(self.spec, obj2)
+                obj_enc.extend(obj2_enc)
+                objs = torch.tensor(obj_enc, dtype=torch.float32)
+                objs_encs.append(objs)
+                obj_idxs.append((idx1, idx2))
+
+        objs_encs = torch.stack(objs_encs).to(self._device)
+        with torch.no_grad():
+            output = self.model(objs_encs)
+
+        for rel, probs in output.items():
+            out_bool = list(torch.BoolTensor(probs.cpu() > self._prob_threshold))
+            idxs = [obj_idxs[idx] for idx, out in enumerate(out_bool) if out]
+            [frame.set_relation(idx1, idx2, rel) for idx1, idx2 in idxs]
 
     @staticmethod
     def load(spec, path):
@@ -183,7 +207,7 @@ class NeuralRelationClassifier(Component, Trainable):
         print(f"\nOverall accuracy: {overall_acc:.2f}\n")
 
     def _eval_rel(self, outputs, targets):
-        outputs_bool = torch.BoolTensor(outputs >= 0.5)
+        outputs_bool = torch.BoolTensor(outputs > self._prob_threshold)
         targets_bool = torch.BoolTensor(targets == 1.0)
         num_correct = torch.sum(outputs_bool == targets_bool).item()
         tp = torch.sum(outputs_bool & targets_bool).item()
