@@ -34,12 +34,12 @@ def main(train_dir, eval_dir):
     # Create model
     # model = IndTrainedModel.new(spec, err_corr=False, al_model=True)
     model = IndTrainedModel.load(spec, IND_MODEL_PATH)
-    model.train(train_data, eval_data)
-    model.save(IND_MODEL_PATH)
+    # model.train(train_data, eval_data)
+    # model.save(IND_MODEL_PATH)
 
     # Load model and evaluate again
     # model = IndTrainedModel.load(spec, IND_MODEL_PATH)
-    # model.train(train_data, eval_data)
+    model.eval(train_data, eval_data)
 
 
 if __name__ == '__main__':

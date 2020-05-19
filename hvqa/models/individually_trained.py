@@ -12,8 +12,6 @@ from hvqa.qa.hardcoded_asp import HardcodedASPQASystem
 class IndTrainedModel(_AbsVQAModel):
     def __init__(self, spec, properties, tracker, relations, events, qa):
         self.spec = spec
-        self.err_corr = tracker.err_corr
-        # self.al_model = events.al_model
 
         super(IndTrainedModel, self).__init__(properties, tracker, relations, events, qa)
 
@@ -35,19 +33,19 @@ class IndTrainedModel(_AbsVQAModel):
         train_videos, train_answers = tuple(zip(*_train_data))
 
         # Train property component and label all objects with their properties
-        # self.prop_classifier.train((videos, answers), eval_data, verbose=verbose, from_qa=True)  # TODO uncomment
+        self.prop_classifier.train((train_videos, train_answers), eval_data, verbose=verbose, from_qa=True)
 
         print("Labelling object properties...")
-        [self.prop_classifier.run_(video) for video in train_videos]  # TODO uncomment
+        [self.prop_classifier.run_(video) for video in train_videos]
 
         print("Adding tracking ids to objects...")
         [self.tracker.run_(video) for video in train_videos]
 
         # Train relation component and add relations to each frame
-        # self.relation_classifier.train((videos, answers), eval_data, verbose=verbose)  # TODO uncomment
+        self.relation_classifier.train((train_videos, train_answers), eval_data, verbose=verbose)
 
         print("Labelling relations between objects...")
-        # [self.relation_classifier.run_(video) for video in train_videos]  # TODO uncomment
+        [self.relation_classifier.run_(video) for video in train_videos]
 
         print("Training event detector...")
         self.event_detector.train((train_videos, train_answers), eval_data, verbose=verbose, tracker=self.tracker)
