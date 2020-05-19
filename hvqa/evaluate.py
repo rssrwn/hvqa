@@ -4,6 +4,7 @@ from hvqa.spec.env import EnvSpec
 from hvqa.util.dataset import VideoDataset
 from hvqa.detection.detector import NeuralDetector
 from hvqa.models.hardcoded import HardcodedVQAModel
+from hvqa.models.individually_trained import IndTrainedModel
 
 
 DETECTOR_PATH = "saved-models/detection/v1_0/after_20_epochs.pt"
@@ -36,6 +37,8 @@ def main(data_dir, model_type):
 
     if model_type == "hardcoded":
         model = HardcodedVQAModel.load(spec, MODEL_PATH, err_corr=ERR_CORR, al_model=AL_EVENT_MODEL)
+    elif model_type == "ind-trained":
+        model = IndTrainedModel.load(spec, MODEL_PATH)
     else:
         print("That type of model is not supported")
         return
