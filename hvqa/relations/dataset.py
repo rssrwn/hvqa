@@ -3,6 +3,8 @@ import random
 import torch
 from torch.utils.data import Dataset
 
+from hvqa.util.func import obj_encoding
+
 
 DEFAULT_ITEMS_PER_REL = 50000
 
@@ -51,20 +53,8 @@ class _AbsRelationDataset(Dataset):
         return None
 
     def _obj_encoding(self, obj):
-        obj_enc = list(map(lambda v: 1.0 if v == obj.cls else 0.0, self.spec.obj_types()))
-        obj_position = list(map(lambda p: p / 255, obj.pos))
-        obj_enc.extend(obj_position)
-        for prop, val in obj.prop_vals.items():
-            prop_enc = self._property_encoding(prop, val)
-            obj_enc.extend(prop_enc)
-
+        obj_enc = obj_encoding(self.spec, obj)
         return obj_enc
-
-    def _property_encoding(self, prop, val):
-        vals = self.spec.prop_values(prop)
-        one_hot = list(map(lambda v: 1.0 if v == val else 0.0, vals))
-        assert sum(one_hot) == 1.0, f"Val {val} is not in property values {vals}"
-        return one_hot
 
 
 class QARelationDataset(_AbsRelationDataset):

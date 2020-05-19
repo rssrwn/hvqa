@@ -139,3 +139,21 @@ def add_bboxs(drawer, positions, colour):
 
 def collate_func(batch):
     return tuple(zip(*batch))
+
+
+def obj_encoding(spec, obj):
+    obj_enc = list(map(lambda v: 1.0 if v == obj.cls else 0.0, spec.obj_types()))
+    obj_position = list(map(lambda p: p / 255, obj.pos))
+    obj_enc.extend(obj_position)
+    for prop, val in obj.prop_vals.items():
+        prop_enc = property_encoding(spec, prop, val)
+        obj_enc.extend(prop_enc)
+
+    return obj_enc
+
+
+def property_encoding(spec, prop, val):
+    vals = spec.prop_values(prop)
+    one_hot = list(map(lambda v: 1.0 if v == val else 0.0, vals))
+    assert sum(one_hot) == 1.0, f"Val {val} is not in property values {vals}"
+    return one_hot
