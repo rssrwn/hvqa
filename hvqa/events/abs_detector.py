@@ -77,7 +77,7 @@ class _AbsEventDetector(Component):
 
             for frame_idx, pred_action in enumerate(pred_actions):
                 action = act_actions[frame_idx]
-                if self.spec.from_internal("action", pred_action) == action:
+                if pred_action == action:
                     video_correct += 1
                     total_correct += 1
                 else:

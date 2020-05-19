@@ -28,18 +28,19 @@ spec = EnvSpec.from_dict({
 def main(train_dir, eval_dir):
     # Create data
     detector = NeuralDetector.load(spec, DETECTOR_PATH)
-    train_data = VideoDataset.from_data_dir(spec, train_dir, detector, hardcoded=False)
-    eval_data = VideoDataset.from_data_dir(spec, eval_dir, detector, hardcoded=True)
+    # train_data = VideoDataset.from_data_dir(spec, train_dir, detector, hardcoded=False)
+    eval_data = VideoDataset.from_data_dir(spec, eval_dir, detector, hardcoded=False)
 
     # Create model
     # model = IndTrainedModel.new(spec, err_corr=False, al_model=True)
     model = IndTrainedModel.load(spec, IND_MODEL_PATH)
     # model.train(train_data, eval_data)
     # model.save(IND_MODEL_PATH)
+    # model.eval_components(eval_data)
 
     # Load model and evaluate again
     # model = IndTrainedModel.load(spec, IND_MODEL_PATH)
-    model.eval(train_data, eval_data)
+    model.eval(eval_data)
 
 
 if __name__ == '__main__':

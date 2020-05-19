@@ -78,6 +78,7 @@ class ASPEventDetector(_AbsEventDetector):
                 frame = frame.number
                 event_name = event.name
                 obj_id = event.arguments[0].number
+                event_name = self.spec.from_internal("action", event_name)
                 events[frame] = events[frame] + [(obj_id, event_name)]
 
             # Work out which objects are nn errors from err_id predicate

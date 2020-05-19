@@ -93,6 +93,7 @@ class ILPEventDetector(_AbsEventDetector, Trainable):
                 frame = frame.number
                 event_name = event.name
                 obj_id = event.arguments[0].number
+                event_name = self.spec.from_internal("action", event_name)
                 events[frame] = events[frame] + [(obj_id, event_name)]
 
         return events
