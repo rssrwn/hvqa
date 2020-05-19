@@ -32,12 +32,13 @@ class NeuralRelationClassifier(Component, Trainable):
         obj_idxs = []
         for idx1, obj1 in enumerate(frame.objs):
             for idx2, obj2 in enumerate(frame.objs):
-                obj_enc = obj_encoding(self.spec, obj1)
-                obj2_enc = obj_encoding(self.spec, obj2)
-                obj_enc.extend(obj2_enc)
-                objs = torch.tensor(obj_enc, dtype=torch.float32)
-                objs_encs.append(objs)
-                obj_idxs.append((idx1, idx2))
+                if idx1 != idx2:
+                    obj_enc = obj_encoding(self.spec, obj1)
+                    obj2_enc = obj_encoding(self.spec, obj2)
+                    obj_enc.extend(obj2_enc)
+                    objs = torch.tensor(obj_enc, dtype=torch.float32)
+                    objs_encs.append(objs)
+                    obj_idxs.append((idx1, idx2))
 
         objs_encs = torch.stack(objs_encs).to(self._device)
         with torch.no_grad():
