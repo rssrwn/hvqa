@@ -9,8 +9,6 @@ from hvqa.models.individually_trained import IndTrainedModel
 
 DETECTOR_PATH = "saved-models/detection/v1_0/after_20_epochs.pt"
 
-MODEL_PATH = "saved-models/hardcoded"
-
 spec = EnvSpec.from_dict({
     "num_frames": 32,
     "obj_types": [("octopus", False), ("fish", True), ("rock", True), ("bag", True)],
@@ -19,8 +17,8 @@ spec = EnvSpec.from_dict({
         "rotation": ["upward-facing", "right-facing", "downward-facing", "left-facing"]
     },
     "relations": ["close"],
-    "actions": ["move", "rotate_left", "rotate_right", "nothing"],
-    "effects": ["change_colour", "eat_bag", "eat_fish"],
+    "actions": ["move", "rotate left", "rotate right", "nothing"],
+    "effects": ["change colour", "eat a bag", "eat a fish"],
 })
 
 ERR_CORR = True
@@ -36,9 +34,11 @@ def main(data_dir, model_type):
     data = VideoDataset.from_data_dir(spec, data_dir, detector, hardcoded=False)
 
     if model_type == "hardcoded":
-        model = HardcodedVQAModel.load(spec, MODEL_PATH, err_corr=ERR_CORR, al_model=AL_EVENT_MODEL)
+        model_path = "saved-models/hardcoded"
+        model = HardcodedVQAModel.load(spec, model_path, err_corr=ERR_CORR, al_model=AL_EVENT_MODEL)
     elif model_type == "ind-trained":
-        model = IndTrainedModel.load(spec, MODEL_PATH)
+        model_path = "saved-models/ind-trained"
+        model = IndTrainedModel.load(spec, model_path)
     else:
         print("That type of model is not supported")
         return
