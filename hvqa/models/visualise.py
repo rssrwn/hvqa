@@ -13,36 +13,33 @@ class Visualiser:
         self._img_size = 256
         self._visualise_mult = 4
 
-        self.font = ImageFont.truetype("./lib/fonts/Arial Unicode.ttf", size=18)
+        self.font = ImageFont.truetype("./lib/fonts/Arial Unicode.ttf", size=22)
 
-    def visualise(self, frames):
+    def visualise(self, video):
         """
         Visualise a video.
-        For now this method will:
-        1. detect objects
-        2. Extract logical properties from object
-        3. Visualise each frame
 
-        :param frames: List of PIL Images
+        :param video: Video object
         """
 
-        video = self.model.process(frames)
-        new_frames = self._add_info_to_video(frames, video)
+        self.model.process(video)
+        new_frames = self._add_info_to_video(video)
         for img in new_frames:
             img.show()
 
     # TODO: Add relation and event info
-    def _add_info_to_video(self, imgs, video):
+    def _add_info_to_video(self, video):
         """
         For each image in the video:
           - Increase size of image
           - Draw bounding boxes
           - Write object info
 
-        :param imgs: List of PIL Image
-        :param video: Frame object corresponding to PIL images
+        :param video: Video object
         :return: List of PIL Image with info
         """
+
+        imgs = [frame.img for frame in video.frames]
 
         new_size = self._img_size * self._visualise_mult
         imgs = [img.resize((new_size, new_size)) for img in imgs]
@@ -54,11 +51,12 @@ class Visualiser:
             for obj in frame.objs:
                 bbox = tuple(map(lambda coord: coord * self._visualise_mult, obj.pos))
                 x1, y1, x2, y2 = bbox
-                colour = obj.colour
+                colour = obj.prop_vals["colour"]
+                rotation = obj.prop_vals["rotation"]
 
                 self._add_bbox(draw, bbox, colour)
                 draw.text((x1, y1 - 35), obj.cls, fill=colour, font=self.font)
-                draw.text((x2 - 20, y2 + 10), "Rot: " + str(obj.rot), fill=colour, font=self.font)
+                draw.text((x2 - 20, y2 + 10), "Rot: " + str(rotation), fill=colour, font=self.font)
                 draw.text((x1 - 30, y2 + 10), "Id: " + str(obj.id), fill=colour, font=self.font)
 
         return imgs
