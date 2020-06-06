@@ -453,6 +453,9 @@ class NeuralPropExtractor(Component, Trainable):
         ae_model.eval()
         latents = []
 
+        if len(imgs) == 0:
+            return []
+
         image_batches = [imgs]
         if len(imgs) > batch_size:
             image_batches = grouper(imgs, batch_size)
