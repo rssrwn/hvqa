@@ -139,6 +139,7 @@ class VideoDataset(QADataset):
             position = tuple(map(round, position))
             colour = obj_dict["colour"]
             rotation = obj_dict["rotation"]
+            rotation = spec.from_internal("rotation", rotation)
 
             obj = Obj(spec, obj_type, position)
             obj.set_prop_val("colour", colour)
