@@ -25,18 +25,24 @@ spec = EnvSpec.from_dict({
 })
 
 
-def main(train_dir, eval_dir):
+def main(train_dir, eval_dir, model_type):
     # Create data
     detector = NeuralDetector.load(spec, DETECTOR_PATH)
     train_data = VideoDataset.from_data_dir(spec, train_dir, detector, hardcoded=False)
     eval_data = VideoDataset.from_data_dir(spec, eval_dir, detector, hardcoded=True)
 
-    # Create model
-    # model = IndTrainedModel.new(spec)
-    model = IndTrainedModel.load(spec, IND_MODEL_PATH)
+    if model_type == "hardcoded":
+        model_path = HARDCODED_MODEL_PATH
+        model = HardcodedVQAModel.new(spec)
+    elif model_type == "ind-trained":
+        model_path = IND_MODEL_PATH
+        model = IndTrainedModel.new(spec)
+    else:
+        print("That model type is not supported")
+        return
+
     model.train(train_data, eval_data)
-    model.save(IND_MODEL_PATH)
-    # model.eval_components(eval_data)
+    model.save(model_path)
 
     # Load model and evaluate again
     # model = IndTrainedModel.load(spec, IND_MODEL_PATH)
@@ -44,8 +50,9 @@ def main(train_dir, eval_dir):
 
 
 if __name__ == '__main__':
-    parser = argparse.ArgumentParser(description="Script for running VideoQA pipeline on a video")
+    parser = argparse.ArgumentParser(description="Script for training H-PERL model")
     parser.add_argument("train_dir", type=str)
     parser.add_argument("eval_dir", type=str)
+    parser.add_argument("model_type", type=str)
     args = parser.parse_args()
-    main(args.train_dir, args.eval_dir)
+    main(args.train_dir, args.eval_dir, args.model_type)
