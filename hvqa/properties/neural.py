@@ -218,27 +218,23 @@ class NeuralPropExtractor(Component, Trainable):
         train_dataset = self._label_prop_data(train_data, ae_model, cls_label_centre_map, cls_label_prop_map)
         self._train_from_hardcoded(train_dataset, eval_data, verbose)
 
-    def _label_prop_data(self, dataset, ae_model, cls_label_centre_map, cls_label_prop_map):
+    def _label_prop_data(self, data, ae_model, cls_label_centre_map, cls_label_prop_map):
         """
         Produce a new dataset which the emulates the original but whose objects have all their properties filled
 
-        :param dataset: VideoQA dataset (VideoDataset)
+        :param data: Training data ((Videos, answers))
         :param ae_model: Autoencoder model (AutoEncoderModel)
         :param cls_label_centre_map: Dict mapping cls to dict mapping label to centre
         :param cls_label_prop_map: Dict mapping cls to dict mapping label to dict mapping property to value
         :return: VideoDataset object where each object in the Video objects has all properties filled in
         """
 
-        videos = []
-        answers = []
+        videos, answers = data
 
         print("Labelling object properties using autoencoder model...")
 
         cls_obj_map = {cls: [] for cls in self.spec.obj_types()}
-        for video_idx in range(len(dataset)):
-            video, ans = dataset[video_idx]
-            videos.append(video)
-            answers.append(ans)
+        for video in videos:
             for frame_idx, frame in enumerate(video.frames):
                 for obj in frame.objs:
                     cls_obj_map[obj.cls].append(obj)
@@ -256,10 +252,7 @@ class NeuralPropExtractor(Component, Trainable):
 
         print("Completed labelling.")
 
-        spec = dataset.spec
-        hardcoded = dataset.is_hardcoded()
-        timing = dataset.detector_timing()
-        new_dataset = VideoDataset(spec, videos, answers, timing=timing, hardcoded=hardcoded)
+        new_dataset = VideoDataset(self.spec, videos, answers)
         return new_dataset
 
     def _train_obj_ae(self, train_dataset, verbose, lr=0.001, batch_size=128, epochs=5):
