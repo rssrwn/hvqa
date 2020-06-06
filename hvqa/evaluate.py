@@ -24,6 +24,8 @@ spec = EnvSpec.from_dict({
 ERR_CORR = True
 AL_EVENT_MODEL = True
 
+ERROR_PROB = 0
+
 
 def evaluate(model, data, verbose=True):
     model.eval(data, verbose)
@@ -31,7 +33,7 @@ def evaluate(model, data, verbose=True):
 
 def main(data_dir, model_type):
     detector = NeuralDetector.load(spec, DETECTOR_PATH)
-    data = VideoDataset.from_data_dir(spec, data_dir, detector, hardcoded=False)
+    data = VideoDataset.from_data_dir(spec, data_dir, detector, hardcoded=False, err_prob=ERROR_PROB)
 
     if model_type == "hardcoded":
         model_path = "saved-models/hardcoded"
