@@ -14,10 +14,10 @@ class ASPEventDetector(_AbsEventDetector):
         self.al_model = al_model
 
         if al_model:
-            self.detector_file = self._video_info / "events.lp"
-            self.al_model_file = self._video_info / "model.lp"
+            self.detector_file = path / "events.lp"
+            self.al_model_file = path / "model.lp"
         else:
-            self.detector_file = self._video_info / "occurs_events.lp"
+            self.detector_file = path / "occurs_events.lp"
 
         self.timeout = 5
 
