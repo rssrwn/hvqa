@@ -46,9 +46,9 @@ class VideoDataset(QADataset):
         return self._detector_timing
 
     @classmethod
-    def from_data_dir(cls, spec, data_dir, detector, hardcoded=False, group_videos=8):
+    def from_data_dir(cls, spec, data_dir, detector, hardcoded=False, group_videos=8, store_frames=False):
         data_dir = Path(data_dir)
-        ids, videos, answers, timing = cls._find_videos(spec, data_dir, detector, hardcoded, group_videos)
+        ids, videos, answers, timing = cls._find_videos(spec, data_dir, detector, hardcoded, group_videos, store_frames)
         ids = sorted(enumerate(ids), key=lambda idx_id: idx_id[1])
         videos = [videos[idx] for idx, _ in ids]
         answers = [answers[idx] for idx, _ in ids]
@@ -56,7 +56,7 @@ class VideoDataset(QADataset):
         return dataset
 
     @classmethod
-    def _find_videos(cls, spec, data_dir, detector, hardcoded, group_videos):
+    def _find_videos(cls, spec, data_dir, detector, hardcoded, group_videos, store_frames):
         video_ids = []
         videos = []
         answers = []
@@ -72,7 +72,7 @@ class VideoDataset(QADataset):
         for video_info in grouper(video_infos, group_videos):
             video_info = [info for info in video_info if info is not None]
             video_nums, video_dicts, frame_imgs = tuple(zip(*video_info))
-            grouped_videos, timing = cls._construct_videos(spec, video_dicts, frame_imgs, detector, hardcoded)
+            grouped_videos, timing = cls._construct_videos(spec, video_dicts, frame_imgs, detector, hardcoded, store_frames)
             videos.extend(grouped_videos)
             video_ids.extend(video_nums)
             ans = [video_dict["answers"] for video_dict in video_dicts]
@@ -84,7 +84,7 @@ class VideoDataset(QADataset):
         return video_ids, videos, answers, detector_timing
 
     @classmethod
-    def _construct_videos(cls, spec, video_dicts, imgs, detector, hardcoded):
+    def _construct_videos(cls, spec, video_dicts, imgs, detector, hardcoded, store_frames):
         detector_timing = 0
         if hardcoded:
             videos_frames = []
@@ -96,6 +96,9 @@ class VideoDataset(QADataset):
                     frame_img = frame_imgs[frame_num]
                     objs = cls._collect_objs(spec, frame_dict, frame_img)
                     frame = Frame(spec, objs)
+                    if store_frames:
+                        frame.img = frame_img
+                    
                     frames.append(frame)
                 videos_frames.append(frames)
 
@@ -105,6 +108,11 @@ class VideoDataset(QADataset):
             frames = detector.detect_objs(frame_imgs)
             detector_timing += (time.time() - start_time)
             assert len(frames) == spec.num_frames * len(video_dicts), "Wrong number of frames returned"
+
+            if store_frames:
+                for idx, frame in enumerate(frames):
+                    frame.img = frame_imgs[idx]
+
             videos_frames = grouper(frames, spec.num_frames)
 
         videos = []
