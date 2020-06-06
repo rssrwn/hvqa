@@ -139,10 +139,7 @@ class HardcodedASPQASystem(Component):
         assert len(args) == 2, "Args is not correct length for question type 0"
 
         prop, prop_val = args
-
-        # TODO Update dataset to use readable version of rotation (eg. upward-facing)
-        if prop != "rotation":
-            prop_val = self.spec.from_internal(prop, int(prop_val))
+        prop_val = self.spec.from_internal(prop, int(prop_val))
 
         ans_str = template.format(prop_val=prop_val)
         return ans_str

@@ -140,9 +140,6 @@ class VideoDataset(QADataset):
             colour = obj_dict["colour"]
             rotation = obj_dict["rotation"]
 
-            # TODO Fix dataset to use external rotation value
-            rotation = spec.from_internal("rotation", rotation)
-
             obj = Obj(spec, obj_type, position)
             obj.set_prop_val("colour", colour)
             obj.set_prop_val("rotation", rotation)

@@ -106,8 +106,7 @@ class QAPropDataset(Dataset):
                 frame = video.frames[frame_idx]
                 frame_imgs = [obj.img for obj in frame.objs if obj.cls == q_cls]
 
-                # TODO Fix dataset
-                q_props = {prop: self.spec.from_internal(prop, int(ans)) if prop == "rotation" else ans}
+                q_props = {prop: ans}
                 if val is not None:
                     val_prop = self.spec.find_prop(val)
                     q_props[val_prop] = val

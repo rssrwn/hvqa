@@ -11,13 +11,12 @@ class QASpec:
         self.relation_q = 1
         self.event_q = 2
 
-        # TODO Fix firth
         self._occurrences = {
             "first": 1,
             "second": 2,
             "third": 3,
             "fourth": 4,
-            "firth": 5
+            "fifth": 5
         }
 
         self._noun_to_event = {
@@ -32,11 +31,6 @@ class QASpec:
     def parse_prop_ans(self, ans_str):
         prop_val = ans_str
         prop = self.spec.find_prop(prop_val)
-
-        # TODO Update dataset to use readable version of rotation (eg. upward-facing)
-        if prop == "rotation":
-            prop_val = self.spec.from_internal(prop, int(prop_val))
-
         return prop, prop_val
 
     def parse_relation_ans(self, ans_str):
@@ -50,12 +44,6 @@ class QASpec:
         prop = splits[1]
         before = splits[4]
         after = splits[6]
-
-        # TODO remove this after dataset is updated
-        if prop == "rotation":
-            before = self.spec.from_internal(prop, int(before))
-            after = self.spec.from_internal(prop, int(after))
-
         return prop, before, after
 
     def parse_ans_4(self, ans_str):
