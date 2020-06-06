@@ -215,18 +215,17 @@ class NeuralPropExtractor(Component, Trainable):
         cls_label_prop_map = self._find_label_prop_maps(train_prop_qa_dataset, ae_model, cls_label_centre_map)
 
         # Label data in train_prop_dataset and train NN with labelled data
-        train_dataset = self._label_prop_data(train_data, ae_model, cls_label_centre_map, cls_label_prop_map)
-        self._train_from_hardcoded(train_dataset, eval_data, verbose)
+        self._label_prop_data(train_data, ae_model, cls_label_centre_map, cls_label_prop_map)
+        self._train_from_hardcoded(train_data, eval_data, verbose)
 
     def _label_prop_data(self, data, ae_model, cls_label_centre_map, cls_label_prop_map):
         """
-        Produce a new dataset which the emulates the original but whose objects have all their properties filled
+        Labels the data which the emulates the original but whose objects have all their properties filled
 
         :param data: Training data ((Videos, answers))
         :param ae_model: Autoencoder model (AutoEncoderModel)
         :param cls_label_centre_map: Dict mapping cls to dict mapping label to centre
         :param cls_label_prop_map: Dict mapping cls to dict mapping label to dict mapping property to value
-        :return: VideoDataset object where each object in the Video objects has all properties filled in
         """
 
         videos, answers = data
@@ -251,9 +250,6 @@ class NeuralPropExtractor(Component, Trainable):
                     obj.set_prop_val(prop, val)
 
         print("Completed labelling.")
-
-        new_dataset = VideoDataset(self.spec, videos, answers)
-        return new_dataset
 
     def _train_obj_ae(self, train_dataset, verbose, lr=0.001, batch_size=128, epochs=5):
         """
