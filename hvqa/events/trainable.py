@@ -81,8 +81,8 @@ class ILPEventDetector(_AbsEventDetector, Trainable):
         models = ASPRunner.run(self.asp_data_file, asp_str,
                                additional_files=files, prog_name=prog_name, opt_proven=False)
 
-        # We should only get a single model
-        assert len(models) == 1, "Found multiple answer sets for event detection program"
+        if len(models) > 1:
+            print("WARNING: Multiple answer sets found for event detection component")
 
         model = models[0]
 
