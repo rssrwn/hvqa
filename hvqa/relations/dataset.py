@@ -10,7 +10,7 @@ DEFAULT_ITEMS_PER_REL = 50000
 
 
 class _AbsRelationDataset(Dataset):
-    def __init__(self, spec, videos, answers=None, items_per_rel=DEFAULT_ITEMS_PER_REL, sample=True):
+    def __init__(self, spec, videos, answers=None, items_per_rel=DEFAULT_ITEMS_PER_REL, enc_objs=True):
         """
         Create a RelationDataset
 
@@ -22,7 +22,7 @@ class _AbsRelationDataset(Dataset):
 
         self.spec = spec
         self.items_per_rel = items_per_rel
-        self.rel_data_map = self._collect_data(videos, answers, sample)
+        self.rel_data_map = self._collect_data(videos, answers, enc_objs)
 
     def __len__(self):
         return self.items_per_rel
@@ -31,7 +31,7 @@ class _AbsRelationDataset(Dataset):
         rel_data = {rel: self.rel_data_map[rel][item] for rel in self.spec.relations}
         return rel_data
 
-    def _collect_data(self, videos, answers, enc_objs=True, sample=True):
+    def _collect_data(self, videos, answers, enc_objs=True):
         """
         Collect data from videos and answers
 
@@ -58,11 +58,11 @@ class _AbsRelationDataset(Dataset):
 
 
 class QARelationDataset(_AbsRelationDataset):
-    def __init__(self, spec, videos, answers, items_per_rel=DEFAULT_ITEMS_PER_REL, sample=True):
+    def __init__(self, spec, videos, answers, items_per_rel=DEFAULT_ITEMS_PER_REL, enc_objs=True):
         assert answers is not None
-        super(QARelationDataset, self).__init__(spec, videos, answers, items_per_rel, sample)
+        super(QARelationDataset, self).__init__(spec, videos, answers, items_per_rel, enc_objs)
 
-    def _collect_data(self, videos, answers, enc_objs=True, sample=True):
+    def _collect_data(self, videos, answers, enc_objs=True):
         rel_data_map = {rel: [] for rel in self.spec.relations}
         for video_idx, video in enumerate(videos):
             q_idxs = [idx for idx, q_type in enumerate(video.q_types) if q_type == self.spec.qa.relation_q]
@@ -89,25 +89,22 @@ class QARelationDataset(_AbsRelationDataset):
                     classification = torch.tensor([yes_no])
                 else:
                     objs = (obj1, obj2)
-                    classification = yes_no
+                    classification = yes_no > 0.5
 
                 rel_data_map[rel].append((objs, classification))
 
-        if sample:
-            sampled_rel_data_map = {}
-            for rel, data in rel_data_map.items():
-                sampled = random.choices(data, k=self.items_per_rel)
-                sampled_rel_data_map[rel] = sampled
-        else:
-            sampled_rel_data_map = rel_data_map
+        sampled_rel_data_map = {}
+        for rel, data in rel_data_map.items():
+            sampled = random.choices(data, k=self.items_per_rel)
+            sampled_rel_data_map[rel] = sampled
 
         return sampled_rel_data_map
 
     @staticmethod
-    def from_video_dataset(spec, dataset, items_per_rel=DEFAULT_ITEMS_PER_REL, sample=True):
+    def from_video_dataset(spec, dataset, items_per_rel=DEFAULT_ITEMS_PER_REL, enc_objs=True):
         data = [dataset[idx] for idx in range(len(dataset))]
         videos, answers = tuple(zip(*data))
-        relation_data = QARelationDataset(spec, videos, answers, items_per_rel=items_per_rel, sample=sample)
+        relation_data = QARelationDataset(spec, videos, answers, items_per_rel=items_per_rel, enc_objs=enc_objs)
         return relation_data
 
 
@@ -116,9 +113,8 @@ class HardcodedRelationDataset(_AbsRelationDataset):
         self.close_to_def = 5
         super(HardcodedRelationDataset, self).__init__(spec, videos, answers, items_per_rel)
 
-    def _collect_data(self, videos, answers, enc_objs=True, sample=True):
+    def _collect_data(self, videos, answers, enc_objs=True):
         assert enc_objs, "This flag is not yet supported"
-        assert sample, "This flag is not yet supported"
 
         true_data = []
         false_data = []

@@ -127,7 +127,7 @@ class NeuralRelationClassifier(Component, Trainable):
         return loss, losses
 
     def _construct_eval_datasets(self, eval_data, batch_size):
-        qa_data = QARelationDataset.from_video_dataset(self.spec, eval_data, sample=False)
+        qa_data = QARelationDataset.from_video_dataset(self.spec, eval_data)
         qa_loader = DataLoader(qa_data, batch_size=batch_size, shuffle=False, collate_fn=self._collate_fn)
         return qa_loader
 
