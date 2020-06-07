@@ -100,7 +100,8 @@ class HardcodedASPQASystem(Component):
         files = [self.qa_system, self.features]
         models = ASPRunner.run(self._video_info, asp_enc, additional_files=files, prog_name=name, opt_proven=False)
 
-        assert len(models) <= 1, "ASP QA program must contain only a single answer set"
+        if len(models) > 1:
+            print("WARNING: Multiple answer sets for QA component")
 
         # If we cannot find any answer return a wrong answer
         if len(models) == 0:
