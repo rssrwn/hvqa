@@ -51,12 +51,12 @@ class HardcodedRelationClassifier(Component):
         rel_preds = {rel: [] for rel in self.spec.relations}
         rel_acts = {rel: [] for rel in self.spec.relations}
         for idx in range(len(eval_data)):
-            rel, (objs, related) = eval_data[idx].items()
-            obj1, obj2 = objs
-            rels = self._check_related(obj1, obj2)
-            pred = True if rel in rels else False
-            rel_preds[rel].append(pred)
-            rel_acts[rel].append(related)
+            for rel, (objs, related) in eval_data[idx].items():
+                obj1, obj2 = objs
+                rels = self._check_related(obj1, obj2)
+                pred = True if rel in rels else False
+                rel_preds[rel].append(pred)
+                rel_acts[rel].append(related)
 
         rel_metrics = {}
         for rel, preds in rel_preds.items():
