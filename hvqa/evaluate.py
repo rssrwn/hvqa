@@ -28,11 +28,14 @@ HARDCODED = True
 ERROR_PROB = 0
 
 
-def evaluate(model, data, verbose=True):
-    model.eval(data, verbose)
+def evaluate(model, data, components=False, verbose=True):
+    if components:
+        model.eval_components(data)
+    else:
+        model.eval(data, verbose)
 
 
-def main(data_dir, model_type):
+def main(data_dir, model_type, components):
     detector = NeuralDetector.load(spec, DETECTOR_PATH)
     data = VideoDataset.from_data_dir(spec, data_dir, detector, hardcoded=HARDCODED, err_prob=ERROR_PROB)
 
@@ -46,7 +49,7 @@ def main(data_dir, model_type):
         print("That type of model is not supported")
         return
 
-    evaluate(model, data, verbose=True)
+    evaluate(model, data, components, verbose=True)
 
     # video_idx = 7
     # frames, video_dict = data[video_idx]
@@ -58,5 +61,6 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser(description="Script for evaluating full QA pipeline")
     parser.add_argument("data_dir", type=str)
     parser.add_argument("model_type", type=str)
+    parser.add_argument("-c", "--components", action="store_true", help="evaluate components only")
     args = parser.parse_args()
-    main(args.data_dir, args.model_type)
+    main(args.data_dir, args.model_type, args.components)
