@@ -21,6 +21,7 @@ def eval_detector(test_dir):
     backbone = DetectionBackbone()
     model = DetectionModel(backbone)
     model.load_state_dict(torch.load(DETECTOR_PATH, map_location=device))
+    model = model.to(device)
 
     dataset_test = DetectionDataset(test_dir, transforms=detector_transforms)
     loader_test = DataLoader(dataset_test, batch_size=128, shuffle=True, collate_fn=collate_func)
