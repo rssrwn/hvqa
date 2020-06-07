@@ -6,7 +6,7 @@ import torch.optim as optim
 from torch.utils.data import DataLoader
 
 from hvqa.util.interfaces import Component, Trainable
-from hvqa.relations.dataset import QARelationDataset, HardcodedRelationDataset
+from hvqa.relations.dataset import QARelationDataset
 from hvqa.relations.models import RelationClassifierModel
 from hvqa.util.func import collate_func, get_device, load_model, save_model, obj_encoding
 
@@ -81,7 +81,7 @@ class NeuralRelationClassifier(Component, Trainable):
         videos, answers = train_data
 
         print("\nConstructing training and evaluating relation datasets...")
-        qa_loader, hardcoded_loader = self._construct_eval_datasets(eval_data, batch_size)
+        qa_loader = self._construct_eval_datasets(eval_data, batch_size)
         train_dataset = QARelationDataset(self.spec, videos, answers)
         train_loader = DataLoader(train_dataset, batch_size=batch_size, shuffle=True, collate_fn=self._collate_fn)
 
@@ -91,7 +91,7 @@ class NeuralRelationClassifier(Component, Trainable):
 
         for epoch in range(epochs):
             self._train_one_epoch(train_loader, optimiser, epoch, verbose)
-            self._eval(qa_loader, hardcoded_loader)
+            self._eval(qa_loader)
 
         print("Completed relation classifier training.")
 
@@ -127,25 +127,18 @@ class NeuralRelationClassifier(Component, Trainable):
         return loss, losses
 
     def _construct_eval_datasets(self, eval_data, batch_size):
-        qa_data = QARelationDataset.from_video_dataset(self.spec, eval_data)
+        qa_data = QARelationDataset.from_video_dataset(self.spec, eval_data, sample=False)
         qa_loader = DataLoader(qa_data, batch_size=batch_size, shuffle=False, collate_fn=self._collate_fn)
-
-        hardcoded_data = HardcodedRelationDataset.from_video_dataset(self.spec, eval_data)
-        hardcoded_loader = DataLoader(hardcoded_data, batch_size=batch_size, shuffle=False, collate_fn=self._collate_fn)
-
-        return qa_loader, hardcoded_loader
+        return qa_loader
 
     def eval(self, eval_data, batch_size=256):
         print("\nConstructing evaluation data...")
-        qa_loader, hardcoded_loader = self._construct_eval_datasets(eval_data, batch_size)
-        self._eval(qa_loader, hardcoded_loader)
+        qa_loader = self._construct_eval_datasets(eval_data, batch_size)
+        self._eval(qa_loader)
 
-    def _eval(self, qa_loader, hardcoded_loader):
+    def _eval(self, qa_loader):
         print("\nEvaluating neural relation classifier on QA relation data...")
         self._eval_from_data(qa_loader)
-
-        print("\nEvaluating neural relation classifier on hardcoded relation data...")
-        self._eval_from_data(hardcoded_loader)
 
     def _eval_from_data(self, eval_loader):
         self.model.eval()
