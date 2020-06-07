@@ -19,7 +19,7 @@ class ASPEventDetector(_AbsEventDetector):
         else:
             self.detector_file = path / "occurs_events.lp"
 
-        self.timeout = 5
+        self.timeout = 20
 
         assert self.detector_file.exists(), f"File {self.detector_file} does not exist"
         if al_model:
@@ -61,7 +61,9 @@ class ASPEventDetector(_AbsEventDetector):
         models = ASPRunner.run(self._video_info, asp_enc, additional_files=files, timeout=self.timeout,
                                opt_mode="optN", opt_proven=self.al_model, prog_name=name)
 
-        assert len(models) != 0, "ASP event detection program is unsatisfiable"
+        # assert len(models) != 0, "ASP event detection program is unsatisfiable"
+        if len(models) == 0:
+            return [[]] * (len(frames) - 1)
 
         if len(models) > 1:
             print("WARNING: Event detection ASP program contains multiple answer sets. Choosing one answer...")
