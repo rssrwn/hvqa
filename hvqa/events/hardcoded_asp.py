@@ -61,7 +61,6 @@ class ASPEventDetector(_AbsEventDetector):
         models = ASPRunner.run(self._video_info, asp_enc, additional_files=files, timeout=self.timeout,
                                opt_mode="optN", opt_proven=self.al_model, prog_name=name)
 
-        # assert len(models) != 0, "ASP event detection program is unsatisfiable"
         if len(models) == 0:
             return [[]] * (len(frames) - 1)
 
