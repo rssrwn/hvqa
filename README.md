@@ -1,26 +1,47 @@
 # VideoQA using Deep Learning and Logic
 
-A dataset and implementation (ongoing) of a 'hybrid' VideoQA model which extracts properties from objects using deep learning and reasons about the objects using Answer Set Programming.
+A dataset and implementation of a 'hybrid' VideoQA model which extracts properties from objects using deep learning and reasons about the objects using Answer Set Programming.
 
 ## Requirements 
 
-Most packages can be installed using pip by running `pip install -r requirements.txt`. However, the project also requires that Clingo and Clorm are installed. These can be installed using Anaconda by running:
+Most packages can be installed using pip by running `pip install -r requirements.txt`. However, the project also requires that Clingo is installed. It can be installed using Anaconda by running:
 * `conda install -c potassco clingo`
-* `conda install -c potassco clorm` 
+
+It is therefore recommended that Anaconda is used as a package manager and all other requirements are installed with pip.
 
 The project uses Clingo version 5.3.0.
 
 ## Running
 
-At the moment, interaction with the project should be through python scripts, which are stored in their functional locations.
+Interaction with the project should be through python scripts, which are stored in their functional locations.
 
 ### Scripts
 
-Run scripts by running `python3 -m hvqa.<folder>.<name>`. The `-m` is required to add the current directory to the Python path variable. Note that `<name>` must be given without `.py` at the end.
+Run scripts by running `python3 -m hvqa.<name>`. The `-m` is required to add the current directory to the Python path variable. Note that `<name>` must be given without `.py` at the end.
 
 The following scripts are contained in the project:
-* '**build**' builds the dataset (there are options for building just the json files, just the frames, or everything)
-* '**analyse**' runs analysis on the current dataset (see the file for full list of flags)
-* '**train**' trains either the classifier (backbone) model or the detector model with a pre-trained classifier
-* '**evaluate**' evaluates the performance of either the classifier or detector model
+* '**train**' trains one of the H-PERL models
+* '**evaluate**' evaluates the performance of a trained H-PERL model
 
+There are also separate training and evaluation scripts for the object detector in the `hvqa.detection` folder.
+
+The best way to understand the inputs to all of the above scripts is to look at the required arguments inside the scripts themselves.
+
+## Models and Data
+
+Full details of the project can be found in the final report of a sister repo called `hvqa-report`.
+
+### Models
+
+The `saved-models` folder contains pre-trained two H-PERL models: hardcoded and ind-trained models, as well as the pre-trained object detector used by these models.
+
+### Data
+
+The `compressed-data` folder contains the full OceanQA dataset for the project. It contains three subdatasets:
+* `train` contains 1000 training videos.
+* `test` contains 200 testing videos.
+* `val` contains 200 validation videos (used for hyper-parameter searches).
+
+### Results
+
+In the results folder a number of png images showing printouts of each model's results can be found. The `standard.png` files are the evaluation results when the trained object detector is used. The `fail_<p>.png` files show the results when hardcoded object detection data is used with a `<p>` probability of missing each object.
