@@ -7,7 +7,7 @@ TRAINED_TIMINGS = [56.8, 17.8, 1.88, 39.6, 5.18, 5.1]
 HARDCODED_TIMINGS = [56.58, 18.25, 1.84, 22.81, 256.78, 7.04]
 
 EXPLODE = 0.0
-ANGLE = -60
+ANGLE = -90
 
 
 def plot_timings(trained):
@@ -17,7 +17,7 @@ def plot_timings(trained):
 
     explode = [EXPLODE] * 6
 
-    ax.pie(data, labels=TIMING_LABELS, autopct="%.0f%%", explode=explode, startangle=ANGLE)
+    ax.pie(data, labels=TIMING_LABELS, autopct="%.0f%%", explode=explode, startangle=ANGLE, textprops={"size":"larger"})
     ax.axis("equal")
 
     plt.show()
