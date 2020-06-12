@@ -11,6 +11,7 @@ TRAINED_ACCS = [99.7, 98.8, 75.0, 60.8, 47.1]
 HARDCODED_ACCS = [100, 97.9, 52.4, 44.2, 36.2]
 HARDCODED_EC_ACCS = [100, 99.1, 52.8, 43.5, 36.0]
 X_NAMES = ["0", "N/A", "0.1", "0.2", "0.3"]
+FONT_SIZE = 26
 
 EXPLODE = 0.0
 ANGLE = -90
@@ -37,7 +38,7 @@ def plot_accs(model):
     elif model == "hardcoded-ec":
         data = HARDCODED_EC_ACCS
 
-    fig, ax = plt.subplots()
+    fig, ax = plt.subplots(figsize=(6,4.5))
 
     formatter = FuncFormatter(lambda x, pos: f"{x:.0f}%")
 
