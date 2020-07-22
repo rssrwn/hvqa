@@ -232,12 +232,13 @@ class BaselineModel(Trainable):
 
         raise NotImplementedError()
 
-    def eval(self, eval_data):
+    def eval(self, eval_data, verbose=True):
         """
         Evaluate the model
         Nothing is returned
 
         :param eval_data: Eval data ((frames, questions, q_types, answers) tuple)
+        :param verbose: Allow extra printing during evaluation
         """
 
         raise NotImplementedError()
