@@ -4,7 +4,7 @@ from hvqa.util.interfaces import BaselineModel
 from hvqa.util.exceptions import UnknownQuestionTypeException
 
 
-class RandomAns(BaselineModel):
+class RandomAnsModel(BaselineModel):
     def __init__(self, spec):
         self.spec = spec
 

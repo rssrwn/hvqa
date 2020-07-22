@@ -2,9 +2,11 @@ import argparse
 
 from hvqa.spec.env import EnvSpec
 from hvqa.util.dataset import VideoDataset
+from hvqa.util.dataset import BaselineDataset
 from hvqa.detection.detector import NeuralDetector
 from hvqa.models.hardcoded import HardcodedVQAModel
 from hvqa.models.individually_trained import IndTrainedModel
+from hvqa.models.baselines.question import RandomAnsModel
 
 
 DETECTOR_PATH = "saved-models/detection/v1_0/after_20_epochs.pt"
@@ -37,14 +39,21 @@ def evaluate(model, data, components=False, verbose=True):
 
 def main(data_dir, model_type, components):
     detector = NeuralDetector.load(spec, DETECTOR_PATH)
-    data = VideoDataset.from_data_dir(spec, data_dir, detector, hardcoded=HARDCODED, err_prob=ERROR_PROB)
 
     if model_type == "hardcoded":
         model_path = "saved-models/hardcoded"
         model = HardcodedVQAModel.load(spec, model_path, err_corr=ERR_CORR, al_model=AL_EVENT_MODEL)
+        data = VideoDataset.from_data_dir(spec, data_dir, detector, hardcoded=HARDCODED, err_prob=ERROR_PROB)
+
     elif model_type == "ind-trained":
         model_path = "saved-models/ind-trained"
         model = IndTrainedModel.load(spec, model_path)
+        data = VideoDataset.from_data_dir(spec, data_dir, detector, hardcoded=HARDCODED, err_prob=ERROR_PROB)
+
+    elif model_type == "baseline-random":
+        model = RandomAnsModel(spec)
+        data = BaselineDataset.from_data_dir(data_dir)
+
     else:
         print("That type of model is not supported")
         return
