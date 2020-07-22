@@ -216,3 +216,49 @@ class Model(Trainable):
         """
 
         raise NotImplementedError()
+
+
+class BaselineModel(Trainable):
+    def train(self, train_data, eval_data, verbose=True):
+        """
+        Train the model
+        Eval data can also be used to see the model's training progress
+        Nothing is returned
+
+        :param train_data: Training data ((frames, questions, q_types, answers) tuple)
+        :param eval_data: Eval data ((frames, questions, q_types, answers) tuple)
+        :param verbose: Print additional info during training
+        """
+
+        raise NotImplementedError()
+
+    def eval(self, eval_data):
+        """
+        Evaluate the model
+        Nothing is returned
+
+        :param eval_data: Eval data ((frames, questions, q_types, answers) tuple)
+        """
+
+        raise NotImplementedError()
+
+    @staticmethod
+    def load(spec, path):
+        """
+        Load the BaselineModel object
+
+        :param spec: EnvSpec object
+        :param path: Path to where the object information was saved
+        :return: BaselineModel obj
+        """
+
+        raise NotImplementedError()
+
+    def save(self, path):
+        """
+        Save the BaselineModel information
+
+        :param path: Path to where the model should be saved
+        """
+
+        raise NotImplementedError()
