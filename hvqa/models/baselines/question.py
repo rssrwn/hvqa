@@ -4,6 +4,9 @@ from hvqa.util.interfaces import BaselineModel
 from hvqa.util.exceptions import UnknownQuestionTypeException
 
 
+NUM_Q_TYPES = 7
+
+
 class RandomAnsModel(BaselineModel):
     def __init__(self, spec):
         self.spec = spec
@@ -12,30 +15,26 @@ class RandomAnsModel(BaselineModel):
         pass
 
     def eval(self, eval_data, verbose=True):
-        _, questions, q_types, answers = eval_data
-
-        q_t_correct = dict(enumerate([0] * 7))
-        q_t_total = dict(enumerate([0] * 7))
+        q_t_correct = dict(enumerate([0] * NUM_Q_TYPES))
+        q_t_total = dict(enumerate([0] * NUM_Q_TYPES))
         correct = 0
         total = 0
 
-        num_vs = len(questions)
-
-        for idx, v_qs in enumerate(questions):
-            v_q_types = q_types[idx]
-            v_answers = answers[idx]
-            v_correct = self._eval_video(idx, num_vs, v_qs, v_q_types, v_answers, q_t_correct, q_t_total, verbose)
+        num_vs = len(eval_data)
+        for idx in range(num_vs):
+            _, qs, q_types, answers = eval_data[idx]
+            v_correct = self._eval_video(idx, num_vs, qs, q_types, answers, q_t_correct, q_t_total, verbose)
             correct += v_correct
-            total += len(v_qs)
+            total += len(qs)
 
         print("\nResults:")
         print(f"{'Question Type':<20}{'Correct':<15}{'Incorrect':<15}Accuracy")
-        for q_type in q_types:
-            num_correct = q_t_correct[q_type]
-            total = q_t_total[q_type]
-            num_incorrect = total = num_correct
-            acc = num_correct / total
-            print(f"{q_type:<20}{num_correct:<15}{num_incorrect:<15}{acc:.1%}")
+        for q_type in range(NUM_Q_TYPES):
+            correct_q_t = q_t_correct[q_type]
+            total_q_t = q_t_total[q_type]
+            incorrect_q_t = total - correct_q_t
+            acc = correct_q_t / total_q_t
+            print(f"{q_type:<20}{correct_q_t:<15}{incorrect_q_t:<15}{acc:.1%}")
 
         acc = correct / total
         print(f"\nNum correct: {correct}")
@@ -62,10 +61,10 @@ class RandomAnsModel(BaselineModel):
 
             q_type_total[q_type] += 1
 
-            acc = video_correct / len(questions)
-            print(f"Video [{v_idx + 1:4}/{n_vs:4}] "
-                  f"-- {video_correct:2} / {len(questions):2} "
-                  f"-- Accuracy: {acc:.0%}")
+        acc = video_correct / len(questions)
+        print(f"Video [{v_idx + 1:4}/{n_vs:4}] "
+              f"-- {video_correct:2} / {len(questions):2} "
+              f"-- Accuracy: {acc:.0%}")
 
         return video_correct
 
@@ -83,7 +82,7 @@ class RandomAnsModel(BaselineModel):
             to_val = random.choice(self.spec.prop_values(prop))
             ans = f"Its {prop} changed from {from_val} to {to_val}"
         elif q_type == 4:
-            ints = list(range(31))
+            ints = list(range(self.spec.num_frames - 1))
             ans = str(random.choice(ints))
         elif q_type == 5:
             ans = random.choice(self.spec.actions + self.spec.effects)
