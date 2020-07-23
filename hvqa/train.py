@@ -5,12 +5,14 @@ from hvqa.spec.env import EnvSpec
 from hvqa.detection.detector import NeuralDetector
 from hvqa.models.hardcoded import HardcodedVQAModel
 from hvqa.models.individually_trained import IndTrainedModel
+from hvqa.models.baselines.language import BestChoiceModel
 
 
 DETECTOR_PATH = "saved-models/detection/v1_0/after_20_epochs.pt"
 
 HARDCODED_MODEL_PATH = "saved-models/hardcoded"
 IND_MODEL_PATH = "saved-models/ind-trained"
+BEST_CHOICE_MODEL_PATH = "saved-models/best-choice"
 
 spec = EnvSpec.from_dict({
     "num_frames": 32,
@@ -34,9 +36,15 @@ def main(train_dir, eval_dir, model_type):
     if model_type == "hardcoded":
         model_path = HARDCODED_MODEL_PATH
         model = HardcodedVQAModel.new(spec)
+
     elif model_type == "ind-trained":
         model_path = IND_MODEL_PATH
         model = IndTrainedModel.new(spec)
+
+    elif model_type == "best-choice":
+        model_path = BEST_CHOICE_MODEL_PATH
+        model = BestChoiceModel(spec)
+
     else:
         print("That model type is not supported")
         return

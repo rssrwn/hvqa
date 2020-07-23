@@ -50,11 +50,11 @@ def main(data_dir, model_type, components):
         model = IndTrainedModel.load(spec, model_path)
         data = VideoDataset.from_data_dir(spec, data_dir, detector, hardcoded=HARDCODED, err_prob=ERROR_PROB)
 
-    elif model_type == "baseline-random":
+    elif model_type == "random":
         model = RandomAnsModel(spec)
         data = BaselineDataset.from_data_dir(data_dir)
 
-    elif model_type == "baseline-best-choice":
+    elif model_type == "best-choice":
         model_path = "saved-models/best-choice"
         model = BestChoiceModel.load(spec, model_path)
         data = BaselineDataset.from_data_dir(data_dir)
