@@ -162,6 +162,8 @@ class BestChoiceModel(_AbsBaselineModel):
                 ans, _ = max(ans_counts.items, key=lambda ans_cnt: ans_cnt[1])
                 answers[q_type] = ans
 
+        self._answers = answers
+
     def _add_ans_count(self, counts, question, q_type, answer):
         q_type_counts = counts.get(q_type)
         if q_type_counts is None:
@@ -187,7 +189,35 @@ class BestChoiceModel(_AbsBaselineModel):
             counts[q_type][answer] += 1
 
     def eval(self, eval_data, verbose=True):
-        pass
+        num_vs = len(eval_data)
+        for idx in range(num_vs):
+            _, qs, q_types, answers = eval_data[idx]
+            v_correct = self._eval_video(idx, num_vs, qs, q_types, answers, verbose)
+            self._correct += v_correct
+            self._total += len(qs)
+
+        self._print_results()
+        self._reset_results()
+
+    def _eval_video(self, v_idx, n_vs, questions, q_types, answers, verbose):
+        results = []
+        for idx, question in enumerate(questions):
+            q_type = q_types[idx]
+            answer = answers[idx]
+            predicted = self._answer_question(question, q_type)
+            results.append((question, q_type, predicted, answer))
+
+        video_correct = self._eval_video_results(v_idx, n_vs, results, verbose)
+        return video_correct
+
+    def _answer_question(self, question, q_type):
+        if q_type == 0:
+            prop, _, _, _ = self.spec.qa.parse_prop_question(question)
+            ans = self._answers[q_type][prop]
+        else:
+            ans = self._answers[q_type]
+
+        return ans
 
     @staticmethod
     def load(spec, path):
