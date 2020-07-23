@@ -155,13 +155,13 @@ class BestChoiceModel(_AbsBaselineModel):
             if q_type == 0:
                 prop_answers = {}
                 for prop, val_counts in ans_counts.items():
-                    val, _ = max(val_counts.items, key=lambda val_cnt: val_cnt[1])
+                    val, _ = max(val_counts.items(), key=lambda val_cnt: val_cnt[1])
                     prop_answers[prop] = val
 
                 answers[q_type] = prop_answers
 
             else:
-                ans, _ = max(ans_counts.items, key=lambda ans_cnt: ans_cnt[1])
+                ans, _ = max(ans_counts.items(), key=lambda ans_cnt: ans_cnt[1])
                 answers[q_type] = ans
 
         self._answers = answers
@@ -223,7 +223,9 @@ class BestChoiceModel(_AbsBaselineModel):
 
     @staticmethod
     def load(spec, path):
-        with Path(path).open() as f:
+        load_path = Path(path)
+        answers_path = load_path / "answers.json"
+        with answers_path.open() as f:
             json_text = f.read()
 
         answers = json.loads(json_text)
@@ -233,5 +235,7 @@ class BestChoiceModel(_AbsBaselineModel):
     def save(self, path):
         assert self._answers is not None, "Model has not yet been trained"
         save_path = Path(path)
-        with save_path.open("w") as f:
+        save_path.mkdir(exist_ok=True)
+        answers_path = save_path / "answers.json"
+        with answers_path.open("w") as f:
             json.dump(self._answers, f)
