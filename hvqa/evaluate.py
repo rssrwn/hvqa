@@ -6,7 +6,7 @@ from hvqa.util.dataset import BaselineDataset
 from hvqa.detection.detector import NeuralDetector
 from hvqa.models.hardcoded import HardcodedVQAModel
 from hvqa.models.individually_trained import IndTrainedModel
-from hvqa.models.baselines.question import RandomAnsModel
+from hvqa.models.baselines.language import RandomAnsModel, BestChoiceModel
 
 
 DETECTOR_PATH = "saved-models/detection/v1_0/after_20_epochs.pt"
@@ -52,6 +52,11 @@ def main(data_dir, model_type, components):
 
     elif model_type == "baseline-random":
         model = RandomAnsModel(spec)
+        data = BaselineDataset.from_data_dir(data_dir)
+
+    elif model_type == "baseline-best-choice":
+        model_path = "saved-models/best-choice"
+        model = BestChoiceModel.load(spec, model_path)
         data = BaselineDataset.from_data_dir(data_dir)
 
     else:
