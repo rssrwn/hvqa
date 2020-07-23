@@ -1,4 +1,6 @@
+import json
 import random
+from pathlib import Path
 
 from hvqa.util.interfaces import BaselineModel
 from hvqa.util.exceptions import UnknownQuestionTypeException
@@ -132,8 +134,8 @@ class RandomAnsModel(_AbsBaselineModel):
 
 
 class BestChoiceModel(_AbsBaselineModel):
-    def __init__(self, spec):
-        self._answers = None
+    def __init__(self, spec, answers=None):
+        self._answers = answers
         super(BestChoiceModel, self).__init__(spec)
 
     def train(self, train_data, eval_data, verbose=True):
@@ -221,7 +223,15 @@ class BestChoiceModel(_AbsBaselineModel):
 
     @staticmethod
     def load(spec, path):
-        pass
+        with Path(path).open() as f:
+            json_text = f.read()
+
+        answers = json.loads(json_text)
+        model = BestChoiceModel(spec, answers=answers)
+        return model
 
     def save(self, path):
-        pass
+        assert self._answers is not None, "Model has not yet been trained"
+        save_path = Path(path)
+        with save_path.open("w") as f:
+            json.dump(self._answers, f)
