@@ -10,3 +10,4 @@ scikit-image
 more-itertools
 scikit-learn
 scipy
+spacy
