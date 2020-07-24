@@ -1,4 +1,4 @@
-import json
+import pickle
 import random
 from pathlib import Path
 
@@ -47,6 +47,8 @@ class _AbsBaselineModel(BaselineModel):
                 if verbose:
                     print(f"Q{q_idx}: Incorrect. Question {question} -- "
                           f"Answer: Predicted '{predicted}', actual '{answer}'")
+
+            self._q_type_total[q_type] += 1
 
         acc = video_correct / len(results)
         print(f"Video [{v_idx + 1:4}/{n_vs:4}] "
@@ -225,10 +227,10 @@ class BestChoiceModel(_AbsBaselineModel):
     def load(spec, path):
         load_path = Path(path)
         answers_path = load_path / "answers.json"
-        with answers_path.open() as f:
-            json_text = f.read()
+        with answers_path.open("rb") as f:
+            pickle_text = f.read()
 
-        answers = json.loads(json_text)
+        answers = pickle.loads(pickle_text)
         model = BestChoiceModel(spec, answers=answers)
         return model
 
@@ -237,5 +239,6 @@ class BestChoiceModel(_AbsBaselineModel):
         save_path = Path(path)
         save_path.mkdir(exist_ok=True)
         answers_path = save_path / "answers.json"
-        with answers_path.open("w") as f:
-            json.dump(self._answers, f)
+        pickle_text = pickle.dumps(self._answers)
+        with answers_path.open("wb") as f:
+            f.write(pickle_text)
