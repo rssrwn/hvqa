@@ -242,3 +242,21 @@ class BestChoiceModel(_AbsBaselineModel):
         pickle_text = pickle.dumps(self._answers)
         with answers_path.open("wb") as f:
             f.write(pickle_text)
+
+
+class LstmModel(_AbsBaselineModel):
+    def __init__(self, spec):
+        super(LstmModel, self).__init__(spec)
+
+    def train(self, train_data, eval_data, verbose=True):
+        pass
+
+    def eval(self, eval_data, verbose=True):
+        pass
+
+    @staticmethod
+    def load(spec, path):
+        pass
+
+    def save(self, path):
+        pass
