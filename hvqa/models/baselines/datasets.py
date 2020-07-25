@@ -1,5 +1,9 @@
 import spacy
+import torch
 from torch.utils.data import Dataset
+
+import hvqa.util.func as util
+from hvqa.util.exceptions import UnknownQuestionTypeException
 
 
 class EndToEndDataset(Dataset):
@@ -32,10 +36,70 @@ class EndToEndDataset(Dataset):
         tokens = list(self.nlp.pipe(questions))
         q_encs = [token.vector for token in tokens]
         a_encs = self._encode_answers(q_types, answers)
+        q_encs = torch.tensor(q_encs)
+        a_encs = torch.tensor(a_encs)
         return q_encs, a_encs
 
     def _encode_answers(self, q_types, answers):
-        pass
+        ans_encs = []
+        for idx, ans in enumerate(answers):
+            q_type = q_types[idx]
+            ans_enc = self._encode_answer(ans, q_type)
+            ans_enc = torch.tensor(ans_enc)
+            ans_encs.append(ans_enc)
+
+        return ans_encs
+
+    def _encode_answer(self, answer, q_type):
+        if q_type == 0:
+            prop = self.spec.find_prop(answer)
+            ans_enc = util.property_encoding(self.spec, prop, answer)
+            if prop == "colour":
+                ans_enc.append([0.0] * 4)
+            else:
+                ans_enc = ([0.0] * 7) + ans_enc
+
+        elif q_type == 1:
+            ans_enc = 1.0 if answer == "yes" else 0.0
+
+        elif q_type == 2:
+            actions = self.spec.actions
+            ans_enc = list(map(lambda a: 1.0 if a == answer else 0.0, actions))
+
+        elif q_type == 3:
+            prop, before, after = self.spec.qa.parse_ans_3(answer)
+            vals = self.spec.prop_values(prop)
+            before_idx = vals.index(before)
+            after_idx = vals.index(after)
+
+            col_enc = [0.0] * (7 * 7)
+            rot_enc = [0.0] * (4 * 4)
+            if prop == "colour":
+                idx = (before_idx * 7) + after_idx
+                col_enc[idx] = 1.0
+            elif prop == "rotation":
+                idx = (before_idx * 4) + after_idx
+                rot_enc[idx] = 1.0
+
+            ans_enc = col_enc + rot_enc
+
+        elif q_type == 4:
+            ans_enc = [0.0] * 31
+            answer = int(answer)
+            ans_enc[answer] = 1.0
+
+        elif q_type == 5:
+            events = self.spec.actions + self.spec.effects
+            ans_enc = list(map(lambda e: 1.0 if e == answer else 0.0, events))
+
+        elif q_type == 6:
+            actions = self.spec.actions
+            ans_enc = list(map(lambda a: 1.0 if a == answer else 0.0, actions))
+
+        else:
+            raise UnknownQuestionTypeException(f"Question type {q_type} unknown")
+
+        return ans_enc
 
     def _encode_frames(self, frames):
         pass
