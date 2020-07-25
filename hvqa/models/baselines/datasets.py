@@ -35,10 +35,8 @@ class EndToEndDataset(Dataset):
     def _encode_qas(self, questions, q_types, answers):
         questions = [question.lower() for question in questions]
         tokens = list(self.nlp.pipe(questions))
-        q_encs = [token.vector for token in tokens]
+        q_encs = [torch.tensor([q_token.vector for q_token in q_tokens]) for q_tokens in tokens]
         a_encs = self._encode_answers(q_types, answers)
-        q_encs = torch.tensor(q_encs)
-        a_encs = torch.tensor(a_encs)
         return q_encs, a_encs
 
     def _encode_answers(self, q_types, answers):
@@ -106,17 +104,35 @@ class EndToEndDataset(Dataset):
         pass
 
     def __len__(self):
-        return len(self.questions)
+        """
+        Returns number of videos multiplied by the number of questions per video
+
+        :return: Length of dataset
+        """
+
+        return len(self.questions) * 10
 
     def __getitem__(self, item):
-        questions = self.questions[item]
-        answers = self.answers[item]
+        """
+        Get an item in the dataset
+        An item is a video, a question and an answer
+        Each question in a video is treated as a separate item
+
+        :param item: Index into dataset
+        :return: frames (could be None), questions, answers
+        """
+
+        v_idx = item // 10
+        q_idx = item % 10
+
+        question = self.questions[v_idx][q_idx]
+        answer = self.answers[v_idx][q_idx]
 
         frames = None
         if not self.lang_only:
-            frames = self.frames[item]
+            frames = self.frames[v_idx]
 
-        return frames, questions, answers
+        return frames, question, answer
 
     @staticmethod
     def from_baseline_dataset(spec, dataset, lang_only=False):
