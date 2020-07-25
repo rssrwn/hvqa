@@ -9,6 +9,7 @@ from hvqa.util.exceptions import UnknownQuestionTypeException
 class EndToEndDataset(Dataset):
     def __init__(self, spec, frames, questions, q_types, answers, lang_only=False):
         self.spec = spec
+        self.lang_only = lang_only
         self.nlp = spacy.load("en_core_web_md", disable=["tagger", "parser", "ner"])
 
         frame_tensors = []
@@ -105,10 +106,17 @@ class EndToEndDataset(Dataset):
         pass
 
     def __len__(self):
-        pass
+        return len(self.questions)
 
     def __getitem__(self, item):
-        pass
+        questions = self.questions[item]
+        answers = self.answers[item]
+
+        frames = None
+        if not self.lang_only:
+            frames = self.frames[item]
+
+        return frames, questions, answers
 
     @staticmethod
     def from_baseline_dataset(spec, dataset, lang_only=False):
