@@ -3,9 +3,17 @@ import torch.nn as nn
 import torch.nn.functional as F
 
 
-class _LangLstmNetwork(nn.Module):
+class LangLstmNetwork(nn.Module):
     def __init__(self):
-        super(_LangLstmNetwork, self).__init__()
+        super(LangLstmNetwork, self).__init__()
+
+    def forward(self, x):
+        pass
+
+
+class QuestionNetwork(nn.Module):
+    def __init__(self):
+        super(QuestionNetwork, self).__init__()
 
     def forward(self, x):
         pass
