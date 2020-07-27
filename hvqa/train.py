@@ -5,7 +5,7 @@ from hvqa.spec.env import EnvSpec
 from hvqa.detection.detector import NeuralDetector
 from hvqa.models.hardcoded import HardcodedVQAModel
 from hvqa.models.individually_trained import IndTrainedModel
-from hvqa.models.baselines.language import BestChoiceModel
+from hvqa.models.baselines.language import BestChoiceModel, LstmModel
 
 
 DETECTOR_PATH = "saved-models/detection/v1_0/after_20_epochs.pt"
@@ -13,6 +13,7 @@ DETECTOR_PATH = "saved-models/detection/v1_0/after_20_epochs.pt"
 HARDCODED_MODEL_PATH = "saved-models/hardcoded"
 IND_MODEL_PATH = "saved-models/ind-trained"
 BEST_CHOICE_MODEL_PATH = "saved-models/best-choice"
+LANG_LSTM_MODEL_PATH = "saved-models/lang-lstm"
 
 spec = EnvSpec.from_dict({
     "num_frames": 32,
@@ -45,6 +46,12 @@ def main(train_dir, eval_dir, model_type):
     elif model_type == "best-choice":
         model_path = BEST_CHOICE_MODEL_PATH
         model = BestChoiceModel(spec)
+        train_data = BaselineDataset.from_data_dir(train_dir)
+        eval_data = BaselineDataset.from_data_dir(eval_dir)
+
+    elif model_type == "lang-lstm":
+        model_path = LANG_LSTM_MODEL_PATH
+        model = LstmModel(spec)
         train_data = BaselineDataset.from_data_dir(train_dir)
         eval_data = BaselineDataset.from_data_dir(eval_dir)
 

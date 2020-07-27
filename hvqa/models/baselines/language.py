@@ -275,20 +275,22 @@ class LstmModel(_AbsBaselineModel):
 
         train_dataset = EndToEndDataset.from_baseline_dataset(self.spec, train_data, lang_only=True)
         eval_dataset = EndToEndDataset.from_baseline_dataset(self.spec, eval_data, lang_only=True)
-        train_loader = DataLoader(train_dataset, batch_size=batch_size, shuffle=True)
-        eval_loader = DataLoader(eval_dataset, batch_size=batch_size, shuffle=False)
+        train_loader = DataLoader(train_dataset, batch_size=batch_size, shuffle=True, collate_fn=util.collate_func)
+        eval_loader = DataLoader(eval_dataset, batch_size=batch_size, shuffle=False, collate_fn=util.collate_func)
 
         optimiser = optim.Adam(self._model.parameters(), lr=lr)
 
         for e in range(epochs):
             self._train_one_epoch(train_loader, optimiser, e, verbose)
 
-    def _train_one_epoch(self, train_loader, optimiser, epoch, verbose, print_freq=50):
+        # TODO
+
+    def _train_one_epoch(self, train_loader, optimiser, epoch, verbose, print_freq=5):
         num_batches = len(train_loader)
         for t, (qs, q_types, ans) in enumerate(train_loader):
             self._model.train()
 
-            qs = pack_sequence(qs).to(self._device)
+            qs = pack_sequence(qs, enforce_sorted=False).to(self._device)
             output = self._model(qs)
             loss = self._calc_loss(output, q_types, ans)
             loss.backward()
@@ -300,8 +302,8 @@ class LstmModel(_AbsBaselineModel):
     def _calc_loss(self, output, q_types, ans):
         losses = []
         for idx, q_type in enumerate(q_types):
-            target = torch.tensor(ans[idx])
-            pred = output[q_type][idx]
+            target = ans[idx][None].to("cpu")
+            pred = output[q_type][idx][None, :].to("cpu")
             loss = self._loss_fn(pred, target)
             losses.append(loss)
 
