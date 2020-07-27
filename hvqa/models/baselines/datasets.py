@@ -57,7 +57,7 @@ class EndToEndDataset(Dataset):
                 ans_enc += 7
 
         elif q_type == 1:
-            ans_enc = 1.0 if answer == "yes" else 0.0
+            ans_enc = 1 if answer == "yes" else 0
 
         elif q_type == 2:
             actions = self.spec.actions

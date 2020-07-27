@@ -49,7 +49,7 @@ class QANetwork(nn.Module):
         num_frames = spec.num_frames
 
         self.q_0_layer = nn.Linear(vector_size, num_colours + num_rotations)
-        self.q_1_layer = nn.Linear(vector_size, 1)
+        self.q_1_layer = nn.Linear(vector_size, 2)
         self.q_2_layer = nn.Linear(vector_size, num_actions)
         self.q_3_layer = nn.Linear(vector_size, (num_colours * num_colours) + (num_rotations * num_rotations))
         self.q_4_layer = nn.Linear(vector_size, num_frames - 1)
