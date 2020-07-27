@@ -273,13 +273,17 @@ class LstmModel(_AbsBaselineModel):
         :param lr: Learning rate for training
         """
 
+        print("Preparing data...")
+
         train_dataset = EndToEndDataset.from_baseline_dataset(self.spec, train_data, lang_only=True)
         eval_dataset = EndToEndDataset.from_baseline_dataset(self.spec, eval_data, lang_only=True)
         train_loader = DataLoader(train_dataset, batch_size=batch_size, shuffle=True, collate_fn=util.collate_func)
         eval_loader = DataLoader(eval_dataset, batch_size=batch_size, shuffle=False, collate_fn=util.collate_func)
 
-        optimiser = optim.Adam(self._model.parameters(), lr=lr)
+        print("Data preparation complete.")
+        print("Training Language LSTM model...")
 
+        optimiser = optim.Adam(self._model.parameters(), lr=lr)
         for e in range(epochs):
             self._train_one_epoch(train_loader, optimiser, e, verbose)
 
@@ -293,11 +297,12 @@ class LstmModel(_AbsBaselineModel):
             qs = pack_sequence(qs, enforce_sorted=False).to(self._device)
             output = self._model(qs)
             loss = self._calc_loss(output, q_types, ans)
+            optimiser.zero_grad()
             loss.backward()
             optimiser.step()
 
             if verbose and (t+1) % print_freq == 0:
-                print(f"Epoch {epoch:>3}, batch [{t+1:>4}/{num_batches}] -- overall loss = {loss.item():.2f}")
+                print(f"Epoch {epoch:>3}, batch [{t+1:>4}/{num_batches}] -- overall loss = {loss.item():.4f}")
 
     def _calc_loss(self, output, q_types, ans):
         losses = []
@@ -307,7 +312,8 @@ class LstmModel(_AbsBaselineModel):
             loss = self._loss_fn(pred, target)
             losses.append(loss)
 
-        loss = sum(losses)
+        batch_size = len(losses)
+        loss = sum(losses) / batch_size
         return loss
 
     def eval(self, eval_data, verbose=True):

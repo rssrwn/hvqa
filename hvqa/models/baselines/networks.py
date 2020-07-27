@@ -46,13 +46,34 @@ class QANetwork(nn.Module):
         num_effects = len(spec.effects)
         num_frames = spec.num_frames
 
-        self.q_0_layer = nn.Linear(vector_size, num_colours + num_rotations)
-        self.q_1_layer = nn.Linear(vector_size, 2)
-        self.q_2_layer = nn.Linear(vector_size, num_actions)
-        self.q_3_layer = nn.Linear(vector_size, (num_colours * num_colours) + (num_rotations * num_rotations))
-        self.q_4_layer = nn.Linear(vector_size, num_frames - 1)
-        self.q_5_layer = nn.Linear(vector_size, num_actions + num_effects)
-        self.q_6_layer = nn.Linear(vector_size, num_actions)
+        self.q_0_layer = nn.Sequential(
+            nn.Linear(vector_size, num_colours + num_rotations),
+            nn.LogSoftmax(dim=1)
+        )
+        self.q_1_layer = nn.Sequential(
+            nn.Linear(vector_size, 2),
+            nn.LogSoftmax(dim=1)
+        )
+        self.q_2_layer = nn.Sequential(
+            nn.Linear(vector_size, num_actions),
+            nn.LogSoftmax(dim=1)
+        )
+        self.q_3_layer = nn.Sequential(
+            nn.Linear(vector_size, (num_colours * num_colours) + (num_rotations * num_rotations)),
+            nn.LogSoftmax(dim=1)
+        )
+        self.q_4_layer = nn.Sequential(
+            nn.Linear(vector_size, num_frames - 1),
+            nn.LogSoftmax(dim=1)
+        )
+        self.q_5_layer = nn.Sequential(
+            nn.Linear(vector_size, num_actions + num_effects),
+            nn.LogSoftmax(dim=1)
+        )
+        self.q_6_layer = nn.Sequential(
+            nn.Linear(vector_size, num_actions),
+            nn.LogSoftmax(dim=1)
+        )
 
     def forward(self, x):
         q_0 = self.q_0_layer(x)
