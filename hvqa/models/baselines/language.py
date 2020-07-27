@@ -2,8 +2,16 @@ import pickle
 import random
 from pathlib import Path
 
+import torch.optim as optim
+from torch.nn import NLLLoss
+from torch.utils.data import DataLoader
+from torch.nn.utils.rnn import pack_sequence
+
+import hvqa.util.func as util
 from hvqa.util.interfaces import BaselineModel
 from hvqa.util.exceptions import UnknownQuestionTypeException
+from hvqa.models.baselines.datasets import EndToEndDataset
+from hvqa.models.baselines.networks import LangLstmNetwork
 
 
 NUM_Q_TYPES = 7
@@ -248,7 +256,47 @@ class LstmModel(_AbsBaselineModel):
     def __init__(self, spec):
         super(LstmModel, self).__init__(spec)
 
-    def train(self, train_data, eval_data, verbose=True):
+        self._device = util.get_device()
+        self._model = LangLstmNetwork(spec).to(self._device)
+        self._loss_fn = NLLLoss()
+
+    def train(self, train_data, eval_data, verbose=True, batch_size=256, epochs=10, lr=0.001):
+        """
+        Train the LSTM model
+
+        :param train_data: Training dataset: BaselineDataset
+        :param eval_data: Validation dataset: BaselineDataset
+        :param verbose: Additional printing while training: bool
+        :param batch_size: Number of elements in each training batch
+        :param epochs: Number of training epochs
+        :param lr: Learning rate for training
+        """
+
+        train_dataset = EndToEndDataset.from_baseline_dataset(self.spec, train_data, lang_only=True)
+        eval_dataset = EndToEndDataset.from_baseline_dataset(self.spec, eval_data, lang_only=True)
+        train_loader = DataLoader(train_dataset, batch_size=batch_size, shuffle=True)
+        eval_loader = DataLoader(eval_dataset, batch_size=batch_size, shuffle=False)
+
+        optimiser = optim.Adam(self._model.parameters(), lr=lr)
+
+        for e in range(epochs):
+            self._train_one_epoch(train_loader, optimiser, e, verbose)
+
+    def _train_one_epoch(self, train_loader, optimiser, epoch, verbose, print_freq=50):
+        num_batches = len(train_loader)
+        for t, (qs, q_types, ans) in enumerate(train_loader):
+            self._model.train()
+
+            qs = pack_sequence(qs).to(self._device)
+            output = self._model(qs)
+            loss = self._calc_loss(output, q_types, ans)
+            loss.backward()
+            optimiser.step()
+
+            if verbose and (t+1) % print_freq == 0:
+                print(f"Epoch {epoch:>3}, batch [{t+1:>4}/{num_batches}] -- overall loss = {loss.item():.2f}")
+
+    def _calc_loss(self, output, q_types, ans):
         pass
 
     def eval(self, eval_data, verbose=True):

@@ -13,6 +13,7 @@ class EndToEndDataset(Dataset):
 
         frame_tensors = []
         q_tensors = []
+        q_types_ = []
         ans_tensors = []
 
         for v_idx, v_frames in enumerate(frames):
@@ -21,6 +22,7 @@ class EndToEndDataset(Dataset):
             v_ans = answers[v_idx]
             q_encs, a_encs = self._encode_qas(v_qs, v_q_types, v_ans)
             q_tensors.append(q_encs)
+            q_types_.append(v_q_types)
             ans_tensors.append(a_encs)
 
             if not lang_only:
@@ -29,6 +31,7 @@ class EndToEndDataset(Dataset):
 
         self.frames = frame_tensors
         self.questions = q_tensors
+        self.q_types = q_types_
         self.answers = ans_tensors
 
     def _encode_qas(self, questions, q_types, answers):
@@ -114,13 +117,14 @@ class EndToEndDataset(Dataset):
         q_idx = item % 10
 
         question = self.questions[v_idx][q_idx]
+        q_type = self.q_types[v_idx][q_idx]
         answer = self.answers[v_idx][q_idx]
 
         if not self.lang_only:
             frames = self.frames[v_idx]
-            return frames, question, answer
+            return frames, question, q_type, answer
 
-        return question, answer
+        return question, q_type, answer
 
     @staticmethod
     def from_baseline_dataset(spec, dataset, lang_only=False):
