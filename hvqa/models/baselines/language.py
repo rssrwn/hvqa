@@ -43,6 +43,16 @@ class _AbsBaselineModel(BaselineModel):
         raise NotImplementedError()
 
     def _eval_video_results(self, v_idx, n_vs, results, verbose):
+        """
+        Eval result the video, print and update results dicts
+
+        :param v_idx: Video index
+        :param n_vs: Number of videos
+        :param results: List of tuples (question, q_type, predicted, answer)
+        :param verbose: Additional printing
+        :return: Number of answers correct in this video
+        """
+
         video_correct = 0
         for q_idx, result in enumerate(results):
             question, q_type, predicted, answer = result
@@ -81,6 +91,8 @@ class _AbsBaselineModel(BaselineModel):
         print(f"Total: {self._total}")
         print(f"Accuracy: {acc:.1%}\n")
 
+        self._reset_results()
+
 
 class RandomAnsModel(_AbsBaselineModel):
     def __init__(self, spec):
@@ -98,7 +110,6 @@ class RandomAnsModel(_AbsBaselineModel):
             self._total += len(qs)
 
         self._print_results()
-        self._reset_results()
 
     def _eval_video(self, v_idx, n_vs, questions, q_types, answers, verbose):
         results = []
@@ -210,7 +221,6 @@ class BestChoiceModel(_AbsBaselineModel):
             self._total += len(qs)
 
         self._print_results()
-        self._reset_results()
 
     def _eval_video(self, v_idx, n_vs, questions, q_types, answers, verbose):
         results = []
@@ -292,10 +302,9 @@ class LstmModel(_AbsBaselineModel):
         print("Training complete.")
 
     def _train_one_epoch(self, train_loader, optimiser, epoch, verbose, print_freq=5):
+        self._model.train()
         num_batches = len(train_loader)
         for t, (qs, q_types, ans) in enumerate(train_loader):
-            self._model.train()
-
             qs = pack_sequence(qs, enforce_sorted=False).to(self._device)
             output = self._model(qs)
             loss = self._calc_loss(output, q_types, ans)
@@ -318,8 +327,31 @@ class LstmModel(_AbsBaselineModel):
         loss = sum(losses) / batch_size
         return loss
 
-    def eval(self, eval_data, verbose=True):
-        pass
+    def eval(self, eval_data, verbose=True, batch_size=256):
+        eval_dataset = EndToEndDataset.from_baseline_dataset(self.spec, eval_data, lang_only=True)
+        eval_loader = DataLoader(eval_dataset, batch_size=batch_size, shuffle=False, collate_fn=util.collate_func)
+        self._eval(eval_loader)
+
+    def _eval(self, eval_loader):
+        self._model.eval()
+        num_batches = len(eval_loader)
+
+        for t, (qs, q_types, ans) in enumerate(eval_loader):
+            qs = pack_sequence(qs, enforce_sorted=False).to(self._device)
+
+            with torch.no_grad():
+                output = self._model(qs)
+
+            results = []
+            for idx, q_type in enumerate(q_types):
+                answer = ans[idx].item()
+                pred = output[q_type][idx].to("cpu")
+                _, max_idx = torch.max(pred, 0)
+                results.append(("", q_type, max_idx.item(), answer))
+
+            self._eval_video_results(t, num_batches, results, False)
+
+        self._print_results()
 
     @staticmethod
     def load(spec, path):
