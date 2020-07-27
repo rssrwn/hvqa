@@ -69,6 +69,9 @@ class _AbsBaselineModel(BaselineModel):
 
             self._q_type_total[q_type] += 1
 
+        self._correct += video_correct
+        self._total += len(results)
+
         acc = video_correct / len(results)
         print(f"Video [{v_idx + 1:4}/{n_vs:4}] "
               f"-- {video_correct:2} / {len(results):2} "
@@ -82,7 +85,7 @@ class _AbsBaselineModel(BaselineModel):
         for q_type in range(NUM_Q_TYPES):
             correct_q_t = self._q_type_correct[q_type]
             total_q_t = self._q_type_total[q_type]
-            incorrect_q_t = self._total - correct_q_t
+            incorrect_q_t = total_q_t - correct_q_t
             acc = correct_q_t / total_q_t
             print(f"{q_type:<20}{correct_q_t:<15}{incorrect_q_t:<15}{acc:.1%}")
 
@@ -106,8 +109,8 @@ class RandomAnsModel(_AbsBaselineModel):
         for idx in range(num_vs):
             _, qs, q_types, answers = eval_data[idx]
             v_correct = self._eval_video(idx, num_vs, qs, q_types, answers, verbose)
-            self._correct += v_correct
-            self._total += len(qs)
+            # self._correct += v_correct
+            # self._total += len(qs)
 
         self._print_results()
 
@@ -217,8 +220,8 @@ class BestChoiceModel(_AbsBaselineModel):
         for idx in range(num_vs):
             _, qs, q_types, answers = eval_data[idx]
             v_correct = self._eval_video(idx, num_vs, qs, q_types, answers, verbose)
-            self._correct += v_correct
-            self._total += len(qs)
+            # self._correct += v_correct
+            # self._total += len(qs)
 
         self._print_results()
 
