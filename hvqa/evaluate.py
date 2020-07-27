@@ -61,7 +61,7 @@ def main(data_dir, model_type, components):
 
     elif model_type == "lang-lstm":
         model_path = "saved-models/lang-lstm"
-        model = LstmModel(spec)
+        model = LstmModel.load(spec, model_path)
         data = BaselineDataset.from_data_dir(data_dir)
 
     else:

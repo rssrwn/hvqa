@@ -267,11 +267,12 @@ class BestChoiceModel(_AbsBaselineModel):
 
 
 class LstmModel(_AbsBaselineModel):
-    def __init__(self, spec):
+    def __init__(self, spec, model):
         super(LstmModel, self).__init__(spec)
 
         self._device = util.get_device()
-        self._model = LangLstmNetwork(spec).to(self._device)
+        self._model = model.to(self._device)
+        self._model.eval()
         self._loss_fn = NLLLoss(reduction="none")
 
     def train(self, train_data, eval_data, verbose=True, batch_size=256, epochs=10, lr=0.001):
@@ -357,8 +358,20 @@ class LstmModel(_AbsBaselineModel):
         self._print_results()
 
     @staticmethod
+    def new(spec):
+        network = LangLstmNetwork(spec)
+        model = LstmModel(spec, network)
+        return model
+
+    @staticmethod
     def load(spec, path):
-        pass
+        model_path = Path(path) / "network.pt"
+        network = util.load_model(LangLstmNetwork, model_path, spec)
+        model = LstmModel(spec, network)
+        return model
 
     def save(self, path):
-        pass
+        path = Path(path)
+        path.mkdir(exist_ok=True)
+        model_path = path / "network.pt"
+        util.save_model(self._model, model_path)

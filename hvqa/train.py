@@ -51,7 +51,7 @@ def main(train_dir, eval_dir, model_type):
 
     elif model_type == "lang-lstm":
         model_path = LANG_LSTM_MODEL_PATH
-        model = LstmModel(spec)
+        model = LstmModel.new(spec)
         train_data = BaselineDataset.from_data_dir(train_dir)
         eval_data = BaselineDataset.from_data_dir(eval_dir)
 
