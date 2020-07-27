@@ -16,7 +16,6 @@ from hvqa.properties.models import PropertyExtractionModel, ObjectAutoEncoder
 from hvqa.util.func import get_device, load_model, save_model, collate_func, append_in_map
 from hvqa.util.interfaces import Component, Trainable
 from hvqa.util.asp_runner import ASPRunner
-from hvqa.util.dataset import VideoDataset
 
 
 _transform = T.Compose([

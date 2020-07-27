@@ -2,7 +2,6 @@ import spacy
 import torch
 from torch.utils.data import Dataset
 
-import hvqa.util.func as util
 from hvqa.util.exceptions import UnknownQuestionTypeException
 
 
@@ -117,11 +116,11 @@ class EndToEndDataset(Dataset):
         question = self.questions[v_idx][q_idx]
         answer = self.answers[v_idx][q_idx]
 
-        frames = None
         if not self.lang_only:
             frames = self.frames[v_idx]
+            return frames, question, answer
 
-        return frames, question, answer
+        return question, answer
 
     @staticmethod
     def from_baseline_dataset(spec, dataset, lang_only=False):
