@@ -4,19 +4,38 @@ import torch.nn.functional as F
 
 
 class LangLstmNetwork(nn.Module):
-    def __init__(self):
+    def __init__(self, spec):
         super(LangLstmNetwork, self).__init__()
 
+        word_vector_size = 300
+        hidden_size = 1024
+        feat1 = 512
+        feat2 = 256
+
+        self.network = nn.Sequential(
+            QuestionNetwork(word_vector_size, hidden_size),
+            nn.ReLU(),
+            nn.Linear(hidden_size, feat1),
+            nn.ReLU(),
+            nn.Linear(feat1, feat2),
+            nn.ReLU(),
+            QANetwork(spec, feat2)
+        )
+
     def forward(self, x):
-        pass
+        return self.network(x)
 
 
 class QuestionNetwork(nn.Module):
-    def __init__(self):
+    def __init__(self, input_size, hidden_size):
         super(QuestionNetwork, self).__init__()
 
+        self.lstm = nn.LSTM(input_size, hidden_size)
+
     def forward(self, x):
-        pass
+        _, (h_n, c_n) = self.lstm(x)
+        out = h_n[-1, :, :]
+        return out
 
 
 class QANetwork(nn.Module):
