@@ -2,6 +2,7 @@ import pickle
 import random
 from pathlib import Path
 
+import torch
 import torch.optim as optim
 from torch.nn import NLLLoss
 from torch.utils.data import DataLoader
@@ -258,7 +259,7 @@ class LstmModel(_AbsBaselineModel):
 
         self._device = util.get_device()
         self._model = LangLstmNetwork(spec).to(self._device)
-        self._loss_fn = NLLLoss()
+        self._loss_fn = NLLLoss(reduction="none")
 
     def train(self, train_data, eval_data, verbose=True, batch_size=256, epochs=10, lr=0.001):
         """
@@ -297,7 +298,15 @@ class LstmModel(_AbsBaselineModel):
                 print(f"Epoch {epoch:>3}, batch [{t+1:>4}/{num_batches}] -- overall loss = {loss.item():.2f}")
 
     def _calc_loss(self, output, q_types, ans):
-        pass
+        losses = []
+        for idx, q_type in enumerate(q_types):
+            target = torch.tensor(ans[idx])
+            pred = output[q_type][idx]
+            loss = self._loss_fn(pred, target)
+            losses.append(loss)
+
+        loss = sum(losses)
+        return loss
 
     def eval(self, eval_data, verbose=True):
         pass
