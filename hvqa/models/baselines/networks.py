@@ -7,11 +7,12 @@ class LangLstmNetwork(nn.Module):
 
         word_vector_size = 300
         hidden_size = 1024
+        num_lstm_layers = 2
         feat1 = 512
         feat2 = 256
 
         self.network = nn.Sequential(
-            QuestionNetwork(word_vector_size, hidden_size),
+            QuestionNetwork(word_vector_size, hidden_size, num_lstm_layers),
             nn.ReLU(),
             nn.Linear(hidden_size, feat1),
             nn.ReLU(),
@@ -25,10 +26,10 @@ class LangLstmNetwork(nn.Module):
 
 
 class QuestionNetwork(nn.Module):
-    def __init__(self, input_size, hidden_size):
+    def __init__(self, input_size, hidden_size, num_layers):
         super(QuestionNetwork, self).__init__()
 
-        self.lstm = nn.LSTM(input_size, hidden_size)
+        self.lstm = nn.LSTM(input_size, hidden_size, num_layers=num_layers)
 
     def forward(self, x):
         _, (h_n, c_n) = self.lstm(x)

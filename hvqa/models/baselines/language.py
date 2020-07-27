@@ -287,7 +287,9 @@ class LstmModel(_AbsBaselineModel):
         for e in range(epochs):
             self._train_one_epoch(train_loader, optimiser, e, verbose)
 
-        # TODO
+            # TODO
+
+        print("Training complete.")
 
     def _train_one_epoch(self, train_loader, optimiser, epoch, verbose, print_freq=5):
         num_batches = len(train_loader)
