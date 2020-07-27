@@ -52,18 +52,16 @@ class EndToEndDataset(Dataset):
     def _encode_answer(self, answer, q_type):
         if q_type == 0:
             prop = self.spec.find_prop(answer)
-            ans_enc = util.property_encoding(self.spec, prop, answer)
-            if prop == "colour":
-                ans_enc.append([0.0] * 4)
-            else:
-                ans_enc = ([0.0] * 7) + ans_enc
+            ans_enc = self.spec.to_internal(prop, answer)
+            if prop == "rotation":
+                ans_enc += 7
 
         elif q_type == 1:
             ans_enc = 1.0 if answer == "yes" else 0.0
 
         elif q_type == 2:
             actions = self.spec.actions
-            ans_enc = list(map(lambda a: 1.0 if a == answer else 0.0, actions))
+            ans_enc = actions.index(answer)
 
         elif q_type == 3:
             prop, before, after = self.spec.qa.parse_ans_3(answer)
@@ -71,29 +69,20 @@ class EndToEndDataset(Dataset):
             before_idx = vals.index(before)
             after_idx = vals.index(after)
 
-            col_enc = [0.0] * (7 * 7)
-            rot_enc = [0.0] * (4 * 4)
-            if prop == "colour":
-                idx = (before_idx * 7) + after_idx
-                col_enc[idx] = 1.0
-            elif prop == "rotation":
-                idx = (before_idx * 4) + after_idx
-                rot_enc[idx] = 1.0
-
-            ans_enc = col_enc + rot_enc
+            ans_enc = (before_idx * 7) + after_idx
+            if prop == "rotation":
+                ans_enc = (7 * 7) + (before_idx * 4) + after_idx
 
         elif q_type == 4:
-            ans_enc = [0.0] * 31
-            answer = int(answer)
-            ans_enc[answer] = 1.0
+            ans_enc = int(answer)
 
         elif q_type == 5:
             events = self.spec.actions + self.spec.effects
-            ans_enc = list(map(lambda e: 1.0 if e == answer else 0.0, events))
+            ans_enc = events.index(answer)
 
         elif q_type == 6:
             actions = self.spec.actions
-            ans_enc = list(map(lambda a: 1.0 if a == answer else 0.0, actions))
+            ans_enc = actions.index(answer)
 
         else:
             raise UnknownQuestionTypeException(f"Question type {q_type} unknown")
