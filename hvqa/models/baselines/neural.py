@@ -205,7 +205,8 @@ class CnnMlpModel(_AbsNeuralModel):
         num_batches = len(eval_loader)
 
         for t, (frames, qs, q_types, ans) in enumerate(eval_loader):
-            frames = [frame.to(self._device) for frame in frames]
+            frames = [torch.stack(v_frames) for v_frames in frames]
+            frames = torch.cat(frames, dim=0).to(self._device)
             qs = pack_sequence(qs, enforce_sorted=False).to(self._device)
 
             with torch.no_grad():
