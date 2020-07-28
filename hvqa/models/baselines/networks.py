@@ -37,7 +37,7 @@ class CnnMlpNetwork(nn.Module):
         num_lstm_layers = 2
 
         mlp_input = (32 * feat_output_size) + hidden_size
-        feat1 = 2048
+        feat1 = 1024
         feat2 = 512
         feat3 = 256
 
