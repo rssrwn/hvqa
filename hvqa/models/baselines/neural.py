@@ -86,10 +86,6 @@ class _AbsNeuralModel(_AbsBaselineModel):
         return loss
 
 
-class CNNMLPModel(_AbsNeuralModel):
-    pass
-
-
 class LangLstmModel(_AbsNeuralModel):
     def __init__(self, spec, model):
         super(LangLstmModel, self).__init__(spec, model)
@@ -158,3 +154,31 @@ class LangLstmModel(_AbsNeuralModel):
         path.mkdir(exist_ok=True)
         model_path = path / "network.pt"
         util.save_model(self._model, model_path)
+
+
+class CNNMLPModel(_AbsNeuralModel):
+    def __init__(self, spec, model):
+        super(CNNMLPModel, self).__init__(spec, model)
+
+    def _prepare_train_data(self, train_data):
+        pass
+
+    def _prepare_eval_data(self, eval_data):
+        pass
+
+    def _train_one_epoch(self, train_loader, optimiser, epoch, verbose):
+        pass
+
+    def _eval(self, eval_loader, verbose):
+        pass
+
+    @staticmethod
+    def new(spec):
+        pass
+
+    @staticmethod
+    def load(spec, path):
+        pass
+
+    def save(self, path):
+        pass
