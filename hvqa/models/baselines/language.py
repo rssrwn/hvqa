@@ -300,8 +300,8 @@ class LstmModel(_AbsBaselineModel):
         optimiser = optim.Adam(self._model.parameters(), lr=lr)
         for e in range(epochs):
             self._train_one_epoch(train_loader, optimiser, e, verbose)
-
-            # TODO
+            print()
+            self._eval(eval_loader)
 
         print("Training complete.")
 
