@@ -9,7 +9,7 @@ from torch.nn.utils.rnn import pack_sequence
 
 import hvqa.util.func as util
 from hvqa.models.baselines.datasets import EndToEndDataset
-from hvqa.models.baselines.networks import LangLstmNetwork
+from hvqa.models.baselines.networks import LangLstmNetwork, CnnMlpNetwork
 from hvqa.models.baselines.interfaces import _AbsBaselineModel
 
 
@@ -177,7 +177,8 @@ class CnnMlpModel(_AbsNeuralModel):
         self._model.train()
         num_batches = len(train_loader)
         for t, (frames, qs, q_types, ans) in enumerate(train_loader):
-            frames = [frame.to(self._device) for frame in frames]
+            # frames = [frame.to(self._device) for frame in frames]
+            print(frames)
             qs = pack_sequence(qs, enforce_sorted=False).to(self._device)
 
             output = self._model(frames, qs)
@@ -213,11 +214,19 @@ class CnnMlpModel(_AbsNeuralModel):
 
     @staticmethod
     def new(spec):
-        pass
+        network = CnnMlpNetwork(spec)
+        model = CnnMlpModel(spec, network)
+        return model
 
     @staticmethod
     def load(spec, path):
-        pass
+        model_path = Path(path) / "network.pt"
+        network = util.load_model(CnnMlpNetwork, model_path, spec)
+        model = CnnMlpModel(spec, network)
+        return model
 
     def save(self, path):
-        pass
+        path = Path(path)
+        path.mkdir(exist_ok=True)
+        model_path = path / "network.pt"
+        util.save_model(self._model, model_path)
