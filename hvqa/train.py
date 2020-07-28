@@ -29,17 +29,17 @@ spec = EnvSpec.from_dict({
 
 
 def main(train_dir, eval_dir, model_type):
-    detector = NeuralDetector.load(spec, DETECTOR_PATH)
-
     if model_type == "hardcoded":
         model_path = HARDCODED_MODEL_PATH
         model = HardcodedVQAModel.new(spec)
+        detector = NeuralDetector.load(spec, DETECTOR_PATH)
         train_data = VideoDataset.from_data_dir(spec, train_dir, detector, hardcoded=False)
         eval_data = VideoDataset.from_data_dir(spec, eval_dir, detector, hardcoded=True)
 
     elif model_type == "ind-trained":
         model_path = IND_MODEL_PATH
         model = IndTrainedModel.new(spec)
+        detector = NeuralDetector.load(spec, DETECTOR_PATH)
         train_data = VideoDataset.from_data_dir(spec, train_dir, detector, hardcoded=False)
         eval_data = VideoDataset.from_data_dir(spec, eval_dir, detector, hardcoded=True)
 
