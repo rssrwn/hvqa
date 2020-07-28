@@ -7,10 +7,8 @@ from torch.utils.data import DataLoader
 from torch.nn.utils.rnn import pack_sequence
 
 import hvqa.util.func as util
-from hvqa.util.exceptions import UnknownQuestionTypeException
 from hvqa.models.baselines.datasets import EndToEndDataset
 from hvqa.models.baselines.networks import LangLstmNetwork
-
 from hvqa.models.baselines.interfaces import _AbsBaselineModel
 
 
@@ -96,17 +94,51 @@ class LangLstmModel(_AbsNeuralModel):
     def __init__(self, spec, model):
         super(LangLstmModel, self).__init__(spec, model)
 
-    def _prepare_train_data(self, train_data):
-        pass
+    def _prepare_train_data(self, train_data, batch_size=64):
+        train_dataset = EndToEndDataset.from_baseline_dataset(self.spec, train_data, lang_only=True)
+        train_loader = DataLoader(train_dataset, batch_size=batch_size, shuffle=True, collate_fn=util.collate_func)
+        return train_loader
 
-    def _prepare_eval_data(self, eval_data):
-        pass
+    def _prepare_eval_data(self, eval_data, batch_size=64):
+        eval_dataset = EndToEndDataset.from_baseline_dataset(self.spec, eval_data, lang_only=True)
+        eval_loader = DataLoader(eval_dataset, batch_size=batch_size, shuffle=False, collate_fn=util.collate_func)
+        return eval_loader
 
-    def _train_one_epoch(self, train_loader, optimiser, epoch, verbose):
-        pass
+    def _train_one_epoch(self, train_loader, optimiser, epoch, verbose, print_freq=10):
+        self._model.train()
+        num_batches = len(train_loader)
+        for t, (qs, q_types, ans) in enumerate(train_loader):
+            qs = pack_sequence(qs, enforce_sorted=False).to(self._device)
+            output = self._model(qs)
+            loss = self._calc_loss(output, q_types, ans)
+            optimiser.zero_grad()
+            loss.backward()
+            optimiser.step()
+
+            if verbose and (t+1) % print_freq == 0:
+                print(f"Epoch {epoch:>3}, batch [{t+1:>4}/{num_batches}] -- overall loss = {loss.item():.4f}")
+
 
     def _eval(self, eval_loader, verbose):
-        pass
+        self._model.eval()
+        num_batches = len(eval_loader)
+
+        for t, (qs, q_types, ans) in enumerate(eval_loader):
+            qs = pack_sequence(qs, enforce_sorted=False).to(self._device)
+
+            with torch.no_grad():
+                output = self._model(qs)
+
+            results = []
+            for idx, q_type in enumerate(q_types):
+                answer = ans[idx].item()
+                pred = output[q_type][idx].to("cpu")
+                _, max_idx = torch.max(pred, 0)
+                results.append(("", q_type, max_idx.item(), answer))
+
+            self._eval_video_results(t, num_batches, results, False)
+
+        self._print_results()
 
     @staticmethod
     def new(spec):
