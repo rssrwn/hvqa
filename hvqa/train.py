@@ -5,7 +5,8 @@ from hvqa.spec.env import EnvSpec
 from hvqa.detection.detector import NeuralDetector
 from hvqa.models.hardcoded import HardcodedVQAModel
 from hvqa.models.individually_trained import IndTrainedModel
-from hvqa.models.baselines.language import BestChoiceModel, LstmModel
+from hvqa.models.baselines.language import BestChoiceModel
+from hvqa.models.baselines.neural import LangLstmModel
 
 
 DETECTOR_PATH = "saved-models/detection/v1_0/after_20_epochs.pt"
@@ -51,7 +52,7 @@ def main(train_dir, eval_dir, model_type):
 
     elif model_type == "lang-lstm":
         model_path = LANG_LSTM_MODEL_PATH
-        model = LstmModel.new(spec)
+        model = LangLstmModel.new(spec)
         train_data = BaselineDataset.from_data_dir(train_dir)
         eval_data = BaselineDataset.from_data_dir(eval_dir)
 
