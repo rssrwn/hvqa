@@ -7,7 +7,7 @@ from hvqa.detection.detector import NeuralDetector
 from hvqa.models.hardcoded import HardcodedVQAModel
 from hvqa.models.individually_trained import IndTrainedModel
 from hvqa.models.baselines.language import RandomAnsModel, BestChoiceModel
-from hvqa.models.baselines.neural import LangLstmModel
+from hvqa.models.baselines.neural import LangLstmModel, CnnMlpModel
 
 
 DETECTOR_PATH = "saved-models/detection/v1_0/after_20_epochs.pt"
@@ -63,6 +63,11 @@ def main(data_dir, model_type, components):
     elif model_type == "lang-lstm":
         model_path = "saved-models/lang-lstm"
         model = LangLstmModel.load(spec, model_path)
+        data = BaselineDataset.from_data_dir(data_dir)
+
+    elif model_type == "cnn-mlp":
+        model_path = "saved-models/cnn-mlp"
+        model = CnnMlpModel.load(spec, model_path)
         data = BaselineDataset.from_data_dir(data_dir)
 
     else:
