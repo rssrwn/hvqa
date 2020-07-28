@@ -275,7 +275,7 @@ class LstmModel(_AbsBaselineModel):
         self._model.eval()
         self._loss_fn = NLLLoss(reduction="none")
 
-    def train(self, train_data, eval_data, verbose=True, batch_size=256, epochs=10, lr=0.001):
+    def train(self, train_data, eval_data, verbose=True, batch_size=64, epochs=10, lr=0.001):
         """
         Train the LSTM model
 

@@ -6,8 +6,8 @@ class LangLstmNetwork(nn.Module):
         super(LangLstmNetwork, self).__init__()
 
         word_vector_size = 300
-        hidden_size = 1024
-        num_lstm_layers = 2
+        hidden_size = 4096
+        num_lstm_layers = 4
         feat1 = 512
         feat2 = 256
 
