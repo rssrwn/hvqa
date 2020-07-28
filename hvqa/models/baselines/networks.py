@@ -1,4 +1,6 @@
+import torch
 import torch.nn as nn
+import torchvision.models as models
 
 
 class LangLstmNetwork(nn.Module):
@@ -23,6 +25,56 @@ class LangLstmNetwork(nn.Module):
 
     def forward(self, x):
         return self.network(x)
+
+
+class CnnMlpNetwork(nn.Module):
+    def __init__(self, spec):
+        super(CnnMlpNetwork, self).__init__()
+
+        feat_output_size = 128
+        word_vector_size = 300
+        hidden_size = 1024
+        num_lstm_layers = 2
+
+        mlp_input = (32 * feat_output_size) + hidden_size
+        feat1 = 2048
+        feat2 = 512
+        feat3 = 256
+
+        self.feat_extr = VideoFeatNetwork(feat_output_size)
+        self.lang_lstm = QuestionNetwork(word_vector_size, hidden_size, num_lstm_layers)
+        self.mlp = nn.Sequential(
+            nn.Linear(mlp_input, feat1),
+            nn.ReLU(),
+            nn.Linear(feat1, feat2),
+            nn.ReLU(),
+            nn.Linear(feat2, feat3),
+            nn.ReLU(),
+            QANetwork(spec, feat3)
+        )
+
+    def forward(self, x):
+        frames, qs = x
+        frame_feats = self.feat_extr(frames)
+        batch_size = frame_feats.shape[0] // 32
+        q_feats = self.lang_lstm(qs)
+        v_feats = frame_feats.reshape((batch_size, -1))
+        video_enc = torch.cat([v_feats, q_feats], dim=1)
+        output = self.mlp(video_enc)
+        return output
+
+
+class VideoFeatNetwork(nn.Module):
+    def __init__(self, output_size):
+        super(VideoFeatNetwork, self).__init__()
+
+        resnet_out = 512
+
+        self.resnet = models.resnet18()
+        self.resnet.fc = nn.Linear(resnet_out, output_size)
+
+    def forward(self, x):
+        return self.resnet(x)
 
 
 class QuestionNetwork(nn.Module):
