@@ -20,16 +20,15 @@ class _AbsNeuralModel(_AbsBaselineModel):
         self._model = model.to(self._device)
         self._model.eval()
         self._loss_fn = NLLLoss(reduction="none")
+        self._epochs, self._lr = self._set_hyperparams()
 
-    def train(self, train_data, eval_data, verbose=True, epochs=10, lr=0.001):
+    def train(self, train_data, eval_data, verbose=True):
         """
         Train the LSTM model
 
         :param train_data: Training dataset: BaselineDataset
         :param eval_data: Validation dataset: BaselineDataset
         :param verbose: Additional printing while training: bool
-        :param epochs: Number of training epochs
-        :param lr: Learning rate for training
         """
 
         print("Preparing data...")
@@ -39,8 +38,8 @@ class _AbsNeuralModel(_AbsBaselineModel):
 
         print("Training Language LSTM model...")
 
-        optimiser = optim.Adam(self._model.parameters(), lr=lr)
-        for e in range(epochs):
+        optimiser = optim.Adam(self._model.parameters(), lr=self._lr)
+        for e in range(self._epochs):
             self._train_one_epoch(train_loader, optimiser, e, verbose)
             print()
             self._eval(eval_loader, verbose)
@@ -61,6 +60,9 @@ class _AbsNeuralModel(_AbsBaselineModel):
         raise NotImplementedError()
 
     def _eval(self, eval_loader, verbose):
+        raise NotImplementedError()
+
+    def _set_hyperparams(self):
         raise NotImplementedError()
 
     @staticmethod
@@ -135,6 +137,11 @@ class LangLstmModel(_AbsNeuralModel):
             self._eval_video_results(t, num_batches, results, False)
         self._print_results()
 
+    def _set_hyperparams(self):
+        epochs = 10
+        lr = 0.001
+        return epochs, lr
+
     @staticmethod
     def new(spec):
         network = LangLstmNetwork(spec)
@@ -164,12 +171,14 @@ class CnnMlpModel(_AbsNeuralModel):
         ])
 
     def _prepare_train_data(self, train_data, batch_size=16):
-        train_dataset = EndToEndDataset.from_baseline_dataset(self.spec, train_data, lang_only=False)
+        train_dataset = EndToEndDataset.from_baseline_dataset(self.spec, train_data,
+                                                              lang_only=False, transform=self.transform)
         train_loader = DataLoader(train_dataset, batch_size=batch_size, shuffle=True, collate_fn=util.collate_func)
         return train_loader
 
     def _prepare_eval_data(self, eval_data, batch_size=16):
-        eval_dataset = EndToEndDataset.from_baseline_dataset(self.spec, eval_data, lang_only=False)
+        eval_dataset = EndToEndDataset.from_baseline_dataset(self.spec, eval_data,
+                                                             lang_only=False, transform=self.transform)
         eval_loader = DataLoader(eval_dataset, batch_size=batch_size, shuffle=True, collate_fn=util.collate_func)
         return eval_loader
 
@@ -177,11 +186,11 @@ class CnnMlpModel(_AbsNeuralModel):
         self._model.train()
         num_batches = len(train_loader)
         for t, (frames, qs, q_types, ans) in enumerate(train_loader):
-            # frames = [frame.to(self._device) for frame in frames]
-            print(frames)
+            frames = [torch.stack(v_frames) for v_frames in frames]
+            frames = torch.cat(frames, dim=0).to(self._device)
             qs = pack_sequence(qs, enforce_sorted=False).to(self._device)
 
-            output = self._model(frames, qs)
+            output = self._model((frames, qs))
             loss = self._calc_loss(output, q_types, ans)
 
             optimiser.zero_grad()
@@ -200,7 +209,7 @@ class CnnMlpModel(_AbsNeuralModel):
             qs = pack_sequence(qs, enforce_sorted=False).to(self._device)
 
             with torch.no_grad():
-                output = self._model(frames, qs)
+                output = self._model((frames, qs))
 
             results = []
             for idx, q_type in enumerate(q_types):
@@ -211,6 +220,11 @@ class CnnMlpModel(_AbsNeuralModel):
 
             self._eval_video_results(t, num_batches, results, False)
         self._print_results()
+
+    def _set_hyperparams(self):
+        epochs = 2
+        lr = 0.001
+        return epochs, lr
 
     @staticmethod
     def new(spec):
