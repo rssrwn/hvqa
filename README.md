@@ -9,6 +9,8 @@ Most packages can be installed using pip by running `pip install -r requirements
 
 It is therefore recommended that Anaconda is used as a package manager and all other requirements are installed with pip.
 
+For some baseline models, installing spacy en-core-web-md is also required. This can be done using `python -m spacy download en_core_web_md`.
+
 The project uses Clingo version 5.3.0.
 
 ## Running
