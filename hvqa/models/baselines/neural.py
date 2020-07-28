@@ -133,7 +133,6 @@ class LangLstmModel(_AbsNeuralModel):
                 results.append(("", q_type, max_idx.item(), answer))
 
             self._eval_video_results(t, num_batches, results, False)
-
         self._print_results()
 
     @staticmethod
@@ -192,7 +191,25 @@ class CnnMlpModel(_AbsNeuralModel):
                 print(f"Epoch {epoch:>3}, batch [{t+1:>4}/{num_batches}] -- overall loss = {loss.item():.4f}")
 
     def _eval(self, eval_loader, verbose):
-        pass
+        self._model.eval()
+        num_batches = len(eval_loader)
+
+        for t, (frames, qs, q_types, ans) in enumerate(eval_loader):
+            frames = [frame.to(self._device) for frame in frames]
+            qs = pack_sequence(qs, enforce_sorted=False).to(self._device)
+
+            with torch.no_grad():
+                output = self._model(frames, qs)
+
+            results = []
+            for idx, q_type in enumerate(q_types):
+                answer = ans[idx].item()
+                pred = output[q_type][idx].to("cpu")
+                _, max_idx = torch.max(pred, 0)
+                results.append(("", q_type, max_idx.item(), answer))
+
+            self._eval_video_results(t, num_batches, results, False)
+        self._print_results()
 
     @staticmethod
     def new(spec):
