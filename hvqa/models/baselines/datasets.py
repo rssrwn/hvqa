@@ -6,9 +6,10 @@ from hvqa.util.exceptions import UnknownQuestionTypeException
 
 
 class EndToEndDataset(Dataset):
-    def __init__(self, spec, frames, questions, q_types, answers, lang_only=False):
+    def __init__(self, spec, frames, questions, q_types, answers, lang_only=False, transform=None):
         self.spec = spec
         self.lang_only = lang_only
+        self.transform = transform
         self.nlp = spacy.load("en_core_web_md", disable=["tagger", "parser", "ner"])
 
         frame_tensors = []
@@ -92,7 +93,7 @@ class EndToEndDataset(Dataset):
         return ans_enc
 
     def _encode_frames(self, frames):
-        pass
+        return frames
 
     def __len__(self):
         """
@@ -122,12 +123,15 @@ class EndToEndDataset(Dataset):
 
         if not self.lang_only:
             frames = self.frames[v_idx]
+            if self.transform is not None:
+                frames = [self.transform(frame) for frame in frames]
+
             return frames, question, q_type, answer
 
         return question, q_type, answer
 
     @staticmethod
-    def from_baseline_dataset(spec, dataset, lang_only=False):
+    def from_baseline_dataset(spec, dataset, lang_only=False, transform=None):
         frames = []
         questions = []
         q_types = []
@@ -139,5 +143,6 @@ class EndToEndDataset(Dataset):
             q_types.append(v_types)
             answers.append(v_ans)
 
-        e2e_dataset = EndToEndDataset(spec, frames, questions, q_types, answers, lang_only=lang_only)
+        e2e_dataset = EndToEndDataset(spec, frames, questions, q_types, answers,
+                                      lang_only=lang_only, transform=transform)
         return e2e_dataset

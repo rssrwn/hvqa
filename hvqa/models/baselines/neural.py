@@ -2,6 +2,7 @@ from pathlib import Path
 
 import torch
 import torch.optim as optim
+import torchvision.transforms as T
 from torch.nn import NLLLoss
 from torch.utils.data import DataLoader
 from torch.nn.utils.rnn import pack_sequence
@@ -114,7 +115,6 @@ class LangLstmModel(_AbsNeuralModel):
             if verbose and (t+1) % print_freq == 0:
                 print(f"Epoch {epoch:>3}, batch [{t+1:>4}/{num_batches}] -- overall loss = {loss.item():.4f}")
 
-
     def _eval(self, eval_loader, verbose):
         self._model.eval()
         num_batches = len(eval_loader)
@@ -156,18 +156,40 @@ class LangLstmModel(_AbsNeuralModel):
         util.save_model(self._model, model_path)
 
 
-class CNNMLPModel(_AbsNeuralModel):
+class CnnMlpModel(_AbsNeuralModel):
     def __init__(self, spec, model):
-        super(CNNMLPModel, self).__init__(spec, model)
+        super(CnnMlpModel, self).__init__(spec, model)
 
-    def _prepare_train_data(self, train_data):
-        pass
+        self.transform = T.Compose([
+            T.ToTensor(),
+        ])
 
-    def _prepare_eval_data(self, eval_data):
-        pass
+    def _prepare_train_data(self, train_data, batch_size=16):
+        train_dataset = EndToEndDataset.from_baseline_dataset(self.spec, train_data, lang_only=False)
+        train_loader = DataLoader(train_dataset, batch_size=batch_size, shuffle=True, collate_fn=util.collate_func)
+        return train_loader
 
-    def _train_one_epoch(self, train_loader, optimiser, epoch, verbose):
-        pass
+    def _prepare_eval_data(self, eval_data, batch_size=16):
+        eval_dataset = EndToEndDataset.from_baseline_dataset(self.spec, eval_data, lang_only=False)
+        eval_loader = DataLoader(eval_dataset, batch_size=batch_size, shuffle=True, collate_fn=util.collate_func)
+        return eval_loader
+
+    def _train_one_epoch(self, train_loader, optimiser, epoch, verbose, print_freq=50):
+        self._model.train()
+        num_batches = len(train_loader)
+        for t, (frames, qs, q_types, ans) in enumerate(train_loader):
+            frames = [frame.to(self._device) for frame in frames]
+            qs = pack_sequence(qs, enforce_sorted=False).to(self._device)
+
+            output = self._model(frames, qs)
+            loss = self._calc_loss(output, q_types, ans)
+
+            optimiser.zero_grad()
+            loss.backward()
+            optimiser.step()
+
+            if verbose and (t+1) % print_freq == 0:
+                print(f"Epoch {epoch:>3}, batch [{t+1:>4}/{num_batches}] -- overall loss = {loss.item():.4f}")
 
     def _eval(self, eval_loader, verbose):
         pass
