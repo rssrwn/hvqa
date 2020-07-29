@@ -70,6 +70,11 @@ def main(data_dir, model_type, components):
         model = CnnMlpModel.load(spec, model_path)
         data = BaselineDataset.from_data_dir(data_dir)
 
+    elif model_type == "cnn-lstm":
+        model_path = "saved-models/cnn-lstm"
+        model = CnnMlpModel.load(spec, model_path, video_lstm=True)
+        data = BaselineDataset.from_data_dir(data_dir)
+
     else:
         print("That type of model is not supported")
         return
