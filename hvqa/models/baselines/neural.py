@@ -9,7 +9,7 @@ from torch.nn.utils.rnn import pack_sequence
 
 import hvqa.util.func as util
 from hvqa.models.baselines.datasets import EndToEndDataset
-from hvqa.models.baselines.networks import LangLstmNetwork, CnnMlpNetwork
+from hvqa.models.baselines.networks import LangLstmNetwork, CnnMlpNetwork, CnnLstmNetwork
 from hvqa.models.baselines.interfaces import _AbsBaselineModel
 
 
@@ -163,9 +163,10 @@ class LangLstmModel(_AbsNeuralModel):
 
 
 class CnnMlpModel(_AbsNeuralModel):
-    def __init__(self, spec, model):
+    def __init__(self, spec, model, video_lstm=False):
         super(CnnMlpModel, self).__init__(spec, model)
 
+        self.video_lstm = video_lstm
         self.transform = T.Compose([
             T.ToTensor(),
         ])
@@ -228,15 +229,23 @@ class CnnMlpModel(_AbsNeuralModel):
         return epochs, lr
 
     @staticmethod
-    def new(spec):
-        network = CnnMlpNetwork(spec)
+    def new(spec, video_lstm=False):
+        if video_lstm:
+            network = CnnLstmNetwork(spec)
+        else:
+            network = CnnMlpNetwork(spec)
+
         model = CnnMlpModel(spec, network)
         return model
 
     @staticmethod
-    def load(spec, path):
+    def load(spec, path, video_lstm=False):
         model_path = Path(path) / "network.pt"
-        network = util.load_model(CnnMlpNetwork, model_path, spec)
+        if video_lstm:
+            network = util.load_model(CnnLstmNetwork, model_path, spec)
+        else:
+            network = util.load_model(CnnMlpNetwork, model_path, spec)
+
         model = CnnMlpModel(spec, network)
         return model
 
