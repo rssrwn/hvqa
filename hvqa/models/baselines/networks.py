@@ -96,7 +96,7 @@ class CnnLstmNetwork(nn.Module):
 
         frame_feats = self.feat_extr(frames)
         batch_size = frame_feats.shape[0] // 32
-        frame_feats_ = frame_feats.reshape((batch_size, 32, -1))
+        frame_feats_ = frame_feats.reshape((32, batch_size, -1))
         v_feats = self.video_lstm(frame_feats_)
 
         q_feats = self.lang_lstm(qs)
