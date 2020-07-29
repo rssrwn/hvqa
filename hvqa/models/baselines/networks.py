@@ -14,13 +14,13 @@ class LangLstmNetwork(nn.Module):
         feat2 = 256
 
         self.network = nn.Sequential(
-            QuestionNetwork(word_vector_size, hidden_size, num_lstm_layers),
+            _QuestionNetwork(word_vector_size, hidden_size, num_lstm_layers),
             nn.ReLU(),
             nn.Linear(hidden_size, feat1),
             nn.ReLU(),
             nn.Linear(feat1, feat2),
             nn.ReLU(),
-            QANetwork(spec, feat2)
+            _QANetwork(spec, feat2)
         )
 
     def forward(self, x):
@@ -41,8 +41,8 @@ class CnnMlpNetwork(nn.Module):
         feat2 = 1024
         feat3 = 512
 
-        self.feat_extr = VideoFeatNetwork(feat_output_size)
-        self.lang_lstm = QuestionNetwork(word_vector_size, hidden_size, num_lstm_layers)
+        self.feat_extr = _VideoFeatNetwork(feat_output_size)
+        self.lang_lstm = _QuestionNetwork(word_vector_size, hidden_size, num_lstm_layers)
         self.mlp = nn.Sequential(
             nn.Linear(mlp_input, feat1),
             nn.ReLU(),
@@ -50,7 +50,7 @@ class CnnMlpNetwork(nn.Module):
             nn.ReLU(),
             nn.Linear(feat2, feat3),
             nn.ReLU(),
-            QANetwork(spec, feat3)
+            _QANetwork(spec, feat3)
         )
 
     def forward(self, x):
@@ -64,9 +64,20 @@ class CnnMlpNetwork(nn.Module):
         return output
 
 
-class VideoFeatNetwork(nn.Module):
+class _VideoLstmNetwork(nn.Module):
+    def __init__(self, input_size, hidden_size, num_layers):
+        super(_VideoLstmNetwork, self).__init__()
+        self.lstm = nn.LSTM(input_size, hidden_size, num_layers=num_layers)
+
+    def forward(self, x):
+        _, (h_n, c_n) = self.lstm(x)
+        out = h_n[-1, :, :]
+        return out
+
+
+class _VideoFeatNetwork(nn.Module):
     def __init__(self, output_size):
-        super(VideoFeatNetwork, self).__init__()
+        super(_VideoFeatNetwork, self).__init__()
 
         resnet_out = 512
 
@@ -77,9 +88,9 @@ class VideoFeatNetwork(nn.Module):
         return self.resnet(x)
 
 
-class QuestionNetwork(nn.Module):
+class _QuestionNetwork(nn.Module):
     def __init__(self, input_size, hidden_size, num_layers):
-        super(QuestionNetwork, self).__init__()
+        super(_QuestionNetwork, self).__init__()
 
         self.lstm = nn.LSTM(input_size, hidden_size, num_layers=num_layers)
 
@@ -89,9 +100,9 @@ class QuestionNetwork(nn.Module):
         return out
 
 
-class QANetwork(nn.Module):
+class _QANetwork(nn.Module):
     def __init__(self, spec, vector_size):
-        super(QANetwork, self).__init__()
+        super(_QANetwork, self).__init__()
 
         num_colours = len(spec.prop_values("colour"))
         num_rotations = len(spec.prop_values("rotation"))
