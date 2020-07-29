@@ -36,7 +36,7 @@ class _AbsNeuralModel(_AbsBaselineModel):
         eval_loader = self._prepare_eval_data(eval_data)
         print("Data preparation complete.")
 
-        print("Training Language LSTM model...")
+        print("Training Neural baseline VideoQA model...")
 
         optimiser = optim.Adam(self._model.parameters(), lr=self._lr)
         for e in range(self._epochs):
