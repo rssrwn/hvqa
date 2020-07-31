@@ -6,7 +6,7 @@ from torch.utils.data import Dataset
 from hvqa.util.func import obj_encoding
 
 
-DEFAULT_ITEMS_PER_REL = 50000
+DEFAULT_ITEMS_PER_REL = 10000
 
 
 class _AbsRelationDataset(Dataset):

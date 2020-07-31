@@ -66,7 +66,7 @@ class NeuralRelationClassifier(Component, Trainable):
     def save(self, path):
         save_model(self.model, path)
 
-    def train(self, train_data, eval_data, verbose=True, lr=0.001, batch_size=256, epochs=10):
+    def train(self, train_data, eval_data, verbose=True, lr=0.001, batch_size=128, epochs=5):
         """
         Train the relation classification component
 
@@ -95,7 +95,7 @@ class NeuralRelationClassifier(Component, Trainable):
 
         print("Completed relation classifier training.")
 
-    def _train_one_epoch(self, train_loader, optimiser, epoch, verbose, print_freq=20):
+    def _train_one_epoch(self, train_loader, optimiser, epoch, verbose, print_freq=5):
         num_batches = len(train_loader)
         for t, data in enumerate(train_loader):
             self.model.train()
@@ -131,7 +131,7 @@ class NeuralRelationClassifier(Component, Trainable):
         qa_loader = DataLoader(qa_data, batch_size=batch_size, shuffle=False, collate_fn=self._collate_fn)
         return qa_loader
 
-    def eval(self, eval_data, batch_size=256):
+    def eval(self, eval_data, batch_size=128):
         print("\nConstructing evaluation data...")
         qa_loader = self._construct_eval_datasets(eval_data, batch_size)
         self._eval(qa_loader)
