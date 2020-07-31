@@ -4,7 +4,7 @@ from hvqa.util.dataset import VideoDataset, BaselineDataset
 from hvqa.spec.env import EnvSpec
 from hvqa.detection.detector import NeuralDetector
 from hvqa.models.hardcoded import HardcodedVQAModel
-from hvqa.models.individually_trained import IndTrainedModel
+from hvqa.models.trained import IndTrainedModel
 from hvqa.models.baselines.language import BestChoiceModel
 from hvqa.models.baselines.neural import LangLstmModel, CnnMlpModel
 
