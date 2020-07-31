@@ -76,19 +76,20 @@ class QASpec:
 
         obj1_cls = splits[2]
         obj1_prop_val = None
-        rel_idx = 3  # Note: hardcoded for 'close to' other relations will be different
+        rel_idx = 3
         if obj1_cls not in self.spec.obj_types():
             obj1_prop_val = obj1_cls
             obj1_cls = splits[3]
             rel_idx = 4
 
         rel = splits[rel_idx]
+        rel_add = 3 if rel == "close" else 2
 
-        obj2_cls = splits[rel_idx + 3]
+        obj2_cls = splits[rel_idx + rel_add]
         obj2_prop_val = None
         if obj2_cls not in self.spec.obj_types():
             obj2_prop_val = obj2_cls
-            obj2_cls = splits[rel_idx + 4]
+            obj2_cls = splits[rel_idx + rel_add + 1]
 
         return rel, obj1_cls, obj1_prop_val, obj2_cls, obj2_prop_val, frame_idx
 
