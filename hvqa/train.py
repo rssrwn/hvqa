@@ -41,7 +41,8 @@ def main(train_dir, eval_dir, model_type):
 
     elif model_type == "ind-trained":
         model_path = IND_MODEL_PATH
-        model = IndTrainedModel.new(spec)
+        # model = IndTrainedModel.new(spec)
+        model = IndTrainedModel.load(spec, IND_MODEL_PATH)
         detector = NeuralDetector.load(spec, DETECTOR_PATH)
         train_data = VideoDataset.from_data_dir(spec, train_dir, detector, hardcoded=False)
         eval_data = VideoDataset.from_data_dir(spec, eval_dir, detector, hardcoded=True)
@@ -78,8 +79,8 @@ def main(train_dir, eval_dir, model_type):
     model.save(model_path)
 
     # Load model and evaluate again
-    # model = IndTrainedModel.load(spec, IND_MODEL_PATH)
-    # model.eval(eval_data)
+    model = IndTrainedModel.load(spec, IND_MODEL_PATH)
+    model.eval(eval_data)
 
 
 if __name__ == '__main__':

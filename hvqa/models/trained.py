@@ -33,7 +33,7 @@ class IndTrainedModel(_AbsVQAModel):
         train_videos, train_answers = tuple(zip(*_train_data))
 
         # Train property component and label all objects with their properties
-        self.prop_classifier.train((train_videos, train_answers), eval_data, verbose=verbose, from_qa=True)
+        # self.prop_classifier.train((train_videos, train_answers), eval_data, verbose=verbose, from_qa=True)
 
         print("Labelling object properties...")
         [self.prop_classifier.run_(video) for video in train_videos]
@@ -48,7 +48,7 @@ class IndTrainedModel(_AbsVQAModel):
         [self.relation_classifier.run_(video) for video in train_videos]
 
         print("Training event detector...")
-        self.event_detector.train((train_videos, train_answers), eval_data, verbose=verbose, tracker=self.tracker)
+        # self.event_detector.train((train_videos, train_answers), eval_data, verbose=verbose, tracker=self.tracker)
 
         print("Completed individually-trained model training.")
 
@@ -92,7 +92,8 @@ class IndTrainedModel(_AbsVQAModel):
 
         properties = NeuralPropExtractor.load(spec, properties_path)
         tracker = ObjTracker.new(spec, err_corr=False)
-        relations = NeuralRelationClassifier.load(spec, relations_path)
+        # relations = NeuralRelationClassifier.load(spec, relations_path)
+        relations = NeuralRelationClassifier.new(spec)
         events = ILPEventDetector.load(spec, events_path)
         qa = HardcodedASPQASystem.new(spec)
 
