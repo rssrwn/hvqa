@@ -1,6 +1,6 @@
 # Video QA pairs specification class
 
-from hvqa.util.exceptions import UnknownPropertyValueException
+from hvqa.util.exceptions import UnknownPropertyValueException, UnknownAnswerException
 
 
 class QASpec:
@@ -55,6 +55,18 @@ class QASpec:
 
     def parse_ans_6(self, ans_str):
         return ans_str
+
+    def parse_explanation_ans(self, ans_str):
+        if ans_str == "The octopus ate the bag":
+            ans = 0
+        elif ans_str == "The fish was eaten":
+            ans = 1
+        elif ans_str == "The bag was eaten":
+            ans = 2
+        else:
+            raise UnknownAnswerException(f"The answer {ans_str} was unknown")
+
+        return ans
 
     def parse_prop_question(self, question):
         splits = question.split(" ")
@@ -167,6 +179,14 @@ class QASpec:
         event = self.spec.to_internal("event", event)
 
         return prop_val, cls, occ, event
+
+    def parse_explanation_question(self, question):
+        splits = question.split(" ")
+        rotation = splits[3]
+        return rotation
+
+    def parse_counterfactual_question(self, question):
+        pass
 
     def _format_event_noun(self, event_noun):
         event = self._noun_to_event[event_noun]
