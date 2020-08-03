@@ -48,7 +48,7 @@ class HardcodedASPQASystem(Component):
                          "answer({{q_idx}}, C2) :- \n" \
                          "  octo_col_wo_rock(C1, _), \n" \
                          "  octo_col_wo_rock(C2, _), \n" \
-                         "  not later(C1, C2) "
+                         "  not later(C1, C2)."
 
         ans_template_0 = "{prop_val}"
         ans_template_1 = "{ans}"
@@ -216,7 +216,7 @@ class HardcodedASPQASystem(Component):
     def _answer_q_type_7(self, args, template):
         assert len(args) == 1, "Args is not correct length for question type 7"
 
-        ans_num = args[0]
+        ans_num = int(args[0])
         if ans_num == 0:
             ans_str = "The octopus ate a bag"
         elif ans_num == 1:
@@ -224,7 +224,7 @@ class HardcodedASPQASystem(Component):
         elif ans_num == 2:
             ans_str = "The bag was eaten"
         else:
-            ans_str = "Unknown"
+            ans_str = "Unknown answer number"
 
         return ans_str
 
