@@ -68,7 +68,7 @@ class QASpec:
 
         return ans
 
-    def parse_counterfactual_answer(self, ans_str):
+    def parse_counterfactual_ans(self, ans_str):
         return ans_str
 
     def parse_prop_question(self, question):

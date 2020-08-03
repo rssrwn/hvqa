@@ -262,10 +262,14 @@ class HardcodedASPQASystem(Component):
         return asp_q
 
     def _parse_q_type_7(self, question, template):
-        pass
+        rotation = self.spec.qa.parse_explanation_question(question)
+        asp_q = template.format(rotation=rotation)
+        return asp_q
 
     def _parse_q_type_8(self, question, template):
-        pass
+        rock_colour = self.spec.qa.parse_counterfactual_question(question)
+        asp_q = template.format(colour=rock_colour)
+        return asp_q
 
     def _gen_asp_obj(self, cls, prop_val, frame_idx, id_str):
         asp_obj_str = f"holds(class({cls}, {id_str}), {str(frame_idx)})"
