@@ -68,6 +68,9 @@ class QASpec:
 
         return ans
 
+    def parse_counterfactual_answer(self, ans_str):
+        return ans_str
+
     def parse_prop_question(self, question):
         splits = question.split(" ")
         prop = splits[1]
@@ -186,7 +189,9 @@ class QASpec:
         return rotation
 
     def parse_counterfactual_question(self, question):
-        pass
+        splits = question.split(" ")
+        rock_colour = splits[-2]
+        return rock_colour
 
     def _format_event_noun(self, event_noun):
         event = self._noun_to_event[event_noun]
