@@ -27,7 +27,7 @@ spec = EnvSpec.from_dict({
 ERR_CORR = True
 AL_EVENT_MODEL = True
 
-HARDCODED = True
+HARDCODED = False
 ERROR_PROB = 0
 
 

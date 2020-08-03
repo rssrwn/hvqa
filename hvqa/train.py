@@ -77,10 +77,6 @@ def main(train_dir, eval_dir, model_type):
     model.train(train_data, eval_data)
     model.save(model_path)
 
-    # Load model and evaluate again
-    model = IndTrainedModel.load(spec, IND_MODEL_PATH)
-    model.eval(eval_data)
-
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description="Script for training H-PERL model")
