@@ -15,3 +15,7 @@ class UnknownQuestionTypeException(BaseException):
 
 class UnknownPropertyValueException(BaseException):
     pass
+
+
+class UnknownAnswerException(BaseException):
+    pass
