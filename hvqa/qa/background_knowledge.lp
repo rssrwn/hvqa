@@ -54,3 +54,16 @@ event_count(Event, Id, Num) :-
 event_occurrence(Event, Id, Frame, Num) :-
   Num = #count { I : occurs_event(Event, Id, I), I <= Frame },
   occurs_event(Event, Id, Frame).
+
+disappear(Id, I) :-
+  holds(class(Class, Id), I),
+  not holds(class(Class, Id), I+1),
+  step(I+1), step(I).
+
+disappear_rot_cls(Rot, Cls) :-
+  disappear(Id, I),
+  holds(rotation(Rot, I)),
+  holds(class(Cls, I)).
+
+octo_colour(red, 0).
+octo_colour(Colour, I) :- changed(colour, _, Colour, Id, I), holds(class(octopus, Id)).

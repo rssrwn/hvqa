@@ -39,6 +39,17 @@ class HardcodedASPQASystem(Component):
                          "  event_occurrence({event}, Id, Frame, {occ}), \n" \
                          "  {asp_obj}."
 
+        asp_template_7 = "answer({{q_idx}}, 0) :- disappear_rot_cls({rotation}, octopus). \n" \
+                         "answer({{q_idx}}, 1) :- disappear_rot_cls({rotation}, fish). \n" \
+                         "answer({{q_idx}}, 2) :- disappear_rot_cls({rotation}, bag). \n"
+
+        asp_template_8 = "octo_col_wo_rock(Colour, I) :- octo_colour(Colour, I), Colour != {colour}. \n" \
+                         "later(C1, C2) :- octo_col_wo_rock(C1, I1), octo_col_wo_rock(C2, I2), I1 > I2. \n" \
+                         "answer({{q_idx}}, C2) :- \n" \
+                         "  octo_col_wo_rock(C1, _), \n" \
+                         "  octo_col_wo_rock(C2, _), \n" \
+                         "  not later(C1, C2) "
+
         ans_template_0 = "{prop_val}"
         ans_template_1 = "{ans}"
         ans_template_2 = "{action}"
@@ -46,6 +57,8 @@ class HardcodedASPQASystem(Component):
         ans_template_4 = "{ans}"
         ans_template_5 = "{event}"
         ans_template_6 = "{action}"
+        ans_template_7 = "{ans}"
+        ans_template_8 = "{colour}"
 
         self.q_funcs = {
             0: (self._parse_q_type_0, asp_template_0),
@@ -54,7 +67,9 @@ class HardcodedASPQASystem(Component):
             3: (self._parse_q_type_3, asp_template_3),
             4: (self._parse_q_type_4, asp_template_4),
             5: (self._parse_q_type_5, asp_template_5),
-            6: (self._parse_q_type_6, asp_template_6)
+            6: (self._parse_q_type_6, asp_template_6),
+            7: (self._parse_q_type_7, asp_template_7),
+            8: (self._parse_q_type_8, asp_template_8)
         }
 
         self.ans_funcs = {
@@ -64,7 +79,9 @@ class HardcodedASPQASystem(Component):
             3: (self._answer_q_type_3, ans_template_3),
             4: (self._answer_q_type_4, ans_template_4),
             5: (self._answer_q_type_5, ans_template_5),
-            6: (self._answer_q_type_6, ans_template_6)
+            6: (self._answer_q_type_6, ans_template_6),
+            7: (self._answer_q_type_7, ans_template_7),
+            8: (self._answer_q_type_8, ans_template_8)
         }
 
     def run_(self, video):
@@ -196,6 +213,12 @@ class HardcodedASPQASystem(Component):
         ans_str = template.format(action=action)
         return ans_str
 
+    def _answer_q_type_7(self, args, template):
+        pass
+
+    def _answer_q_type_8(self, args, template):
+        pass
+
     def _parse_q_type_0(self, question, template):
         prop, prop_val, cls, frame_idx = self.spec.qa.parse_prop_question(question)
         asp_obj = self._gen_asp_obj(cls, prop_val, frame_idx, "Id")
@@ -237,6 +260,12 @@ class HardcodedASPQASystem(Component):
         asp_obj = self._gen_asp_obj(cls, prop_val, "Frame", "Id")
         asp_q = template.format(asp_obj=asp_obj, event=event, occ=occ)
         return asp_q
+
+    def _parse_q_type_7(self, question, template):
+        pass
+
+    def _parse_q_type_8(self, question, template):
+        pass
 
     def _gen_asp_obj(self, cls, prop_val, frame_idx, id_str):
         asp_obj_str = f"holds(class({cls}, {id_str}), {str(frame_idx)})"
