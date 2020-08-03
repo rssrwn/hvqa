@@ -214,10 +214,26 @@ class HardcodedASPQASystem(Component):
         return ans_str
 
     def _answer_q_type_7(self, args, template):
-        pass
+        assert len(args) == 1, "Args is not correct length for question type 7"
+
+        ans_num = args[0]
+        if ans_num == 0:
+            ans_str = "The octopus ate a bag"
+        elif ans_num == 1:
+            ans_str = "The fish was eaten"
+        elif ans_num == 2:
+            ans_str = "The bag was eaten"
+        else:
+            ans_str = "Unknown"
+
+        return ans_str
 
     def _answer_q_type_8(self, args, template):
-        pass
+        assert len(args) == 1, "Args is not correct length for question type 8"
+
+        colour = args[0]
+        ans_str = template.format(colour=colour)
+        return ans_str
 
     def _parse_q_type_0(self, question, template):
         prop, prop_val, cls, frame_idx = self.spec.qa.parse_prop_question(question)
