@@ -52,6 +52,12 @@ class RandomAnsModel(_AbsBaselineModel):
             ans = random.choice(self.spec.actions + self.spec.effects)
         elif q_type == 6:
             ans = random.choice(self.spec.actions)
+        elif q_type == 7:
+            answers = ["The octopus ate a bag", "The fish was eaten", "The bag was eaten"]
+            ans = random.choice(answers)
+        elif q_type == 8:
+            colours = self.spec.prop_values("colour")
+            ans = random.choice(colours)
         else:
             raise UnknownQuestionTypeException(f"Question type {q_type} unknown")
 
