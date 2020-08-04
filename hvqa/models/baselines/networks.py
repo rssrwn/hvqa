@@ -158,8 +158,8 @@ class _QANetwork(nn.Module):
             nn.LogSoftmax(dim=1)
         )
         self.q_1_layer = nn.Sequential(
-            nn.Linear(vector_size, len(spec.relations)),
-            nn.Sigmoid()
+            nn.Linear(vector_size, 2),
+            nn.LogSoftmax(dim=1)
         )
         self.q_2_layer = nn.Sequential(
             nn.Linear(vector_size, num_actions),
