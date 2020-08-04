@@ -1,7 +1,7 @@
 from hvqa.util.interfaces import BaselineModel
 
 
-NUM_Q_TYPES = 7
+NUM_Q_TYPES = 9
 
 
 class _AbsBaselineModel(BaselineModel):
