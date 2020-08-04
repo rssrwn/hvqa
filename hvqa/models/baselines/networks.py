@@ -1,7 +1,6 @@
 import torch
 import torch.nn as nn
 import torchvision.models as models
-from torch.nn.utils.rnn import pack_sequence
 
 
 class LangLstmNetwork(nn.Module):
@@ -32,7 +31,7 @@ class CnnMlpNetwork(nn.Module):
     def __init__(self, spec):
         super(CnnMlpNetwork, self).__init__()
 
-        feat_output_size = 128
+        feat_output_size = 256
         word_vector_size = 300
         hidden_size = 1024
         num_lstm_layers = 2
@@ -69,7 +68,7 @@ class CnnLstmNetwork(nn.Module):
     def __init__(self, spec):
         super(CnnLstmNetwork, self).__init__()
 
-        feat_output_size = 128
+        feat_output_size = 256
         word_vector_size = 300
 
         q_hidden_size = 1024
