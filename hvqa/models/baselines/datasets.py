@@ -2,7 +2,7 @@ import spacy
 import torch
 from torch.utils.data import Dataset
 
-from hvqa.util.exceptions import UnknownQuestionTypeException
+from hvqa.util.exceptions import UnknownQuestionTypeException, UnknownAnswerException
 
 
 class EndToEndDataset(Dataset):
@@ -86,6 +86,20 @@ class EndToEndDataset(Dataset):
         elif q_type == 6:
             actions = self.spec.actions
             ans_enc = actions.index(answer)
+
+        elif q_type == 7:
+            if answer == "The octopus ate a bag":
+                ans_enc = 0
+            elif answer == "The fish was eaten":
+                ans_enc = 1
+            elif answer == "The bag was eaten":
+                ans_enc = 2
+            else:
+                raise UnknownAnswerException(f"Answer {answer} unknown for explanation questions")
+
+        elif q_type == 8:
+            colours = self.spec.prop_values("colour")
+            ans_enc = colours.index(answer)
 
         else:
             raise UnknownQuestionTypeException(f"Question type {q_type} unknown")
