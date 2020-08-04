@@ -224,7 +224,7 @@ class CnnMlpModel(_AbsNeuralModel):
         self._print_results()
 
     def _set_hyperparams(self):
-        epochs = 5
+        epochs = 10
         lr = 0.001
         return epochs, lr
 
