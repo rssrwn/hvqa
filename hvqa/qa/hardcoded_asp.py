@@ -43,12 +43,16 @@ class HardcodedASPQASystem(Component):
                          "answer({{q_idx}}, 1) :- disappear_rot_cls({rotation}, fish). \n" \
                          "answer({{q_idx}}, 2) :- disappear_rot_cls({rotation}, bag). \n"
 
-        asp_template_8 = "octo_col_wo_rock(Colour, I) :- octo_colour(Colour, I), Colour != {colour}. \n" \
-                         "later(C1, C2) :- octo_col_wo_rock(C1, I1), octo_col_wo_rock(C2, I2), I1 > I2. \n" \
+        asp_template_8 = "octo_col_wo_rock({{q_idx}}, Colour, I) :- octo_colour(Colour, I), Colour != {colour}. \n" \
+                         "later({{q_idx}}, C1, C2) :- \n " \
+                         "  octo_col_wo_rock({{q_idx}}, C1, I1), \n" \
+                         "  octo_col_wo_rock({{q_idx}}, C2, I2), \n" \
+                         "  I1 > I2. \n" \
                          "answer({{q_idx}}, C2) :- \n" \
-                         "  octo_col_wo_rock(C1, _), \n" \
-                         "  octo_col_wo_rock(C2, _), \n" \
-                         "  not later(C1, C2)."
+                         "  octo_col_wo_rock({{q_idx}}, C1, _), \n" \
+                         "  octo_col_wo_rock({{q_idx}}, C2, _), \n" \
+                         "  C1 != C2, \n" \
+                         "  not later({{q_idx}}, C1, C2)."
 
         ans_template_0 = "{prop_val}"
         ans_template_1 = "{ans}"
@@ -232,6 +236,7 @@ class HardcodedASPQASystem(Component):
         assert len(args) == 1, "Args is not correct length for question type 8"
 
         colour = args[0]
+        colour = self.spec.from_internal("colour", int(colour))
         ans_str = template.format(colour=colour)
         return ans_str
 
@@ -279,11 +284,13 @@ class HardcodedASPQASystem(Component):
 
     def _parse_q_type_7(self, question, template):
         rotation = self.spec.qa.parse_explanation_question(question)
+        rotation = self.spec.to_internal("rotation", rotation)
         asp_q = template.format(rotation=rotation)
         return asp_q
 
     def _parse_q_type_8(self, question, template):
         rock_colour = self.spec.qa.parse_counterfactual_question(question)
+        rock_colour = self.spec.to_internal("colour", rock_colour)
         asp_q = template.format(colour=rock_colour)
         return asp_q
 

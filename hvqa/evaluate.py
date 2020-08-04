@@ -28,7 +28,6 @@ ERR_CORR = True
 AL_EVENT_MODEL = True
 
 HARDCODED = False
-ERROR_PROB = 0
 
 
 def evaluate(model, data, components=False, verbose=True):
@@ -43,13 +42,13 @@ def main(data_dir, model_type, components):
         model_path = "saved-models/hardcoded"
         model = HardcodedVQAModel.load(spec, model_path, err_corr=ERR_CORR, al_model=AL_EVENT_MODEL)
         detector = NeuralDetector.load(spec, DETECTOR_PATH)
-        data = VideoDataset.from_data_dir(spec, data_dir, detector, hardcoded=HARDCODED, err_prob=ERROR_PROB)
+        data = VideoDataset.from_data_dir(spec, data_dir, detector, hardcoded=HARDCODED)
 
     elif model_type == "ind-trained":
         model_path = "saved-models/ind-trained"
         model = IndTrainedModel.load(spec, model_path)
         detector = NeuralDetector.load(spec, DETECTOR_PATH)
-        data = VideoDataset.from_data_dir(spec, data_dir, detector, hardcoded=HARDCODED, err_prob=ERROR_PROB)
+        data = VideoDataset.from_data_dir(spec, data_dir, detector, hardcoded=HARDCODED)
 
     elif model_type == "random":
         model = RandomAnsModel(spec)
