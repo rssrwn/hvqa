@@ -3,7 +3,7 @@ from pathlib import Path
 import torch
 import torch.optim as optim
 import torchvision.transforms as T
-from torch.nn import NLLLoss
+from torch.nn import NLLLoss, BCELoss
 from torch.utils.data import DataLoader
 from torch.nn.utils.rnn import pack_sequence
 
@@ -20,6 +20,7 @@ class _AbsNeuralModel(_AbsBaselineModel):
         self._model = model.to(self._device)
         self._model.eval()
         self._loss_fn = NLLLoss(reduction="none")
+        self._bce_loss = BCELoss(reduction="none")
         self._epochs, self._lr = self._set_hyperparams()
 
     def train(self, train_data, eval_data, verbose=True):
@@ -81,7 +82,10 @@ class _AbsNeuralModel(_AbsBaselineModel):
         for idx, q_type in enumerate(q_types):
             target = ans[idx][None].to("cpu")
             pred = output[q_type][idx][None, :].to("cpu")
-            loss = self._loss_fn(pred, target)
+            if q_type == 1:
+                loss = self._bce_loss(pred, target)
+            else:
+                loss = self._loss_fn(pred, target)
             losses.append(loss)
 
         batch_size = len(losses)

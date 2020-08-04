@@ -151,14 +151,15 @@ class _QANetwork(nn.Module):
         num_actions = len(spec.actions)
         num_effects = len(spec.effects)
         num_frames = spec.num_frames
+        num_mc_options_q_6 = 3
 
         self.q_0_layer = nn.Sequential(
             nn.Linear(vector_size, num_colours + num_rotations),
             nn.LogSoftmax(dim=1)
         )
         self.q_1_layer = nn.Sequential(
-            nn.Linear(vector_size, 2),
-            nn.LogSoftmax(dim=1)
+            nn.Linear(vector_size, len(spec.relations)),
+            nn.Sigmoid()
         )
         self.q_2_layer = nn.Sequential(
             nn.Linear(vector_size, num_actions),
@@ -180,6 +181,14 @@ class _QANetwork(nn.Module):
             nn.Linear(vector_size, num_actions),
             nn.LogSoftmax(dim=1)
         )
+        self.q_7_layer = nn.Sequential(
+            nn.Linear(vector_size, num_mc_options_q_6),
+            nn.LogSoftmax(dim=1)
+        )
+        self.q_8_layer = nn.Sequential(
+            nn.Linear(vector_size, num_colours),
+            nn.LogSoftmax(dim=1)
+        )
 
     def forward(self, x):
         q_0 = self.q_0_layer(x)
@@ -189,6 +198,8 @@ class _QANetwork(nn.Module):
         q_4 = self.q_4_layer(x)
         q_5 = self.q_5_layer(x)
         q_6 = self.q_6_layer(x)
+        q_7 = self.q_7_layer(x)
+        q_8 = self.q_8_layer(x)
 
         output = {
             0: q_0,
@@ -197,7 +208,9 @@ class _QANetwork(nn.Module):
             3: q_3,
             4: q_4,
             5: q_5,
-            6: q_6
+            6: q_6,
+            7: q_7,
+            8: q_8
         }
 
         return output
