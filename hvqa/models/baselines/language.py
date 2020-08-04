@@ -79,6 +79,8 @@ class BestChoiceModel(_AbsBaselineModel):
     def train(self, train_data, eval_data, verbose=True):
         counts = {}
 
+        print("Training best choice language-only model...")
+
         num_vs = len(train_data)
         for idx in range(num_vs):
             _, qs, q_types, answers = train_data[idx]
@@ -103,6 +105,7 @@ class BestChoiceModel(_AbsBaselineModel):
                 answers[q_type] = ans
 
         self._answers = answers
+        print("Completed training best-choice model.")
 
     def _add_ans_count(self, counts, question, q_type, answer):
         q_type_counts = counts.get(q_type)
