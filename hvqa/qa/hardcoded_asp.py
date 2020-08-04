@@ -44,15 +44,7 @@ class HardcodedASPQASystem(Component):
                          "answer({{q_idx}}, 2) :- disappear_rot_cls({rotation}, bag). \n"
 
         asp_template_8 = "octo_col_wo_rock({{q_idx}}, Colour, I) :- octo_colour(Colour, I), Colour != {colour}. \n" \
-                         "later({{q_idx}}, C1, C2) :- \n " \
-                         "  octo_col_wo_rock({{q_idx}}, C1, I1), \n" \
-                         "  octo_col_wo_rock({{q_idx}}, C2, I2), \n" \
-                         "  I1 > I2. \n" \
-                         "answer({{q_idx}}, C2) :- \n" \
-                         "  octo_col_wo_rock({{q_idx}}, C1, _), \n" \
-                         "  octo_col_wo_rock({{q_idx}}, C2, _), \n" \
-                         "  C1 != C2, \n" \
-                         "  not later({{q_idx}}, C1, C2)."
+                         "answer({{q_idx}}, Colour) :- last_octo_col_wo_rock({{q_idx}}, Colour)."
 
         ans_template_0 = "{prop_val}"
         ans_template_1 = "{ans}"

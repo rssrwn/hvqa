@@ -67,3 +67,10 @@ disappear_rot_cls(Rot, Cls) :-
 
 octo_colour(0, 0).
 octo_colour(Colour, I+1) :- changed(colour, _, Colour, Id, I), holds(class(octopus, Id), I).
+
+last_octo_col_wo_rock(Q, Colour) :-
+  Frame = #max { I, C : octo_col_wo_rock(Q, C, I) },
+  octo_col_wo_rock(Q, Colour, Frame).
+
+#show octo_colour/2.
+#show octo_col_wo_rock/3.
