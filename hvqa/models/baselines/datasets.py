@@ -176,10 +176,12 @@ class EndToEndPreTrainDataset(_AbsEndToEndDataset):
     def __init__(self, spec, frames, questions, q_types, answers, transform):
         super(EndToEndPreTrainDataset, self).__init__(spec, transform)
 
+        q_encs, a_encs = self._encode_qas(questions, q_types, answers)
+
         self.frames = frames
-        self.questions = questions
+        self.questions = q_encs
         self.q_types = q_types
-        self.answers = answers
+        self.answers = a_encs
 
     def __len__(self):
         return len(self.frames)
@@ -189,6 +191,7 @@ class EndToEndPreTrainDataset(_AbsEndToEndDataset):
         question = self.questions[item]
         q_type = self.q_types[item]
         answer = self.answers[item]
+        return frame, question, q_type, answer
 
     def from_baseline_dataset(self, spec, dataset, transform, filter_qs=None):
         """
