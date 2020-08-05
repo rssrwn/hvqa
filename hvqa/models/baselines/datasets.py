@@ -146,14 +146,13 @@ class EndToEndDataset(_AbsEndToEndDataset):
         q_type = self.q_types[v_idx][q_idx]
         answer = self.answers[v_idx][q_idx]
 
+        frames = None
         if not self.lang_only:
             frames = self.frames[v_idx]
             if self.transform is not None:
                 frames = [self.transform(frame) for frame in frames]
 
-            return frames, question, q_type, answer
-
-        return question, q_type, answer
+        return frames, question, q_type, answer
 
     @staticmethod
     def from_baseline_dataset(spec, dataset, transform=None, lang_only=False):

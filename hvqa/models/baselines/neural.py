@@ -21,6 +21,7 @@ class _AbsNeuralModel(_AbsBaselineModel):
         self._model.eval()
         self._loss_fn = NLLLoss(reduction="none")
         self._epochs, self._lr, self._batch_size = self._set_hyperparams()
+        self._print_freq = 10
 
     def train(self, train_data, eval_data, verbose=True):
         """
@@ -56,11 +57,44 @@ class _AbsNeuralModel(_AbsBaselineModel):
     def _prepare_eval_data(self, eval_data):
         raise NotImplementedError()
 
-    def _train_one_epoch(self, train_loader, optimiser, epoch, verbose):
+    def _prepare_input(self, frames, questions, q_types, answers):
         raise NotImplementedError()
 
+    def _train_one_epoch(self, train_loader, optimiser, epoch, verbose):
+        self._model.train()
+        num_batches = len(train_loader)
+        for t, (frames, qs, q_types, ans) in enumerate(train_loader):
+            model_input = self._prepare_input(frames, qs, q_types, ans)
+
+            output = self._model(model_input)
+            loss = self._calc_loss(output, q_types, ans)
+
+            optimiser.zero_grad()
+            loss.backward()
+            optimiser.step()
+
+            if verbose and (t+1) % self._print_freq == 0:
+                print(f"Epoch {epoch:>3}, batch [{t+1:>4}/{num_batches}] -- overall loss = {loss.item():.4f}")
+
     def _eval(self, eval_loader, verbose):
-        raise NotImplementedError()
+        self._model.eval()
+        num_batches = len(eval_loader)
+
+        for t, (frames, qs, q_types, ans) in enumerate(eval_loader):
+            model_input = self._prepare_input(frames, qs, q_types, ans)
+
+            with torch.no_grad():
+                output = self._model(model_input)
+
+            results = []
+            for idx, q_type in enumerate(q_types):
+                answer = ans[idx].item()
+                pred = output[q_type][idx].to("cpu")
+                _, max_idx = torch.max(pred, 0)
+                results.append(("", q_type, max_idx.item(), answer))
+
+            self._eval_video_results(t, num_batches, results, False)
+        self._print_results()
 
     def _set_hyperparams(self):
         """
@@ -109,39 +143,9 @@ class LangLstmModel(_AbsNeuralModel):
         eval_loader = DataLoader(eval_dataset, batch_size=self._batch_size, shuffle=False, collate_fn=util.collate_func)
         return eval_loader
 
-    def _train_one_epoch(self, train_loader, optimiser, epoch, verbose, print_freq=10):
-        self._model.train()
-        num_batches = len(train_loader)
-        for t, (qs, q_types, ans) in enumerate(train_loader):
-            qs = pack_sequence(qs, enforce_sorted=False).to(self._device)
-            output = self._model(qs)
-            loss = self._calc_loss(output, q_types, ans)
-            optimiser.zero_grad()
-            loss.backward()
-            optimiser.step()
-
-            if verbose and (t+1) % print_freq == 0:
-                print(f"Epoch {epoch:>3}, batch [{t+1:>4}/{num_batches}] -- overall loss = {loss.item():.4f}")
-
-    def _eval(self, eval_loader, verbose):
-        self._model.eval()
-        num_batches = len(eval_loader)
-
-        for t, (qs, q_types, ans) in enumerate(eval_loader):
-            qs = pack_sequence(qs, enforce_sorted=False).to(self._device)
-
-            with torch.no_grad():
-                output = self._model(qs)
-
-            results = []
-            for idx, q_type in enumerate(q_types):
-                answer = ans[idx].item()
-                pred = output[q_type][idx].to("cpu")
-                _, max_idx = torch.max(pred, 0)
-                results.append(("", q_type, max_idx.item(), answer))
-
-            self._eval_video_results(t, num_batches, results, False)
-        self._print_results()
+    def _prepare_input(self, frames, questions, q_types, answers):
+        qs = pack_sequence(questions, enforce_sorted=False).to(self._device)
+        return qs
 
     def _set_hyperparams(self):
         epochs = 10
@@ -188,45 +192,11 @@ class CnnMlpModel(_AbsNeuralModel):
         eval_loader = DataLoader(eval_dataset, batch_size=self._batch_size, shuffle=True, collate_fn=util.collate_func)
         return eval_loader
 
-    def _train_one_epoch(self, train_loader, optimiser, epoch, verbose, print_freq=50):
-        self._model.train()
-        num_batches = len(train_loader)
-        for t, (frames, qs, q_types, ans) in enumerate(train_loader):
-            frames = [torch.stack(v_frames) for v_frames in frames]
-            frames = torch.cat(frames, dim=0).to(self._device)
-            qs = pack_sequence(qs, enforce_sorted=False).to(self._device)
-
-            output = self._model((frames, qs))
-            loss = self._calc_loss(output, q_types, ans)
-
-            optimiser.zero_grad()
-            loss.backward()
-            optimiser.step()
-
-            if verbose and (t+1) % print_freq == 0:
-                print(f"Epoch {epoch:>3}, batch [{t+1:>4}/{num_batches}] -- overall loss = {loss.item():.4f}")
-
-    def _eval(self, eval_loader, verbose):
-        self._model.eval()
-        num_batches = len(eval_loader)
-
-        for t, (frames, qs, q_types, ans) in enumerate(eval_loader):
-            frames = [torch.stack(v_frames) for v_frames in frames]
-            frames = torch.cat(frames, dim=0).to(self._device)
-            qs = pack_sequence(qs, enforce_sorted=False).to(self._device)
-
-            with torch.no_grad():
-                output = self._model((frames, qs))
-
-            results = []
-            for idx, q_type in enumerate(q_types):
-                answer = ans[idx].item()
-                pred = output[q_type][idx].to("cpu")
-                _, max_idx = torch.max(pred, 0)
-                results.append(("", q_type, max_idx.item(), answer))
-
-            self._eval_video_results(t, num_batches, results, False)
-        self._print_results()
+    def _prepare_input(self, frames, questions, q_types, answers):
+        frames = [torch.stack(v_frames) for v_frames in frames]
+        frames = torch.cat(frames, dim=0).to(self._device)
+        qs = pack_sequence(questions, enforce_sorted=False).to(self._device)
+        return frames, qs
 
     def _set_hyperparams(self):
         epochs = 10
@@ -282,11 +252,10 @@ class PropRelModel(_AbsNeuralModel):
         eval_loader = DataLoader(eval_dataset, batch_size=self._batch_size, shuffle=True, collate_fn=util.collate_func)
         return eval_loader
 
-    def _train_one_epoch(self, train_loader, optimiser, epoch, verbose):
-        pass
-
-    def _eval(self, eval_loader, verbose):
-        pass
+    def _prepare_input(self, frames, questions, q_types, answers):
+        frames = torch.stack(frames).to(self._device)
+        qs = pack_sequence(questions, enforce_sorted=False).to(self._device)
+        return frames, qs
 
     def _set_hyperparams(self):
         epochs = 10
