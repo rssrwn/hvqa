@@ -152,7 +152,7 @@ class ActionNetwork(nn.Module):
         # self.feat_extr = _VideoFeatNetwork(feat_output_size, two_images=True)
 
         self.feat_extr = _ActionFeatExtr(feat_output_size)
-        
+
         self.mlp = nn.Sequential(
             nn.Linear(feat_output_size, feat1),
             nn.ReLU(),
@@ -182,11 +182,13 @@ class _ActionFeatExtr(nn.Module):
             nn.BatchNorm2d(64),
             nn.ReLU(),
             nn.AdaptiveAvgPool2d(1),
+            nn.Flatten(),
             nn.Linear(64, output_size)
         )
 
     def forward(self, x):
-        return self.network(x)
+        feats = self.network(x)
+        return feats
 
 
 class _VideoLstmNetwork(nn.Module):
