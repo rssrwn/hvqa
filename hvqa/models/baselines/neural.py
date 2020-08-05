@@ -138,7 +138,8 @@ class LangLstmModel(_AbsNeuralModel):
 
     def _prepare_train_data(self, train_data):
         train_dataset = EndToEndDataset.from_baseline_dataset(self.spec, train_data, lang_only=True)
-        train_loader = DataLoader(train_dataset, batch_size=self._batch_size, shuffle=True, collate_fn=util.collate_func)
+        train_loader = DataLoader(
+            train_dataset, batch_size=self._batch_size, shuffle=True, collate_fn=util.collate_func)
         return train_loader
 
     def _prepare_eval_data(self, eval_data):
@@ -181,7 +182,8 @@ class CnnMlpModel(_AbsNeuralModel):
 
     def _prepare_train_data(self, train_data):
         train_dataset = EndToEndDataset.from_baseline_dataset(self.spec, train_data, self.transform, lang_only=False)
-        train_loader = DataLoader(train_dataset, batch_size=self._batch_size, shuffle=True, collate_fn=util.collate_func)
+        train_loader = DataLoader(
+            train_dataset, batch_size=self._batch_size, shuffle=True, collate_fn=util.collate_func)
         return train_loader
 
     def _prepare_eval_data(self, eval_data):
@@ -230,11 +232,13 @@ class PropRelModel(_AbsNeuralModel):
         self.transform = T.Compose([
             T.ToTensor(),
         ])
+        self._print_freq = 1
 
     def _prepare_train_data(self, train_data):
         train_dataset = EndToEndPreTrainDataset.from_baseline_dataset(
             self.spec, train_data, self.transform, filter_qs=[0, 1])
-        train_loader = DataLoader(train_dataset, batch_size=self._batch_size, shuffle=True, collate_fn=util.collate_func)
+        train_loader = DataLoader(
+            train_dataset, batch_size=self._batch_size, shuffle=True, collate_fn=util.collate_func)
         return train_loader
 
     def _prepare_eval_data(self, eval_data):
