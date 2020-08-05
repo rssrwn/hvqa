@@ -302,8 +302,7 @@ class ActionModel(_AbsNeuralModel):
 
     def _prepare_input(self, frames, questions, q_types, answers):
         frames = torch.stack(frames).to(self._device)
-        qs = pack_sequence(questions, enforce_sorted=False).to(self._device)
-        return frames, qs
+        return frames
 
     def _set_hyperparams(self):
         epochs = 20
