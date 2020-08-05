@@ -151,13 +151,16 @@ class _VideoLstmNetwork(nn.Module):
 
 
 class _VideoFeatNetwork(nn.Module):
-    def __init__(self, output_size):
+    def __init__(self, output_size, two_images=False):
         super(_VideoFeatNetwork, self).__init__()
 
         resnet_out = 512
 
         self.resnet = models.resnet18()
         self.resnet.fc = nn.Linear(resnet_out, output_size)
+
+        if two_images:
+            self.resnet.conv1 = nn.Conv2d(6, 64, kernel_size=(7, 7), stride=(2, 2), padding=(3, 3), bias=False)
 
     def forward(self, x):
         return self.resnet(x)
