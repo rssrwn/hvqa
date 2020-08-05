@@ -173,7 +173,7 @@ class EndToEndDataset(_AbsEndToEndDataset):
         return e2e_dataset
 
 
-class EndToEndPreTrainDataset(Dataset):
+class EndToEndPreTrainDataset(_AbsEndToEndDataset):
     def __init__(self, spec, frames, questions, q_types, answers, transform=None):
         super(EndToEndPreTrainDataset, self).__init__(spec, transform=transform)
 
@@ -186,4 +186,43 @@ class EndToEndPreTrainDataset(Dataset):
         pass
 
     def __getitem__(self, item):
+        pass
+
+    def from_baseline_dataset(self, spec, dataset, transform=None, filter_qs=None):
+        """
+        Create dataset from baseline dataset
+
+        :param spec: Environment specification
+        :param dataset: BaselineDataset
+        :param transform: Image transform to apply to each frame
+        :param filter_qs: Keep questions of this q_type (only applies to q_types 0, 1 and 2)
+        :return: EndToEndPreTrainDataset
+        """
+
+        frames = []
+        questions = []
+        q_types = []
+        answers = []
+
+        allowed_q_types = {0, 1, 2}
+        filter_qs = [] if filter_qs is None else filter_qs
+        q_filter = set([q_type for q_type in filter_qs if q_type in allowed_q_types])
+        print(f"Keeping following question types: {q_filter}")
+
+        for v_idx in range(len(dataset)):
+            v_frames, v_qs, v_types, v_ans = dataset[v_idx]
+            for q_idx, q_type in enumerate(v_types):
+                question = v_qs[q_idx]
+                answer = v_ans[q_idx]
+                if q_type in q_filter:
+                    frame = self._encode_frame(v_frames, question, q_type)
+                    frames.append(frame)
+                    questions.append(question)
+                    q_types.append(q_type)
+                    answers.append(answer)
+
+        e2e_dataset = EndToEndDataset(spec, frames, questions, q_types, answers, transform=transform)
+        return e2e_dataset
+
+    def _encode_frame(self, frames, question, q_type):
         pass
