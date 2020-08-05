@@ -105,6 +105,40 @@ class CnnLstmNetwork(nn.Module):
         return output
 
 
+class PropRelNetwork(nn.Module):
+    def __init__(self, spec):
+        super(PropRelNetwork, self).__init__()
+
+        feat_output_size = 256
+        word_vector_size = 300
+
+        q_hidden_size = 1024
+        q_layers = 2
+
+        mlp_input = feat_output_size + q_hidden_size
+        feat1 = 512
+
+        self.feat_extr = _VideoFeatNetwork(feat_output_size)
+        self.lang_lstm = _QuestionNetwork(word_vector_size, q_hidden_size, q_layers)
+
+        self.mlp = nn.Sequential(
+            nn.Linear(mlp_input, feat1),
+            nn.ReLU(),
+            _QANetwork(spec, feat1)
+        )
+
+    def forward(self, x):
+        frames, qs = x
+
+        frame_feats = self.feat_extr(frames)
+        q_feats = self.lang_lstm(qs)
+
+        feats = torch.cat((frame_feats, q_feats), dim=1)
+        output = self.mlp(feats)
+
+        return output
+
+
 class _VideoLstmNetwork(nn.Module):
     def __init__(self, input_size, hidden_size, num_layers):
         super(_VideoLstmNetwork, self).__init__()
