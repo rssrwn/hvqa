@@ -253,7 +253,7 @@ class PropRelModel(_AbsNeuralModel):
         return frames, qs
 
     def _set_hyperparams(self):
-        epochs = 100
+        epochs = 25
         lr = 0.001
         batch_size = 256
         return epochs, lr, batch_size
