@@ -115,7 +115,7 @@ class _AbsNeuralModel(_AbsBaselineModel):
 
     def save(self, path):
         path = Path(path)
-        path.mkdir(exist_ok=True)
+        path.mkdir(exist_ok=True, parents=True)
         model_path = path / "network.pt"
         util.save_model(self._model, model_path)
 
@@ -255,7 +255,7 @@ class PropRelModel(_AbsNeuralModel):
     def _set_hyperparams(self):
         epochs = 10
         lr = 0.001
-        batch_size = 256
+        batch_size = 64
         return epochs, lr, batch_size
 
     @staticmethod
