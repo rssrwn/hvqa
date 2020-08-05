@@ -156,7 +156,7 @@ class EndToEndDataset(_AbsEndToEndDataset):
         return question, q_type, answer
 
     @staticmethod
-    def from_baseline_dataset(spec, dataset, transform, lang_only=False):
+    def from_baseline_dataset(spec, dataset, transform=None, lang_only=False):
         frames = []
         questions = []
         q_types = []
@@ -193,7 +193,8 @@ class EndToEndPreTrainDataset(_AbsEndToEndDataset):
         answer = self.answers[item]
         return frame, question, q_type, answer
 
-    def from_baseline_dataset(self, spec, dataset, transform, filter_qs=None):
+    @staticmethod
+    def from_baseline_dataset(spec, dataset, transform, filter_qs=None):
         """
         Create dataset from baseline dataset
 
@@ -220,7 +221,7 @@ class EndToEndPreTrainDataset(_AbsEndToEndDataset):
                 question = v_qs[q_idx]
                 answer = v_ans[q_idx]
                 if q_type in q_filter:
-                    frame = self._encode_frame(spec, v_frames, question, q_type, transform)
+                    frame = EndToEndPreTrainDataset._encode_frame(spec, v_frames, question, q_type, transform)
                     frames.append(frame)
                     questions.append(question)
                     q_types.append(q_type)

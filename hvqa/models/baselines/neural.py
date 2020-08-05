@@ -3,13 +3,13 @@ from pathlib import Path
 import torch
 import torch.optim as optim
 import torchvision.transforms as T
-from torch.nn import NLLLoss, BCELoss
+from torch.nn import NLLLoss
 from torch.utils.data import DataLoader
 from torch.nn.utils.rnn import pack_sequence
 
 import hvqa.util.func as util
-from hvqa.models.baselines.datasets import EndToEndDataset
-from hvqa.models.baselines.networks import LangLstmNetwork, CnnMlpNetwork, CnnLstmNetwork
+from hvqa.models.baselines.datasets import EndToEndDataset, EndToEndPreTrainDataset
+from hvqa.models.baselines.networks import LangLstmNetwork, CnnMlpNetwork, CnnLstmNetwork, PropRelNetwork
 from hvqa.models.baselines.interfaces import _AbsBaselineModel
 
 
@@ -20,7 +20,7 @@ class _AbsNeuralModel(_AbsBaselineModel):
         self._model = model.to(self._device)
         self._model.eval()
         self._loss_fn = NLLLoss(reduction="none")
-        self._epochs, self._lr = self._set_hyperparams()
+        self._epochs, self._lr, self._batch_size = self._set_hyperparams()
 
     def train(self, train_data, eval_data, verbose=True):
         """
@@ -63,6 +63,12 @@ class _AbsNeuralModel(_AbsBaselineModel):
         raise NotImplementedError()
 
     def _set_hyperparams(self):
+        """
+        Return the model's hyperparameters
+
+        :return: epochs, lr, batch size
+        """
+
         raise NotImplementedError()
 
     @staticmethod
@@ -93,14 +99,14 @@ class LangLstmModel(_AbsNeuralModel):
     def __init__(self, spec, model):
         super(LangLstmModel, self).__init__(spec, model)
 
-    def _prepare_train_data(self, train_data, batch_size=64):
+    def _prepare_train_data(self, train_data):
         train_dataset = EndToEndDataset.from_baseline_dataset(self.spec, train_data, lang_only=True)
-        train_loader = DataLoader(train_dataset, batch_size=batch_size, shuffle=True, collate_fn=util.collate_func)
+        train_loader = DataLoader(train_dataset, batch_size=self._batch_size, shuffle=True, collate_fn=util.collate_func)
         return train_loader
 
-    def _prepare_eval_data(self, eval_data, batch_size=64):
+    def _prepare_eval_data(self, eval_data):
         eval_dataset = EndToEndDataset.from_baseline_dataset(self.spec, eval_data, lang_only=True)
-        eval_loader = DataLoader(eval_dataset, batch_size=batch_size, shuffle=False, collate_fn=util.collate_func)
+        eval_loader = DataLoader(eval_dataset, batch_size=self._batch_size, shuffle=False, collate_fn=util.collate_func)
         return eval_loader
 
     def _train_one_epoch(self, train_loader, optimiser, epoch, verbose, print_freq=10):
@@ -140,7 +146,8 @@ class LangLstmModel(_AbsNeuralModel):
     def _set_hyperparams(self):
         epochs = 10
         lr = 0.001
-        return epochs, lr
+        batch_size = 64
+        return epochs, lr, batch_size
 
     @staticmethod
     def new(spec):
@@ -171,14 +178,14 @@ class CnnMlpModel(_AbsNeuralModel):
             T.ToTensor(),
         ])
 
-    def _prepare_train_data(self, train_data, batch_size=8):
+    def _prepare_train_data(self, train_data):
         train_dataset = EndToEndDataset.from_baseline_dataset(self.spec, train_data, self.transform, lang_only=False)
-        train_loader = DataLoader(train_dataset, batch_size=batch_size, shuffle=True, collate_fn=util.collate_func)
+        train_loader = DataLoader(train_dataset, batch_size=self._batch_size, shuffle=True, collate_fn=util.collate_func)
         return train_loader
 
-    def _prepare_eval_data(self, eval_data, batch_size=8):
+    def _prepare_eval_data(self, eval_data):
         eval_dataset = EndToEndDataset.from_baseline_dataset(self.spec, eval_data, self.transform, lang_only=False)
-        eval_loader = DataLoader(eval_dataset, batch_size=batch_size, shuffle=True, collate_fn=util.collate_func)
+        eval_loader = DataLoader(eval_dataset, batch_size=self._batch_size, shuffle=True, collate_fn=util.collate_func)
         return eval_loader
 
     def _train_one_epoch(self, train_loader, optimiser, epoch, verbose, print_freq=50):
@@ -224,7 +231,8 @@ class CnnMlpModel(_AbsNeuralModel):
     def _set_hyperparams(self):
         epochs = 10
         lr = 0.001
-        return epochs, lr
+        batch_size = 8
+        return epochs, lr, batch_size
 
     @staticmethod
     def new(spec, video_lstm=False):
@@ -252,3 +260,47 @@ class CnnMlpModel(_AbsNeuralModel):
         path.mkdir(exist_ok=True)
         model_path = path / "network.pt"
         util.save_model(self._model, model_path)
+
+
+class PropRelModel(_AbsNeuralModel):
+    def __init__(self, spec, model):
+        super(PropRelModel, self).__init__(spec, model)
+
+        self.transform = T.Compose([
+            T.ToTensor(),
+        ])
+
+    def _prepare_train_data(self, train_data):
+        train_dataset = EndToEndPreTrainDataset.from_baseline_dataset(
+            self.spec, train_data, self.transform, filter_qs=[0, 1])
+        train_loader = DataLoader(train_dataset, batch_size=self._batch_size, shuffle=True, collate_fn=util.collate_func)
+        return train_loader
+
+    def _prepare_eval_data(self, eval_data):
+        eval_dataset = EndToEndPreTrainDataset.from_baseline_dataset(
+            self.spec, eval_data, self.transform, filter_qs=[0, 1])
+        eval_loader = DataLoader(eval_dataset, batch_size=self._batch_size, shuffle=True, collate_fn=util.collate_func)
+        return eval_loader
+
+    def _train_one_epoch(self, train_loader, optimiser, epoch, verbose):
+        pass
+
+    def _eval(self, eval_loader, verbose):
+        pass
+
+    def _set_hyperparams(self):
+        epochs = 10
+        lr = 0.001
+        batch_size = 256
+        return epochs, lr, batch_size
+
+    @staticmethod
+    def new(spec):
+        pass
+
+    @staticmethod
+    def load(spec, path):
+        pass
+
+    def save(self, path):
+        pass
