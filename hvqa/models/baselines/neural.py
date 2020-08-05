@@ -114,7 +114,10 @@ class _AbsNeuralModel(_AbsBaselineModel):
         raise NotImplementedError()
 
     def save(self, path):
-        raise NotImplementedError()
+        path = Path(path)
+        path.mkdir(exist_ok=True)
+        model_path = path / "network.pt"
+        util.save_model(self._model, model_path)
 
     def _calc_loss(self, output, q_types, ans):
         losses = []
@@ -165,12 +168,6 @@ class LangLstmModel(_AbsNeuralModel):
         network = util.load_model(LangLstmNetwork, model_path, spec)
         model = LangLstmModel(spec, network)
         return model
-
-    def save(self, path):
-        path = Path(path)
-        path.mkdir(exist_ok=True)
-        model_path = path / "network.pt"
-        util.save_model(self._model, model_path)
 
 
 class CnnMlpModel(_AbsNeuralModel):
@@ -225,12 +222,6 @@ class CnnMlpModel(_AbsNeuralModel):
         model = CnnMlpModel(spec, network)
         return model
 
-    def save(self, path):
-        path = Path(path)
-        path.mkdir(exist_ok=True)
-        model_path = path / "network.pt"
-        util.save_model(self._model, model_path)
-
 
 class PropRelModel(_AbsNeuralModel):
     def __init__(self, spec, model):
@@ -265,11 +256,13 @@ class PropRelModel(_AbsNeuralModel):
 
     @staticmethod
     def new(spec):
-        pass
+        network = PropRelNetwork(spec)
+        model = PropRelModel(spec, network)
+        return model
 
     @staticmethod
     def load(spec, path):
-        pass
-
-    def save(self, path):
-        pass
+        model_path = Path(path) / "network.pt"
+        network = util.load_model(PropRelNetwork, model_path, spec)
+        model = PropRelModel(spec, network)
+        return model
