@@ -5,35 +5,20 @@ from torch.utils.data import Dataset
 from hvqa.util.exceptions import UnknownQuestionTypeException, UnknownAnswerException
 
 
-class EndToEndDataset(Dataset):
-    def __init__(self, spec, frames, questions, q_types, answers, lang_only=False, transform=None):
+class _AbsEndToEndDataset(Dataset):
+    def __init__(self, spec, transform=None):
         self.spec = spec
-        self.lang_only = lang_only
         self.transform = transform
         self.nlp = spacy.load("en_core_web_md", disable=["tagger", "parser", "ner"])
 
-        frame_tensors = []
-        q_tensors = []
-        q_types_ = []
-        ans_tensors = []
+    def __len__(self):
+        raise NotImplementedError()
 
-        for v_idx, v_frames in enumerate(frames):
-            v_qs = questions[v_idx]
-            v_q_types = q_types[v_idx]
-            v_ans = answers[v_idx]
-            q_encs, a_encs = self._encode_qas(v_qs, v_q_types, v_ans)
-            q_tensors.append(q_encs)
-            q_types_.append(v_q_types)
-            ans_tensors.append(a_encs)
+    def __getitem__(self, item):
+        raise NotImplementedError()
 
-            if not lang_only:
-                frame_encs = self._encode_frames(v_frames)
-                frame_tensors.append(frame_encs)
-
-        self.frames = frame_tensors
-        self.questions = q_tensors
-        self.q_types = q_types_
-        self.answers = ans_tensors
+    def from_baseline_dataset(self, spec, dataset, transform=None):
+        raise NotImplementedError()
 
     def _encode_qas(self, questions, q_types, answers):
         questions = [question.lower() for question in questions]
@@ -106,8 +91,34 @@ class EndToEndDataset(Dataset):
 
         return ans_enc
 
-    def _encode_frames(self, frames):
-        return frames
+
+class EndToEndDataset(_AbsEndToEndDataset):
+    def __init__(self, spec, frames, questions, q_types, answers, lang_only=False, transform=None):
+        super(EndToEndDataset, self).__init__(spec, transform=transform)
+
+        self.lang_only = lang_only
+
+        frame_tensors = []
+        q_tensors = []
+        q_types_ = []
+        ans_tensors = []
+
+        for v_idx, v_frames in enumerate(frames):
+            v_qs = questions[v_idx]
+            v_q_types = q_types[v_idx]
+            v_ans = answers[v_idx]
+            q_encs, a_encs = self._encode_qas(v_qs, v_q_types, v_ans)
+            q_tensors.append(q_encs)
+            q_types_.append(v_q_types)
+            ans_tensors.append(a_encs)
+
+            if not lang_only:
+                frame_tensors.append(v_frames)
+
+        self.frames = frame_tensors
+        self.questions = q_tensors
+        self.q_types = q_types_
+        self.answers = ans_tensors
 
     def __len__(self):
         """
@@ -160,3 +171,19 @@ class EndToEndDataset(Dataset):
         e2e_dataset = EndToEndDataset(spec, frames, questions, q_types, answers,
                                       lang_only=lang_only, transform=transform)
         return e2e_dataset
+
+
+class EndToEndPreTrainDataset(Dataset):
+    def __init__(self, spec, frames, questions, q_types, answers, transform=None):
+        super(EndToEndPreTrainDataset, self).__init__(spec, transform=transform)
+
+        self.frames = frames
+        self.questions = questions
+        self.q_types = q_types
+        self.answers = answers
+
+    def __len__(self):
+        pass
+
+    def __getitem__(self, item):
+        pass
