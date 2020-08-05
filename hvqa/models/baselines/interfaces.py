@@ -72,7 +72,7 @@ class _AbsBaselineModel(BaselineModel):
             correct_q_t = self._q_type_correct[q_type]
             total_q_t = self._q_type_total[q_type]
             incorrect_q_t = total_q_t - correct_q_t
-            acc = correct_q_t / total_q_t
+            acc = correct_q_t / total_q_t if total_q_t > 0 else 0.0
             print(f"{q_type:<20}{correct_q_t:<15}{incorrect_q_t:<15}{acc:.1%}")
 
         acc = self._correct / self._total

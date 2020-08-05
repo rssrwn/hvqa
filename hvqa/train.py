@@ -6,7 +6,7 @@ from hvqa.detection.detector import NeuralDetector
 from hvqa.models.hardcoded import HardcodedVQAModel
 from hvqa.models.trained import IndTrainedModel
 from hvqa.models.baselines.language import BestChoiceModel
-from hvqa.models.baselines.neural import LangLstmModel, CnnMlpModel
+from hvqa.models.baselines.neural import LangLstmModel, CnnMlpModel, PropRelModel
 
 
 DETECTOR_PATH = "saved-models/detection/v1_0/after_20_epochs.pt"
@@ -17,6 +17,7 @@ BEST_CHOICE_MODEL_PATH = "saved-models/best-choice"
 LANG_LSTM_MODEL_PATH = "saved-models/lang-lstm"
 CNN_MLP_MODEL_PATH = "saved-models/cnn-mlp"
 CNN_LSTM_MODEL_PATH = "saved-models/cnn-lstm"
+PROP_REL_MODEL_PATH = "saved-models/pre/prop-rel"
 
 spec = EnvSpec.from_dict({
     "num_frames": 32,
@@ -67,6 +68,12 @@ def main(train_dir, eval_dir, model_type):
     elif model_type == "cnn-lstm":
         model_path = CNN_LSTM_MODEL_PATH
         model = CnnMlpModel.new(spec, video_lstm=True)
+        train_data = BaselineDataset.from_data_dir(train_dir)
+        eval_data = BaselineDataset.from_data_dir(eval_dir)
+
+    elif model_type == "prop-rel":
+        model_path = PROP_REL_MODEL_PATH
+        model = PropRelModel.new(spec)
         train_data = BaselineDataset.from_data_dir(train_dir)
         eval_data = BaselineDataset.from_data_dir(eval_dir)
 

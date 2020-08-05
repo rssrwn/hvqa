@@ -226,7 +226,7 @@ class EndToEndPreTrainDataset(_AbsEndToEndDataset):
                     q_types.append(q_type)
                     answers.append(answer)
 
-        e2e_dataset = EndToEndDataset(spec, frames, questions, q_types, answers, transform)
+        e2e_dataset = EndToEndPreTrainDataset(spec, frames, questions, q_types, answers, transform)
         return e2e_dataset
 
     @staticmethod
