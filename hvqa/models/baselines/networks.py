@@ -139,6 +139,26 @@ class PropRelNetwork(nn.Module):
         return output
 
 
+class ActionNetwork(nn.Module):
+    def __init__(self, spec):
+        super(ActionNetwork, self).__init__()
+
+        feat_output_size = 256
+        feat1 = 128
+
+        self.feat_extr = _VideoFeatNetwork(feat_output_size, two_images=True)
+        self.mlp = nn.Sequential(
+            nn.Linear(feat_output_size, feat1),
+            nn.ReLU(),
+            _QANetwork(spec, feat1)
+        )
+
+    def forward(self, x):
+        feats = self.feat_extr(x)
+        output = self.mlp(feats)
+        return output
+
+
 class _VideoLstmNetwork(nn.Module):
     def __init__(self, input_size, hidden_size, num_layers):
         super(_VideoLstmNetwork, self).__init__()
