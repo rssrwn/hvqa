@@ -143,10 +143,16 @@ class ActionNetwork(nn.Module):
     def __init__(self, spec):
         super(ActionNetwork, self).__init__()
 
-        feat_output_size = 256
-        feat1 = 128
+        # feat_output_size = 256
+        # feat1 = 128
 
-        self.feat_extr = _VideoFeatNetwork(feat_output_size, two_images=True)
+        feat_output_size = 32
+        feat1 = 16
+
+        # self.feat_extr = _VideoFeatNetwork(feat_output_size, two_images=True)
+
+        self.feat_extr = _ActionFeatExtr(feat_output_size)
+        
         self.mlp = nn.Sequential(
             nn.Linear(feat_output_size, feat1),
             nn.ReLU(),
@@ -157,6 +163,30 @@ class ActionNetwork(nn.Module):
         feats = self.feat_extr(x)
         output = self.mlp(feats)
         return output
+
+
+class _ActionFeatExtr(nn.Module):
+    def __init__(self, output_size):
+        super(_ActionFeatExtr, self).__init__()
+
+        self.network = nn.Sequential(
+            nn.Conv2d(6, 16, kernel_size=3),
+            nn.BatchNorm2d(16),
+            nn.ReLU(),
+            nn.MaxPool2d(2, stride=2),
+            nn.Conv2d(16, 32, kernel_size=3, stride=2),
+            nn.BatchNorm2d(32),
+            nn.ReLU(),
+            nn.MaxPool2d(2, stride=2),
+            nn.Conv2d(32, 64, kernel_size=3, stride=2),
+            nn.BatchNorm2d(64),
+            nn.ReLU(),
+            nn.AdaptiveAvgPool2d(1),
+            nn.Linear(64, output_size)
+        )
+
+    def forward(self, x):
+        return self.network(x)
 
 
 class _VideoLstmNetwork(nn.Module):
