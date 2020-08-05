@@ -7,10 +7,18 @@ from hvqa.detection.detector import NeuralDetector
 from hvqa.models.hardcoded import HardcodedVQAModel
 from hvqa.models.trained import IndTrainedModel
 from hvqa.models.baselines.language import RandomAnsModel, BestChoiceModel
-from hvqa.models.baselines.neural import LangLstmModel, CnnMlpModel
+from hvqa.models.baselines.neural import LangLstmModel, CnnMlpModel, PropRelModel
 
 
 DETECTOR_PATH = "saved-models/detection/v1_0/after_20_epochs.pt"
+
+HARDCODED_MODEL_PATH = "saved-models/hardcoded"
+IND_MODEL_PATH = "saved-models/ind-trained"
+BEST_CHOICE_MODEL_PATH = "saved-models/best-choice"
+LANG_LSTM_MODEL_PATH = "saved-models/lang-lstm"
+CNN_MLP_MODEL_PATH = "saved-models/cnn-mlp"
+CNN_LSTM_MODEL_PATH = "saved-models/cnn-lstm"
+PROP_REL_MODEL_PATH = "saved-models/pre/prop-rel"
 
 spec = EnvSpec.from_dict({
     "num_frames": 32,
@@ -39,13 +47,13 @@ def evaluate(model, data, components=False, verbose=True):
 
 def main(data_dir, model_type, components):
     if model_type == "hardcoded":
-        model_path = "saved-models/hardcoded"
+        model_path = HARDCODED_MODEL_PATH
         model = HardcodedVQAModel.load(spec, model_path, err_corr=ERR_CORR, al_model=AL_EVENT_MODEL)
         detector = NeuralDetector.load(spec, DETECTOR_PATH)
         data = VideoDataset.from_data_dir(spec, data_dir, detector, hardcoded=HARDCODED)
 
     elif model_type == "ind-trained":
-        model_path = "saved-models/ind-trained"
+        model_path = IND_MODEL_PATH
         model = IndTrainedModel.load(spec, model_path)
         detector = NeuralDetector.load(spec, DETECTOR_PATH)
         data = VideoDataset.from_data_dir(spec, data_dir, detector, hardcoded=HARDCODED)
@@ -55,23 +63,28 @@ def main(data_dir, model_type, components):
         data = BaselineDataset.from_data_dir(data_dir)
 
     elif model_type == "best-choice":
-        model_path = "saved-models/best-choice"
+        model_path = BEST_CHOICE_MODEL_PATH
         model = BestChoiceModel.load(spec, model_path)
         data = BaselineDataset.from_data_dir(data_dir)
 
     elif model_type == "lang-lstm":
-        model_path = "saved-models/lang-lstm"
+        model_path = LANG_LSTM_MODEL_PATH
         model = LangLstmModel.load(spec, model_path)
         data = BaselineDataset.from_data_dir(data_dir)
 
     elif model_type == "cnn-mlp":
-        model_path = "saved-models/cnn-mlp"
+        model_path = CNN_MLP_MODEL_PATH
         model = CnnMlpModel.load(spec, model_path)
         data = BaselineDataset.from_data_dir(data_dir)
 
     elif model_type == "cnn-lstm":
-        model_path = "saved-models/cnn-lstm"
+        model_path = CNN_LSTM_MODEL_PATH
         model = CnnMlpModel.load(spec, model_path, video_lstm=True)
+        data = BaselineDataset.from_data_dir(data_dir)
+
+    elif model_type == "prop-rel":
+        model_path = PROP_REL_MODEL_PATH
+        model = PropRelModel.load(spec, model_path)
         data = BaselineDataset.from_data_dir(data_dir)
 
     else:
