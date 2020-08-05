@@ -172,14 +172,12 @@ class CnnMlpModel(_AbsNeuralModel):
         ])
 
     def _prepare_train_data(self, train_data, batch_size=8):
-        train_dataset = EndToEndDataset.from_baseline_dataset(self.spec, train_data,
-                                                              lang_only=False, transform=self.transform)
+        train_dataset = EndToEndDataset.from_baseline_dataset(self.spec, train_data, self.transform, lang_only=False)
         train_loader = DataLoader(train_dataset, batch_size=batch_size, shuffle=True, collate_fn=util.collate_func)
         return train_loader
 
     def _prepare_eval_data(self, eval_data, batch_size=8):
-        eval_dataset = EndToEndDataset.from_baseline_dataset(self.spec, eval_data,
-                                                             lang_only=False, transform=self.transform)
+        eval_dataset = EndToEndDataset.from_baseline_dataset(self.spec, eval_data, self.transform, lang_only=False)
         eval_loader = DataLoader(eval_dataset, batch_size=batch_size, shuffle=True, collate_fn=util.collate_func)
         return eval_loader
 

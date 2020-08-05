@@ -6,7 +6,7 @@ from hvqa.util.exceptions import UnknownQuestionTypeException, UnknownAnswerExce
 
 
 class _AbsEndToEndDataset(Dataset):
-    def __init__(self, spec, transform=None):
+    def __init__(self, spec, transform):
         self.spec = spec
         self.transform = transform
         self.nlp = spacy.load("en_core_web_md", disable=["tagger", "parser", "ner"])
@@ -17,7 +17,7 @@ class _AbsEndToEndDataset(Dataset):
     def __getitem__(self, item):
         raise NotImplementedError()
 
-    def from_baseline_dataset(self, spec, dataset, transform=None):
+    def from_baseline_dataset(self, spec, dataset, transform):
         raise NotImplementedError()
 
     def _encode_qas(self, questions, q_types, answers):
@@ -93,8 +93,8 @@ class _AbsEndToEndDataset(Dataset):
 
 
 class EndToEndDataset(_AbsEndToEndDataset):
-    def __init__(self, spec, frames, questions, q_types, answers, lang_only=False, transform=None):
-        super(EndToEndDataset, self).__init__(spec, transform=transform)
+    def __init__(self, spec, frames, questions, q_types, answers, transform, lang_only=False):
+        super(EndToEndDataset, self).__init__(spec, transform)
 
         self.lang_only = lang_only
 
@@ -156,7 +156,7 @@ class EndToEndDataset(_AbsEndToEndDataset):
         return question, q_type, answer
 
     @staticmethod
-    def from_baseline_dataset(spec, dataset, lang_only=False, transform=None):
+    def from_baseline_dataset(spec, dataset, transform, lang_only=False):
         frames = []
         questions = []
         q_types = []
@@ -168,14 +168,13 @@ class EndToEndDataset(_AbsEndToEndDataset):
             q_types.append(v_types)
             answers.append(v_ans)
 
-        e2e_dataset = EndToEndDataset(spec, frames, questions, q_types, answers,
-                                      lang_only=lang_only, transform=transform)
+        e2e_dataset = EndToEndDataset(spec, frames, questions, q_types, answers, transform, lang_only=lang_only)
         return e2e_dataset
 
 
 class EndToEndPreTrainDataset(_AbsEndToEndDataset):
-    def __init__(self, spec, frames, questions, q_types, answers, transform=None):
-        super(EndToEndPreTrainDataset, self).__init__(spec, transform=transform)
+    def __init__(self, spec, frames, questions, q_types, answers, transform):
+        super(EndToEndPreTrainDataset, self).__init__(spec, transform)
 
         self.frames = frames
         self.questions = questions
@@ -183,12 +182,15 @@ class EndToEndPreTrainDataset(_AbsEndToEndDataset):
         self.answers = answers
 
     def __len__(self):
-        pass
+        return len(self.frames)
 
     def __getitem__(self, item):
-        pass
+        frame = self.frames[item]
+        question = self.questions[item]
+        q_type = self.q_types[item]
+        answer = self.answers[item]
 
-    def from_baseline_dataset(self, spec, dataset, transform=None, filter_qs=None):
+    def from_baseline_dataset(self, spec, dataset, transform, filter_qs=None):
         """
         Create dataset from baseline dataset
 
@@ -215,14 +217,33 @@ class EndToEndPreTrainDataset(_AbsEndToEndDataset):
                 question = v_qs[q_idx]
                 answer = v_ans[q_idx]
                 if q_type in q_filter:
-                    frame = self._encode_frame(v_frames, question, q_type)
+                    frame = self._encode_frame(spec, v_frames, question, q_type, transform)
                     frames.append(frame)
                     questions.append(question)
                     q_types.append(q_type)
                     answers.append(answer)
 
-        e2e_dataset = EndToEndDataset(spec, frames, questions, q_types, answers, transform=transform)
+        e2e_dataset = EndToEndDataset(spec, frames, questions, q_types, answers, transform)
         return e2e_dataset
 
-    def _encode_frame(self, frames, question, q_type):
-        pass
+    @staticmethod
+    def _encode_frame(spec, frames, question, q_type, transform):
+        if q_type == 0:
+            _, _, _, frame_idx = spec.qa.parse_prop_question(question)
+        elif q_type == 1:
+            _, _, _, _, _, frame_idx = spec.qa.parse_relation_question(question)
+        elif q_type == 2:
+            frame_idx = spec.qa.parse_event_question(question)
+        else:
+            raise UnknownQuestionTypeException(f"Filter questions must be of type: 0, 1 or 2")
+
+        frame = frames[frame_idx]
+        if q_type == 2:
+            next_frame = frames[frame_idx + 1]
+            frame = transform(frame)
+            next_frame = transform(next_frame)
+            frames_tensor = torch.cat((frame, next_frame), dim=0)
+        else:
+            frames_tensor = transform(frame)
+
+        return frames_tensor
