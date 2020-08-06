@@ -145,15 +145,16 @@ class ActionNetwork(nn.Module):
 
         # feat_output_size = 256
         # feat1 = 128
+        # self.feat_extr = _VideoFeatNetwork(feat_output_size)
 
-        feat_output_size = 256
-        feat1 = 128
+        feat_output_size = 16
+        feat1 = 8
+        dropout = 0.5
 
-        # self.feat_extr = _ActionFeatExtr(feat_output_size)
-
-        self.feat_extr = _VideoFeatNetwork(feat_output_size)
+        self.feat_extr = _ActionFeatExtr(feat_output_size)
 
         self.mlp = nn.Sequential(
+            nn.Dropout(dropout),
             nn.Linear(feat_output_size, feat1),
             nn.ReLU(),
             _QANetwork(spec, feat1)
@@ -181,19 +182,23 @@ class _ActionFeatExtr(nn.Module):
     def __init__(self, output_size):
         super(_ActionFeatExtr, self).__init__()
 
+        feat1 = 8
+        feat2 = 16
+        feat3 = 32
+
         self.network = nn.Sequential(
-            nn.Conv2d(3, 16, kernel_size=3),
-            nn.BatchNorm2d(16),
+            nn.Conv2d(3, feat1, kernel_size=3),
+            nn.BatchNorm2d(feat1),
             nn.ReLU(),
-            nn.Conv2d(16, 32, kernel_size=3, stride=2),
-            nn.BatchNorm2d(32),
+            nn.Conv2d(feat1, feat2, kernel_size=3, stride=2),
+            nn.BatchNorm2d(feat2),
             nn.ReLU(),
-            nn.Conv2d(32, 64, kernel_size=3, stride=2),
-            nn.BatchNorm2d(64),
+            nn.Conv2d(feat2, feat3, kernel_size=3, stride=2),
+            nn.BatchNorm2d(feat3),
             nn.ReLU(),
             nn.AdaptiveMaxPool2d(1),
             nn.Flatten(),
-            nn.Linear(64, output_size)
+            nn.Linear(feat3, output_size)
         )
 
     def forward(self, x):
