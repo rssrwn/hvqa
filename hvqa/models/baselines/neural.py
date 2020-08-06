@@ -15,7 +15,7 @@ from hvqa.models.baselines.networks import (
     LangLstmNetwork,
     CnnMlpNetwork,
     CnnLstmNetwork,
-    PropRelActNetwork,
+    PropRelNetwork,
     ActionNetwork
 )
 
@@ -267,14 +267,14 @@ class PropRelModel(_AbsNeuralModel):
 
     @staticmethod
     def new(spec):
-        network = PropRelActNetwork(spec)
+        network = PropRelNetwork(spec)
         model = PropRelModel(spec, network)
         return model
 
     @staticmethod
     def load(spec, path):
         model_path = Path(path) / "network.pt"
-        network = util.load_model(PropRelActNetwork, model_path, spec)
+        network = util.load_model(PropRelNetwork, model_path, spec)
         model = PropRelModel(spec, network)
         return model
 
