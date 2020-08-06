@@ -152,7 +152,7 @@ class ActionNetwork(nn.Module):
         self.feat_extr = _ActionFeatExtr(feat_output_size)
 
         self.mlp = nn.Sequential(
-            nn.Linear(feat_output_size * 2, feat1),
+            nn.Linear(feat_output_size, feat1),
             nn.ReLU(),
             _QANetwork(spec, feat1)
         )
