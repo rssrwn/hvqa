@@ -279,37 +279,65 @@ class PropRelActModel(_AbsNeuralModel):
         return model
 
 
-# class PreTrainModel(_AbsNeuralModel):
-#     def __init__(self, spec, model):
-#         super(PreTrainModel, self).__init__(spec, model)
-#
-#         self.frame_transform = T.Compose([
-#             T.ToTensor(),
-#         ])
-#         self.action_transform = T.Compose([
-#             T.Lambda(lambda pair: Im.blend(pair[0], pair[1], 0.75))
-#         ])
-#         self._print_freq = 1
-#
-#     def _prepare_train_data(self, train_data):
-#         train_dataset = EndToEndDataset.from_baseline_dataset(self.spec, train_data)
-#         train_loader = DataLoader(
-#             train_dataset, batch_size=self._batch_size, shuffle=True, collate_fn=util.collate_func)
-#         return train_loader
-#
-#     def _prepare_eval_data(self, eval_data):
-#         eval_dataset = EndToEndDataset.from_baseline_dataset(self.spec, eval_data)
-#         eval_loader = DataLoader(eval_dataset, batch_size=self._batch_size, shuffle=True, collate_fn=util.collate_func)
-#         return eval_loader
-#
-#     def _prepare_input(self, frames, questions, q_types, answers):
-#         frames = [torch.stack(v_frames) for v_frames in frames]
-#         frames = torch.cat(frames, dim=0).to(self._device)
-#         qs = pack_sequence(questions, enforce_sorted=False).to(self._device)
-#         return frames, qs
-#
-#     def _set_hyperparams(self):
-#         epochs = 10
-#         lr = 0.001
-#         batch_size = 64
-#         return epochs, lr, batch_size
+class PreTrainCnnMlpModel(_AbsNeuralModel):
+    def __init__(self, spec, model, feat_extr):
+        super(PreTrainCnnMlpModel, self).__init__(spec, model)
+
+        self.feat_extr = feat_extr.to(self._device)
+        for param in self.feat_extr.parameters():
+            param.requires_grad = False
+
+        self.frame_transform = T.Compose([
+            T.ToTensor(),
+        ])
+        self._print_freq = 1
+
+    def _prepare_train_data(self, train_data):
+        train_dataset = EndToEndDataset.from_baseline_dataset(self.spec, train_data)
+        train_loader = DataLoader(
+            train_dataset, batch_size=self._batch_size, shuffle=True, collate_fn=util.collate_func)
+        return train_loader
+
+    def _prepare_eval_data(self, eval_data):
+        eval_dataset = EndToEndDataset.from_baseline_dataset(self.spec, eval_data)
+        eval_loader = DataLoader(eval_dataset, batch_size=self._batch_size, shuffle=True, collate_fn=util.collate_func)
+        return eval_loader
+
+    def _prepare_input(self, frames, questions, q_types, answers):
+        frames_ = [[self.frame_transform(frame) for frame in v_frames] for v_frames in frames]
+        frames_ = [torch.stack(v_frames).to(self._device) for v_frames in frames_]
+        frame_feats = [self.feat_extr(v_frames) for v_frames in frames_]
+        v_feats = [frame_feat.reshape(-1) for frame_feat in frame_feats]
+        v_feats = torch.stack(v_feats)
+
+        frame_pairs = [zip(v_frames, v_frames[1:]) for v_frames in frames]
+        frame_pairs = [[Im.blend(im1, im2, 0.75) for im1, im2 in v_frames] for v_frames in frame_pairs]
+        frame_pairs = [torch.stack(v_frames).to(self._device) for v_frames in frame_pairs]
+        pair_feats = [self.feat_extr(v_frames) for v_frames in frame_pairs]
+        pair_feats = [pair_feat.reshape(-1) for pair_feat in pair_feats]
+        pair_feats = torch.stack(pair_feats)
+
+        feats = torch.cat((v_feats, pair_feats), dim=1).to(self._device)
+        qs = pack_sequence(questions, enforce_sorted=False).to(self._device)
+        return feats, qs
+
+    def _set_hyperparams(self):
+        epochs = 10
+        lr = 0.001
+        batch_size = 256
+        return epochs, lr, batch_size
+
+    @staticmethod
+    def new(spec):
+        network = PropRelActNetwork(spec)
+        feat_extr = util.load_model(PropRelActNetwork, "saved-models/pre/prop-rel-act/network.pt", spec)
+        model = PreTrainCnnMlpModel(spec, network, feat_extr)
+        return model
+
+    @staticmethod
+    def load(spec, path):
+        model_path = Path(path) / "network.pt"
+        network = util.load_model(None, model_path, spec)
+        feat_extr = util.load_model(PropRelActNetwork, "saved-models/pre/prop-rel-act/network.pt", spec)
+        model = PreTrainCnnMlpModel(spec, network, feat_extr)
+        return model

@@ -7,7 +7,7 @@ from hvqa.detection.detector import NeuralDetector
 from hvqa.models.hardcoded import HardcodedVQAModel
 from hvqa.models.trained import IndTrainedModel
 from hvqa.models.baselines.language import RandomAnsModel, BestChoiceModel
-from hvqa.models.baselines.neural import LangLstmModel, CnnMlpModel, PropRelActModel, ActionModel
+from hvqa.models.baselines.neural import LangLstmModel, CnnMlpModel, PropRelActModel
 
 
 DETECTOR_PATH = "saved-models/detection/v1_0/after_20_epochs.pt"
@@ -18,8 +18,7 @@ BEST_CHOICE_MODEL_PATH = "saved-models/best-choice"
 LANG_LSTM_MODEL_PATH = "saved-models/lang-lstm"
 CNN_MLP_MODEL_PATH = "saved-models/cnn-mlp"
 CNN_LSTM_MODEL_PATH = "saved-models/cnn-lstm"
-PROP_REL_MODEL_PATH = "saved-models/pre/prop-rel"
-ACTION_MODEL_PATH = "saved-models/pre/action"
+PROP_REL_MODEL_PATH = "saved-models/pre/prop-rel-act"
 
 spec = EnvSpec.from_dict({
     "num_frames": 32,
