@@ -158,16 +158,19 @@ class ActionNetwork(nn.Module):
         )
 
     def forward(self, x):
-        frames = x[:, :3, :, :]
-        next_frames = x[:, 3:, :, :]
-        batch_size = frames.shape[0]
+        # frames = x[:, :3, :, :]
+        # next_frames = x[:, 3:, :, :]
+        # batch_size = frames.shape[0]
 
-        frames = torch.cat((frames, next_frames), dim=0)
-        feats = self.feat_extr(frames)
-        frame_encs = feats[batch_size:, :]
-        next_frames_encs = feats[:batch_size, :]
-        encs = torch.cat((frame_encs, next_frames_encs), dim=1)
-        output = self.mlp(encs)
+        # frames = torch.cat((frames, next_frames), dim=0)
+        # feats = self.feat_extr(frames)
+        # frame_encs = feats[batch_size:, :]
+        # next_frames_encs = feats[:batch_size, :]
+        # encs = torch.cat((frame_encs, next_frames_encs), dim=1)
+        # output = self.mlp(encs)
+
+        feats = self.feat_extr(x)
+        output = self.mlp(feats)
 
         return output
 
