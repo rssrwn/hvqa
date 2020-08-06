@@ -7,7 +7,7 @@ from hvqa.detection.detector import NeuralDetector
 from hvqa.models.hardcoded import HardcodedVQAModel
 from hvqa.models.trained import IndTrainedModel
 from hvqa.models.baselines.language import RandomAnsModel, BestChoiceModel
-from hvqa.models.baselines.neural import LangLstmModel, CnnMlpModel, PropRelActModel
+from hvqa.models.baselines.neural import LangLstmModel, CnnMlpModel, PropRelActModel, PreTrainCnnMlpModel
 
 
 DETECTOR_PATH = "saved-models/detection/v1_0/after_20_epochs.pt"
@@ -19,6 +19,7 @@ LANG_LSTM_MODEL_PATH = "saved-models/lang-lstm"
 CNN_MLP_MODEL_PATH = "saved-models/cnn-mlp"
 CNN_LSTM_MODEL_PATH = "saved-models/cnn-lstm"
 PROP_REL_MODEL_PATH = "saved-models/pre/prop-rel-act"
+PRE_TRAIN_CNN_MLP_PATH = "saved-models/pre-cnn-mlp"
 
 spec = EnvSpec.from_dict({
     "num_frames": 32,
@@ -85,6 +86,11 @@ def main(data_dir, model_type, components):
     elif model_type == "prop-rel-act":
         model_path = PROP_REL_MODEL_PATH
         model = PropRelActModel.load(spec, model_path)
+        data = BaselineDataset.from_data_dir(data_dir)
+
+    elif model_type == "pre-cnn-mlp":
+        model_path = PRE_TRAIN_CNN_MLP_PATH
+        model = PreTrainCnnMlpModel.load(spec, model_path)
         data = BaselineDataset.from_data_dir(data_dir)
 
     else:
