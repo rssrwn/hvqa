@@ -109,19 +109,20 @@ class PropRelNetwork(nn.Module):
     def __init__(self, spec):
         super(PropRelNetwork, self).__init__()
 
-        feat_output_size = 256
-        word_vector_size = 300
+        # feat_output_size = 256
+        # self.feat_extr = _VideoFeatNetwork(feat_output_size)
 
+        feat_output_size = 16
+        self.feat_extr = _ActionFeatExtr(feat_output_size)
+        
+        word_vector_size = 300
         q_hidden_size = 1024
         q_layers = 2
+        self.lang_lstm = _QuestionNetwork(word_vector_size, q_hidden_size, q_layers)
 
         mlp_input = feat_output_size + q_hidden_size
         feat1 = 512
         dropout = 0.5
-
-        self.feat_extr = _VideoFeatNetwork(feat_output_size)
-        self.lang_lstm = _QuestionNetwork(word_vector_size, q_hidden_size, q_layers)
-
         self.mlp = nn.Sequential(
             nn.Dropout(dropout),
             nn.Linear(mlp_input, feat1),
