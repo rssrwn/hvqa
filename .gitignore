@@ -9,3 +9,6 @@
 # Data
 data/
 example-data/
+
+# Models
+saved-models/
