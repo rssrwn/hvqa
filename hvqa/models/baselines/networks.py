@@ -146,10 +146,12 @@ class ActionNetwork(nn.Module):
         # feat_output_size = 256
         # feat1 = 128
 
-        feat_output_size = 32
-        feat1 = 16
+        feat_output_size = 256
+        feat1 = 128
 
-        self.feat_extr = _ActionFeatExtr(feat_output_size)
+        # self.feat_extr = _ActionFeatExtr(feat_output_size)
+
+        self.feat_extr = _VideoFeatNetwork(feat_output_size)
 
         self.mlp = nn.Sequential(
             nn.Linear(feat_output_size, feat1),
