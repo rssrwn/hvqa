@@ -117,11 +117,13 @@ class PropRelNetwork(nn.Module):
 
         mlp_input = feat_output_size + q_hidden_size
         feat1 = 512
+        dropout = 0.5
 
         self.feat_extr = _VideoFeatNetwork(feat_output_size)
         self.lang_lstm = _QuestionNetwork(word_vector_size, q_hidden_size, q_layers)
 
         self.mlp = nn.Sequential(
+            nn.Dropout(dropout),
             nn.Linear(mlp_input, feat1),
             nn.ReLU(),
             _QANetwork(spec, feat1)
@@ -143,10 +145,6 @@ class ActionNetwork(nn.Module):
     def __init__(self, spec):
         super(ActionNetwork, self).__init__()
 
-        # feat_output_size = 256
-        # feat1 = 128
-        # self.feat_extr = _VideoFeatNetwork(feat_output_size)
-
         feat_output_size = 16
         feat1 = 8
         dropout = 0.5
@@ -161,17 +159,6 @@ class ActionNetwork(nn.Module):
         )
 
     def forward(self, x):
-        # frames = x[:, :3, :, :]
-        # next_frames = x[:, 3:, :, :]
-        # batch_size = frames.shape[0]
-
-        # frames = torch.cat((frames, next_frames), dim=0)
-        # feats = self.feat_extr(frames)
-        # frame_encs = feats[batch_size:, :]
-        # next_frames_encs = feats[:batch_size, :]
-        # encs = torch.cat((frame_encs, next_frames_encs), dim=1)
-        # output = self.mlp(encs)
-
         feats = self.feat_extr(x)
         output = self.mlp(feats)
 
