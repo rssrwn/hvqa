@@ -140,24 +140,19 @@ class PropRelNetwork(nn.Module):
 
 
 class ActionNetwork(nn.Module):
-    def __init__(self, spec, feat_extr, output_size):
+    def __init__(self, spec):
         super(ActionNetwork, self).__init__()
 
         # feat_output_size = 256
         # feat1 = 128
 
-        feat1 = 64
+        feat_output_size = 32
+        feat1 = 16
 
-        # self.feat_extr = _VideoFeatNetwork(feat_output_size, two_images=True)
-        # self.feat_extr = _ActionFeatExtr(feat_output_size)
-
-        self.feat_extr = feat_extr
-
-        for param in self.feat_extr.parameters():
-            param.requires_grad = False
+        self.feat_extr = _ActionFeatExtr(feat_output_size)
 
         self.mlp = nn.Sequential(
-            nn.Linear(output_size * 2, feat1),
+            nn.Linear(feat_output_size * 2, feat1),
             nn.ReLU(),
             _QANetwork(spec, feat1)
         )
@@ -185,33 +180,20 @@ class _ActionFeatExtr(nn.Module):
             nn.Conv2d(3, 16, kernel_size=3),
             nn.BatchNorm2d(16),
             nn.ReLU(),
-            nn.MaxPool2d(2, stride=2),
             nn.Conv2d(16, 32, kernel_size=3, stride=2),
             nn.BatchNorm2d(32),
             nn.ReLU(),
-            nn.MaxPool2d(2, stride=2),
             nn.Conv2d(32, 64, kernel_size=3, stride=2),
             nn.BatchNorm2d(64),
             nn.ReLU(),
-            nn.AdaptiveAvgPool2d(1),
+            nn.AdaptiveMaxPool2d(1),
             nn.Flatten(),
             nn.Linear(64, output_size)
         )
 
     def forward(self, x):
-        frames = x[:, :3, :, :]
-        next_frames = x[:, 3:, :, :]
-
-        batch_size = frames.shape[0]
-
-        frames = torch.cat((frames, next_frames), dim=0)
-        feats = self.network(frames)
-
-        frame_encs = feats[batch_size:, :]
-        next_frames_encs = feats[:batch_size, :]
-        encs = torch.cat((frame_encs, next_frames_encs), dim=1)
-
-        return encs
+        feats = self.network(x)
+        return feats
 
 
 class _VideoLstmNetwork(nn.Module):

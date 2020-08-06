@@ -305,43 +305,14 @@ class ActionModel(_AbsNeuralModel):
         return frames
 
     def _set_hyperparams(self):
-        epochs = 20
+        epochs = 10
         lr = 0.001
-        batch_size = 256
+        batch_size = 64
         return epochs, lr, batch_size
-
-    # def _calc_loss(self, output, q_types, ans):
-    #     target = torch.tensor(ans).to("cpu")
-    #     pred = output.to("cpu")
-    #     loss = self._loss_fn(pred, target)
-    #     loss = sum(loss) / len(loss)
-    #     return loss
-    #
-    # def _eval(self, eval_loader, verbose):
-    #     self._model.eval()
-    #     num_batches = len(eval_loader)
-    #
-    #     for t, (frames, qs, q_types, ans) in enumerate(eval_loader):
-    #         model_input = self._prepare_input(frames, qs, q_types, ans)
-    #
-    #         with torch.no_grad():
-    #             output = self._model(model_input)
-    #
-    #         results = []
-    #         for idx, q_type in enumerate(q_types):
-    #             answer = ans[idx].item()
-    #             pred = output[idx, :].to("cpu")
-    #             _, max_idx = torch.max(pred, 0)
-    #             results.append(("", q_type, max_idx.item(), answer))
-    #
-    #         self._eval_video_results(t, num_batches, results, False)
-    #     self._print_results()
 
     @staticmethod
     def new(spec):
-        prop_rel_network = util.load_model(PropRelNetwork, "saved-models/pre/prop-rel/network.pt", spec)
-        feat_extr = prop_rel_network.feat_extr
-        network = ActionNetwork(spec, feat_extr, 256)
+        network = ActionNetwork(spec)
         model = ActionModel(spec, network)
         return model
 
