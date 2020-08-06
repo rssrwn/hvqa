@@ -304,22 +304,23 @@ class PreTrainCnnMlpModel(_AbsNeuralModel):
         return eval_loader
 
     def _prepare_input(self, frames, questions, q_types, answers):
+        v_feats = self._extr_feats(frames)
+
+        frame_pairs = [zip(v_frames, v_frames[1:]) for v_frames in frames]
+        frame_pairs = [[Im.blend(im1, im2, 0.75) for im1, im2 in v_frames] for v_frames in frame_pairs]
+        pair_feats = self._extr_feats(frame_pairs)
+
+        feats = torch.cat((v_feats, pair_feats), dim=1).to(self._device)
+        qs = pack_sequence(questions, enforce_sorted=False).to(self._device)
+        return feats, qs
+
+    def _extr_feats(self, frames):
         frames_ = [[self.frame_transform(frame) for frame in v_frames] for v_frames in frames]
         frames_ = [torch.stack(v_frames).to(self._device) for v_frames in frames_]
         frame_feats = [self.feat_extr(v_frames) for v_frames in frames_]
         v_feats = [frame_feat.reshape(-1) for frame_feat in frame_feats]
         v_feats = torch.stack(v_feats)
-
-        frame_pairs = [zip(v_frames, v_frames[1:]) for v_frames in frames]
-        frame_pairs = [[Im.blend(im1, im2, 0.75) for im1, im2 in v_frames] for v_frames in frame_pairs]
-        frame_pairs = [torch.stack(v_frames).to(self._device) for v_frames in frame_pairs]
-        pair_feats = [self.feat_extr(v_frames) for v_frames in frame_pairs]
-        pair_feats = [pair_feat.reshape(-1) for pair_feat in pair_feats]
-        pair_feats = torch.stack(pair_feats)
-
-        feats = torch.cat((v_feats, pair_feats), dim=1).to(self._device)
-        qs = pack_sequence(questions, enforce_sorted=False).to(self._device)
-        return feats, qs
+        return v_feats
 
     def _set_hyperparams(self):
         epochs = 10
