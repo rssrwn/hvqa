@@ -7,7 +7,7 @@ from hvqa.detection.detector import NeuralDetector
 from hvqa.models.hardcoded import HardcodedVQAModel
 from hvqa.models.trained import IndTrainedModel
 from hvqa.models.baselines.language import RandomAnsModel, BestChoiceModel
-from hvqa.models.baselines.neural import LangLstmModel, CnnMlpModel, PropRelActModel, ActionModel
+from hvqa.models.baselines.neural import LangLstmModel, CnnMlpModel, PropRelModel, ActionModel
 
 
 DETECTOR_PATH = "saved-models/detection/v1_0/after_20_epochs.pt"
@@ -83,9 +83,9 @@ def main(data_dir, model_type, components):
         model = CnnMlpModel.load(spec, model_path, video_lstm=True)
         data = BaselineDataset.from_data_dir(data_dir)
 
-    elif model_type == "prop-rel-act":
+    elif model_type == "prop-rel":
         model_path = PROP_REL_MODEL_PATH
-        model = PropRelActModel.load(spec, model_path)
+        model = PropRelModel.load(spec, model_path)
         data = BaselineDataset.from_data_dir(data_dir)
 
     elif model_type == "action":
