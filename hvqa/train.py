@@ -72,7 +72,7 @@ def main(train_dir, eval_dir, model_type):
         train_data = BaselineDataset.from_data_dir(train_dir)
         eval_data = BaselineDataset.from_data_dir(eval_dir)
 
-    elif model_type == "prop-rel":
+    elif model_type == "prop-rel-act":
         model_path = PROP_REL_MODEL_PATH
         model = PropRelActModel.new(spec)
         train_data = BaselineDataset.from_data_dir(train_dir)

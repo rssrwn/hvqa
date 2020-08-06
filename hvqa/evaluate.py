@@ -83,7 +83,7 @@ def main(data_dir, model_type, components):
         model = CnnMlpModel.load(spec, model_path, video_lstm=True)
         data = BaselineDataset.from_data_dir(data_dir)
 
-    elif model_type == "prop-rel":
+    elif model_type == "prop-rel-act":
         model_path = PROP_REL_MODEL_PATH
         model = PropRelActModel.load(spec, model_path)
         data = BaselineDataset.from_data_dir(data_dir)

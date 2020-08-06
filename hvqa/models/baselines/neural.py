@@ -239,7 +239,7 @@ class PropRelActModel(_AbsNeuralModel):
         self.transform = T.Compose([
             T.ToTensor(),
         ])
-        self._print_freq = 10
+        self._print_freq = 1
 
     def _prepare_train_data(self, train_data):
         train_dataset = EndToEndPreTrainDataset.from_baseline_dataset(
@@ -262,7 +262,7 @@ class PropRelActModel(_AbsNeuralModel):
     def _set_hyperparams(self):
         epochs = 20
         lr = 0.001
-        batch_size = 64
+        batch_size = 256
         return epochs, lr, batch_size
 
     @staticmethod
