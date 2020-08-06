@@ -105,6 +105,35 @@ class CnnLstmNetwork(nn.Module):
         return output
 
 
+class PreTrainCnnMlpNetwork(nn.Module):
+    def __init__(self, spec):
+        super(PreTrainCnnMlpNetwork, self).__init__()
+
+        feat_output_size = 16 * (32 + 31)
+
+        word_vector_size = 300
+        q_hidden_size = 1024
+        q_layers = 2
+        self.lang_lstm = _QuestionNetwork(word_vector_size, q_hidden_size, q_layers)
+
+        mlp_input = feat_output_size + q_hidden_size
+        feat1 = 512
+        dropout = 0.2
+        self.mlp = nn.Sequential(
+            nn.Dropout(dropout),
+            nn.Linear(mlp_input, feat1),
+            nn.ReLU(),
+            _QANetwork(spec, feat1)
+        )
+
+    def forward(self, x):
+        feats, qs = x
+        q_feats = self.lang_lstm(qs)
+        video_enc = torch.cat([feats, q_feats], dim=1)
+        output = self.mlp(video_enc)
+        return output
+
+
 class PropRelActNetwork(nn.Module):
     def __init__(self, spec):
         super(PropRelActNetwork, self).__init__()
