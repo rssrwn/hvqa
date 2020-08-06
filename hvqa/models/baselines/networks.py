@@ -105,9 +105,9 @@ class CnnLstmNetwork(nn.Module):
         return output
 
 
-class PropRelNetwork(nn.Module):
+class PropRelActNetwork(nn.Module):
     def __init__(self, spec):
-        super(PropRelNetwork, self).__init__()
+        super(PropRelActNetwork, self).__init__()
 
         feat_output_size = 256
         word_vector_size = 300

@@ -6,7 +6,7 @@ from hvqa.detection.detector import NeuralDetector
 from hvqa.models.hardcoded import HardcodedVQAModel
 from hvqa.models.trained import IndTrainedModel
 from hvqa.models.baselines.language import BestChoiceModel
-from hvqa.models.baselines.neural import LangLstmModel, CnnMlpModel, PropRelModel, ActionModel
+from hvqa.models.baselines.neural import LangLstmModel, CnnMlpModel, PropRelActModel, ActionModel
 
 
 DETECTOR_PATH = "saved-models/detection/v1_0/after_20_epochs.pt"
@@ -74,7 +74,7 @@ def main(train_dir, eval_dir, model_type):
 
     elif model_type == "prop-rel":
         model_path = PROP_REL_MODEL_PATH
-        model = PropRelModel.new(spec)
+        model = PropRelActModel.new(spec)
         train_data = BaselineDataset.from_data_dir(train_dir)
         eval_data = BaselineDataset.from_data_dir(eval_dir)
 
