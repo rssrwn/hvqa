@@ -243,14 +243,14 @@ class PropRelModel(_AbsNeuralModel):
 
     def _prepare_train_data(self, train_data):
         train_dataset = EndToEndPreTrainDataset.from_baseline_dataset(
-            self.spec, train_data, self.transform, filter_qs=[0, 1])
+            self.spec, train_data, self.transform, filter_qs=[0, 1, 2])
         train_loader = DataLoader(
             train_dataset, batch_size=self._batch_size, shuffle=True, collate_fn=util.collate_func)
         return train_loader
 
     def _prepare_eval_data(self, eval_data):
         eval_dataset = EndToEndPreTrainDataset.from_baseline_dataset(
-            self.spec, eval_data, self.transform, filter_qs=[0, 1])
+            self.spec, eval_data, self.transform, filter_qs=[0, 1, 2])
         eval_loader = DataLoader(eval_dataset, batch_size=self._batch_size, shuffle=True, collate_fn=util.collate_func)
         return eval_loader
 

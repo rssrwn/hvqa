@@ -114,7 +114,7 @@ class PropRelNetwork(nn.Module):
 
         feat_output_size = 16
         self.feat_extr = _ActionFeatExtr(feat_output_size)
-        
+
         word_vector_size = 300
         q_hidden_size = 1024
         q_layers = 2
