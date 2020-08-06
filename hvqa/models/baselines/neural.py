@@ -328,9 +328,15 @@ class PreTrainCnnMlpModel(_AbsNeuralModel):
         return epochs, lr, batch_size
 
     @staticmethod
+    def _load_feat_extr(spec):
+        prop_rel_act = util.load_model(PropRelActNetwork, "saved-models/pre/prop-rel-act/network.pt", spec)
+        feat_extr = prop_rel_act.feat_extr
+        return feat_extr
+
+    @staticmethod
     def new(spec):
         network = PreTrainCnnMlpNetwork(spec)
-        feat_extr = util.load_model(PropRelActNetwork, "saved-models/pre/prop-rel-act/network.pt", spec)
+        feat_extr = PreTrainCnnMlpModel._load_feat_extr(spec)
         model = PreTrainCnnMlpModel(spec, network, feat_extr)
         return model
 
@@ -338,6 +344,6 @@ class PreTrainCnnMlpModel(_AbsNeuralModel):
     def load(spec, path):
         model_path = Path(path) / "network.pt"
         network = util.load_model(PreTrainCnnMlpNetwork, model_path, spec)
-        feat_extr = util.load_model(PropRelActNetwork, "saved-models/pre/prop-rel-act/network.pt", spec)
+        feat_extr = PreTrainCnnMlpModel._load_feat_extr(spec)
         model = PreTrainCnnMlpModel(spec, network, feat_extr)
         return model
