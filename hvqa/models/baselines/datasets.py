@@ -241,15 +241,6 @@ class EndToEndPreTrainDataset(_AbsEndToEndDataset):
         else:
             raise UnknownQuestionTypeException(f"Filter questions must be of type: 0, 1 or 2")
 
-        # frame = frames[frame_idx]
-        # if q_type == 2:
-        #     next_frame = frames[frame_idx + 1]
-        #     frame = transform(frame)
-        #     next_frame = transform(next_frame)
-        #     frames_tensor = torch.cat((frame, next_frame), dim=0)
-        # else:
-        #     frames_tensor = transform(frame)
-
         frame = frames[frame_idx]
         if q_type == 2:
             next_frame = frames[frame_idx + 1]

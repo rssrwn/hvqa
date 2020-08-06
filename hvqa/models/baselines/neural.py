@@ -15,7 +15,7 @@ from hvqa.models.baselines.networks import (
     LangLstmNetwork,
     CnnMlpNetwork,
     CnnLstmNetwork,
-    PropRelNetwork,
+    PropRelActNetwork,
     ActionNetwork
 )
 
@@ -232,9 +232,9 @@ class CnnMlpModel(_AbsNeuralModel):
         return model
 
 
-class PropRelModel(_AbsNeuralModel):
+class PropRelActModel(_AbsNeuralModel):
     def __init__(self, spec, model):
-        super(PropRelModel, self).__init__(spec, model)
+        super(PropRelActModel, self).__init__(spec, model)
 
         self.transform = T.Compose([
             T.ToTensor(),
@@ -267,61 +267,15 @@ class PropRelModel(_AbsNeuralModel):
 
     @staticmethod
     def new(spec):
-        network = PropRelNetwork(spec)
-        model = PropRelModel(spec, network)
+        network = PropRelActNetwork(spec)
+        model = PropRelActModel(spec, network)
         return model
 
     @staticmethod
     def load(spec, path):
         model_path = Path(path) / "network.pt"
-        network = util.load_model(PropRelNetwork, model_path, spec)
-        model = PropRelModel(spec, network)
-        return model
-
-
-class ActionModel(_AbsNeuralModel):
-    def __init__(self, spec, model):
-        super(ActionModel, self).__init__(spec, model)
-
-        self.transform = T.Compose([
-            T.ToTensor(),
-        ])
-        self._print_freq = 1
-
-    def _prepare_train_data(self, train_data):
-        train_dataset = EndToEndPreTrainDataset.from_baseline_dataset(
-            self.spec, train_data, self.transform, filter_qs=[2])
-        train_loader = DataLoader(
-            train_dataset, batch_size=self._batch_size, shuffle=True, collate_fn=util.collate_func)
-        return train_loader
-
-    def _prepare_eval_data(self, eval_data):
-        eval_dataset = EndToEndPreTrainDataset.from_baseline_dataset(
-            self.spec, eval_data, self.transform, filter_qs=[2])
-        eval_loader = DataLoader(eval_dataset, batch_size=self._batch_size, shuffle=True, collate_fn=util.collate_func)
-        return eval_loader
-
-    def _prepare_input(self, frames, questions, q_types, answers):
-        frames = torch.stack(frames).to(self._device)
-        return frames
-
-    def _set_hyperparams(self):
-        epochs = 20
-        lr = 0.001
-        batch_size = 64
-        return epochs, lr, batch_size
-
-    @staticmethod
-    def new(spec):
-        network = ActionNetwork(spec)
-        model = ActionModel(spec, network)
-        return model
-
-    @staticmethod
-    def load(spec, path):
-        model_path = Path(path) / "network.pt"
-        network = util.load_model(ActionNetwork, model_path, spec)
-        model = ActionModel(spec, network)
+        network = util.load_model(PropRelActNetwork, model_path, spec)
+        model = PropRelActModel(spec, network)
         return model
 
 

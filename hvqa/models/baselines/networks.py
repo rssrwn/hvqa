@@ -105,15 +105,12 @@ class CnnLstmNetwork(nn.Module):
         return output
 
 
-class PropRelNetwork(nn.Module):
+class PropRelActNetwork(nn.Module):
     def __init__(self, spec):
-        super(PropRelNetwork, self).__init__()
-
-        # feat_output_size = 256
-        # self.feat_extr = _VideoFeatNetwork(feat_output_size)
+        super(PropRelActNetwork, self).__init__()
 
         feat_output_size = 16
-        self.feat_extr = _ActionFeatExtr(feat_output_size)
+        self.feat_extr = _SmallFeatExtrNetwork(feat_output_size)
 
         word_vector_size = 300
         q_hidden_size = 1024
@@ -142,33 +139,9 @@ class PropRelNetwork(nn.Module):
         return output
 
 
-class ActionNetwork(nn.Module):
-    def __init__(self, spec):
-        super(ActionNetwork, self).__init__()
-
-        feat_output_size = 16
-        feat1 = 8
-        dropout = 0.5
-
-        self.feat_extr = _ActionFeatExtr(feat_output_size)
-
-        self.mlp = nn.Sequential(
-            nn.Dropout(dropout),
-            nn.Linear(feat_output_size, feat1),
-            nn.ReLU(),
-            _QANetwork(spec, feat1)
-        )
-
-    def forward(self, x):
-        feats = self.feat_extr(x)
-        output = self.mlp(feats)
-
-        return output
-
-
-class _ActionFeatExtr(nn.Module):
+class _SmallFeatExtrNetwork(nn.Module):
     def __init__(self, output_size):
-        super(_ActionFeatExtr, self).__init__()
+        super(_SmallFeatExtrNetwork, self).__init__()
 
         feat1 = 8
         feat2 = 16
