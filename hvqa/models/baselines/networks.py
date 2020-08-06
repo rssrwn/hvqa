@@ -155,10 +155,11 @@ class ActionNetwork(nn.Module):
         self.feat_extr = _ActionFeatExtr(feat_output_size)
 
         self.mlp = nn.Sequential(
-            nn.Dropout(dropout),
             nn.Linear(feat_output_size * 2, feat1),
             nn.ReLU(),
-            _QANetwork(spec, feat1)
+            # _QANetwork(spec, feat1)
+            nn.Linear(feat1, 3),
+            nn.LogSoftmax(dim=1)
         )
 
     def forward(self, x):
