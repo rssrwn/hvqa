@@ -87,7 +87,7 @@ class _AbsE2EDataset(Dataset):
             # State transition question encoding
             ("obj_types_q_6", [0.0] * num_obj_types),
             ("events_q_6", [0.0] * num_events),
-            ("occ_q_6", [0.0] * 5),
+            ("occ_q_6", [0.0] * 6),
 
             # Explanation question encoding
             ("rotation_q_7", [0.0] * len(self.spec.prop_values("rotation"))),
