@@ -347,7 +347,7 @@ class CnnMlpPreModel(_AbsNeuralModel):
         return feats, qs
 
     def _set_hyperparams(self):
-        epochs = 10
+        epochs = 20
         lr = 0.001
         batch_size = 256
         return epochs, lr, batch_size
