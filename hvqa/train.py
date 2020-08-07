@@ -23,7 +23,7 @@ BEST_CHOICE_MODEL_PATH = "saved-models/best-choice"
 LANG_LSTM_MODEL_PATH = "saved-models/lang-lstm"
 CNN_MLP_MODEL_PATH = "saved-models/cnn-mlp"
 CNN_LSTM_MODEL_PATH = "saved-models/cnn-lstm"
-PROP_REL_MODEL_PATH = "saved-models/pre/prop-rel-act"
+PROP_REL_MODEL_PATH = "saved-models/pre/prop-rel"
 EVENT_MODEL_PATH = "saved-models/pre/event"
 PRE_TRAIN_CNN_MLP_PATH = "saved-models/pre-cnn-mlp"
 
