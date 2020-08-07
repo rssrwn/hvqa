@@ -1,12 +1,13 @@
 import spacy
 import torch
-import PIL.Image as Im
 from torch.utils.data import Dataset
 
+import hvqa.util.func as util
+from hvqa.models.baselines.networks import PropRelNetwork, EventNetwork
 from hvqa.util.exceptions import UnknownQuestionTypeException, UnknownAnswerException
 
 
-class _AbsEndToEndDataset(Dataset):
+class _AbsE2EDataset(Dataset):
     def __init__(self, spec, transform):
         self.spec = spec
         self.transform = transform
@@ -18,7 +19,8 @@ class _AbsEndToEndDataset(Dataset):
     def __getitem__(self, item):
         raise NotImplementedError()
 
-    def from_baseline_dataset(self, spec, dataset, transform):
+    @staticmethod
+    def from_baseline_dataset(spec, dataset, transform):
         raise NotImplementedError()
 
     def _encode_qas(self, questions, q_types, answers):
@@ -93,9 +95,9 @@ class _AbsEndToEndDataset(Dataset):
         return ans_enc
 
 
-class EndToEndDataset(_AbsEndToEndDataset):
+class E2EDataset(_AbsE2EDataset):
     def __init__(self, spec, frames, questions, q_types, answers, transform, lang_only=False):
-        super(EndToEndDataset, self).__init__(spec, transform)
+        super(E2EDataset, self).__init__(spec, transform)
 
         self.lang_only = lang_only
 
@@ -168,13 +170,13 @@ class EndToEndDataset(_AbsEndToEndDataset):
             q_types.append(v_types)
             answers.append(v_ans)
 
-        e2e_dataset = EndToEndDataset(spec, frames, questions, q_types, answers, transform, lang_only=lang_only)
+        e2e_dataset = E2EDataset(spec, frames, questions, q_types, answers, transform, lang_only=lang_only)
         return e2e_dataset
 
 
-class EndToEndFilterDataset(_AbsEndToEndDataset):
+class E2EFilterDataset(_AbsE2EDataset):
     def __init__(self, spec, frames, questions, q_types, answers, transform):
-        super(EndToEndFilterDataset, self).__init__(spec, transform)
+        super(E2EFilterDataset, self).__init__(spec, transform)
 
         q_encs, a_encs = self._encode_qas(questions, q_types, answers)
 
@@ -221,13 +223,13 @@ class EndToEndFilterDataset(_AbsEndToEndDataset):
                 question = v_qs[q_idx]
                 answer = v_ans[q_idx]
                 if q_type in q_filter:
-                    frame = EndToEndFilterDataset._encode_frame(spec, v_frames, question, q_type, transform)
+                    frame = E2EFilterDataset._encode_frame(spec, v_frames, question, q_type, transform)
                     frames.append(frame)
                     questions.append(question)
                     q_types.append(q_type)
                     answers.append(answer)
 
-        e2e_dataset = EndToEndFilterDataset(spec, frames, questions, q_types, answers, transform)
+        e2e_dataset = E2EFilterDataset(spec, frames, questions, q_types, answers, transform)
         return e2e_dataset
 
     @staticmethod
@@ -251,3 +253,55 @@ class EndToEndFilterDataset(_AbsEndToEndDataset):
             frames_tensor = transform(frame)
 
         return frames_tensor
+
+
+class E2EPreDataset(_AbsE2EDataset):
+    def __init__(self, spec, frames, questions, q_types, answers, transform=None):
+        super(E2EPreDataset, self).__init__(spec, transform)
+
+        frame_feat_extr, event_feat_extr = self._load_feat_extr(spec)
+
+        self._device = util.get_device()
+
+        self.frame_feat_extr = frame_feat_extr.to(self._device)
+        for param in self.frame_feat_extr.parameters():
+            param.requires_grad = False
+
+        self.event_feat_extr = event_feat_extr.to(self._device)
+        for param in self.event_feat_extr.parameters():
+            param.requires_grad = False
+
+        frames = self._preprocess(frames, questions, q_types)
+
+    def __len__(self):
+        pass
+
+    def __getitem__(self, item):
+        pass
+
+    def _preprocess(self, frames, question, q_types):
+        pass
+
+    @staticmethod
+    def _load_feat_extr(spec):
+        prop_rel = util.load_model(PropRelNetwork, "saved-models/pre/prop-rel/network.pt", spec)
+        event = util.load_model(EventNetwork, "saved-models/pre/event/network.pt", spec)
+        frame_feat_extr = prop_rel.feat_extr
+        event_feat_extr = event.feat_extr
+        return frame_feat_extr, event_feat_extr
+
+    @staticmethod
+    def from_baseline_dataset(spec, dataset, transform=None):
+        frames = []
+        questions = []
+        q_types = []
+        answers = []
+        for v_idx in range(len(dataset)):
+            v_frames, v_qs, v_types, v_ans = dataset[v_idx]
+            frames.append(v_frames)
+            questions.append(v_qs)
+            q_types.append(v_types)
+            answers.append(v_ans)
+
+        e2e_dataset = E2EPreDataset(spec, frames, questions, q_types, answers, transform)
+        return e2e_dataset
