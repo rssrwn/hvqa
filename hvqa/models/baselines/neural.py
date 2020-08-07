@@ -9,7 +9,7 @@ from torch.utils.data import DataLoader
 from torch.nn.utils.rnn import pack_sequence
 
 import hvqa.util.func as util
-from hvqa.models.baselines.datasets import EndToEndDataset, EndToEndFilterDataset
+from hvqa.models.baselines.datasets import E2EDataset, E2EFilterDataset
 from hvqa.models.baselines.interfaces import _AbsBaselineModel
 from hvqa.models.baselines.networks import (
     LangLstmNetwork,
@@ -145,13 +145,13 @@ class LangLstmModel(_AbsNeuralModel):
         super(LangLstmModel, self).__init__(spec, model)
 
     def _prepare_train_data(self, train_data):
-        train_dataset = EndToEndDataset.from_baseline_dataset(self.spec, train_data, lang_only=True)
+        train_dataset = E2EDataset.from_baseline_dataset(self.spec, train_data, lang_only=True)
         train_loader = DataLoader(
             train_dataset, batch_size=self._batch_size, shuffle=True, collate_fn=util.collate_func)
         return train_loader
 
     def _prepare_eval_data(self, eval_data):
-        eval_dataset = EndToEndDataset.from_baseline_dataset(self.spec, eval_data, lang_only=True)
+        eval_dataset = E2EDataset.from_baseline_dataset(self.spec, eval_data, lang_only=True)
         eval_loader = DataLoader(eval_dataset, batch_size=self._batch_size, shuffle=False, collate_fn=util.collate_func)
         return eval_loader
 
@@ -189,13 +189,13 @@ class CnnMlpModel(_AbsNeuralModel):
         ])
 
     def _prepare_train_data(self, train_data):
-        train_dataset = EndToEndDataset.from_baseline_dataset(self.spec, train_data, self.transform, lang_only=False)
+        train_dataset = E2EDataset.from_baseline_dataset(self.spec, train_data, self.transform, lang_only=False)
         train_loader = DataLoader(
             train_dataset, batch_size=self._batch_size, shuffle=True, collate_fn=util.collate_func)
         return train_loader
 
     def _prepare_eval_data(self, eval_data):
-        eval_dataset = EndToEndDataset.from_baseline_dataset(self.spec, eval_data, self.transform, lang_only=False)
+        eval_dataset = E2EDataset.from_baseline_dataset(self.spec, eval_data, self.transform, lang_only=False)
         eval_loader = DataLoader(eval_dataset, batch_size=self._batch_size, shuffle=True, collate_fn=util.collate_func)
         return eval_loader
 
@@ -243,15 +243,13 @@ class PropRelModel(_AbsNeuralModel):
         self._print_freq = 1
 
     def _prepare_train_data(self, train_data):
-        train_dataset = EndToEndFilterDataset.from_baseline_dataset(
-            self.spec, train_data, self.transform, filter_qs=[0, 1])
-        train_loader = DataLoader(
-            train_dataset, batch_size=self._batch_size, shuffle=True, collate_fn=util.collate_func)
+        fn = util.collate_func
+        train_dataset = E2EFilterDataset.from_baseline_dataset(self.spec, train_data, self.transform, filter_qs=[0, 1])
+        train_loader = DataLoader(train_dataset, batch_size=self._batch_size, shuffle=True, collate_fn=fn)
         return train_loader
 
     def _prepare_eval_data(self, eval_data):
-        eval_dataset = EndToEndFilterDataset.from_baseline_dataset(
-            self.spec, eval_data, self.transform, filter_qs=[0, 1])
+        eval_dataset = E2EFilterDataset.from_baseline_dataset(self.spec, eval_data, self.transform, filter_qs=[0, 1])
         eval_loader = DataLoader(eval_dataset, batch_size=self._batch_size, shuffle=True, collate_fn=util.collate_func)
         return eval_loader
 
@@ -290,15 +288,13 @@ class EventModel(_AbsNeuralModel):
         self._print_freq = 1
 
     def _prepare_train_data(self, train_data):
-        train_dataset = EndToEndFilterDataset.from_baseline_dataset(
-            self.spec, train_data, self.transform, filter_qs=[2])
-        train_loader = DataLoader(
-            train_dataset, batch_size=self._batch_size, shuffle=True, collate_fn=util.collate_func)
+        fn = util.collate_func
+        train_dataset = E2EFilterDataset.from_baseline_dataset(self.spec, train_data, self.transform, filter_qs=[2])
+        train_loader = DataLoader(train_dataset, batch_size=self._batch_size, shuffle=True, collate_fn=fn)
         return train_loader
 
     def _prepare_eval_data(self, eval_data):
-        eval_dataset = EndToEndFilterDataset.from_baseline_dataset(
-            self.spec, eval_data, self.transform, filter_qs=[2])
+        eval_dataset = E2EFilterDataset.from_baseline_dataset(self.spec, eval_data, self.transform, filter_qs=[2])
         eval_loader = DataLoader(eval_dataset, batch_size=self._batch_size, shuffle=True, collate_fn=util.collate_func)
         return eval_loader
 
@@ -344,13 +340,13 @@ class PreTrainCnnMlpModel(_AbsNeuralModel):
         self._print_freq = 1
 
     def _prepare_train_data(self, train_data):
-        train_dataset = EndToEndDataset.from_baseline_dataset(self.spec, train_data)
-        train_loader = DataLoader(
-            train_dataset, batch_size=self._batch_size, shuffle=True, collate_fn=util.collate_func)
+        fn = util.collate_func
+        train_dataset = E2EDataset.from_baseline_dataset(self.spec, train_data)
+        train_loader = DataLoader(train_dataset, batch_size=self._batch_size, shuffle=True, collate_fn=fn)
         return train_loader
 
     def _prepare_eval_data(self, eval_data):
-        eval_dataset = EndToEndDataset.from_baseline_dataset(self.spec, eval_data)
+        eval_dataset = E2EDataset.from_baseline_dataset(self.spec, eval_data)
         eval_loader = DataLoader(eval_dataset, batch_size=self._batch_size, shuffle=True, collate_fn=util.collate_func)
         return eval_loader
 
