@@ -224,6 +224,8 @@ class BaselineDataset(Dataset):
 
     @classmethod
     def from_data_dir(cls, data_dir):
+        print(f"Collecting data from {data_dir}...")
+
         data_dir = Path(data_dir)
         videos = cls._collect_videos(data_dir)
         ids, video_dicts, frames = tuple(zip(*videos))
@@ -235,6 +237,8 @@ class BaselineDataset(Dataset):
             questions.append(video_dict["questions"])
             q_types.append(video_dict["question_types"])
             answers.append(video_dict["answers"])
+
+        print("Data collection complete.")
 
         dataset = BaselineDataset(ids, frames, questions, q_types, answers)
         return dataset
