@@ -9,9 +9,10 @@ from hvqa.util.exceptions import UnknownQuestionTypeException, UnknownAnswerExce
 
 
 class _AbsE2EDataset(Dataset):
-    def __init__(self, spec, transform):
+    def __init__(self, spec, transform, parse_q=False):
         self.spec = spec
         self.transform = transform
+        self.parse_q = parse_q
         self.nlp = spacy.load("en_core_web_md", disable=["tagger", "parser", "ner"])
 
     def __len__(self):
@@ -25,11 +26,86 @@ class _AbsE2EDataset(Dataset):
         raise NotImplementedError()
 
     def _encode_qas(self, questions, q_types, answers):
-        questions = [question.lower() for question in questions]
-        tokens = list(self.nlp.pipe(questions))
-        q_encs = [torch.tensor([q_token.vector for q_token in q_tokens]) for q_tokens in tokens]
+        if self.parse_q:
+            parsed = self._parse_questions(questions, q_types)
+            q_encs = [torch.tensor(parsed_q) for parsed_q in parsed]
+
+        else:
+            questions = [question.lower() for question in questions]
+            tokens = list(self.nlp.pipe(questions))
+            q_encs = [torch.tensor([q_token.vector for q_token in q_tokens]) for q_tokens in tokens]
+
         a_encs = self._encode_answers(q_types, answers)
         return q_encs, a_encs
+
+    def _parse_questions(self, questions, q_types):
+        parsed = []
+        for idx, question in enumerate(questions):
+            q_type = q_types[idx]
+            parsed_q = self._parse_question(question, q_type)
+            parsed.append(parsed_q)
+
+        return parsed
+
+    def _parse_question(self, question, q_type):
+        num_values = len(self.spec.prop_values("rotation")) + len(self.spec.prop_values("colour"))
+        num_obj_types = len(self.spec.obj_types())
+        num_events = len(self.spec.actions) + len(self.spec.effects)
+        num_frames = self.spec.num_frames
+
+        props = [0.0] * self.spec.num_props()
+        values = [0.0] * num_values
+        obj_types = [0.0] * num_obj_types
+        relations = [0.0] * len(self.spec.relations)
+        sec_values = [0.0] * num_values
+        sec_obj_types = [0.0] * num_obj_types
+        events = [0.0] * num_events
+        number = [0.0] * num_frames
+        nth = [0.0] * 5
+        frames = [0.0] * num_frames
+
+        if q_type == 0:
+            prop, val, cls, frame_idx = self.spec.qa.parse_prop_question(question)
+
+            prop_idx = self.spec.prop_names().index(prop)
+            props[prop_idx] = 1.0
+
+            val_idx = 0 if prop == "colour" else len(self.spec.prop_values("colour"))
+            val_idx += self.spec.prop_values(prop).index(val)
+            values[val_idx] = 1.0
+
+            obj_idx = self.spec.obj_types().index(cls)
+            obj_types[obj_idx] = 1.0
+
+            frames[frame_idx] = 1.0
+
+        elif q_type == 1:
+            pass
+
+        elif q_type == 2:
+            pass
+
+        elif q_type == 3:
+            pass
+
+        elif q_type == 4:
+            pass
+
+        elif q_type == 5:
+            pass
+
+        elif q_type == 6:
+            pass
+
+        elif q_type == 7:
+            pass
+
+        elif q_type == 8:
+            pass
+
+        else:
+            raise UnknownQuestionTypeException(f"Question type {q_type} unknown")
+
 
     def _encode_answers(self, q_types, answers):
         ans_encs = []
