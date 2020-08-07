@@ -25,7 +25,8 @@ CNN_MLP_MODEL_PATH = "saved-models/cnn-mlp"
 CNN_LSTM_MODEL_PATH = "saved-models/cnn-lstm"
 PROP_REL_MODEL_PATH = "saved-models/pre/prop-rel"
 EVENT_MODEL_PATH = "saved-models/pre/event"
-PRE_TRAIN_CNN_MLP_PATH = "saved-models/cnn-mlp-pre"
+CNN_MLP_PRE_PATH = "saved-models/cnn-mlp-pre"
+CNN_MLP_PRE_PQ_PATH = "saved-models/cnn-mlp-pre-pq"
 
 spec = EnvSpec.from_dict({
     "num_frames": 32,
@@ -92,8 +93,14 @@ def main(train_dir, eval_dir, model_type):
         eval_data = BaselineDataset.from_data_dir(eval_dir)
 
     elif model_type == "cnn-mlp-pre":
-        model_path = PRE_TRAIN_CNN_MLP_PATH
+        model_path = CNN_MLP_PRE_PATH
         model = CnnMlpPreModel.new(spec)
+        train_data = BaselineDataset.from_data_dir(train_dir)
+        eval_data = BaselineDataset.from_data_dir(eval_dir)
+
+    elif model_type == "cnn-mlp-pre-pq":
+        model_path = CNN_MLP_PRE_PQ_PATH
+        model = CnnMlpPreModel.new(spec, parse_q=True)
         train_data = BaselineDataset.from_data_dir(train_dir)
         eval_data = BaselineDataset.from_data_dir(eval_dir)
 
