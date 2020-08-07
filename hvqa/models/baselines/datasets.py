@@ -87,7 +87,7 @@ class _AbsE2EDataset(Dataset):
             # State transition question encoding
             ("obj_types_q_6", [0.0] * num_obj_types),
             ("events_q_6", [0.0] * num_events),
-            ("occ_q_6", [0.0] * 6),
+            ("occ_q_6", [0.0] * 5),
 
             # Explanation question encoding
             ("rotation_q_7", [0.0] * len(self.spec.prop_values("rotation"))),
@@ -140,7 +140,7 @@ class _AbsE2EDataset(Dataset):
             self._set_one_hot(cls, self.spec.obj_types(), encs["obj_types_q_6"])
             events = self.spec.actions + self.spec.effects
             self._set_one_hot(self.spec.from_internal("event", event), events, encs["events_q_6"])
-            encs["occ_q_6"][occ] = 1.0
+            encs["occ_q_6"][occ - 1] = 1.0
 
         elif q_type == 7:
             rot = self.spec.qa.parse_explanation_question(question)
