@@ -106,15 +106,15 @@ class CnnLstmNetwork(nn.Module):
 
 
 class CnnMlpPreNetwork(nn.Module):
-    def __init__(self, spec, parsed_q=False):
+    def __init__(self, spec, parse_q=False):
         super(CnnMlpPreNetwork, self).__init__()
 
         feat_output_size = (32 * 32) + (32 * 31)
 
-        q_input_size = 200 if parsed_q else 300
+        q_input_size = 200 if parse_q else 300
         q_hidden_size = 1024
         q_layers = 2
-        self.q_enc = _QuestionNetwork(q_input_size, q_hidden_size, parsed_q=parsed_q, num_layers=q_layers)
+        self.q_enc = _QuestionNetwork(q_input_size, q_hidden_size, parse_q=parse_q, num_layers=q_layers)
 
         mlp_input = feat_output_size + q_hidden_size
         feat1 = 1024
@@ -251,12 +251,12 @@ class _VideoFeatNetwork(nn.Module):
 
 
 class _QuestionNetwork(nn.Module):
-    def __init__(self, input_size, hidden_size, parsed_q=False, num_layers=2):
+    def __init__(self, input_size, hidden_size, parse_q=False, num_layers=2):
         super(_QuestionNetwork, self).__init__()
 
-        self.parsed_q = parsed_q
+        self.parse_q = parse_q
 
-        if parsed_q:
+        if parse_q:
             self.mlp = nn.Sequential(
                 nn.Linear(input_size, hidden_size),
                 nn.ReLU(),
@@ -265,7 +265,7 @@ class _QuestionNetwork(nn.Module):
             self.lstm = nn.LSTM(input_size, hidden_size, num_layers=num_layers)
 
     def forward(self, x):
-        if self.parsed_q:
+        if self.parse_q:
             out = self.mlp(x)
         else:
             _, (h_n, c_n) = self.lstm(x)

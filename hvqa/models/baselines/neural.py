@@ -322,13 +322,14 @@ class EventModel(_AbsNeuralModel):
 
 
 class CnnMlpPreModel(_AbsNeuralModel):
-    def __init__(self, spec, model):
+    def __init__(self, spec, model, parse_q=False):
         super(CnnMlpPreModel, self).__init__(spec, model)
 
         self.transform = T.Compose([
             T.ToTensor(),
         ])
         self._print_freq = 2
+        self.parsed_q = parsed_q
 
     def _prepare_train_data(self, train_data):
         fn = util.collate_func
@@ -353,14 +354,14 @@ class CnnMlpPreModel(_AbsNeuralModel):
         return epochs, lr, batch_size
 
     @staticmethod
-    def new(spec):
-        network = CnnMlpPreNetwork(spec)
-        model = CnnMlpPreModel(spec, network)
+    def new(spec, parse_q=False):
+        network = CnnMlpPreNetwork(spec, parse_q=parse_q)
+        model = CnnMlpPreModel(spec, network, parse_q=parse_q)
         return model
 
     @staticmethod
-    def load(spec, path):
+    def load(spec, path, parse_q=False):
         model_path = Path(path) / "network.pt"
-        network = util.load_model(CnnMlpPreNetwork, model_path, spec)
-        model = CnnMlpPreModel(spec, network)
+        network = util.load_model(CnnMlpPreNetwork, model_path, spec, parse_q)
+        model = CnnMlpPreModel(spec, network, parse_q=parse_q)
         return model

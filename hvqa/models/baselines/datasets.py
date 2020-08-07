@@ -397,8 +397,8 @@ class E2EFilterDataset(_AbsE2EDataset):
 
 
 class E2EPreDataset(_AbsE2EDataset):
-    def __init__(self, spec, frames, questions, q_types, answers, transform=None, collate="stack"):
-        super(E2EPreDataset, self).__init__(spec, transform)
+    def __init__(self, spec, frames, questions, q_types, answers, transform=None, collate="stack", parse_q=False):
+        super(E2EPreDataset, self).__init__(spec, transform, parse_q=parse_q)
 
         frame_feat_extr, event_feat_extr = self._load_feat_extr(spec)
 
@@ -525,7 +525,7 @@ class E2EPreDataset(_AbsE2EDataset):
         return frame_feat_extr, event_feat_extr
 
     @staticmethod
-    def from_baseline_dataset(spec, dataset, transform=None):
+    def from_baseline_dataset(spec, dataset, transform=None, collate="stack", parse_q=False):
         frames = []
         questions = []
         q_types = []
@@ -537,5 +537,6 @@ class E2EPreDataset(_AbsE2EDataset):
             q_types.append(v_types)
             answers.append(v_ans)
 
-        e2e_dataset = E2EPreDataset(spec, frames, questions, q_types, answers, transform)
+        e2e_dataset = E2EPreDataset(spec, frames, questions, q_types, answers,
+                                    transform=transform, collate=collate, parse_q=parse_q)
         return e2e_dataset
