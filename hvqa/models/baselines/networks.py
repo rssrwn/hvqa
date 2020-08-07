@@ -14,7 +14,7 @@ class LangLstmNetwork(nn.Module):
         feat2 = 256
 
         self.network = nn.Sequential(
-            _QuestionNetwork(word_vector_size, hidden_size, num_lstm_layers),
+            _QuestionNetwork(word_vector_size, hidden_size, num_layers=num_lstm_layers),
             nn.ReLU(),
             nn.Linear(hidden_size, feat1),
             nn.ReLU(),
@@ -42,7 +42,7 @@ class CnnMlpNetwork(nn.Module):
         feat3 = 512
 
         self.feat_extr = _VideoFeatNetwork(feat_output_size)
-        self.lang_lstm = _QuestionNetwork(word_vector_size, hidden_size, num_lstm_layers)
+        self.lang_lstm = _QuestionNetwork(word_vector_size, hidden_size, num_layers=num_lstm_layers)
         self.mlp = nn.Sequential(
             nn.Linear(mlp_input, feat1),
             nn.ReLU(),
@@ -82,7 +82,7 @@ class CnnLstmNetwork(nn.Module):
 
         self.feat_extr = _VideoFeatNetwork(feat_output_size)
         self.video_lstm = _VideoLstmNetwork(feat_output_size, v_hidden_size, v_layers)
-        self.lang_lstm = _QuestionNetwork(word_vector_size, q_hidden_size, q_layers)
+        self.lang_lstm = _QuestionNetwork(word_vector_size, q_hidden_size, num_layers=q_layers)
 
         self.mlp = nn.Sequential(
             nn.Linear(mlp_input, feat1),
@@ -106,15 +106,15 @@ class CnnLstmNetwork(nn.Module):
 
 
 class CnnMlpPreNetwork(nn.Module):
-    def __init__(self, spec):
+    def __init__(self, spec, parsed_q=False):
         super(CnnMlpPreNetwork, self).__init__()
 
         feat_output_size = (32 * 32) + (32 * 31)
 
-        word_vector_size = 300
+        q_input_size = 200 if parsed_q else 300
         q_hidden_size = 1024
         q_layers = 2
-        self.lang_lstm = _QuestionNetwork(word_vector_size, q_hidden_size, q_layers)
+        self.q_enc = _QuestionNetwork(q_input_size, q_hidden_size, parsed_q=parsed_q, num_layers=q_layers)
 
         mlp_input = feat_output_size + q_hidden_size
         feat1 = 1024
@@ -131,7 +131,7 @@ class CnnMlpPreNetwork(nn.Module):
 
     def forward(self, x):
         feats, qs = x
-        q_feats = self.lang_lstm(qs)
+        q_feats = self.q_enc(qs)
         video_enc = torch.cat([feats, q_feats], dim=1)
         output = self.mlp(video_enc)
         return output
@@ -147,7 +147,7 @@ class PropRelNetwork(nn.Module):
         word_vector_size = 300
         q_hidden_size = 1024
         q_layers = 2
-        self.lang_lstm = _QuestionNetwork(word_vector_size, q_hidden_size, q_layers)
+        self.lang_lstm = _QuestionNetwork(word_vector_size, q_hidden_size, num_layers=q_layers)
 
         mlp_input = feat_output_size + q_hidden_size
         feat1 = 512
@@ -251,14 +251,26 @@ class _VideoFeatNetwork(nn.Module):
 
 
 class _QuestionNetwork(nn.Module):
-    def __init__(self, input_size, hidden_size, num_layers):
+    def __init__(self, input_size, hidden_size, parsed_q=False, num_layers=2):
         super(_QuestionNetwork, self).__init__()
 
-        self.lstm = nn.LSTM(input_size, hidden_size, num_layers=num_layers)
+        self.parsed_q = parsed_q
+
+        if parsed_q:
+            self.mlp = nn.Sequential(
+                nn.Linear(input_size, hidden_size),
+                nn.ReLU(),
+            )
+        else:
+            self.lstm = nn.LSTM(input_size, hidden_size, num_layers=num_layers)
 
     def forward(self, x):
-        _, (h_n, c_n) = self.lstm(x)
-        out = h_n[-1, :, :]
+        if self.parsed_q:
+            out = self.mlp(x)
+        else:
+            _, (h_n, c_n) = self.lstm(x)
+            out = h_n[-1, :, :]
+
         return out
 
 
