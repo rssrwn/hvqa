@@ -76,7 +76,7 @@ class _AbsE2EDataset(Dataset):
 
         # Repetition count question encoding
         obj_types_q_4 = [0.0] * num_obj_types
-        event_q_4 = [0.0] * num_events
+        events_q_4 = [0.0] * num_events
 
         # Repeating action question encoding
         obj_types_q_5 = [0.0] * num_obj_types
@@ -122,19 +122,31 @@ class _AbsE2EDataset(Dataset):
             frames_q_3[frame_idx] = 1.0
 
         elif q_type == 4:
-            pass
+            _, cls, event = self.spec.qa.parse_q_4(question)
+            self._set_one_hot(cls, self.spec.obj_types(), obj_types_q_4)
+            events = self.spec.actions + self.spec.effects
+            self._set_one_hot(self.spec.from_internal("event", event), events, events_q_4)
 
         elif q_type == 5:
-            pass
+            num, _, cls = self.spec.qa.parse_q_5(question)
+            self._set_one_hot(cls, self.spec.obj_types(), obj_types_q_5)
+            number_q_5[num] = 1.0
 
         elif q_type == 6:
-            pass
+            _, cls, occ, event = self.spec.qa.parse_q_6(question)
+            self._set_one_hot(cls, self.spec.obj_types(), obj_types_q_6)
+            events = self.spec.actions + self.spec.effects
+            self._set_one_hot(self.spec.from_internal("event", event), events, events_q_6)
+            occ_q_6[occ] = 1.0
 
         elif q_type == 7:
-            pass
+            rot = self.spec.qa.parse_explanation_question(question)
+            self._set_one_hot(rot, self.spec.prop_values("rotation"), rotation_q_7)
 
         elif q_type == 8:
-            pass
+            colour = self.spec.qa.parse_counterfactual_question(question)
+            self._set_one_hot(colour, self.spec.prop_values("colour"), colour_q_8)
+            self._set_one_hot("octopus", self.spec.obj_types(), obj_types_q_8)
 
         else:
             raise UnknownQuestionTypeException(f"Question type {q_type} unknown")
