@@ -9,7 +9,7 @@ from torch.utils.data import DataLoader
 from torch.nn.utils.rnn import pack_sequence
 
 import hvqa.util.func as util
-from hvqa.models.baselines.datasets import EndToEndDataset, EndToEndPreTrainDataset
+from hvqa.models.baselines.datasets import EndToEndDataset, EndToEndFilterDataset
 from hvqa.models.baselines.interfaces import _AbsBaselineModel
 from hvqa.models.baselines.networks import (
     LangLstmNetwork,
@@ -243,14 +243,14 @@ class PropRelModel(_AbsNeuralModel):
         self._print_freq = 1
 
     def _prepare_train_data(self, train_data):
-        train_dataset = EndToEndPreTrainDataset.from_baseline_dataset(
+        train_dataset = EndToEndFilterDataset.from_baseline_dataset(
             self.spec, train_data, self.transform, filter_qs=[0, 1])
         train_loader = DataLoader(
             train_dataset, batch_size=self._batch_size, shuffle=True, collate_fn=util.collate_func)
         return train_loader
 
     def _prepare_eval_data(self, eval_data):
-        eval_dataset = EndToEndPreTrainDataset.from_baseline_dataset(
+        eval_dataset = EndToEndFilterDataset.from_baseline_dataset(
             self.spec, eval_data, self.transform, filter_qs=[0, 1])
         eval_loader = DataLoader(eval_dataset, batch_size=self._batch_size, shuffle=True, collate_fn=util.collate_func)
         return eval_loader
@@ -290,14 +290,14 @@ class EventModel(_AbsNeuralModel):
         self._print_freq = 1
 
     def _prepare_train_data(self, train_data):
-        train_dataset = EndToEndPreTrainDataset.from_baseline_dataset(
+        train_dataset = EndToEndFilterDataset.from_baseline_dataset(
             self.spec, train_data, self.transform, filter_qs=[2])
         train_loader = DataLoader(
             train_dataset, batch_size=self._batch_size, shuffle=True, collate_fn=util.collate_func)
         return train_loader
 
     def _prepare_eval_data(self, eval_data):
-        eval_dataset = EndToEndPreTrainDataset.from_baseline_dataset(
+        eval_dataset = EndToEndFilterDataset.from_baseline_dataset(
             self.spec, eval_data, self.transform, filter_qs=[2])
         eval_loader = DataLoader(eval_dataset, batch_size=self._batch_size, shuffle=True, collate_fn=util.collate_func)
         return eval_loader
@@ -327,11 +327,15 @@ class EventModel(_AbsNeuralModel):
 
 
 class PreTrainCnnMlpModel(_AbsNeuralModel):
-    def __init__(self, spec, model, feat_extr):
+    def __init__(self, spec, model, frame_feat_extr, event_feat_extr):
         super(PreTrainCnnMlpModel, self).__init__(spec, model)
 
-        self.feat_extr = feat_extr.to(self._device)
-        for param in self.feat_extr.parameters():
+        self.frame_feat_extr = frame_feat_extr.to(self._device)
+        for param in self.frame_feat_extr.parameters():
+            param.requires_grad = False
+
+        self.event_feat_extr = event_feat_extr.to(self._device)
+        for param in self.event_feat_extr.parameters():
             param.requires_grad = False
 
         self.frame_transform = T.Compose([
@@ -377,21 +381,23 @@ class PreTrainCnnMlpModel(_AbsNeuralModel):
 
     @staticmethod
     def _load_feat_extr(spec):
-        prop_rel_act = util.load_model(PropRelNetwork, "saved-models/pre/prop-rel-act/network.pt", spec)
-        feat_extr = prop_rel_act.feat_extr
-        return feat_extr
+        prop_rel = util.load_model(PropRelNetwork, "saved-models/pre/prop-rel/network.pt", spec)
+        event = util.load_model(EventNetwork, "saved-models/pre/event/network.pt", spec)
+        frame_feat_extr = prop_rel.feat_extr
+        event_feat_extr = event.feat_extr
+        return frame_feat_extr, event_feat_extr
 
     @staticmethod
     def new(spec):
         network = PreTrainCnnMlpNetwork(spec)
-        feat_extr = PreTrainCnnMlpModel._load_feat_extr(spec)
-        model = PreTrainCnnMlpModel(spec, network, feat_extr)
+        frame_feat_extr, event_feat_extr = PreTrainCnnMlpModel._load_feat_extr(spec)
+        model = PreTrainCnnMlpModel(spec, network, frame_feat_extr, event_feat_extr)
         return model
 
     @staticmethod
     def load(spec, path):
         model_path = Path(path) / "network.pt"
         network = util.load_model(PreTrainCnnMlpNetwork, model_path, spec)
-        feat_extr = PreTrainCnnMlpModel._load_feat_extr(spec)
-        model = PreTrainCnnMlpModel(spec, network, feat_extr)
+        frame_feat_extr, event_feat_extr = PreTrainCnnMlpModel._load_feat_extr(spec)
+        model = PreTrainCnnMlpModel(spec, network, frame_feat_extr, event_feat_extr)
         return model

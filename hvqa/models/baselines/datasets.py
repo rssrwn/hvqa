@@ -172,9 +172,9 @@ class EndToEndDataset(_AbsEndToEndDataset):
         return e2e_dataset
 
 
-class EndToEndPreTrainDataset(_AbsEndToEndDataset):
+class EndToEndFilterDataset(_AbsEndToEndDataset):
     def __init__(self, spec, frames, questions, q_types, answers, transform):
-        super(EndToEndPreTrainDataset, self).__init__(spec, transform)
+        super(EndToEndFilterDataset, self).__init__(spec, transform)
 
         q_encs, a_encs = self._encode_qas(questions, q_types, answers)
 
@@ -221,13 +221,13 @@ class EndToEndPreTrainDataset(_AbsEndToEndDataset):
                 question = v_qs[q_idx]
                 answer = v_ans[q_idx]
                 if q_type in q_filter:
-                    frame = EndToEndPreTrainDataset._encode_frame(spec, v_frames, question, q_type, transform)
+                    frame = EndToEndFilterDataset._encode_frame(spec, v_frames, question, q_type, transform)
                     frames.append(frame)
                     questions.append(question)
                     q_types.append(q_type)
                     answers.append(answer)
 
-        e2e_dataset = EndToEndPreTrainDataset(spec, frames, questions, q_types, answers, transform)
+        e2e_dataset = EndToEndFilterDataset(spec, frames, questions, q_types, answers, transform)
         return e2e_dataset
 
     @staticmethod
@@ -242,13 +242,6 @@ class EndToEndPreTrainDataset(_AbsEndToEndDataset):
             raise UnknownQuestionTypeException(f"Filter questions must be of type: 0, 1 or 2")
 
         frame = frames[frame_idx]
-
-        # if q_type == 2:
-        #     next_frame = frames[frame_idx + 1]
-        #     alpha = 0.75
-        #     frame = Im.blend(frame, next_frame, alpha)
-        # frames_tensor = transform(frame)
-
         if q_type == 2:
             next_frame = frames[frame_idx + 1]
             frame = transform(frame)
