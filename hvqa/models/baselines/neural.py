@@ -329,16 +329,18 @@ class CnnMlpPreModel(_AbsNeuralModel):
             T.ToTensor(),
         ])
         self._print_freq = 2
-        self.parsed_q = parsed_q
+        self.parse_q = parse_q
 
     def _prepare_train_data(self, train_data):
         fn = util.collate_func
-        train_dataset = E2EPreDataset.from_baseline_dataset(self.spec, train_data, transform=self.transform)
+        train_dataset = E2EPreDataset.from_baseline_dataset(self.spec, train_data,
+                                                            transform=self.transform, parse_q=self.parse_q)
         train_loader = DataLoader(train_dataset, batch_size=self._batch_size, shuffle=True, collate_fn=fn)
         return train_loader
 
     def _prepare_eval_data(self, eval_data):
-        eval_dataset = E2EPreDataset.from_baseline_dataset(self.spec, eval_data, transform=self.transform)
+        eval_dataset = E2EPreDataset.from_baseline_dataset(self.spec, eval_data,
+                                                           transform=self.transform, parse_q=self.parse_q)
         eval_loader = DataLoader(eval_dataset, batch_size=self._batch_size, shuffle=True, collate_fn=util.collate_func)
         return eval_loader
 
