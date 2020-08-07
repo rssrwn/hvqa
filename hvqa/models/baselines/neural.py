@@ -322,22 +322,14 @@ class EventModel(_AbsNeuralModel):
         return model
 
 
-class PreTrainCnnMlpModel(_AbsNeuralModel):
-    def __init__(self, spec, model, frame_feat_extr, event_feat_extr):
-        super(PreTrainCnnMlpModel, self).__init__(spec, model)
-
-        self.frame_feat_extr = frame_feat_extr.to(self._device)
-        for param in self.frame_feat_extr.parameters():
-            param.requires_grad = False
-
-        self.event_feat_extr = event_feat_extr.to(self._device)
-        for param in self.event_feat_extr.parameters():
-            param.requires_grad = False
+class CnnMlpPreModel(_AbsNeuralModel):
+    def __init__(self, spec, model):
+        super(CnnMlpPreModel, self).__init__(spec, model)
 
         self.frame_transform = T.Compose([
             T.ToTensor(),
         ])
-        self._print_freq = 1
+        self._print_freq = 2
 
     def _prepare_train_data(self, train_data):
         fn = util.collate_func
@@ -351,23 +343,9 @@ class PreTrainCnnMlpModel(_AbsNeuralModel):
         return eval_loader
 
     def _prepare_input(self, frames, questions, q_types, answers):
-        v_feats = self._extr_feats(frames)
-
-        frame_pairs = [zip(v_frames, v_frames[1:]) for v_frames in frames]
-        frame_pairs = [[Im.blend(im1, im2, 0.75) for im1, im2 in v_frames] for v_frames in frame_pairs]
-        pair_feats = self._extr_feats(frame_pairs)
-
-        feats = torch.cat((v_feats, pair_feats), dim=1).to(self._device)
+        feats = torch.stack(frames).to(self._device)
         qs = pack_sequence(questions, enforce_sorted=False).to(self._device)
         return feats, qs
-
-    def _extr_feats(self, frames):
-        frames_ = [[self.frame_transform(frame) for frame in v_frames] for v_frames in frames]
-        frames_ = [torch.stack(v_frames).to(self._device) for v_frames in frames_]
-        frame_feats = [self.feat_extr(v_frames) for v_frames in frames_]
-        v_feats = [frame_feat.reshape(-1) for frame_feat in frame_feats]
-        v_feats = torch.stack(v_feats)
-        return v_feats
 
     def _set_hyperparams(self):
         epochs = 10
@@ -376,24 +354,14 @@ class PreTrainCnnMlpModel(_AbsNeuralModel):
         return epochs, lr, batch_size
 
     @staticmethod
-    def _load_feat_extr(spec):
-        prop_rel = util.load_model(PropRelNetwork, "saved-models/pre/prop-rel/network.pt", spec)
-        event = util.load_model(EventNetwork, "saved-models/pre/event/network.pt", spec)
-        frame_feat_extr = prop_rel.feat_extr
-        event_feat_extr = event.feat_extr
-        return frame_feat_extr, event_feat_extr
-
-    @staticmethod
     def new(spec):
         network = CnnMlpPreNetwork(spec)
-        frame_feat_extr, event_feat_extr = PreTrainCnnMlpModel._load_feat_extr(spec)
-        model = PreTrainCnnMlpModel(spec, network, frame_feat_extr, event_feat_extr)
+        model = CnnMlpPreModel(spec, network)
         return model
 
     @staticmethod
     def load(spec, path):
         model_path = Path(path) / "network.pt"
         network = util.load_model(CnnMlpPreNetwork, model_path, spec)
-        frame_feat_extr, event_feat_extr = PreTrainCnnMlpModel._load_feat_extr(spec)
-        model = PreTrainCnnMlpModel(spec, network, frame_feat_extr, event_feat_extr)
+        model = CnnMlpPreModel(spec, network)
         return model

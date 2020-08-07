@@ -11,7 +11,7 @@ from hvqa.models.baselines.neural import (
     CnnMlpModel,
     PropRelModel,
     EventModel,
-    PreTrainCnnMlpModel
+    CnnMlpPreModel
 )
 
 
@@ -25,7 +25,7 @@ CNN_MLP_MODEL_PATH = "saved-models/cnn-mlp"
 CNN_LSTM_MODEL_PATH = "saved-models/cnn-lstm"
 PROP_REL_MODEL_PATH = "saved-models/pre/prop-rel"
 EVENT_MODEL_PATH = "saved-models/pre/event"
-PRE_TRAIN_CNN_MLP_PATH = "saved-models/pre-cnn-mlp"
+PRE_TRAIN_CNN_MLP_PATH = "saved-models/cnn-mlp-pre"
 
 spec = EnvSpec.from_dict({
     "num_frames": 32,
@@ -91,9 +91,9 @@ def main(train_dir, eval_dir, model_type):
         train_data = BaselineDataset.from_data_dir(train_dir)
         eval_data = BaselineDataset.from_data_dir(eval_dir)
 
-    elif model_type == "pre-cnn-mlp":
+    elif model_type == "cnn-mlp-pre":
         model_path = PRE_TRAIN_CNN_MLP_PATH
-        model = PreTrainCnnMlpModel.new(spec)
+        model = CnnMlpPreModel.new(spec)
         train_data = BaselineDataset.from_data_dir(train_dir)
         eval_data = BaselineDataset.from_data_dir(eval_dir)
 
