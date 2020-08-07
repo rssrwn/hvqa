@@ -15,7 +15,7 @@ from hvqa.models.baselines.networks import (
     LangLstmNetwork,
     CnnMlpNetwork,
     CnnLstmNetwork,
-    PropRelActNetwork,
+    PropRelNetwork,
     EventNetwork,
     PreTrainCnnMlpNetwork
 )
@@ -233,9 +233,9 @@ class CnnMlpModel(_AbsNeuralModel):
         return model
 
 
-class PropRelActModel(_AbsNeuralModel):
+class PropRelModel(_AbsNeuralModel):
     def __init__(self, spec, model):
-        super(PropRelActModel, self).__init__(spec, model)
+        super(PropRelModel, self).__init__(spec, model)
 
         self.transform = T.Compose([
             T.ToTensor(),
@@ -244,14 +244,14 @@ class PropRelActModel(_AbsNeuralModel):
 
     def _prepare_train_data(self, train_data):
         train_dataset = EndToEndPreTrainDataset.from_baseline_dataset(
-            self.spec, train_data, self.transform, filter_qs=[0, 1, 2])
+            self.spec, train_data, self.transform, filter_qs=[0, 1])
         train_loader = DataLoader(
             train_dataset, batch_size=self._batch_size, shuffle=True, collate_fn=util.collate_func)
         return train_loader
 
     def _prepare_eval_data(self, eval_data):
         eval_dataset = EndToEndPreTrainDataset.from_baseline_dataset(
-            self.spec, eval_data, self.transform, filter_qs=[0, 1, 2])
+            self.spec, eval_data, self.transform, filter_qs=[0, 1])
         eval_loader = DataLoader(eval_dataset, batch_size=self._batch_size, shuffle=True, collate_fn=util.collate_func)
         return eval_loader
 
@@ -268,15 +268,15 @@ class PropRelActModel(_AbsNeuralModel):
 
     @staticmethod
     def new(spec):
-        network = PropRelActNetwork(spec)
-        model = PropRelActModel(spec, network)
+        network = PropRelNetwork(spec)
+        model = PropRelModel(spec, network)
         return model
 
     @staticmethod
     def load(spec, path):
         model_path = Path(path) / "network.pt"
-        network = util.load_model(PropRelActNetwork, model_path, spec)
-        model = PropRelActModel(spec, network)
+        network = util.load_model(PropRelNetwork, model_path, spec)
+        model = PropRelModel(spec, network)
         return model
 
 
@@ -377,7 +377,7 @@ class PreTrainCnnMlpModel(_AbsNeuralModel):
 
     @staticmethod
     def _load_feat_extr(spec):
-        prop_rel_act = util.load_model(PropRelActNetwork, "saved-models/pre/prop-rel-act/network.pt", spec)
+        prop_rel_act = util.load_model(PropRelNetwork, "saved-models/pre/prop-rel-act/network.pt", spec)
         feat_extr = prop_rel_act.feat_extr
         return feat_extr
 

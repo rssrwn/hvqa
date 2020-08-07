@@ -9,7 +9,7 @@ from hvqa.models.baselines.language import BestChoiceModel
 from hvqa.models.baselines.neural import (
     LangLstmModel,
     CnnMlpModel,
-    PropRelActModel,
+    PropRelModel,
     EventModel,
     PreTrainCnnMlpModel
 )
@@ -79,9 +79,9 @@ def main(train_dir, eval_dir, model_type):
         train_data = BaselineDataset.from_data_dir(train_dir)
         eval_data = BaselineDataset.from_data_dir(eval_dir)
 
-    elif model_type == "prop-rel-act":
+    elif model_type == "prop-rel":
         model_path = PROP_REL_MODEL_PATH
-        model = PropRelActModel.new(spec)
+        model = PropRelModel.new(spec)
         train_data = BaselineDataset.from_data_dir(train_dir)
         eval_data = BaselineDataset.from_data_dir(eval_dir)
 
