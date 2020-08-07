@@ -74,7 +74,8 @@ class VideoDataset(QADataset):
         for video_info in grouper(video_infos, group_videos):
             video_info = [info for info in video_info if info is not None]
             video_nums, video_dicts, frame_imgs = tuple(zip(*video_info))
-            grouped_videos, timing = cls._construct_videos(spec, video_dicts, frame_imgs, detector, hardcoded, store_frames, err_prob)
+            grouped_videos, timing = cls._construct_videos(spec, video_dicts, frame_imgs, detector, hardcoded,
+                                                           store_frames, err_prob)
             videos.extend(grouped_videos)
             video_ids.extend(video_nums)
             ans = [video_dict["answers"] for video_dict in video_dicts]

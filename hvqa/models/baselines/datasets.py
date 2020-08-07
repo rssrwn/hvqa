@@ -1,5 +1,6 @@
 import spacy
 import torch
+from more_itertools import grouper
 from torch.utils.data import Dataset
 
 import hvqa.util.func as util
@@ -325,8 +326,9 @@ class E2EPreDataset(_AbsE2EDataset):
         return frames, question, q_type, answer
 
     def _preprocess(self, frames, question, q_types):
-        frame_feats = self._extr_frame_feats(frames)
-        event_feats = self._extr_event_feats(frames)
+        group_videos = 16
+        frame_feats = self._extr_frame_feats(frames, group_videos)
+        event_feats = self._extr_event_feats(frames, group_videos)
 
         feats = []
         if self.collate == "stack":
@@ -338,22 +340,41 @@ class E2EPreDataset(_AbsE2EDataset):
 
         return feats
 
-    def _extr_frame_feats(self, frames):
-        frames_ = [[self.transform(frame) for frame in v_frames] for v_frames in frames]
-        v_feats = self._extr_feats(frames_, self._frame_feat_extr)
-        return v_feats
+    def _extr_frame_feats(self, frames, group_videos):
+        videos_feats = []
+        for videos in grouper(frames, group_videos):
+            videos = [video for video in videos if video is not None]
+            frames_ = [self.transform(frame) for v_frames in videos for frame in v_frames]
 
-    def _extr_event_feats(self, frames):
-        frames_ = [[self.transform(frame) for frame in v_frames] for v_frames in frames]
-        frame_pairs = [zip(v_frames, v_frames[1:]) for v_frames in frames_]
-        frame_pairs = [[torch.cat((im1, im2), dim=0) for im1, im2 in v_frames] for v_frames in frame_pairs]
-        event_feats = self._extr_feats(frame_pairs, self._event_feat_extr)
-        return event_feats
+            frames_ = torch.stack(frames_).to(self._device)
+            v_feats = self._frame_feat_extr(frames_)
 
-    def _extr_feats(self, frames, feat_extr):
-        frames_ = [torch.stack(v_frames).to(self._device) for v_frames in frames]
-        feats = [feat_extr(v_frames) for v_frames in frames_]
-        return feats
+            for v_idx in range(len(videos)):
+                start = 32 * v_idx
+                end = 32 * (v_idx + 1)
+                video_feats = v_feats[start:end, :]
+                videos_feats.append(video_feats)
+
+        return videos_feats
+
+    def _extr_event_feats(self, frames, group_videos):
+        events_feats = []
+        for videos in grouper(frames, group_videos):
+            videos = [video for video in videos if video is not None]
+            frames_ = [[self.transform(frame) for frame in v_frames] for v_frames in videos]
+            frame_pairs = [zip(v_frames, v_frames[1:]) for v_frames in frames_]
+            frame_pairs = [torch.cat((im1, im2), dim=0) for v_frames in frame_pairs for im1, im2 in v_frames]
+
+            frame_pairs_ = torch.stack(frame_pairs).to(self._device)
+            feats = self._event_feat_extr(frame_pairs_)
+
+            for v_idx in range(len(videos)):
+                start = 31 * v_idx
+                end = 31 * (v_idx + 1)
+                event_feats = feats[start:end, :]
+                events_feats.append(event_feats)
+
+        return events_feats
 
     @staticmethod
     def _load_feat_extr(spec):
