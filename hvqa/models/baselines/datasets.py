@@ -1,6 +1,7 @@
 import spacy
 import torch
 from more_itertools import grouper
+from collections import OrderedDict
 from torch.utils.data import Dataset
 
 import hvqa.util.func as util
@@ -53,103 +54,111 @@ class _AbsE2EDataset(Dataset):
         num_events = len(self.spec.actions) + len(self.spec.effects)
         num_frames = self.spec.num_frames
 
-        # Property question encoding
-        props_q_0 = [0.0] * self.spec.num_props()
-        values_q_0 = [0.0] * num_values
-        obj_types_q_0 = [0.0] * num_obj_types
-        frames_q_0 = [0.0] * num_frames
+        encs = OrderedDict([
+            # Property question encoding
+            ("props_q_0", [0.0] * self.spec.num_props()),
+            ("values_q_0", [0.0] * num_values),
+            ("obj_types_q_0", [0.0] * num_obj_types),
+            ("frames_q_0", [0.0] * num_frames),
 
-        # Relation question encoding
-        relation_q_1 = [0.0] * len(self.spec.relations)
-        obj_types_q_1 = [0.0] * num_obj_types
-        sec_obj_types_q_1 = [0.0] * num_obj_types
-        values_q_1 = [0.0] * num_values
-        sec_values_q_1 = [0.0] * num_values
-        frames_q_1 = [0.0] * num_frames
+            # Relation question encoding
+            ("relation_q_1", [0.0] * len(self.spec.relations)),
+            ("obj_types_q_1", [0.0] * num_obj_types),
+            ("sec_obj_types_q_1", [0.0] * num_obj_types),
+            ("values_q_1", [0.0] * num_values),
+            ("sec_values_q_1", [0.0] * num_values),
+            ("frames_q_1", [0.0] * num_frames),
 
-        # Action question encoding
-        frames_q_2 = [0.0] * num_frames
+            # Action question encoding
+            ("frames_q_2", [0.0] * num_frames),
 
-        # Changed property question encoding
-        obj_types_q_3 = [0.0] * num_obj_types
-        frames_q_3 = [0.0] * num_frames
+            # Changed property question encoding
+            ("obj_types_q_3", [0.0] * num_obj_types),
+            ("frames_q_3", [0.0] * num_frames),
 
-        # Repetition count question encoding
-        obj_types_q_4 = [0.0] * num_obj_types
-        events_q_4 = [0.0] * num_events
+            # Repetition count question encoding
+            ("obj_types_q_4", [0.0] * num_obj_types),
+            ("events_q_4", [0.0] * num_events),
 
-        # Repeating action question encoding
-        obj_types_q_5 = [0.0] * num_obj_types
-        number_q_5 = [0.0] * num_frames
+            # Repeating action question encoding
+            ("obj_types_q_5", [0.0] * num_obj_types),
+            ("number_q_5", [0.0] * num_frames),
 
-        # State transition question encoding
-        obj_types_q_6 = [0.0] * num_obj_types
-        events_q_6 = [0.0] * num_events
-        occ_q_6 = [0.0] * 5
+            # State transition question encoding
+            ("obj_types_q_6", [0.0] * num_obj_types),
+            ("events_q_6", [0.0] * num_events),
+            ("occ_q_6", [0.0] * 5),
 
-        # Explanation question encoding
-        rotation_q_7 = [0.0] * len(self.spec.prop_values("rotation"))
+            # Explanation question encoding
+            ("rotation_q_7", [0.0] * len(self.spec.prop_values("rotation"))),
 
-        # Counter-factual question encoding
-        obj_types_q_8 = [0.0] * num_obj_types
-        colour_q_8 = [0.0] * len(self.spec.prop_values("colour"))
+            # Counter-factual question encoding
+            ("obj_types_q_8", [0.0] * num_obj_types),
+            ("colour_q_8", [0.0] * len(self.spec.prop_values("colour")))
+        ])
 
         if q_type == 0:
             prop, val, cls, frame_idx = self.spec.qa.parse_prop_question(question)
 
-            self._set_one_hot(prop, self.spec.prop_names(), props_q_0)
-            self._set_prop_val_one_hot(val, values_q_0)
-            self._set_one_hot(cls, self.spec.obj_types(), obj_types_q_0)
-            frames_q_0[frame_idx] = 1.0
+            self._set_one_hot(prop, self.spec.prop_names(), encs["props_q_0"])
+            self._set_prop_val_one_hot(val, encs["values_q_0"])
+            self._set_one_hot(cls, self.spec.obj_types(), encs["obj_types_q_0"])
+            encs["frames_q_0"][frame_idx] = 1.0
 
         elif q_type == 1:
             rel, obj1_cls, obj1_val, obj2_cls, obj2_val, frame_idx = self.spec.qa.parse_relation_question(question)
 
-            self._set_one_hot(rel, self.spec.relations, relation_q_1)
-            self._set_one_hot(obj1_cls, self.spec.obj_types(), obj_types_q_1)
-            self._set_prop_val_one_hot(obj1_val, values_q_1)
-            self._set_one_hot(obj2_cls, self.spec.obj_types(), sec_obj_types_q_1)
-            self._set_prop_val_one_hot(obj2_val, sec_values_q_1)
-            frames_q_1[frame_idx] = 1.0
+            self._set_one_hot(rel, self.spec.relations, encs["relation_q_1"])
+            self._set_one_hot(obj1_cls, self.spec.obj_types(), encs["obj_types_q_1"])
+            self._set_prop_val_one_hot(obj1_val, encs["values_q_1"])
+            self._set_one_hot(obj2_cls, self.spec.obj_types(), encs["sec_obj_types_q_1"])
+            self._set_prop_val_one_hot(obj2_val, encs["sec_values_q_1"])
+            encs["frames_q_1"][frame_idx] = 1.0
 
         elif q_type == 2:
             frame_idx = self.spec.parse_event_question(question)
-            frames_q_2[frame_idx] = 1.0
+            encs["frames_q_2"][frame_idx] = 1.0
 
         elif q_type == 3:
             _, cls, frame_idx = self.spec.qa.parse_q_3(question)
-            self._set_one_hot(cls, self.spec.obj_types(), obj_types_q_3)
-            frames_q_3[frame_idx] = 1.0
+            self._set_one_hot(cls, self.spec.obj_types(), encs["obj_types_q_3"])
+            encs["frames_q_3"][frame_idx] = 1.0
 
         elif q_type == 4:
             _, cls, event = self.spec.qa.parse_q_4(question)
-            self._set_one_hot(cls, self.spec.obj_types(), obj_types_q_4)
+            self._set_one_hot(cls, self.spec.obj_types(), encs["obj_types_q_4"])
             events = self.spec.actions + self.spec.effects
-            self._set_one_hot(self.spec.from_internal("event", event), events, events_q_4)
+            self._set_one_hot(self.spec.from_internal("event", event), events, encs["events_q_4"])
 
         elif q_type == 5:
             num, _, cls = self.spec.qa.parse_q_5(question)
-            self._set_one_hot(cls, self.spec.obj_types(), obj_types_q_5)
-            number_q_5[num] = 1.0
+            self._set_one_hot(cls, self.spec.obj_types(), encs["obj_types_q_5"])
+            encs["number_q_5"][num] = 1.0
 
         elif q_type == 6:
             _, cls, occ, event = self.spec.qa.parse_q_6(question)
-            self._set_one_hot(cls, self.spec.obj_types(), obj_types_q_6)
+            self._set_one_hot(cls, self.spec.obj_types(), encs["obj_types_q_6"])
             events = self.spec.actions + self.spec.effects
-            self._set_one_hot(self.spec.from_internal("event", event), events, events_q_6)
-            occ_q_6[occ] = 1.0
+            self._set_one_hot(self.spec.from_internal("event", event), events, encs["events_q_6"])
+            encs["occ_q_6"][occ] = 1.0
 
         elif q_type == 7:
             rot = self.spec.qa.parse_explanation_question(question)
-            self._set_one_hot(rot, self.spec.prop_values("rotation"), rotation_q_7)
+            self._set_one_hot(rot, self.spec.prop_values("rotation"), encs["rotation_q_7"])
 
         elif q_type == 8:
             colour = self.spec.qa.parse_counterfactual_question(question)
-            self._set_one_hot(colour, self.spec.prop_values("colour"), colour_q_8)
-            self._set_one_hot("octopus", self.spec.obj_types(), obj_types_q_8)
+            self._set_one_hot(colour, self.spec.prop_values("colour"), encs["colour_q_8"])
+            self._set_one_hot("octopus", self.spec.obj_types(), encs["obj_types_q_8"])
 
         else:
             raise UnknownQuestionTypeException(f"Question type {q_type} unknown")
+
+        question_enc = []
+        for _, enc in encs.items():
+            question_enc.extend(enc)
+
+        return question_enc
 
     def _set_one_hot(self, value, values, enc):
         val_idx = values.index(value)
