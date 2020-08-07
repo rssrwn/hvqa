@@ -1,4 +1,3 @@
-import PIL.Image as Im
 from pathlib import Path
 
 import torch

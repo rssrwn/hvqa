@@ -272,7 +272,10 @@ class E2EPreDataset(_AbsE2EDataset):
             param.requires_grad = False
 
         self.collate = collate
+
+        print("Pre-processing end-to-end dataset...")
         frames = self._preprocess(frames, questions, q_types)
+        print("Completed pre-processing.")
 
         q_tensors = []
         q_types_ = []
