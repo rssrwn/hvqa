@@ -346,7 +346,11 @@ class CnnMlpPreModel(_AbsNeuralModel):
 
     def _prepare_input(self, frames, questions, q_types, answers):
         feats = torch.stack(frames).to(self._device)
-        qs = pack_sequence(questions, enforce_sorted=False).to(self._device)
+        if self.parse_q:
+            qs = torch.stack(questions).to(self._device)
+        else:
+            qs = pack_sequence(questions, enforce_sorted=False).to(self._device)
+
         return feats, qs
 
     def _set_hyperparams(self):

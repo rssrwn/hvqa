@@ -111,7 +111,7 @@ class CnnMlpPreNetwork(nn.Module):
 
         feat_output_size = (32 * 32) + (32 * 31)
 
-        q_input_size = 200 if parse_q else 300
+        q_input_size = 260 if parse_q else 300
         q_hidden_size = 1024
         q_layers = 2
         self.q_enc = _QuestionNetwork(q_input_size, q_hidden_size, parse_q=parse_q, num_layers=q_layers)

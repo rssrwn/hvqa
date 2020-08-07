@@ -116,7 +116,7 @@ class _AbsE2EDataset(Dataset):
             encs["frames_q_1"][frame_idx] = 1.0
 
         elif q_type == 2:
-            frame_idx = self.spec.parse_event_question(question)
+            frame_idx = self.spec.qa.parse_event_question(question)
             encs["frames_q_2"][frame_idx] = 1.0
 
         elif q_type == 3:
