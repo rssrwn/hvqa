@@ -139,7 +139,7 @@ class E2EDataset(_AbsE2EDataset):
         Each question in a video is treated as a separate item
 
         :param item: Index into dataset
-        :return: frames (could be None), questions, answers
+        :return: frames (could be None), question, q_type, answer
         """
 
         v_idx = item // 10
@@ -256,31 +256,101 @@ class E2EFilterDataset(_AbsE2EDataset):
 
 
 class E2EPreDataset(_AbsE2EDataset):
-    def __init__(self, spec, frames, questions, q_types, answers, transform=None):
+    def __init__(self, spec, frames, questions, q_types, answers, transform=None, collate="stack"):
         super(E2EPreDataset, self).__init__(spec, transform)
 
         frame_feat_extr, event_feat_extr = self._load_feat_extr(spec)
 
         self._device = util.get_device()
 
-        self.frame_feat_extr = frame_feat_extr.to(self._device)
-        for param in self.frame_feat_extr.parameters():
+        self._frame_feat_extr = frame_feat_extr.to(self._device)
+        for param in self._frame_feat_extr.parameters():
             param.requires_grad = False
 
-        self.event_feat_extr = event_feat_extr.to(self._device)
-        for param in self.event_feat_extr.parameters():
+        self._event_feat_extr = event_feat_extr.to(self._device)
+        for param in self._event_feat_extr.parameters():
             param.requires_grad = False
 
+        self.collate = collate
         frames = self._preprocess(frames, questions, q_types)
 
+        q_tensors = []
+        q_types_ = []
+        ans_tensors = []
+
+        for v_idx, v_frames in enumerate(frames):
+            v_qs = questions[v_idx]
+            v_q_types = q_types[v_idx]
+            v_ans = answers[v_idx]
+            q_encs, a_encs = self._encode_qas(v_qs, v_q_types, v_ans)
+            q_tensors.append(q_encs)
+            q_types_.append(v_q_types)
+            ans_tensors.append(a_encs)
+
+        self.frames = frames
+        self.questions = q_tensors
+        self.q_types = q_types_
+        self.answers = ans_tensors
+
     def __len__(self):
-        pass
+        """
+        Returns number of videos multiplied by the number of questions per video
+
+        :return: Length of dataset
+        """
+
+        return len(self.questions) * 10
 
     def __getitem__(self, item):
-        pass
+        """
+        Get an item in the dataset
+        An item is a video, a question and an answer
+        Each question in a video is treated as a separate item
+
+        :param item: Index into dataset
+        :return: frames, question, q_type, answer
+        """
+
+        v_idx = item // 10
+        q_idx = item % 10
+
+        question = self.questions[v_idx][q_idx]
+        q_type = self.q_types[v_idx][q_idx]
+        answer = self.answers[v_idx][q_idx]
+        frames = self.frames[v_idx]
+
+        return frames, question, q_type, answer
 
     def _preprocess(self, frames, question, q_types):
-        pass
+        frame_feats = self._extr_frame_feats(frames)
+        event_feats = self._extr_event_feats(frames)
+
+        feats = []
+        if self.collate == "stack":
+            for idx, frame_feat in enumerate(frame_feats):
+                event_feat = event_feats[idx].reshape(-1)
+                frame_feat = frame_feat.reshape(-1)
+                feat = torch.cat((frame_feat, event_feat), dim=0)
+                feats.append(feat)
+
+        return feats
+
+    def _extr_frame_feats(self, frames):
+        frames_ = [[self.transform(frame) for frame in v_frames] for v_frames in frames]
+        v_feats = self._extr_feats(frames_, self._frame_feat_extr)
+        return v_feats
+
+    def _extr_event_feats(self, frames):
+        frames_ = [[self.transform(frame) for frame in v_frames] for v_frames in frames]
+        frame_pairs = [zip(v_frames, v_frames[1:]) for v_frames in frames_]
+        frame_pairs = [[torch.cat((im1, im2), dim=0) for im1, im2 in v_frames] for v_frames in frame_pairs]
+        event_feats = self._extr_feats(frame_pairs, self._event_feat_extr)
+        return event_feats
+
+    def _extr_feats(self, frames, feat_extr):
+        frames_ = [torch.stack(v_frames).to(self._device) for v_frames in frames]
+        feats = [feat_extr(v_frames) for v_frames in frames_]
+        return feats
 
     @staticmethod
     def _load_feat_extr(spec):
