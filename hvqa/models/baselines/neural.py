@@ -17,7 +17,7 @@ from hvqa.models.baselines.networks import (
     CnnLstmNetwork,
     PropRelNetwork,
     EventNetwork,
-    PreTrainCnnMlpNetwork
+    CnnMlpPreNetwork
 )
 
 
@@ -385,7 +385,7 @@ class PreTrainCnnMlpModel(_AbsNeuralModel):
 
     @staticmethod
     def new(spec):
-        network = PreTrainCnnMlpNetwork(spec)
+        network = CnnMlpPreNetwork(spec)
         frame_feat_extr, event_feat_extr = PreTrainCnnMlpModel._load_feat_extr(spec)
         model = PreTrainCnnMlpModel(spec, network, frame_feat_extr, event_feat_extr)
         return model
@@ -393,7 +393,7 @@ class PreTrainCnnMlpModel(_AbsNeuralModel):
     @staticmethod
     def load(spec, path):
         model_path = Path(path) / "network.pt"
-        network = util.load_model(PreTrainCnnMlpNetwork, model_path, spec)
+        network = util.load_model(CnnMlpPreNetwork, model_path, spec)
         frame_feat_extr, event_feat_extr = PreTrainCnnMlpModel._load_feat_extr(spec)
         model = PreTrainCnnMlpModel(spec, network, frame_feat_extr, event_feat_extr)
         return model

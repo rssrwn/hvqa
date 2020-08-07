@@ -105,11 +105,11 @@ class CnnLstmNetwork(nn.Module):
         return output
 
 
-class PreTrainCnnMlpNetwork(nn.Module):
+class CnnMlpPreNetwork(nn.Module):
     def __init__(self, spec):
-        super(PreTrainCnnMlpNetwork, self).__init__()
+        super(CnnMlpPreNetwork, self).__init__()
 
-        feat_output_size = 16 * (32 + 31)
+        feat_output_size = (32 * 32) + (32 * 31)
 
         word_vector_size = 300
         q_hidden_size = 1024
@@ -117,13 +117,16 @@ class PreTrainCnnMlpNetwork(nn.Module):
         self.lang_lstm = _QuestionNetwork(word_vector_size, q_hidden_size, q_layers)
 
         mlp_input = feat_output_size + q_hidden_size
-        feat1 = 512
+        feat1 = 1024
+        feat2 = 256
         dropout = 0.2
         self.mlp = nn.Sequential(
             nn.Dropout(dropout),
             nn.Linear(mlp_input, feat1),
             nn.ReLU(),
-            _QANetwork(spec, feat1)
+            nn.Dropout(dropout),
+            nn.Linear(feat1, feat2),
+            _QANetwork(spec, feat2)
         )
 
     def forward(self, x):
@@ -138,7 +141,7 @@ class PropRelNetwork(nn.Module):
     def __init__(self, spec):
         super(PropRelNetwork, self).__init__()
 
-        feat_output_size = 16
+        feat_output_size = 32
         self.feat_extr = _SmallFeatExtrNetwork(feat_output_size)
 
         word_vector_size = 300
