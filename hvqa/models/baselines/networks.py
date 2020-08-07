@@ -168,16 +168,38 @@ class PropRelActNetwork(nn.Module):
         return output
 
 
+class EventNetwork(nn.Module):
+    def __init__(self, spec):
+        super(EventNetwork, self).__init__()
+
+        feat_output_size = 32
+        feat1 = 16
+
+        self.feat_extr = _SmallFeatExtrNetwork(feat_output_size, two_images=True)
+        self.mlp = nn.Sequential(
+            nn.Linear(feat_output_size, feat1),
+            nn.ReLU(),
+            _QANetwork(spec, feat1)
+        )
+
+    def forward(self, x):
+        feats = self.feat_extr(x)
+        output = self.mlp(feats)
+        return output
+
+
 class _SmallFeatExtrNetwork(nn.Module):
-    def __init__(self, output_size):
+    def __init__(self, output_size, two_images=False):
         super(_SmallFeatExtrNetwork, self).__init__()
+
+        input_feats = 6 if two_images else 3
 
         feat1 = 8
         feat2 = 16
         feat3 = 32
 
         self.network = nn.Sequential(
-            nn.Conv2d(3, feat1, kernel_size=3),
+            nn.Conv2d(input_feats, feat1, kernel_size=3),
             nn.BatchNorm2d(feat1),
             nn.ReLU(),
             nn.Conv2d(feat1, feat2, kernel_size=3, stride=2),
