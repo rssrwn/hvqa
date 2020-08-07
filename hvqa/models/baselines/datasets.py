@@ -53,40 +53,73 @@ class _AbsE2EDataset(Dataset):
         num_events = len(self.spec.actions) + len(self.spec.effects)
         num_frames = self.spec.num_frames
 
-        props = [0.0] * self.spec.num_props()
-        values = [0.0] * num_values
-        obj_types = [0.0] * num_obj_types
-        relations = [0.0] * len(self.spec.relations)
-        sec_values = [0.0] * num_values
-        sec_obj_types = [0.0] * num_obj_types
-        events = [0.0] * num_events
-        number = [0.0] * num_frames
-        nth = [0.0] * 5
-        frames = [0.0] * num_frames
+        # Property question encoding
+        props_q_0 = [0.0] * self.spec.num_props()
+        values_q_0 = [0.0] * num_values
+        obj_types_q_0 = [0.0] * num_obj_types
+        frames_q_0 = [0.0] * num_frames
+
+        # Relation question encoding
+        relation_q_1 = [0.0] * len(self.spec.relations)
+        obj_types_q_1 = [0.0] * num_obj_types
+        sec_obj_types_q_1 = [0.0] * num_obj_types
+        values_q_1 = [0.0] * num_values
+        sec_values_q_1 = [0.0] * num_values
+        frames_q_1 = [0.0] * num_frames
+
+        # Action question encoding
+        frames_q_2 = [0.0] * num_frames
+
+        # Changed property question encoding
+        obj_types_q_3 = [0.0] * num_obj_types
+        frames_q_3 = [0.0] * num_frames
+
+        # Repetition count question encoding
+        obj_types_q_4 = [0.0] * num_obj_types
+        event_q_4 = [0.0] * num_events
+
+        # Repeating action question encoding
+        obj_types_q_5 = [0.0] * num_obj_types
+        number_q_5 = [0.0] * num_frames
+
+        # State transition question encoding
+        obj_types_q_6 = [0.0] * num_obj_types
+        events_q_6 = [0.0] * num_events
+        occ_q_6 = [0.0] * 5
+
+        # Explanation question encoding
+        rotation_q_7 = [0.0] * len(self.spec.prop_values("rotation"))
+
+        # Counter-factual question encoding
+        obj_types_q_8 = [0.0] * num_obj_types
+        colour_q_8 = [0.0] * len(self.spec.prop_values("colour"))
 
         if q_type == 0:
             prop, val, cls, frame_idx = self.spec.qa.parse_prop_question(question)
 
-            prop_idx = self.spec.prop_names().index(prop)
-            props[prop_idx] = 1.0
-
-            val_idx = 0 if prop == "colour" else len(self.spec.prop_values("colour"))
-            val_idx += self.spec.prop_values(prop).index(val)
-            values[val_idx] = 1.0
-
-            obj_idx = self.spec.obj_types().index(cls)
-            obj_types[obj_idx] = 1.0
-
-            frames[frame_idx] = 1.0
+            self._set_one_hot(prop, self.spec.prop_names(), props_q_0)
+            self._set_prop_val_one_hot(val, values_q_0)
+            self._set_one_hot(cls, self.spec.obj_types(), obj_types_q_0)
+            frames_q_0[frame_idx] = 1.0
 
         elif q_type == 1:
-            pass
+            rel, obj1_cls, obj1_val, obj2_cls, obj2_val, frame_idx = self.spec.qa.parse_relation_question(question)
+
+            self._set_one_hot(rel, self.spec.relations, relation_q_1)
+            self._set_one_hot(obj1_cls, self.spec.obj_types(), obj_types_q_1)
+            self._set_prop_val_one_hot(obj1_val, values_q_1)
+            self._set_one_hot(obj2_cls, self.spec.obj_types(), sec_obj_types_q_1)
+            self._set_prop_val_one_hot(obj2_val, sec_values_q_1)
+            frames_q_1[frame_idx] = 1.0
 
         elif q_type == 2:
-            pass
+            frame_idx = self.spec.parse_event_question(question)
+            frames_q_2[frame_idx] = 1.0
 
         elif q_type == 3:
-            pass
+            _, cls, frame_idx = self.spec.qa.parse_q_3(question)
+            self._set_one_hot(cls, self.spec.obj_types(), obj_types_q_3)
+            frames_q_3[frame_idx] = 1.0
 
         elif q_type == 4:
             pass
@@ -106,6 +139,16 @@ class _AbsE2EDataset(Dataset):
         else:
             raise UnknownQuestionTypeException(f"Question type {q_type} unknown")
 
+    def _set_one_hot(self, value, values, enc):
+        val_idx = values.index(value)
+        enc[val_idx] = 1.0
+
+    def _set_prop_val_one_hot(self, val, enc):
+        if val is not None:
+            prop = self.spec.find_prop(val)
+            val_idx = 0 if prop == "colour" else len(self.spec.prop_values("colour"))
+            val_idx += self.spec.prop_values(prop).index(val)
+            enc[val_idx] = 1.0
 
     def _encode_answers(self, q_types, answers):
         ans_encs = []
