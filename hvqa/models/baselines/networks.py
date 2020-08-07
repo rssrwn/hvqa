@@ -174,9 +174,11 @@ class EventNetwork(nn.Module):
 
         feat_output_size = 32
         feat1 = 16
+        dropout = 0.2
 
         self.feat_extr = _SmallFeatExtrNetwork(feat_output_size, two_images=True)
         self.mlp = nn.Sequential(
+            nn.Dropout(dropout),
             nn.Linear(feat_output_size, feat1),
             nn.ReLU(),
             _QANetwork(spec, feat1)

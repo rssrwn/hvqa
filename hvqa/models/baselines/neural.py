@@ -307,7 +307,7 @@ class EventModel(_AbsNeuralModel):
         return frames
 
     def _set_hyperparams(self):
-        epochs = 20
+        epochs = 10
         lr = 0.001
         batch_size = 64
         return epochs, lr, batch_size
