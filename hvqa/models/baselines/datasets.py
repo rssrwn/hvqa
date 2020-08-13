@@ -610,8 +610,12 @@ class E2EObjDataset(_AbsE2EDataset):
             cls = [0.0] * 4
             val_idx = self.spec.obj_types().index(obj.cls)
             cls[val_idx] = 1.0
-            
-            obj = (obj_feat, torch.tensor(cls), obj.pos, obj.id)
+
+            obj_id = [0.0] * 15
+            obj_id[obj.id] = 1.0
+
+            obj_feat = list(obj_feat) + cls + obj_id
+            obj = (torch.tensor(obj_feat), obj.pos)
             frame_objs.append(obj)
             curr_obj += 1
 
@@ -661,12 +665,12 @@ class E2EObjDataset(_AbsE2EDataset):
         return frames, question, q_type, answer
 
     @staticmethod
-    def from_baseline_dataset(spec, dataset, transform, parse_q=False):
+    def from_baseline_dataset(spec, dataset, transform=None, parse_q=False):
         print("Using VideoDataset rather than BaselineDataset...")
         return E2EObjDataset.from_video_dataset(spec, dataset, transform, parse_q=parse_q)
 
     @staticmethod
-    def from_video_dataset(spec, dataset, transform, parse_q=False):
+    def from_video_dataset(spec, dataset, transform=None, parse_q=False):
         videos = []
         answers = []
         for v_idx in range(len(dataset)):
