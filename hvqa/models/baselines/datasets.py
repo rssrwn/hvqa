@@ -540,3 +540,78 @@ class E2EPreDataset(_AbsE2EDataset):
         e2e_dataset = E2EPreDataset(spec, frames, questions, q_types, answers,
                                     transform=transform, collate=collate, parse_q=parse_q)
         return e2e_dataset
+
+
+class E2EObjDataset(_AbsE2EDataset):
+    def __init__(self, spec, frames, questions, q_types, answers, transform=None, parse_q=False):
+        super(E2EObjDataset, self).__init__(spec, transform, parse_q=parse_q)
+
+        print("Pre-processing end-to-end dataset...")
+        frames = self._preprocess(frames, questions, q_types)
+        print("Completed pre-processing.")
+
+        q_tensors = []
+        q_types_ = []
+        ans_tensors = []
+
+        for v_idx, v_frames in enumerate(frames):
+            v_qs = questions[v_idx]
+            v_q_types = q_types[v_idx]
+            v_ans = answers[v_idx]
+            q_encs, a_encs = self._encode_qas(v_qs, v_q_types, v_ans)
+            q_tensors.append(q_encs)
+            q_types_.append(v_q_types)
+            ans_tensors.append(a_encs)
+
+        self.frames = frames
+        self.questions = q_tensors
+        self.q_types = q_types_
+        self.answers = ans_tensors
+
+    def _preprocess(self, frames, questions, q_types):
+        pass
+
+    def __len__(self):
+        """
+        Returns number of videos multiplied by the number of questions per video
+
+        :return: Length of dataset
+        """
+
+        return len(self.questions) * 10
+
+    def __getitem__(self, item):
+        """
+        Get an item in the dataset
+        An item is a video, a question and an answer
+        Each question in a video is treated as a separate item
+
+        :param item: Index into dataset
+        :return: frames, question, q_type, answer
+        """
+
+        v_idx = item // 10
+        q_idx = item % 10
+
+        question = self.questions[v_idx][q_idx]
+        q_type = self.q_types[v_idx][q_idx]
+        answer = self.answers[v_idx][q_idx]
+        frames = self.frames[v_idx]
+
+        return frames, question, q_type, answer
+
+    @staticmethod
+    def from_baseline_dataset(spec, dataset, transform, parse_q=False):
+        frames = []
+        questions = []
+        q_types = []
+        answers = []
+        for v_idx in range(len(dataset)):
+            v_frames, v_qs, v_types, v_ans = dataset[v_idx]
+            frames.append(v_frames)
+            questions.append(v_qs)
+            q_types.append(v_types)
+            answers.append(v_ans)
+
+        e2e_dataset = E2EObjDataset(spec, frames, questions, q_types, answers, transform=transform, parse_q=parse_q)
+        return e2e_dataset
