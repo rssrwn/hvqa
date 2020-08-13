@@ -448,8 +448,13 @@ class CnnObjModel(_AbsNeuralModel):
 
     @staticmethod
     def new(spec, parse_q=False, att=False):
-        pass
+        network = CnnMlpNetwork(spec, att=att)
+        model = CnnObjModel(spec, network, parse_q=parse_q, att=att)
+        return model
 
     @staticmethod
     def load(spec, path, parse_q=False, att=False):
-        pass
+        model_path = Path(path) / "network.pt"
+        network = util.load_model(CnnMlpModel, model_path, spec, att)
+        model = CnnObjModel(spec, network, parse_q=parse_q, att=att)
+        return model
