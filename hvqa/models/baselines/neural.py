@@ -5,7 +5,7 @@ import torch.optim as optim
 import torchvision.transforms as T
 from torch.nn import NLLLoss
 from torch.utils.data import DataLoader
-from torch.nn.utils.rnn import pack_sequence
+from torch.nn.utils.rnn import pack_sequence, pad_sequence, pad_packed_sequence
 
 import hvqa.util.func as util
 from hvqa.models.baselines.interfaces import _AbsBaselineModel
@@ -379,11 +379,12 @@ class CnnMlpPreModel(_AbsNeuralModel):
 
 
 class CnnObjModel(_AbsNeuralModel):
-    def __init__(self, spec, model, parse_q=False):
+    def __init__(self, spec, model, parse_q=False, att=False):
         super(CnnObjModel, self).__init__(spec, model)
 
         self.print_freq = 5
         self.parse_q = parse_q
+        self.att = att
 
     def _prepare_train_data(self, train_data):
         fn = util.collate_func
@@ -397,15 +398,58 @@ class CnnObjModel(_AbsNeuralModel):
         return eval_loader
 
     def _prepare_input(self, frames, questions, q_types, answers):
-        pass
+        if self.parse_q:
+            qs = torch.stack(questions).to(self._device)
+        else:
+            qs = pack_sequence(questions, enforce_sorted=False).to(self._device)
+
+        lens = []
+        frame_objs = []
+        for frame in frames:
+            lens.append(len(frame))
+            objs = [obj for obj, _ in frame]
+            frame_objs.append(torch.stack(objs))
+
+        frame_objs = pad_sequence(frame_objs).to(self._device)
+
+        if self.att:
+            qs_pad = pad_packed_sequence(qs)
+            frames_objs, _ = self._model.obj_att(frame_objs, qs_pad, qs_pad)
+
+        frame_objs = list(frame_objs.transpose(0, 1))
+
+        att_frames = []
+        for f_idx, objs in enumerate(frame_objs):
+            att_frame = []
+            for o_idx, obj in enumerate(objs):
+                _, position = frames[f_idx][o_idx]
+                att_frame.append((obj, position))
+            att_frames.append(att_frame)
+
+        obj_frames = [self._gen_object_frame(att_frame) for att_frame in att_frames]
+        return obj_frames
+
+    def _gen_object_frame(self, frame):
+        obj_feats = len(frame[0][0])
+        obj_frame = torch.zeros((obj_feats, 256, 256))
+        for obj, (x1, y1, x2, y2) in frame:
+            # TODO Check whether obj in x2, y2 or not
+            for x in range(x1, x2 + 1):
+                for y in range(y1, y2 + 1):
+                    obj_frame[:, y, x] = obj
+
+        return obj_frame
 
     def _set_hyperparams(self):
+        epochs = 10
+        lr = 0.001
+        batch_size = 8
+        return epochs, lr, batch_size
+
+    @staticmethod
+    def new(spec, parse_q=False, att=False):
         pass
 
     @staticmethod
-    def new(spec):
-        pass
-
-    @staticmethod
-    def load(spec, path):
+    def load(spec, path, parse_q=False, att=False):
         pass
