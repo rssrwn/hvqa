@@ -606,7 +606,12 @@ class E2EObjDataset(_AbsE2EDataset):
         for obj_idx, obj_feat in enumerate(obj_features):
             frame = videos[curr_video].frames[curr_frame]
             obj = frame.objs[curr_obj]
-            obj = (obj_feat, obj.cls, obj.pos, obj.id)
+
+            cls = [0.0] * 4
+            val_idx = self.spec.obj_types().index(obj.cls)
+            cls[val_idx] = 1.0
+            
+            obj = (obj_feat, torch.tensor(cls), obj.pos, obj.id)
             frame_objs.append(obj)
             curr_obj += 1
 
