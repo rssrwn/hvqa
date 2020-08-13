@@ -12,7 +12,8 @@ from hvqa.models.baselines.neural import (
     CnnMlpModel,
     PropRelModel,
     EventModel,
-    CnnMlpPreModel
+    CnnMlpPreModel,
+    CnnObjModel
 )
 
 
@@ -28,6 +29,7 @@ PROP_REL_MODEL_PATH = "saved-models/pre/prop-rel"
 EVENT_MODEL_PATH = "saved-models/pre/event"
 CNN_MLP_PRE_PATH = "saved-models/cnn-mlp-pre"
 CNN_MLP_PRE_PQ_PATH = "saved-models/cnn-mlp-pre-pq"
+CNN_OBJ_PATH = "saved-models/cnn-obj"
 
 spec = EnvSpec.from_dict({
     "num_frames": 32,
@@ -110,6 +112,12 @@ def main(data_dir, model_type, components):
         model_path = CNN_MLP_PRE_PQ_PATH
         model = CnnMlpPreModel.load(spec, model_path, parse_q=True)
         data = BaselineDataset.from_data_dir(data_dir)
+
+    elif model_type == "cnn-obj":
+        model_path = CNN_OBJ_PATH
+        model = CnnObjModel.load(spec, model_path)
+        detector = NeuralDetector.load(spec, DETECTOR_PATH)
+        data = VideoDataset.from_data_dir(spec, data_dir, detector, hardcoded=HARDCODED)
 
     else:
         print("That type of model is not supported")
