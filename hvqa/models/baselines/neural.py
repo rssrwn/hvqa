@@ -8,8 +8,13 @@ from torch.utils.data import DataLoader
 from torch.nn.utils.rnn import pack_sequence
 
 import hvqa.util.func as util
-from hvqa.models.baselines.datasets import E2EDataset, E2EFilterDataset, E2EPreDataset
 from hvqa.models.baselines.interfaces import _AbsBaselineModel
+from hvqa.models.baselines.datasets import (
+    E2EDataset,
+    E2EFilterDataset,
+    E2EPreDataset,
+    E2EObjDataset
+)
 from hvqa.models.baselines.networks import (
     LangLstmNetwork,
     CnnMlpNetwork,
@@ -371,3 +376,36 @@ class CnnMlpPreModel(_AbsNeuralModel):
         network = util.load_model(CnnMlpPreNetwork, model_path, spec, parse_q)
         model = CnnMlpPreModel(spec, network, parse_q=parse_q)
         return model
+
+
+class CnnObjModel(_AbsNeuralModel):
+    def __init__(self, spec, model, parse_q=False):
+        super(CnnObjModel, self).__init__(spec, model)
+
+        self.print_freq = 5
+        self.parse_q = parse_q
+
+    def _prepare_train_data(self, train_data):
+        fn = util.collate_func
+        train_dataset = E2EObjDataset.from_video_dataset(self.spec, train_data, parse_q=self.parse_q)
+        train_loader = DataLoader(train_dataset, batch_size=self._batch_size, shuffle=True, collate_fn=fn)
+        return train_loader
+
+    def _prepare_eval_data(self, eval_data):
+        eval_dataset = E2EObjDataset.from_video_dataset(self.spec, eval_data, parse_q=self.parse_q)
+        eval_loader = DataLoader(eval_dataset, batch_size=self._batch_size, shuffle=True, collate_fn=util.collate_func)
+        return eval_loader
+
+    def _prepare_input(self, frames, questions, q_types, answers):
+        pass
+
+    def _set_hyperparams(self):
+        pass
+
+    @staticmethod
+    def new(spec):
+        pass
+
+    @staticmethod
+    def load(spec, path):
+        pass
