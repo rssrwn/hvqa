@@ -2,10 +2,14 @@ import spacy
 import torch
 from more_itertools import grouper
 from collections import OrderedDict
+from sklearn.decomposition import PCA
+
 from torch.utils.data import Dataset
+import torchvision.transforms as T
 
 import hvqa.util.func as util
 from hvqa.models.baselines.networks import PropRelNetwork, EventNetwork
+from hvqa.tracking.obj_tracker import ObjTracker
 from hvqa.util.exceptions import UnknownQuestionTypeException, UnknownAnswerException
 
 
@@ -543,33 +547,84 @@ class E2EPreDataset(_AbsE2EDataset):
 
 
 class E2EObjDataset(_AbsE2EDataset):
-    def __init__(self, spec, frames, questions, q_types, answers, transform=None, parse_q=False):
+    def __init__(self, spec, videos, answers, transform=None, parse_q=False):
         super(E2EObjDataset, self).__init__(spec, transform, parse_q=parse_q)
 
+        self._tracker = ObjTracker.new(spec)
+        self._obj_img_size = (16, 16)
+        self._obj_img_transform = T.Compose([
+            T.Resize(self._obj_img_size),
+            T.ToTensor(),
+            T.Lambda(lambda img: img.reshape(-1).numpy())
+        ])
+
+        pca_features = 8
+        self._pca = PCA(pca_features)
+
         print("Pre-processing end-to-end dataset...")
-        frames = self._preprocess(frames, questions, q_types)
-        print("Completed pre-processing.")
+        videos_objs = self._preprocess(videos)
+
+        pca_var = sum(self._pca.explained_variance_ratio_)
+        print(f"Completed pre-processing with retained PCA variance {pca_var:.2f}%.")
 
         q_tensors = []
         q_types_ = []
         ans_tensors = []
 
-        for v_idx, v_frames in enumerate(frames):
-            v_qs = questions[v_idx]
-            v_q_types = q_types[v_idx]
+        for v_idx, video in enumerate(videos):
+            v_qs = video.questions
+            v_q_types = video.q_types
             v_ans = answers[v_idx]
             q_encs, a_encs = self._encode_qas(v_qs, v_q_types, v_ans)
             q_tensors.append(q_encs)
             q_types_.append(v_q_types)
             ans_tensors.append(a_encs)
 
-        self.frames = frames
+        self.videos = videos_objs
         self.questions = q_tensors
         self.q_types = q_types_
         self.answers = ans_tensors
 
-    def _preprocess(self, frames, questions, q_types):
-        pass
+    def _preprocess(self, videos):
+        [self._tracker.run_(video) for video in videos]
+
+        objs = []
+        for video in videos:
+            for frame in video.frames:
+                objs.extend(frame.objs)
+
+        objs = [self._obj_img_transform(obj.img) for obj in objs]
+        obj_features = self._pca.fit_transform(objs)
+
+        curr_video = 0
+        curr_frame = 0
+        curr_obj = 0
+
+        videos_objs = []
+        video_objs = []
+        frame_objs = []
+        for obj_idx, obj_feat in enumerate(obj_features):
+            frame = videos[curr_video].frames[curr_frame]
+            obj = frame.objs[curr_obj]
+            obj = (obj_feat, obj.cls, obj.pos, obj.id)
+            frame_objs.append(obj)
+            curr_obj += 1
+
+            # If at end of frame
+            num_objs = len(frame.objs)
+            if len(frame_objs) == num_objs:
+                video_objs.append(frame_objs)
+                frame_objs = []
+                curr_obj = 0
+
+            # If at end of video
+            if len(video_objs) == 32:
+                videos_objs.append(video_objs)
+                video_objs = []
+                curr_frame = 0
+
+        print(f"Matched objects up with {len(videos_objs)} videos.")
+        return videos_objs
 
     def __len__(self):
         """
@@ -596,22 +651,23 @@ class E2EObjDataset(_AbsE2EDataset):
         question = self.questions[v_idx][q_idx]
         q_type = self.q_types[v_idx][q_idx]
         answer = self.answers[v_idx][q_idx]
-        frames = self.frames[v_idx]
+        frames = self.videos[v_idx]
 
         return frames, question, q_type, answer
 
     @staticmethod
     def from_baseline_dataset(spec, dataset, transform, parse_q=False):
-        frames = []
-        questions = []
-        q_types = []
+        print("Using VideoDataset rather than BaselineDataset...")
+        return E2EObjDataset.from_video_dataset(spec, dataset, transform, parse_q=parse_q)
+
+    @staticmethod
+    def from_video_dataset(spec, dataset, transform, parse_q=False):
+        videos = []
         answers = []
         for v_idx in range(len(dataset)):
-            v_frames, v_qs, v_types, v_ans = dataset[v_idx]
-            frames.append(v_frames)
-            questions.append(v_qs)
-            q_types.append(v_types)
+            video, v_ans = dataset[v_idx]
+            videos.append(video)
             answers.append(v_ans)
 
-        e2e_dataset = E2EObjDataset(spec, frames, questions, q_types, answers, transform=transform, parse_q=parse_q)
+        e2e_dataset = E2EObjDataset(spec, videos, answers, transform=transform, parse_q=parse_q)
         return e2e_dataset
