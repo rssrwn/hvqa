@@ -28,7 +28,7 @@ class LangLstmNetwork(nn.Module):
 
 
 class CnnMlpNetwork(nn.Module):
-    def __init__(self, spec):
+    def __init__(self, spec, att=False):
         super(CnnMlpNetwork, self).__init__()
 
         feat_output_size = 256
@@ -41,17 +41,28 @@ class CnnMlpNetwork(nn.Module):
         feat2 = 1024
         feat3 = 512
 
+        dropout = 0.2
+
         self.feat_extr = _VideoFeatNetwork(feat_output_size)
         self.lang_lstm = _QuestionNetwork(word_vector_size, hidden_size, num_layers=num_lstm_layers)
         self.mlp = nn.Sequential(
+            nn.Dropout(dropout),
             nn.Linear(mlp_input, feat1),
             nn.ReLU(),
+            nn.Dropout(dropout),
             nn.Linear(feat1, feat2),
             nn.ReLU(),
+            nn.Dropout(dropout),
             nn.Linear(feat2, feat3),
             nn.ReLU(),
             _QANetwork(spec, feat3)
         )
+
+        if att:
+            obj_feat_size = 8 + 4 + 15
+            num_heads = 8
+            self.obj_att = nn.MultiheadAttention(obj_feat_size, num_heads)
+            self.frame_att = nn.MultiheadAttention(feat_output_size, num_heads)
 
     def forward(self, x):
         frames, qs = x
@@ -78,16 +89,23 @@ class CnnLstmNetwork(nn.Module):
         v_layers = 2
 
         mlp_input = v_hidden_size + q_hidden_size
-        feat1 = 512
+        feat1 = 1024
+        feat2 = 512
+
+        dropout = 0.2
 
         self.feat_extr = _VideoFeatNetwork(feat_output_size)
         self.video_lstm = _VideoLstmNetwork(feat_output_size, v_hidden_size, v_layers)
         self.lang_lstm = _QuestionNetwork(word_vector_size, q_hidden_size, num_layers=q_layers)
 
         self.mlp = nn.Sequential(
+            nn.Dropout(dropout),
             nn.Linear(mlp_input, feat1),
             nn.ReLU(),
-            _QANetwork(spec, feat1)
+            nn.Dropout(dropout),
+            nn.Linear(feat1, feat2),
+            nn.ReLU(),
+            _QANetwork(spec, feat2)
         )
 
     def forward(self, x):
