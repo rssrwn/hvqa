@@ -403,6 +403,8 @@ class CnnObjModel(_AbsNeuralModel):
         else:
             qs = pack_sequence(questions, enforce_sorted=False).to(self._device)
 
+        frames = [frame for frames_ in frames for frame in frames_]
+
         lens = []
         frame_objs = []
         for frame in frames:
@@ -419,15 +421,15 @@ class CnnObjModel(_AbsNeuralModel):
         frame_objs = list(frame_objs.transpose(0, 1))
 
         att_frames = []
-        for f_idx, objs in enumerate(frame_objs):
+        for f_idx, frame in enumerate(frames):
             att_frame = []
-            for o_idx, obj in enumerate(objs):
-                _, position = frames[f_idx][o_idx]
+            for o_idx, (_, position) in enumerate(frame):
+                obj = frame_objs[f_idx][o_idx, :]
                 att_frame.append((obj, position))
             att_frames.append(att_frame)
 
         obj_frames = [self._gen_object_frame(att_frame) for att_frame in att_frames]
-        return obj_frames
+        return obj_frames, qs
 
     def _gen_object_frame(self, frame):
         obj_feats = len(frame[0][0])

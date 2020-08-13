@@ -550,7 +550,7 @@ class E2EObjDataset(_AbsE2EDataset):
     def __init__(self, spec, videos, answers, transform=None, parse_q=False):
         super(E2EObjDataset, self).__init__(spec, transform, parse_q=parse_q)
 
-        self._tracker = ObjTracker.new(spec)
+        self._tracker = ObjTracker.new(spec, err_corr=False)
         self._obj_img_size = (16, 16)
         self._obj_img_transform = T.Compose([
             T.Resize(self._obj_img_size),
@@ -615,8 +615,8 @@ class E2EObjDataset(_AbsE2EDataset):
             obj_id[obj.id] = 1.0
 
             obj_feat = list(obj_feat) + cls + obj_id
-            obj = (torch.tensor(obj_feat), obj.pos)
-            frame_objs.append(obj)
+            obj_ = (torch.tensor(obj_feat), obj.pos)
+            frame_objs.append(obj_)
             curr_obj += 1
 
             # If at end of frame
@@ -625,12 +625,14 @@ class E2EObjDataset(_AbsE2EDataset):
                 video_objs.append(frame_objs)
                 frame_objs = []
                 curr_obj = 0
+                curr_frame += 1
 
             # If at end of video
             if len(video_objs) == 32:
                 videos_objs.append(video_objs)
                 video_objs = []
                 curr_frame = 0
+                curr_video += 1
 
         print(f"Matched objects up with {len(videos_objs)} videos.")
         return videos_objs
