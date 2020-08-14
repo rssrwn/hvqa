@@ -1,3 +1,5 @@
+import os
+from concurrent.futures import ThreadPoolExecutor
 from pathlib import Path
 
 import torch
@@ -386,9 +388,13 @@ class CnnObjModel(_AbsNeuralModel):
     def __init__(self, spec, model, parse_q=False, att=False):
         super(CnnObjModel, self).__init__(spec, model)
 
-        self._print_freq = 5
+        self._print_freq = 10
         self.parse_q = parse_q
         self.att = att
+
+        num_workers = os.cpu_count()
+        self._future_timeout = 5
+        self._executor = ThreadPoolExecutor(max_workers=num_workers)
 
     def _prepare_train_data(self, train_data):
         fn = util.collate_func
@@ -431,7 +437,8 @@ class CnnObjModel(_AbsNeuralModel):
                     att_frame.append((obj, position))
                 new_frames.append(att_frame)
 
-        obj_frames = [self._gen_object_frame(frame) for frame in new_frames]
+        futures = [self._executor.submit(self._gen_object_frame, frame) for frame in new_frames]
+        obj_frames = [future.result(self._future_timeout) for future in futures]
         obj_frames = torch.stack(obj_frames).to(self._device)
 
         return obj_frames, qs
