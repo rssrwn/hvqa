@@ -565,7 +565,7 @@ class E2EObjDataset(_AbsE2EDataset):
         videos_objs = self._preprocess(videos)
 
         pca_var = sum(self._pca.explained_variance_ratio_)
-        print(f"Completed pre-processing with retained PCA variance {pca_var:.2f}%.")
+        print(f"Completed pre-processing with retained PCA variance {pca_var * 100:.2f}%.")
 
         q_tensors = []
         q_types_ = []
