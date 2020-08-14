@@ -429,10 +429,10 @@ class CnnObjModel(_AbsNeuralModel):
 
             # Map questions to obj emb size and apply attention
             qs_pad = qs_pad.transpose(0, 1)
-            qs_att = self._model.word_obj_map(qs_pad).transpose(0, 1)
+            qs_att = self._model.word_obj_map(qs_pad).transpose(0, 1).float()
             qs_att = qs_att.repeat_interleave(32, dim=1)
 
-            frame_objs = frame_objs.to(self._device)
+            frame_objs = frame_objs.float().to(self._device)
             frames_objs, _ = self._model.obj_att(frame_objs, qs_att, qs_att)
             frame_objs = list(frame_objs.cpu().transpose(0, 1))
 
