@@ -438,8 +438,7 @@ class CnnObjModel(_AbsNeuralModel):
         obj_frame = torch.zeros((obj_feats, 256, 256))
         for obj, pos in frame:
             # TODO Check whether obj in x2, y2 or not
-            print(pos)
-            (x1, y1, x2, y2) = tuple(map(round, pos))
+            (x1, y1, x2, y2) = tuple(map(int, pos))
             for x in range(x1, x2 + 1):
                 for y in range(y1, y2 + 1):
                     obj_frame[:, y, x] = obj
