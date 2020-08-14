@@ -294,9 +294,8 @@ class _MedFeatExtrNetwork(nn.Module):
         super(_MedFeatExtrNetwork, self).__init__()
 
         feat1 = 64
-        feat2 = 64
-        feat3 = 128
-        feat4 = 256
+        feat2 = 128
+        feat3 = 256
 
         self.network = nn.Sequential(
             nn.Conv2d(in_channels, feat1, kernel_size=3),
@@ -308,12 +307,9 @@ class _MedFeatExtrNetwork(nn.Module):
             nn.Conv2d(feat2, feat3, kernel_size=3, stride=2),
             nn.BatchNorm2d(feat3),
             nn.ReLU(),
-            nn.Conv2d(feat3, feat4, kernel_size=3, stride=2),
-            nn.BatchNorm2d(feat4),
-            nn.ReLU(),
             nn.AdaptiveMaxPool2d(1),
             nn.Flatten(),
-            nn.Linear(feat4, output_size)
+            nn.Linear(feat3, output_size)
         )
 
     def forward(self, x):

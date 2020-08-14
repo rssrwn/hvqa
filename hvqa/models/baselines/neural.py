@@ -386,7 +386,7 @@ class CnnObjModel(_AbsNeuralModel):
     def __init__(self, spec, model, parse_q=False, att=False):
         super(CnnObjModel, self).__init__(spec, model)
 
-        self.print_freq = 5
+        self.print_freq = 1
         self.parse_q = parse_q
         self.att = att
 
@@ -438,10 +438,13 @@ class CnnObjModel(_AbsNeuralModel):
 
     def _gen_object_frame(self, frame):
         obj_feats = len(frame[0][0])
-        obj_frame = torch.zeros((obj_feats, 256, 256))
+        obj_frame = torch.zeros((obj_feats, 64, 64))
         for obj, pos in frame:
-            # TODO Check whether obj in x2, y2 or not
             (x1, y1, x2, y2) = tuple(map(int, pos))
+            x1 = x1 // 4
+            x2 = x2 // 4
+            y1 = y1 // 4
+            y2 = y2 // 4
             for x in range(x1, x2 + 1):
                 for y in range(y1, y2 + 1):
                     obj_frame[:, y, x] = obj
@@ -451,7 +454,7 @@ class CnnObjModel(_AbsNeuralModel):
     def _set_hyperparams(self):
         epochs = 10
         lr = 0.001
-        batch_size = 12
+        batch_size = 32
         return epochs, lr, batch_size
 
     @staticmethod
