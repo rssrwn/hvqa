@@ -28,9 +28,10 @@ class LangLstmNetwork(nn.Module):
 
 
 class CnnMlpNetwork(nn.Module):
-    def __init__(self, spec, att=False):
+    def __init__(self, spec, att=False, objs=False):
         super(CnnMlpNetwork, self).__init__()
 
+        obj_feat_size = 8 + 4 + 15
         feat_output_size = 256
         word_vector_size = 300
         hidden_size = 1024
@@ -43,7 +44,9 @@ class CnnMlpNetwork(nn.Module):
 
         dropout = 0.2
 
-        self.feat_extr = _VideoFeatNetwork(feat_output_size)
+        in_channels = obj_feat_size if objs else 3
+
+        self.feat_extr = _VideoFeatNetwork(feat_output_size, in_channels=in_channels)
         self.lang_lstm = _QuestionNetwork(word_vector_size, hidden_size, num_layers=num_lstm_layers)
         self.mlp = nn.Sequential(
             nn.Dropout(dropout),
@@ -59,8 +62,7 @@ class CnnMlpNetwork(nn.Module):
         )
 
         if att:
-            obj_feat_size = 8 + 4 + 15
-            num_heads = 8
+            num_heads = 4
             self.obj_att = nn.MultiheadAttention(obj_feat_size, num_heads)
             self.frame_att = nn.MultiheadAttention(feat_output_size, num_heads)
 
@@ -253,16 +255,14 @@ class _VideoLstmNetwork(nn.Module):
 
 
 class _VideoFeatNetwork(nn.Module):
-    def __init__(self, output_size, two_images=False):
+    def __init__(self, output_size, in_channels=3):
         super(_VideoFeatNetwork, self).__init__()
 
         resnet_out = 512
 
         self.resnet = models.resnet18()
         self.resnet.fc = nn.Linear(resnet_out, output_size)
-
-        if two_images:
-            self.resnet.conv1 = nn.Conv2d(6, 64, kernel_size=(7, 7), stride=(2, 2), padding=(3, 3), bias=False)
+        self.resnet.conv1 = nn.Conv2d(in_channels, 64, kernel_size=(7, 7), stride=(2, 2), padding=(3, 3), bias=False)
 
     def forward(self, x):
         return self.resnet(x)

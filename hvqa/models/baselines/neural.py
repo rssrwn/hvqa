@@ -412,7 +412,7 @@ class CnnObjModel(_AbsNeuralModel):
             objs = [obj for obj, _ in frame]
             frame_objs.append(torch.stack(objs))
 
-        frame_objs = pad_sequence(frame_objs).to(self._device)
+        frame_objs = pad_sequence(frame_objs)
 
         if self.att:
             qs_pad = pad_packed_sequence(qs)
@@ -429,6 +429,8 @@ class CnnObjModel(_AbsNeuralModel):
             att_frames.append(att_frame)
 
         obj_frames = [self._gen_object_frame(att_frame) for att_frame in att_frames]
+        obj_frames = torch.stack(obj_frames).to(self._device)
+
         return obj_frames, qs
 
     def _gen_object_frame(self, frame):
@@ -450,13 +452,13 @@ class CnnObjModel(_AbsNeuralModel):
 
     @staticmethod
     def new(spec, parse_q=False, att=False):
-        network = CnnMlpNetwork(spec, att=att)
+        network = CnnMlpNetwork(spec, att=att, objs=True)
         model = CnnObjModel(spec, network, parse_q=parse_q, att=att)
         return model
 
     @staticmethod
     def load(spec, path, parse_q=False, att=False):
         model_path = Path(path) / "network.pt"
-        network = util.load_model(CnnMlpModel, model_path, spec, att)
+        network = util.load_model(CnnMlpModel, model_path, spec, att, True)
         model = CnnObjModel(spec, network, parse_q=parse_q, att=att)
         return model
