@@ -29,7 +29,6 @@ from hvqa.models.baselines.networks import (
 class _AbsNeuralModel(_AbsBaselineModel):
     def __init__(self, spec, model):
         super(_AbsNeuralModel, self).__init__(spec)
-        torch.cuda.empty_cache()
         self._device = util.get_device()
         self._model = model.to(self._device)
         self._model.eval()
@@ -452,7 +451,7 @@ class CnnObjModel(_AbsNeuralModel):
     def _set_hyperparams(self):
         epochs = 10
         lr = 0.001
-        batch_size = 64
+        batch_size = 32
         return epochs, lr, batch_size
 
     @staticmethod
