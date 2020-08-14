@@ -448,7 +448,7 @@ class CnnObjModel(_AbsNeuralModel):
     def _set_hyperparams(self):
         epochs = 10
         lr = 0.001
-        batch_size = 8
+        batch_size = 12
         return epochs, lr, batch_size
 
     @staticmethod
