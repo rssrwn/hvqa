@@ -28,12 +28,9 @@ class LangLstmNetwork(nn.Module):
 
 
 class CnnMlpNetwork(nn.Module):
-    def __init__(self, spec, att=False, objs=False):
+    def __init__(self, spec):
         super(CnnMlpNetwork, self).__init__()
 
-        self.att = att
-
-        obj_feat_size = 8 + 4 + 20
         feat_output_size = 256
         word_vector_size = 300
         hidden_size = 1024
@@ -46,9 +43,7 @@ class CnnMlpNetwork(nn.Module):
 
         dropout = 0.2
 
-        in_channels = obj_feat_size if objs else 3
-
-        self.feat_extr = _VideoFeatNetwork(feat_output_size, in_channels=in_channels)
+        self.feat_extr = _VideoFeatNetwork(feat_output_size)
         self.lang_lstm = _QuestionNetwork(word_vector_size, hidden_size, num_layers=num_lstm_layers)
         self.mlp = nn.Sequential(
             nn.Dropout(dropout),
@@ -63,22 +58,12 @@ class CnnMlpNetwork(nn.Module):
             _QANetwork(spec, feat3)
         )
 
-        if att:
-            num_heads = 4
-            self.obj_att = nn.MultiheadAttention(obj_feat_size, num_heads)
-            self.frame_att = nn.MultiheadAttention(feat_output_size, num_heads)
-
     def forward(self, x):
         frames, qs = x
         frame_feats = self.feat_extr(frames)
         batch_size = frame_feats.shape[0] // 32
         q_feats = self.lang_lstm(qs)
-        v_feats = frame_feats.reshape((32, batch_size, -1))
-
-        if self.att:
-            v_feats = self.frame_att(v_feats)
-            v_feats = v_feats.transpose(0, 1).reshape((batch_size, -1))
-
+        v_feats = frame_feats.reshape((batch_size, -1))
         video_enc = torch.cat([v_feats, q_feats], dim=1)
         output = self.mlp(video_enc)
         return output
@@ -129,6 +114,64 @@ class CnnLstmNetwork(nn.Module):
         video_enc = torch.cat([v_feats, q_feats], dim=1)
         output = self.mlp(video_enc)
 
+        return output
+
+
+class CnnMlpObjNetwork(nn.Module):
+    def __init__(self, spec, parse_q=False, att=False):
+        super(CnnMlpObjNetwork, self).__init__()
+
+        self.parse_q = parse_q
+        self.att = att
+
+        obj_feat_size = 8 + 4 + 20
+        feat_output_size = 256
+        word_vector_size = 300
+        hidden_size = 1024
+        num_lstm_layers = 2
+
+        mlp_input = (32 * feat_output_size) + hidden_size
+        feat1 = 4096
+        feat2 = 1024
+        feat3 = 512
+
+        dropout = 0.2
+
+        num_att_heads = 4
+
+        self.feat_extr = _MedFeatExtrNetwork(obj_feat_size, feat_output_size)
+        self.lang_lstm = _QuestionNetwork(word_vector_size, hidden_size, num_layers=num_lstm_layers)
+        self.mlp = nn.Sequential(
+            nn.Dropout(dropout),
+            nn.Linear(mlp_input, feat1),
+            nn.ReLU(),
+            nn.Dropout(dropout),
+            nn.Linear(feat1, feat2),
+            nn.ReLU(),
+            nn.Dropout(dropout),
+            nn.Linear(feat2, feat3),
+            nn.ReLU(),
+            _QANetwork(spec, feat3)
+        )
+
+        if att:
+            self.obj_att = nn.MultiheadAttention(obj_feat_size, num_att_heads)
+            self.frame_att = nn.MultiheadAttention(feat_output_size, num_att_heads)
+
+    def forward(self, x):
+        frames, qs = x
+        frame_feats = self.feat_extr(frames)
+        batch_size = frame_feats.shape[0] // 32
+        q_feats = self.lang_lstm(qs)
+
+        if self.att:
+            v_feats = frame_feats.reshape((32, batch_size, -1))
+            v_feats = self.frame_att(v_feats)
+            frame_feats = v_feats.transpose(0, 1)
+
+        v_feats = frame_feats.reshape((batch_size, -1))
+        video_enc = torch.cat([v_feats, q_feats], dim=1)
+        output = self.mlp(video_enc)
         return output
 
 
@@ -243,6 +286,38 @@ class _SmallFeatExtrNetwork(nn.Module):
             nn.AdaptiveMaxPool2d(1),
             nn.Flatten(),
             nn.Linear(feat3, output_size)
+        )
+
+    def forward(self, x):
+        feats = self.network(x)
+        return feats
+
+
+class _MedFeatExtrNetwork(nn.Module):
+    def __init__(self, in_channels, output_size):
+        super(_MedFeatExtrNetwork, self).__init__()
+
+        feat1 = 64
+        feat2 = 64
+        feat3 = 128
+        feat4 = 256
+
+        self.network = nn.Sequential(
+            nn.Conv2d(in_channels, feat1, kernel_size=3),
+            nn.BatchNorm2d(feat1),
+            nn.ReLU(),
+            nn.Conv2d(feat1, feat2, kernel_size=3, stride=2),
+            nn.BatchNorm2d(feat2),
+            nn.ReLU(),
+            nn.Conv2d(feat2, feat3, kernel_size=3, stride=2),
+            nn.BatchNorm2d(feat3),
+            nn.ReLU(),
+            nn.Conv2d(feat3, feat4, kernel_size=3, stride=2),
+            nn.BatchNorm2d(feat4),
+            nn.ReLU(),
+            nn.AdaptiveMaxPool2d(1),
+            nn.Flatten(),
+            nn.Linear(feat4, output_size)
         )
 
     def forward(self, x):

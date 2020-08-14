@@ -117,7 +117,7 @@ def main(train_dir, eval_dir, model_type):
         print("That model type is not supported")
         return
 
-    model.train(train_data, eval_data)
+    model.train(train_data, eval_data, save_path=model_path)
     model.save(model_path)
 
 

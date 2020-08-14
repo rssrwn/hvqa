@@ -21,7 +21,8 @@ from hvqa.models.baselines.networks import (
     CnnLstmNetwork,
     PropRelNetwork,
     EventNetwork,
-    CnnMlpPreNetwork
+    CnnMlpPreNetwork,
+    CnnMlpObjNetwork
 )
 
 
@@ -36,13 +37,14 @@ class _AbsNeuralModel(_AbsBaselineModel):
         self._epochs, self._lr, self._batch_size = self._set_hyperparams()
         self._print_freq = 10
 
-    def train(self, train_data, eval_data, verbose=True):
+    def train(self, train_data, eval_data, verbose=True, save_path=None):
         """
         Train the LSTM model
 
         :param train_data: Training dataset: BaselineDataset
         :param eval_data: Validation dataset: BaselineDataset
         :param verbose: Additional printing while training: bool
+        :param save_path: If provided, model will save at the end of each epoch
         """
 
         print("Preparing data...")
@@ -57,6 +59,8 @@ class _AbsNeuralModel(_AbsBaselineModel):
             self._train_one_epoch(train_loader, optimiser, e, verbose)
             print()
             self._eval(eval_loader, verbose)
+            if save_path is not None:
+                self.save(save_path)
 
         print("Training complete.")
 
@@ -405,31 +409,30 @@ class CnnObjModel(_AbsNeuralModel):
             qs = pack_sequence(questions, enforce_sorted=False).to(self._device)
 
         frames = [frame for frames_ in frames for frame in frames_]
-
-        lens = []
-        frame_objs = []
-        for frame in frames:
-            lens.append(len(frame))
-            objs = [obj for obj, _ in frame]
-            frame_objs.append(torch.stack(objs))
-
-        frame_objs = pad_sequence(frame_objs)
+        new_frames = frames
 
         if self.att:
+            lens = []
+            frame_objs = []
+            for frame in frames:
+                lens.append(len(frame))
+                objs = [obj for obj, _ in frame]
+                frame_objs.append(torch.stack(objs))
+
+            frame_objs = pad_sequence(frame_objs)
             qs_pad = pad_packed_sequence(qs)
             frames_objs, _ = self._model.obj_att(frame_objs, qs_pad, qs_pad)
+            frame_objs = list(frame_objs.transpose(0, 1))
 
-        frame_objs = list(frame_objs.transpose(0, 1))
+            new_frames = []
+            for f_idx, frame in enumerate(frames):
+                att_frame = []
+                for o_idx, (_, position) in enumerate(frame):
+                    obj = frame_objs[f_idx][o_idx, :]
+                    att_frame.append((obj, position))
+                new_frames.append(att_frame)
 
-        att_frames = []
-        for f_idx, frame in enumerate(frames):
-            att_frame = []
-            for o_idx, (_, position) in enumerate(frame):
-                obj = frame_objs[f_idx][o_idx, :]
-                att_frame.append((obj, position))
-            att_frames.append(att_frame)
-
-        obj_frames = [self._gen_object_frame(att_frame) for att_frame in att_frames]
+        obj_frames = [self._gen_object_frame(frame) for frame in new_frames]
         obj_frames = torch.stack(obj_frames).to(self._device)
 
         return obj_frames, qs
@@ -449,18 +452,18 @@ class CnnObjModel(_AbsNeuralModel):
     def _set_hyperparams(self):
         epochs = 10
         lr = 0.001
-        batch_size = 12
+        batch_size = 32
         return epochs, lr, batch_size
 
     @staticmethod
     def new(spec, parse_q=False, att=False):
-        network = CnnMlpNetwork(spec, att=att, objs=True)
+        network = CnnMlpObjNetwork(spec, parse_q=parse_q, att=att)
         model = CnnObjModel(spec, network, parse_q=parse_q, att=att)
         return model
 
     @staticmethod
     def load(spec, path, parse_q=False, att=False):
         model_path = Path(path) / "network.pt"
-        network = util.load_model(CnnMlpModel, model_path, spec, att, True)
+        network = util.load_model(CnnMlpObjNetwork, model_path, spec, parse_q, att)
         model = CnnObjModel(spec, network, parse_q=parse_q, att=att)
         return model
