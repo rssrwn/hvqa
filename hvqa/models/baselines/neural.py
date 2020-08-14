@@ -386,7 +386,7 @@ class CnnObjModel(_AbsNeuralModel):
     def __init__(self, spec, model, parse_q=False, att=False):
         super(CnnObjModel, self).__init__(spec, model)
 
-        self.print_freq = 1
+        self._print_freq = 5
         self.parse_q = parse_q
         self.att = att
 
@@ -454,7 +454,7 @@ class CnnObjModel(_AbsNeuralModel):
     def _set_hyperparams(self):
         epochs = 10
         lr = 0.001
-        batch_size = 32
+        batch_size = 64
         return epochs, lr, batch_size
 
     @staticmethod
