@@ -611,8 +611,9 @@ class E2EObjDataset(_AbsE2EDataset):
             val_idx = self.spec.obj_types().index(obj.cls)
             cls[val_idx] = 1.0
 
-            obj_id = [0.0] * 15
-            obj_id[obj.id] = 1.0
+            obj_id = [0.0] * 20
+            if obj.id < 20:
+                obj_id[obj.id] = 1.0
 
             obj_feat = list(obj_feat) + cls + obj_id
             obj_ = (torch.tensor(obj_feat), obj.pos)

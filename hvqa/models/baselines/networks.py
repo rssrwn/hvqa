@@ -31,7 +31,7 @@ class CnnMlpNetwork(nn.Module):
     def __init__(self, spec, att=False, objs=False):
         super(CnnMlpNetwork, self).__init__()
 
-        obj_feat_size = 8 + 4 + 15
+        obj_feat_size = 8 + 4 + 20
         feat_output_size = 256
         word_vector_size = 300
         hidden_size = 1024

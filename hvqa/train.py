@@ -111,7 +111,7 @@ def main(train_dir, eval_dir, model_type):
         model = CnnObjModel.new(spec)
         detector = NeuralDetector.load(spec, DETECTOR_PATH)
         train_data = VideoDataset.from_data_dir(spec, train_dir, detector, hardcoded=False)
-        eval_data = VideoDataset.from_data_dir(spec, eval_dir, detector, hardcoded=True)
+        eval_data = VideoDataset.from_data_dir(spec, eval_dir, detector, hardcoded=False)
 
     else:
         print("That model type is not supported")
