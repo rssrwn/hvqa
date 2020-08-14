@@ -132,8 +132,7 @@ class CnnMlpObjNetwork(nn.Module):
 
         mlp_input = (32 * feat_output_size) + hidden_size
         feat1 = 4096
-        feat2 = 1024
-        feat3 = 512
+        feat2 = 512
 
         dropout = 0.2
 
@@ -148,10 +147,7 @@ class CnnMlpObjNetwork(nn.Module):
             nn.Dropout(dropout),
             nn.Linear(feat1, feat2),
             nn.ReLU(),
-            nn.Dropout(dropout),
-            nn.Linear(feat2, feat3),
-            nn.ReLU(),
-            _QANetwork(spec, feat3)
+            _QANetwork(spec, feat2)
         )
 
         if att:
