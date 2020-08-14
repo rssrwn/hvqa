@@ -1,6 +1,7 @@
 import torch
 import torch.nn as nn
 import torchvision.models as models
+from torch.nn.utils.rnn import pad_packed_sequence
 
 
 class LangLstmNetwork(nn.Module):
@@ -151,7 +152,9 @@ class CnnMlpObjNetwork(nn.Module):
         )
 
         if att:
+            self.word_obj_map = nn.Linear(word_vector_size, obj_feat_size)
             self.obj_att = nn.MultiheadAttention(obj_feat_size, num_att_heads)
+            self.word_frame_map = nn.Linear(word_vector_size, feat_output_size)
             self.frame_att = nn.MultiheadAttention(feat_output_size, num_att_heads)
 
     def forward(self, x):
@@ -161,8 +164,13 @@ class CnnMlpObjNetwork(nn.Module):
         q_feats = self.lang_lstm(qs)
 
         if self.att:
+            # Prepare question attention input
+            qs_att, _ = pad_packed_sequence(qs)
+            qs_att = qs_att.transpose(0, 1)
+            qs_att = self.word_frame_map(qs_att).transpose(0, 1)
+
             v_feats = frame_feats.reshape((32, batch_size, -1))
-            v_feats = self.frame_att(v_feats)
+            v_feats, _ = self.frame_att(v_feats, qs_att, qs_att)
             frame_feats = v_feats.transpose(0, 1)
 
         v_feats = frame_feats.reshape((batch_size, -1))

@@ -388,7 +388,7 @@ class CnnObjModel(_AbsNeuralModel):
     def __init__(self, spec, model, parse_q=False, att=False):
         super(CnnObjModel, self).__init__(spec, model)
 
-        self._print_freq = 10
+        self._print_freq = 1
         self.parse_q = parse_q
         self.att = att
 
@@ -425,8 +425,14 @@ class CnnObjModel(_AbsNeuralModel):
                 frame_objs.append(torch.stack(objs))
 
             frame_objs = pad_sequence(frame_objs)
-            qs_pad = pad_packed_sequence(qs)
-            frames_objs, _ = self._model.obj_att(frame_objs, qs_pad, qs_pad)
+            qs_pad, _ = pad_packed_sequence(qs)
+
+            # Map questions to obj emb size and apply attention
+            qs_pad = qs_pad.transpose(0, 1)
+            qs_att = self._model.word_obj_map(qs_pad).transpose(0, 1)
+            qs_att = qs_att.repeat_interleave(32, dim=1)
+
+            frames_objs, _ = self._model.obj_att(frame_objs, qs_att, qs_att)
             frame_objs = list(frame_objs.transpose(0, 1))
 
             new_frames = []
