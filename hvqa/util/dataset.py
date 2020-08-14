@@ -55,6 +55,10 @@ class VideoDataset(QADataset):
         videos = [videos[idx] for idx, _ in ids]
         answers = [answers[idx] for idx, _ in ids]
         dataset = VideoDataset(spec, videos, answers, timing=timing, hardcoded=hardcoded)
+
+        # Try to free up GPU memory of detector
+        del detector
+
         return dataset
 
     @classmethod

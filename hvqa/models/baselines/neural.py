@@ -28,6 +28,7 @@ from hvqa.models.baselines.networks import (
 class _AbsNeuralModel(_AbsBaselineModel):
     def __init__(self, spec, model):
         super(_AbsNeuralModel, self).__init__(spec)
+        torch.cuda.empty_cache()
         self._device = util.get_device()
         self._model = model.to(self._device)
         self._model.eval()
