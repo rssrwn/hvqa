@@ -709,7 +709,7 @@ class E2EObjFilterDataset(_AbsE2EObjDataset):
         return frame, question, q_type, answer
 
     @staticmethod
-    def from_video_dataset(spec, dataset, filter_qs=None, transform=None, parse_q=False):
+    def from_video_dataset(spec, dataset, filter_qs=None, parse_q=False):
         filter_qs = [] if filter_qs is None else filter_qs
         assert len(filter_qs) == 1 if 2 in filter_qs else True
 
@@ -720,7 +720,7 @@ class E2EObjFilterDataset(_AbsE2EObjDataset):
             videos.append(video)
             answers.append(v_ans)
 
-        dataset = E2EObjFilterDataset(spec, videos, answers, filter_qs, transform=transform, parse_q=parse_q)
+        dataset = E2EObjFilterDataset(spec, videos, answers, filter_qs, parse_q=parse_q)
         return dataset
 
     @staticmethod

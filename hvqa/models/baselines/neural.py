@@ -497,16 +497,27 @@ class PropRelObjModel(_AbsNeuralModel):
         super(PropRelObjModel, self).__init__(spec, model)
 
     def _prepare_train_data(self, train_data):
-        pass
+        fn = util.collate_func
+        train_dataset = E2EObjFilterDataset.from_video_dataset(self.spec, train_data, filter_qs=[0, 1], parse_q=True)
+        train_loader = DataLoader(train_dataset, batch_size=self._batch_size, shuffle=True, collate_fn=fn)
+        return train_loader
 
     def _prepare_eval_data(self, eval_data):
-        pass
+        eval_dataset = E2EObjFilterDataset.from_video_dataset(self.spec, eval_data, filter_qs=[0, 1], parse_q=True)
+        eval_loader = DataLoader(eval_dataset, batch_size=self._batch_size, shuffle=True, collate_fn=util.collate_func)
+        return eval_loader
 
     def _prepare_input(self, frames, questions, q_types, answers):
-        pass
+        objs = [torch.stack(objs) for objs in frames]
+        objs = pad_sequence(objs).to(self._device)
+        qs = torch.stack(questions)[None, :, :].to(self._device)
+        return objs, qs
 
     def _set_hyperparams(self):
-        pass
+        epochs = 10
+        lr = 0.001
+        batch_size = 256
+        return epochs, lr, batch_size
 
     @staticmethod
     def new(spec):
