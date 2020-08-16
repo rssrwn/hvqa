@@ -20,11 +20,39 @@ class _AbsE2EDataset(Dataset):
         self.parse_q = parse_q
         self.nlp = spacy.load("en_core_web_md", disable=["tagger", "parser", "ner"])
 
+        self.videos = None
+        self.questions = None
+        self.q_types = None
+        self.answers = None
+
     def __len__(self):
-        raise NotImplementedError()
+        """
+        Returns number of videos multiplied by the number of questions per video
+
+        :return: Length of dataset
+        """
+
+        return len(self.questions) * 10
 
     def __getitem__(self, item):
-        raise NotImplementedError()
+        """
+        Get an item in the dataset
+        An item is a video, a question and an answer
+        Each question in a video is treated as a separate item
+
+        :param item: Index into dataset
+        :return: frames, question, q_type, answer
+        """
+
+        v_idx = item // 10
+        q_idx = item % 10
+
+        question = self.questions[v_idx][q_idx]
+        q_type = self.q_types[v_idx][q_idx]
+        answer = self.answers[v_idx][q_idx]
+        frames = self.videos[v_idx]
+
+        return frames, question, q_type, answer
 
     @staticmethod
     def from_baseline_dataset(spec, dataset, transform):
@@ -268,15 +296,6 @@ class E2EDataset(_AbsE2EDataset):
         self.q_types = q_types_
         self.answers = ans_tensors
 
-    def __len__(self):
-        """
-        Returns number of videos multiplied by the number of questions per video
-
-        :return: Length of dataset
-        """
-
-        return len(self.questions) * 10
-
     def __getitem__(self, item):
         """
         Get an item in the dataset
@@ -440,35 +459,6 @@ class E2EPreDataset(_AbsE2EDataset):
         self.q_types = q_types_
         self.answers = ans_tensors
 
-    def __len__(self):
-        """
-        Returns number of videos multiplied by the number of questions per video
-
-        :return: Length of dataset
-        """
-
-        return len(self.questions) * 10
-
-    def __getitem__(self, item):
-        """
-        Get an item in the dataset
-        An item is a video, a question and an answer
-        Each question in a video is treated as a separate item
-
-        :param item: Index into dataset
-        :return: frames, question, q_type, answer
-        """
-
-        v_idx = item // 10
-        q_idx = item % 10
-
-        question = self.questions[v_idx][q_idx]
-        q_type = self.q_types[v_idx][q_idx]
-        answer = self.answers[v_idx][q_idx]
-        frames = self.frames[v_idx]
-
-        return frames, question, q_type, answer
-
     def _preprocess(self, frames, question, q_types):
         group_videos = 16
         frame_feats = self._extr_frame_feats(frames, group_videos)
@@ -610,10 +600,10 @@ class _AbsE2EObjDataset(_AbsE2EDataset):
         return videos_objs
 
     def __len__(self):
-        pass
+        raise NotImplementedError()
 
     def __getitem__(self, item):
-        pass
+        raise NotImplementedError()
 
     @staticmethod
     def from_baseline_dataset(spec, dataset, transform=None, parse_q=False):
@@ -647,35 +637,6 @@ class E2EObjDataset(_AbsE2EObjDataset):
         self.q_types = q_types_
         self.answers = ans_tensors
 
-    def __len__(self):
-        """
-        Returns number of videos multiplied by the number of questions per video
-
-        :return: Length of dataset
-        """
-
-        return len(self.questions) * 10
-
-    def __getitem__(self, item):
-        """
-        Get an item in the dataset
-        An item is a video, a question and an answer
-        Each question in a video is treated as a separate item
-
-        :param item: Index into dataset
-        :return: frames, question, q_type, answer
-        """
-
-        v_idx = item // 10
-        q_idx = item % 10
-
-        question = self.questions[v_idx][q_idx]
-        q_type = self.q_types[v_idx][q_idx]
-        answer = self.answers[v_idx][q_idx]
-        frames = self.videos[v_idx]
-
-        return frames, question, q_type, answer
-
     @staticmethod
     def from_baseline_dataset(spec, dataset, transform=None, parse_q=False):
         print("Using VideoDataset rather than BaselineDataset...")
@@ -693,118 +654,118 @@ class E2EObjDataset(_AbsE2EObjDataset):
         e2e_dataset = E2EObjDataset(spec, videos, answers, transform=transform, parse_q=parse_q)
         return e2e_dataset
 
-`
-# class E2EObjFilterDataset(_AbsE2EDataset):
-#     def __init__(self, spec, frames, questions, q_types, answers, transform=None, parse_q=None):
-#         super(E2EObjFilterDataset, self).__init__(spec, transform, parse_q=parse_q)
-#
-#         q_encs, a_encs = self._encode_qas(questions, q_types, answers)
-#
-#         self.frames = frames
-#         self.questions = q_encs
-#         self.q_types = q_types
-#         self.answers = a_encs
-#
-#     def __len__(self):
-#         return len(self.frames)
-#
-#     def __getitem__(self, item):
-#         frame = self.frames[item]
-#         question = self.questions[item]
-#         q_type = self.q_types[item]
-#         answer = self.answers[item]
-#         return frame, question, q_type, answer
-#
-#     # @staticmethod
-#     # def from_baseline_dataset(spec, dataset, transform, filter_qs=None):
-#     #     frames = []
-#     #     questions = []
-#     #     q_types = []
-#     #     answers = []
-#     #
-#     #     allowed_q_types = {0, 1, 2}
-#     #     filter_qs = [] if filter_qs is None else filter_qs
-#     #     q_filter = set([q_type for q_type in filter_qs if q_type in allowed_q_types])
-#     #     print(f"Keeping following question types: {q_filter}")
-#     #
-#     #     for v_idx in range(len(dataset)):
-#     #         v_frames, v_qs, v_types, v_ans = dataset[v_idx]
-#     #         for q_idx, q_type in enumerate(v_types):
-#     #             question = v_qs[q_idx]
-#     #             answer = v_ans[q_idx]
-#     #             if q_type in q_filter:
-#     #                 frame = E2EFilterDataset._encode_frame(spec, v_frames, question, q_type, transform)
-#     #                 frames.append(frame)
-#     #                 questions.append(question)
-#     #                 q_types.append(q_type)
-#     #                 answers.append(answer)
-#     #
-#     #     e2e_dataset = E2EFilterDataset(spec, frames, questions, q_types, answers, transform)
-#     #     return e2e_dataset
-#
-#     @staticmethod
-#     def from_video_dataset(spec, dataset, filter_qs=None, parse_q=None):
-#         assert len(filter_qs) == 1 if 2 in filter_qs else True
-#
-#         allowed_q_types = {0, 1, 2}
-#         filter_qs = [] if filter_qs is None else filter_qs
-#         q_filter = set([q_type for q_type in filter_qs if q_type in allowed_q_types])
-#         print(f"Keeping following question types: {q_filter}")
-#
-#         obj_feats = E2EObjFilterDataset._encode_objs(spec, dataset)
-#
-#         frames = []
-#         questions = []
-#         q_types = []
-#         answers = []
-#
-#         for v_idx in range(len(dataset)):
-#             video, v_answers = dataset[v_idx]
-#             for q_idx, q_type in enumerate(video.q_types):
-#                 question = video.questions[q_idx]
-#                 answer = v_answers[q_idx]
-#                 if q_type in q_filter:
-#                     frame = E2EObjFilterDataset._encode_frame(spec, video, question, q_type)
-#                     frames.append(frame)
-#                     questions.append(question)
-#                     q_types.append(q_type)
-#                     answers.append(answer)
-#
-#     @staticmethod
-#     def _encode_objs(spec, dataset):
-#         tracker = ObjTracker.new(spec, err_corr=False)
-#         obj_img_transform = T.Compose([
-#             T.Resize((16, 16)),
-#             T.ToTensor(),
-#             T.Lambda(lambda img: img.reshape(-1).numpy())
-#         ])
-#         pca = PCA(8)
-#
-#         objs = []
-#         for v_idx in range(len(dataset)):
-#             video = dataset[v_idx]
-#             for frame in video.frames:
-#                 objs.extend(frame.objs)
-#
-#         objs = [obj_img_transform(obj.img) for obj in objs]
-#         obj_features = pca.fit_transform(objs)
-#
-#     @staticmethod
-#     def _encode_frame(spec, video, question, q_type):
-#         if q_type == 0:
-#             _, _, _, frame_idx = spec.qa.parse_prop_question(question)
-#         elif q_type == 1:
-#             _, _, _, _, _, frame_idx = spec.qa.parse_relation_question(question)
-#         elif q_type == 2:
-#             frame_idx = spec.qa.parse_event_question(question)
-#         else:
-#             raise UnknownQuestionTypeException(f"Filter questions must be of type: 0, 1 or 2")
-#
-#         frame = video.frames[frame_idx]
-#         if q_type == 2:
-#             next_frame = video.frames[frame_idx + 1]
-#             frames_tensor = torch.cat((frame, next_frame), dim=0)
-#         else:
-#             frames_tensor = transform(frame)
-#
-#         return frames_tensor
+
+class E2EObjFilterDataset(_AbsE2EDataset):
+    def __init__(self, spec, frames, questions, q_types, answers, transform=None, parse_q=None):
+        super(E2EObjFilterDataset, self).__init__(spec, transform, parse_q=parse_q)
+
+        q_encs, a_encs = self._encode_qas(questions, q_types, answers)
+
+        self.frames = frames
+        self.questions = q_encs
+        self.q_types = q_types
+        self.answers = a_encs
+
+    def __len__(self):
+        return len(self.frames)
+
+    def __getitem__(self, item):
+        frame = self.frames[item]
+        question = self.questions[item]
+        q_type = self.q_types[item]
+        answer = self.answers[item]
+        return frame, question, q_type, answer
+
+    # @staticmethod
+    # def from_baseline_dataset(spec, dataset, transform, filter_qs=None):
+    #     frames = []
+    #     questions = []
+    #     q_types = []
+    #     answers = []
+    #
+    #     allowed_q_types = {0, 1, 2}
+    #     filter_qs = [] if filter_qs is None else filter_qs
+    #     q_filter = set([q_type for q_type in filter_qs if q_type in allowed_q_types])
+    #     print(f"Keeping following question types: {q_filter}")
+    #
+    #     for v_idx in range(len(dataset)):
+    #         v_frames, v_qs, v_types, v_ans = dataset[v_idx]
+    #         for q_idx, q_type in enumerate(v_types):
+    #             question = v_qs[q_idx]
+    #             answer = v_ans[q_idx]
+    #             if q_type in q_filter:
+    #                 frame = E2EFilterDataset._encode_frame(spec, v_frames, question, q_type, transform)
+    #                 frames.append(frame)
+    #                 questions.append(question)
+    #                 q_types.append(q_type)
+    #                 answers.append(answer)
+    #
+    #     e2e_dataset = E2EFilterDataset(spec, frames, questions, q_types, answers, transform)
+    #     return e2e_dataset
+
+    @staticmethod
+    def from_video_dataset(spec, dataset, filter_qs=None, parse_q=None):
+        assert len(filter_qs) == 1 if 2 in filter_qs else True
+
+        allowed_q_types = {0, 1, 2}
+        filter_qs = [] if filter_qs is None else filter_qs
+        q_filter = set([q_type for q_type in filter_qs if q_type in allowed_q_types])
+        print(f"Keeping following question types: {q_filter}")
+
+        obj_feats = E2EObjFilterDataset._encode_objs(spec, dataset)
+
+        frames = []
+        questions = []
+        q_types = []
+        answers = []
+
+        for v_idx in range(len(dataset)):
+            video, v_answers = dataset[v_idx]
+            for q_idx, q_type in enumerate(video.q_types):
+                question = video.questions[q_idx]
+                answer = v_answers[q_idx]
+                if q_type in q_filter:
+                    frame = E2EObjFilterDataset._encode_frame(spec, video, question, q_type)
+                    frames.append(frame)
+                    questions.append(question)
+                    q_types.append(q_type)
+                    answers.append(answer)
+
+    @staticmethod
+    def _encode_objs(spec, dataset):
+        tracker = ObjTracker.new(spec, err_corr=False)
+        obj_img_transform = T.Compose([
+            T.Resize((16, 16)),
+            T.ToTensor(),
+            T.Lambda(lambda img: img.reshape(-1).numpy())
+        ])
+        pca = PCA(8)
+
+        objs = []
+        for v_idx in range(len(dataset)):
+            video = dataset[v_idx]
+            for frame in video.frames:
+                objs.extend(frame.objs)
+
+        objs = [obj_img_transform(obj.img) for obj in objs]
+        obj_features = pca.fit_transform(objs)
+
+    @staticmethod
+    def _encode_frame(spec, video, question, q_type):
+        if q_type == 0:
+            _, _, _, frame_idx = spec.qa.parse_prop_question(question)
+        elif q_type == 1:
+            _, _, _, _, _, frame_idx = spec.qa.parse_relation_question(question)
+        elif q_type == 2:
+            frame_idx = spec.qa.parse_event_question(question)
+        else:
+            raise UnknownQuestionTypeException(f"Filter questions must be of type: 0, 1 or 2")
+
+        frame = video.frames[frame_idx]
+        if q_type == 2:
+            next_frame = video.frames[frame_idx + 1]
+            frames_tensor = torch.cat((frame, next_frame), dim=0)
+        else:
+            frames_tensor = transform(frame)
+
+        return frames_tensor
