@@ -287,7 +287,7 @@ class PropRelObjNetwork(nn.Module):
         super(PropRelObjNetwork, self).__init__()
 
         num_att_heads = 8
-        obj_enc_size = 20 + 8 + 4 + 4
+        obj_enc_size = 20 + 16 + 4 + 4
         obj_feat_size = 128
 
         q_enc_size = 260
@@ -342,16 +342,15 @@ class EventObjNetwork(nn.Module):
         self._executor = ThreadPoolExecutor(max_workers=num_workers)
         self._device = util.get_device()
 
-        num_att_heads = 8
-        obj_enc_size = 20 + 8 + 4 + 4
-        obj_feat_size = 128
+        obj_enc_size = 20 + 16 + 4 + 4
+        obj_feat_size = 16
 
-        cnn_output = 256
+        cnn_output = 32
         dropout = 0.5
-        mlp_feat1 = 128
+        mlp_feat1 = 16
 
         self.obj_fc = nn.Linear(obj_enc_size, obj_feat_size)
-        self.feat_extr = _MedFeatExtrNetwork(obj_feat_size * 2, cnn_output)
+        self.feat_extr = _SmallFeatExtrNetwork(obj_feat_size * 2, cnn_output)
         self.mlp = nn.Sequential(
             nn.Dropout(dropout),
             nn.Linear(cnn_output, mlp_feat1),
@@ -371,8 +370,8 @@ class EventObjNetwork(nn.Module):
         frames = self._enc_frames(objs, objs_pos)
         next_frames = self._enc_frames(next_objs, next_objs_pos)
         v_enc = torch.cat([frames, next_frames], dim=1)
-
         enc = self.feat_extr(v_enc)
+
         output = self.mlp(enc)
 
         return output

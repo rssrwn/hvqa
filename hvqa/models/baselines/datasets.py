@@ -548,7 +548,7 @@ class _AbsE2EObjDataset(_AbsE2EDataset):
             T.Lambda(lambda img: img.reshape(-1).numpy())
         ])
 
-        pca_features = 8
+        pca_features = 16
         self._pca = PCA(pca_features)
 
         print("Pre-processing end-to-end dataset...")
