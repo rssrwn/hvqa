@@ -287,32 +287,42 @@ class PropRelObjNetwork(nn.Module):
 
         q_enc_size = 260
 
-        mlp_feat1 = 64
+        mlp_feat1 = 128
         dropout = 0.2
 
         self.obj_fc = nn.Linear(obj_enc_size, obj_feat_size)
         self.self_att = nn.MultiheadAttention(obj_feat_size, num_att_heads)
 
-        self.q_fc = nn.Linear(q_enc_size, obj_enc_size)
+        self.q_fc = nn.Linear(q_enc_size, obj_feat_size)
         self.q_att = nn.MultiheadAttention(obj_feat_size, num_att_heads)
 
         self.mlp = nn.Sequential(
             nn.Dropout(dropout),
-            nn.Linear(obj_feat_size, mlp_feat1),
+            nn.Linear(obj_feat_size * 3, mlp_feat1),
             nn.ReLU(),
             _QANetwork(spec, mlp_feat1)
         )
 
     def forward(self, x):
         objs, qs = x
+
         objs = self.obj_fc(objs)
-        objs = self.self_att(objs, objs, objs)
+        objs = torch.relu(objs)
+        objs, _ = self.self_att(objs, objs, objs)
+        objs = torch.relu(objs)
 
         qs = self.q_fc(qs)
-        objs = self.q_att(objs, qs, qs)
+        qs = torch.relu(qs)
+        objs, _ = self.q_att(objs, qs, qs)
+        qs = torch.relu(qs)
+        qs = qs.squeeze(0)
 
-        obj_enc, _ = torch.max(objs, dim=0)
-        output = self.mlp(obj_enc)
+        obj_max, _ = torch.max(objs, dim=0)
+        enc = qs * obj_max
+        enc = torch.cat([obj_max, qs, enc], dim=1)
+
+        output = self.mlp(enc)
+
         return output
 
 
