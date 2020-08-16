@@ -173,6 +173,29 @@ def encode_obj_vector(spec, obj, obj_feat, tensor_pos=False):
         obj_pos = [pos / 255 for pos in obj.pos]
         obj_ = torch.tensor(obj_feat + obj_pos)
     else:
-        obj_ = (torch.tensor(obj_feat), obj.pos)
+        obj_ = torch.tensor(obj_feat)
 
+    obj_ = (obj_, obj.pos)
     return obj_
+
+
+def gen_object_frames(frames, executor, timeout=1):
+    futures = [executor.submit(_gen_object_frame, frame) for frame in frames]
+    obj_frames = [future.result(timeout) for future in futures]
+    return obj_frames
+
+
+def _gen_object_frame(frame):
+    obj_feats = len(frame[0][0])
+    obj_frame = torch.zeros((obj_feats, 64, 64))
+    for obj, pos in frame:
+        (x1, y1, x2, y2) = tuple(map(int, pos))
+        x1 = x1 // 4
+        x2 = x2 // 4
+        y1 = y1 // 4
+        y2 = y2 // 4
+        for x in range(x1, x2 + 1):
+            for y in range(y1, y2 + 1):
+                obj_frame[:, y, x] = obj
+
+    return obj_frame

@@ -3,6 +3,8 @@ import torch.nn as nn
 import torchvision.models as models
 from torch.nn.utils.rnn import pad_packed_sequence
 
+import hvqa.util.func as util
+
 
 # ------------------------------------------------------------------------------------------------------
 # ---------------------------------------- VideoQA Networks --------------------------------------------
@@ -223,7 +225,7 @@ class CnnMlpObjNetwork(nn.Module):
         self.parse_q = parse_q
         self.att = att
 
-        obj_feat_size = 8 + 4 + 20
+        obj_feat_size = 8 + 4 + 20 + 4
         feat_output_size = 256
         word_vector_size = 300
         hidden_size = 1024
@@ -283,11 +285,14 @@ class PropRelObjNetwork(nn.Module):
 
         num_att_heads = 8
         obj_enc_size = 20 + 8 + 4 + 4
-        obj_feat_size = 128
+        obj_feat_size = 64
 
         q_enc_size = 260
 
-        mlp_feat1 = 128
+        cnn_feat1 = 64
+        cnn_feat2 = 128
+
+        mlp_feat1 = 64
         dropout = 0.2
 
         self.obj_fc = nn.Linear(obj_enc_size, obj_feat_size)
@@ -296,15 +301,26 @@ class PropRelObjNetwork(nn.Module):
         self.q_fc = nn.Linear(q_enc_size, obj_feat_size)
         self.q_att = nn.MultiheadAttention(obj_feat_size, num_att_heads)
 
+        self.cnn = nn.Sequential(
+            nn.Conv2d(obj_feat_size, cnn_feat1, kernel_size=3),
+            nn.BatchNorm2d(cnn_feat1),
+            nn.ReLU(),
+            nn.Conv2d(cnn_feat1, cnn_feat2, kernel_size=3, stride=2),
+            nn.BatchNorm2d(cnn_feat2),
+            nn.ReLU(),
+            nn.AdaptiveMaxPool2d(1),
+            nn.Flatten(),
+        )
+
         self.mlp = nn.Sequential(
             nn.Dropout(dropout),
-            nn.Linear(obj_feat_size * 3, mlp_feat1),
+            nn.Linear(cnn_feat2, mlp_feat1),
             nn.ReLU(),
             _QANetwork(spec, mlp_feat1)
         )
 
     def forward(self, x):
-        objs, qs = x
+        objs, pos, qs = x
 
         objs = self.obj_fc(objs)
         objs = torch.relu(objs)
@@ -317,9 +333,9 @@ class PropRelObjNetwork(nn.Module):
         qs = torch.relu(qs)
         qs = qs.squeeze(0)
 
-        obj_max, _ = torch.max(objs, dim=0)
-        enc = qs * obj_max
-        enc = torch.cat([obj_max, qs, enc], dim=1)
+        # obj_max, _ = torch.max(objs, dim=0)
+        # enc = qs * obj_max
+        # enc = torch.cat([obj_max, qs, enc], dim=1)
 
         output = self.mlp(enc)
 

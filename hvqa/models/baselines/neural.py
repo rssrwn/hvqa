@@ -451,26 +451,9 @@ class CnnObjModel(_AbsNeuralModel):
                     att_frame.append((obj, position))
                 new_frames.append(att_frame)
 
-        futures = [self._executor.submit(self._gen_object_frame, frame) for frame in new_frames]
-        obj_frames = [future.result(self._future_timeout) for future in futures]
+        obj_frames = util.gen_object_frames(new_frames, self._executor)
         obj_frames = torch.stack(obj_frames).to(self._device)
-
         return obj_frames, qs
-
-    def _gen_object_frame(self, frame):
-        obj_feats = len(frame[0][0])
-        obj_frame = torch.zeros((obj_feats, 64, 64))
-        for obj, pos in frame:
-            (x1, y1, x2, y2) = tuple(map(int, pos))
-            x1 = x1 // 4
-            x2 = x2 // 4
-            y1 = y1 // 4
-            y2 = y2 // 4
-            for x in range(x1, x2 + 1):
-                for y in range(y1, y2 + 1):
-                    obj_frame[:, y, x] = obj
-
-        return obj_frame
 
     def _set_hyperparams(self):
         epochs = 10
@@ -495,6 +478,7 @@ class CnnObjModel(_AbsNeuralModel):
 class PropRelObjModel(_AbsNeuralModel):
     def __init__(self, spec, model):
         super(PropRelObjModel, self).__init__(spec, model)
+        self._print_freq = 1
 
     def _prepare_train_data(self, train_data):
         fn = util.collate_func
@@ -508,10 +492,12 @@ class PropRelObjModel(_AbsNeuralModel):
         return eval_loader
 
     def _prepare_input(self, frames, questions, q_types, answers):
-        objs = [torch.stack(objs) for objs in frames]
+        obj_frames = [[obj for obj, _ in frame] for frame in frames]
+        pos_frames = [[pos for _, pos in frame] for frame in frames]
+        objs = [torch.stack(objs) for objs in obj_frames]
         objs = pad_sequence(objs).to(self._device)
         qs = torch.stack(questions)[None, :, :].to(self._device)
-        return objs, qs
+        return objs, pos_frames, qs
 
     def _set_hyperparams(self):
         epochs = 10
