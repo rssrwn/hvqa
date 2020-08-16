@@ -342,11 +342,29 @@ class EventObjNetwork(nn.Module):
         obj_enc_size = 20 + 8 + 4 + 4
         obj_feat_size = 128
 
-        # self.obj_fc =
-        # self.self_att = nn.MultiheadAttention(obj_feat_size, num_att_heads)
+        dropout = 0.5
+        mlp_feat1 = 64
+
+        self.obj_fc = nn.Linear(obj_enc_size, obj_feat_size)
+        self.self_att = nn.MultiheadAttention(obj_feat_size, num_att_heads)
+        self.mlp = nn.Sequential(
+            nn.Dropout(dropout),
+            nn.Linear(obj_feat_size, mlp_feat1),
+            nn.ReLU(),
+            _QANetwork(spec, mlp_feat1)
+        )
 
     def forward(self, x):
-        pass
+        objs = x
+        objs = self.obj_fc(objs)
+        objs = torch.relu(objs)
+        objs, _ = self.self_att(objs, objs, objs)
+        objs = torch.relu(objs)
+
+        enc, _ = torch.max(objs, dim=0)
+        output = self.mlp(enc)
+
+        return output
 
 
 # ------------------------------------------------------------------------------------------------------
