@@ -14,7 +14,8 @@ from hvqa.models.baselines.neural import (
     EventModel,
     CnnMlpPreModel,
     CnnObjModel,
-    PropRelObjModel
+    PropRelObjModel,
+    EventObjModel
 )
 
 
@@ -33,6 +34,7 @@ CNN_MLP_PRE_PQ_PATH = "saved-models/cnn-mlp-pre-pq"
 CNN_OBJ_PATH = "saved-models/cnn-obj"
 CNN_OBJ_ATT_PATH = "saved-models/cnn-obj-att"
 PROP_REL_OBJ_PATH = "saved-models/pre/prop-rel-obj"
+EVENT_OBJ_PATH = "saved-models/pre/event-obj"
 
 spec = EnvSpec.from_dict({
     "num_frames": 32,
@@ -131,6 +133,12 @@ def main(data_dir, model_type, components):
     elif model_type == "prop-rel-obj":
         model_path = PROP_REL_OBJ_PATH
         model = PropRelObjModel.load(spec, model_path)
+        detector = NeuralDetector.load(spec, DETECTOR_PATH)
+        data = VideoDataset.from_data_dir(spec, data_dir, detector, hardcoded=HARDCODED)
+
+    elif model_type == "event-obj":
+        model_path = EVENT_OBJ_PATH
+        model = EventObjModel.load(spec, model_path)
         detector = NeuralDetector.load(spec, DETECTOR_PATH)
         data = VideoDataset.from_data_dir(spec, data_dir, detector, hardcoded=HARDCODED)
 
