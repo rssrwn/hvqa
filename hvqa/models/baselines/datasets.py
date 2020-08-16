@@ -540,8 +540,6 @@ class _AbsE2EObjDataset(_AbsE2EDataset):
     def __init__(self, spec, videos, answers, transform=None, parse_q=False):
         super(_AbsE2EObjDataset, self).__init__(spec, transform, parse_q=parse_q)
 
-        self._tensor_pos = False
-
         self._tracker = ObjTracker.new(spec, err_corr=False)
         self._obj_img_size = (16, 16)
         self._obj_img_transform = T.Compose([
@@ -587,6 +585,8 @@ class _AbsE2EObjDataset(_AbsE2EDataset):
         objs = [self._obj_img_transform(obj.img) for obj in objs]
         obj_features = self._pca.fit_transform(objs)
 
+        tensor_pos = self._position_in_obj_tensor()
+
         curr_video = 0
         curr_frame = 0
         curr_obj = 0
@@ -597,7 +597,7 @@ class _AbsE2EObjDataset(_AbsE2EDataset):
         for obj_idx, obj_feat in enumerate(obj_features):
             frame = videos[curr_video].frames[curr_frame]
             obj = frame.objs[curr_obj]
-            obj_ = util.encode_obj_vector(self.spec, obj, obj_feat, tensor_pos=self._tensor_pos)
+            obj_ = util.encode_obj_vector(self.spec, obj, obj_feat, tensor_pos=tensor_pos)
             frame_objs.append(obj_)
             curr_obj += 1
 
@@ -626,6 +626,9 @@ class _AbsE2EObjDataset(_AbsE2EDataset):
 
     @staticmethod
     def from_video_dataset(spec, dataset, transform=None, parse_q=False):
+        raise NotImplementedError()
+
+    def _position_in_obj_tensor(self):
         raise NotImplementedError()
 
 
@@ -663,11 +666,12 @@ class E2EObjDataset(_AbsE2EObjDataset):
         e2e_dataset = E2EObjDataset(spec, videos, answers, transform=transform, parse_q=parse_q)
         return e2e_dataset
 
+    def _position_in_obj_tensor(self):
+        return False
+
 
 class E2EObjFilterDataset(_AbsE2EObjDataset):
     def __init__(self, spec, videos, answers, filter_qs, transform=None, parse_q=None):
-        self._tensor_pos = True
-
         super(E2EObjFilterDataset, self).__init__(spec, videos, answers, transform, parse_q=parse_q)
 
         allowed_q_types = {0, 1, 2}
@@ -681,10 +685,12 @@ class E2EObjFilterDataset(_AbsE2EObjDataset):
         a_encs = []
 
         for v_idx, video in enumerate(videos):
+            v_obj_encs = self.videos[v_idx]
+
             q_idxs = [q_idx for q_idx, q_type in enumerate(video.q_types) if q_type in q_filter]
             v_q_types = [video.q_types[q_idx] for q_idx in q_idxs]
             qs = [video.questions[q_idx] for q_idx in q_idxs]
-            frames_ = [self._select_frame(spec, video, q, q_type) for q, q_type in zip(qs, v_q_types)]
+            frames_ = [self._select_frame(spec, v_obj_encs, q, q_type) for q, q_type in zip(qs, v_q_types)]
             enc_questions = [self.questions[v_idx][q_idx] for q_idx in q_idxs]
             enc_answers = [self.answers[v_idx][q_idx] for q_idx in q_idxs]
 
@@ -708,6 +714,9 @@ class E2EObjFilterDataset(_AbsE2EObjDataset):
         answer = self.answers[item]
         return frame, question, q_type, answer
 
+    def _position_in_obj_tensor(self):
+        return True
+
     @staticmethod
     def from_video_dataset(spec, dataset, filter_qs=None, parse_q=False):
         filter_qs = [] if filter_qs is None else filter_qs
@@ -724,7 +733,7 @@ class E2EObjFilterDataset(_AbsE2EObjDataset):
         return dataset
 
     @staticmethod
-    def _select_frame(spec, video, question, q_type):
+    def _select_frame(spec, v_obj_encs, question, q_type):
         if q_type == 0:
             _, _, _, frame_idx = spec.qa.parse_prop_question(question)
         elif q_type == 1:
@@ -734,9 +743,9 @@ class E2EObjFilterDataset(_AbsE2EObjDataset):
         else:
             raise UnknownQuestionTypeException("Filter questions must be of type: 0, 1 or 2")
 
-        frame = video.frames[frame_idx]
+        frame = v_obj_encs[frame_idx]
         if q_type == 2:
-            next_frame = video.frames[frame_idx + 1]
+            next_frame = v_obj_encs[frame_idx + 1]
             frame = (frame, next_frame)
 
         return frame
