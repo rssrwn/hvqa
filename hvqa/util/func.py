@@ -157,3 +157,21 @@ def property_encoding(spec, prop, val):
     one_hot = list(map(lambda v: 1.0 if v == val else 0.0, vals))
     assert sum(one_hot) == 1.0, f"Val {val} is not in property values {vals}"
     return one_hot
+
+
+def encode_obj_vector(spec, obj, obj_feat, tensor_pos=False):
+    cls = [0.0] * 4
+    val_idx = spec.obj_types().index(obj.cls)
+    cls[val_idx] = 1.0
+
+    obj_id = [0.0] * 20
+    if obj.id < 20:
+        obj_id[obj.id] = 1.0
+
+    obj_feat = list(obj_feat) + cls + obj_id
+    if tensor_pos:
+        obj_ = torch.tensor(obj_feat + list(obj.pos))
+    else:
+        obj_ = (torch.tensor(obj_feat), obj.pos)
+
+    return obj_
