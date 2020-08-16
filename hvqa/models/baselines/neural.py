@@ -536,10 +536,15 @@ class EventObjModel(_AbsNeuralModel):
         return eval_loader
 
     def _prepare_input(self, frames, questions, q_types, answers):
-        obj_frames = [[obj for obj, _ in frame] for frame in frames]
-        objs = [torch.stack(objs) for objs in obj_frames]
+        obj1_frames = [[obj for obj, _ in frame[0]] for frame in frames]
+        obj1_pos = [[pos for _, pos in frame[0]] for frame in frames]
+        obj2_frames = [[obj for obj, _ in frame[1]] for frame in frames]
+        obj2_pos = [[pos for _, pos in frame[1]] for frame in frames]
+        objs = [torch.stack(objs) for objs in obj1_frames]
+        next_objs = [torch.stack(objs) for objs in obj2_frames]
         objs = pad_sequence(objs).to(self._device)
-        return objs
+        next_objs = pad_sequence(next_objs).to(self._device)
+        return (objs, obj1_pos), (next_objs, obj2_pos)
 
     def _set_hyperparams(self):
         epochs = 10

@@ -165,7 +165,7 @@ class PropRelNetwork(nn.Module):
         super(PropRelNetwork, self).__init__()
 
         feat_output_size = 32
-        self.feat_extr = _SmallFeatExtrNetwork(feat_output_size)
+        self.feat_extr = _SmallFeatExtrNetwork(3, feat_output_size)
 
         word_vector_size = 300
         q_hidden_size = 1024
@@ -202,7 +202,7 @@ class EventNetwork(nn.Module):
         feat1 = 16
         dropout = 0.2
 
-        self.feat_extr = _SmallFeatExtrNetwork(feat_output_size, two_images=True)
+        self.feat_extr = _SmallFeatExtrNetwork(6, feat_output_size)
         self.mlp = nn.Sequential(
             nn.Dropout(dropout),
             nn.Linear(feat_output_size, feat1),
@@ -338,33 +338,57 @@ class EventObjNetwork(nn.Module):
     def __init__(self, spec):
         super(EventObjNetwork, self).__init__()
 
+        num_workers = os.cpu_count()
+        self._executor = ThreadPoolExecutor(max_workers=num_workers)
+        self._device = util.get_device()
+
         num_att_heads = 8
         obj_enc_size = 20 + 8 + 4 + 4
         obj_feat_size = 128
 
+        cnn_output = 256
         dropout = 0.5
-        mlp_feat1 = 64
+        mlp_feat1 = 128
 
         self.obj_fc = nn.Linear(obj_enc_size, obj_feat_size)
-        self.self_att = nn.MultiheadAttention(obj_feat_size, num_att_heads)
+        self.feat_extr = _MedFeatExtrNetwork(obj_feat_size * 2, cnn_output)
         self.mlp = nn.Sequential(
             nn.Dropout(dropout),
-            nn.Linear(obj_feat_size, mlp_feat1),
+            nn.Linear(cnn_output, mlp_feat1),
             nn.ReLU(),
             _QANetwork(spec, mlp_feat1)
         )
 
     def forward(self, x):
-        objs = x
+        (objs, objs_pos), (next_objs, next_objs_pos) = x
+
         objs = self.obj_fc(objs)
         objs = torch.relu(objs)
-        objs, _ = self.self_att(objs, objs, objs)
-        objs = torch.relu(objs)
 
-        enc, _ = torch.max(objs, dim=0)
+        next_objs = self.obj_fc(next_objs)
+        next_objs = torch.relu(next_objs)
+
+        frames = self._enc_frames(objs, objs_pos)
+        next_frames = self._enc_frames(next_objs, next_objs_pos)
+        v_enc = torch.cat([frames, next_frames], dim=1)
+
+        enc = self.feat_extr(v_enc)
         output = self.mlp(enc)
 
         return output
+
+    def _enc_frames(self, objs, pos):
+        b_enc = []
+        for f_idx, frame in enumerate(pos):
+            f_encs = []
+            for o_idx, obj_pos in enumerate(frame):
+                obj_enc = objs[o_idx, f_idx, :]
+                f_encs.append((obj_enc, obj_pos))
+            b_enc.append(f_encs)
+
+        frames_enc = util.gen_object_frames(b_enc, self._executor)
+        frames = torch.stack(frames_enc).to(self._device)
+        return frames
 
 
 # ------------------------------------------------------------------------------------------------------
@@ -373,17 +397,15 @@ class EventObjNetwork(nn.Module):
 
 
 class _SmallFeatExtrNetwork(nn.Module):
-    def __init__(self, output_size, two_images=False):
+    def __init__(self, in_channels, output_size):
         super(_SmallFeatExtrNetwork, self).__init__()
-
-        input_feats = 6 if two_images else 3
 
         feat1 = 8
         feat2 = 16
         feat3 = 32
 
         self.network = nn.Sequential(
-            nn.Conv2d(input_feats, feat1, kernel_size=3),
+            nn.Conv2d(in_channels, feat1, kernel_size=3),
             nn.BatchNorm2d(feat1),
             nn.ReLU(),
             nn.Conv2d(feat1, feat2, kernel_size=3, stride=2),
