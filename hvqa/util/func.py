@@ -170,7 +170,8 @@ def encode_obj_vector(spec, obj, obj_feat, tensor_pos=False):
 
     obj_feat = list(obj_feat) + cls + obj_id
     if tensor_pos:
-        obj_ = torch.tensor(obj_feat + list(obj.pos))
+        obj_pos = [pos / 255 for pos in obj.pos]
+        obj_ = torch.tensor(obj_feat + obj_pos)
     else:
         obj_ = (torch.tensor(obj_feat), obj.pos)
 

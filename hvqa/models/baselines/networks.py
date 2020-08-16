@@ -4,6 +4,11 @@ import torchvision.models as models
 from torch.nn.utils.rnn import pad_packed_sequence
 
 
+# ------------------------------------------------------------------------------------------------------
+# ---------------------------------------- VideoQA Networks --------------------------------------------
+# ------------------------------------------------------------------------------------------------------
+
+
 class LangLstmNetwork(nn.Module):
     def __init__(self, spec):
         super(LangLstmNetwork, self).__init__()
@@ -118,67 +123,6 @@ class CnnLstmNetwork(nn.Module):
         return output
 
 
-class CnnMlpObjNetwork(nn.Module):
-    def __init__(self, spec, parse_q=False, att=False):
-        super(CnnMlpObjNetwork, self).__init__()
-
-        self.parse_q = parse_q
-        self.att = att
-
-        obj_feat_size = 8 + 4 + 20
-        feat_output_size = 256
-        word_vector_size = 300
-        hidden_size = 1024
-        num_lstm_layers = 2
-
-        mlp_input = (32 * feat_output_size) + hidden_size
-        feat1 = 4096
-        feat2 = 512
-
-        dropout = 0.2
-
-        num_att_heads = 4
-
-        self.feat_extr = _MedFeatExtrNetwork(obj_feat_size, feat_output_size)
-        self.lang_lstm = _QuestionNetwork(word_vector_size, hidden_size, num_layers=num_lstm_layers)
-        self.mlp = nn.Sequential(
-            nn.Dropout(dropout),
-            nn.Linear(mlp_input, feat1),
-            nn.ReLU(),
-            nn.Dropout(dropout),
-            nn.Linear(feat1, feat2),
-            nn.ReLU(),
-            _QANetwork(spec, feat2)
-        )
-
-        if att:
-            self.word_obj_map = nn.Linear(word_vector_size, obj_feat_size)
-            self.obj_att = nn.MultiheadAttention(obj_feat_size, num_att_heads)
-            self.word_frame_map = nn.Linear(word_vector_size, feat_output_size)
-            self.frame_att = nn.MultiheadAttention(feat_output_size, num_att_heads)
-
-    def forward(self, x):
-        frames, qs = x
-        frame_feats = self.feat_extr(frames)
-        batch_size = frame_feats.shape[0] // 32
-        q_feats = self.lang_lstm(qs)
-
-        if self.att:
-            # Prepare question attention input
-            qs_att, _ = pad_packed_sequence(qs)
-            qs_att = qs_att.transpose(0, 1)
-            qs_att = self.word_frame_map(qs_att).transpose(0, 1)
-
-            v_feats = frame_feats.reshape((32, batch_size, -1))
-            v_feats, _ = self.frame_att(v_feats, qs_att, qs_att)
-            frame_feats = v_feats.transpose(0, 1)
-
-        v_feats = frame_feats.reshape((batch_size, -1))
-        video_enc = torch.cat([v_feats, q_feats], dim=1)
-        output = self.mlp(video_enc)
-        return output
-
-
 class CnnMlpPreNetwork(nn.Module):
     def __init__(self, spec, parse_q=False):
         super(CnnMlpPreNetwork, self).__init__()
@@ -265,6 +209,116 @@ class EventNetwork(nn.Module):
         feats = self.feat_extr(x)
         output = self.mlp(feats)
         return output
+
+
+# ------------------------------------------------------------------------------------------------------
+# ---------------------------------------- Object Networks ---------------------------------------------
+# ------------------------------------------------------------------------------------------------------
+
+
+class CnnMlpObjNetwork(nn.Module):
+    def __init__(self, spec, parse_q=False, att=False):
+        super(CnnMlpObjNetwork, self).__init__()
+
+        self.parse_q = parse_q
+        self.att = att
+
+        obj_feat_size = 8 + 4 + 20
+        feat_output_size = 256
+        word_vector_size = 300
+        hidden_size = 1024
+        num_lstm_layers = 2
+
+        mlp_input = (32 * feat_output_size) + hidden_size
+        feat1 = 4096
+        feat2 = 512
+
+        dropout = 0.2
+
+        num_att_heads = 4
+
+        self.feat_extr = _MedFeatExtrNetwork(obj_feat_size, feat_output_size)
+        self.lang_lstm = _QuestionNetwork(word_vector_size, hidden_size, num_layers=num_lstm_layers)
+        self.mlp = nn.Sequential(
+            nn.Dropout(dropout),
+            nn.Linear(mlp_input, feat1),
+            nn.ReLU(),
+            nn.Dropout(dropout),
+            nn.Linear(feat1, feat2),
+            nn.ReLU(),
+            _QANetwork(spec, feat2)
+        )
+
+        if att:
+            self.word_obj_map = nn.Linear(word_vector_size, obj_feat_size)
+            self.obj_att = nn.MultiheadAttention(obj_feat_size, num_att_heads)
+            self.word_frame_map = nn.Linear(word_vector_size, feat_output_size)
+            self.frame_att = nn.MultiheadAttention(feat_output_size, num_att_heads)
+
+    def forward(self, x):
+        frames, qs = x
+        frame_feats = self.feat_extr(frames)
+        batch_size = frame_feats.shape[0] // 32
+        q_feats = self.lang_lstm(qs)
+
+        if self.att:
+            # Prepare question attention input
+            qs_att, _ = pad_packed_sequence(qs)
+            qs_att = qs_att.transpose(0, 1)
+            qs_att = self.word_frame_map(qs_att).transpose(0, 1)
+
+            v_feats = frame_feats.reshape((32, batch_size, -1))
+            v_feats, _ = self.frame_att(v_feats, qs_att, qs_att)
+            frame_feats = v_feats.transpose(0, 1)
+
+        v_feats = frame_feats.reshape((batch_size, -1))
+        video_enc = torch.cat([v_feats, q_feats], dim=1)
+        output = self.mlp(video_enc)
+        return output
+
+
+class PropRelObjNetwork(nn.Module):
+    def __init__(self, spec):
+        super(PropRelObjNetwork, self).__init__()
+
+        num_att_heads = 8
+        obj_enc_size = 20 + 8 + 4 + 4
+        obj_feat_size = 128
+
+        q_enc_size = 260
+
+        mlp_feat1 = 64
+        dropout = 0.2
+
+        self.obj_fc = nn.Linear(obj_enc_size, obj_feat_size)
+        self.self_att = nn.MultiheadAttention(obj_feat_size, num_att_heads)
+
+        self.q_fc = nn.Linear(q_enc_size, obj_enc_size)
+        self.q_att = nn.MultiheadAttention(obj_feat_size, num_att_heads)
+
+        self.mlp = nn.Sequential(
+            nn.Dropout(dropout),
+            nn.Linear(obj_feat_size, mlp_feat1),
+            nn.ReLU(),
+            _QANetwork(spec, mlp_feat1)
+        )
+
+    def forward(self, x):
+        objs, qs = x
+        objs = self.obj_fc(objs)
+        objs = self.self_att(objs, objs, objs)
+
+        qs = self.q_fc(qs)
+        objs = self.q_att(objs, qs, qs)
+
+        obj_enc, _ = torch.max(objs, dim=0)
+        output = self.mlp(obj_enc)
+        return output
+
+
+# ------------------------------------------------------------------------------------------------------
+# ---------------------------------------- Helper Networks ---------------------------------------------
+# ------------------------------------------------------------------------------------------------------
 
 
 class _SmallFeatExtrNetwork(nn.Module):
