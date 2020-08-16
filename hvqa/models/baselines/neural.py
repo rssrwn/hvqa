@@ -388,7 +388,7 @@ class CnnObjModel(_AbsNeuralModel):
     def __init__(self, spec, model, parse_q=False, att=False):
         super(CnnObjModel, self).__init__(spec, model)
 
-        self._print_freq = 1
+        self._print_freq = 10
         self.parse_q = parse_q
         self.att = att
 
