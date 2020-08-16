@@ -493,16 +493,15 @@ class PropRelObjModel(_AbsNeuralModel):
 
     def _prepare_input(self, frames, questions, q_types, answers):
         obj_frames = [[obj for obj, _ in frame] for frame in frames]
-        pos_frames = [[pos for _, pos in frame] for frame in frames]
         objs = [torch.stack(objs) for objs in obj_frames]
         objs = pad_sequence(objs).to(self._device)
         qs = torch.stack(questions)[None, :, :].to(self._device)
-        return objs, pos_frames, qs
+        return objs, qs
 
     def _set_hyperparams(self):
         epochs = 10
         lr = 0.001
-        batch_size = 256
+        batch_size = 64
         return epochs, lr, batch_size
 
     @staticmethod

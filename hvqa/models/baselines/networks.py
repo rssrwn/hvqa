@@ -1,3 +1,6 @@
+import os
+from concurrent.futures import ThreadPoolExecutor
+
 import torch
 import torch.nn as nn
 import torchvision.models as models
@@ -285,61 +288,65 @@ class PropRelObjNetwork(nn.Module):
 
         num_att_heads = 8
         obj_enc_size = 20 + 8 + 4 + 4
-        obj_feat_size = 64
+        obj_feat_size = 128
 
         q_enc_size = 260
 
-        cnn_feat1 = 64
-        cnn_feat2 = 128
-
         mlp_feat1 = 64
-        dropout = 0.2
+        dropout = 0.5
 
         self.obj_fc = nn.Linear(obj_enc_size, obj_feat_size)
-        self.self_att = nn.MultiheadAttention(obj_feat_size, num_att_heads)
+        self.self_att_1 = nn.MultiheadAttention(obj_feat_size, num_att_heads)
 
         self.q_fc = nn.Linear(q_enc_size, obj_feat_size)
         self.q_att = nn.MultiheadAttention(obj_feat_size, num_att_heads)
 
-        self.cnn = nn.Sequential(
-            nn.Conv2d(obj_feat_size, cnn_feat1, kernel_size=3),
-            nn.BatchNorm2d(cnn_feat1),
-            nn.ReLU(),
-            nn.Conv2d(cnn_feat1, cnn_feat2, kernel_size=3, stride=2),
-            nn.BatchNorm2d(cnn_feat2),
-            nn.ReLU(),
-            nn.AdaptiveMaxPool2d(1),
-            nn.Flatten(),
-        )
+        self.self_att_2 = nn.MultiheadAttention(obj_feat_size, num_att_heads)
 
         self.mlp = nn.Sequential(
             nn.Dropout(dropout),
-            nn.Linear(cnn_feat2, mlp_feat1),
+            nn.Linear(obj_feat_size, mlp_feat1),
             nn.ReLU(),
             _QANetwork(spec, mlp_feat1)
         )
 
     def forward(self, x):
-        objs, pos, qs = x
+        objs, qs = x
 
         objs = self.obj_fc(objs)
         objs = torch.relu(objs)
-        objs, _ = self.self_att(objs, objs, objs)
+
+        objs, _ = self.self_att_1(objs, objs, objs)
         objs = torch.relu(objs)
 
         qs = self.q_fc(qs)
         qs = torch.relu(qs)
+
         objs, _ = self.q_att(objs, qs, qs)
-        qs = torch.relu(qs)
-        qs = qs.squeeze(0)
+        objs = torch.relu(objs)
 
-        # obj_max, _ = torch.max(objs, dim=0)
-        # enc = qs * obj_max
-        # enc = torch.cat([obj_max, qs, enc], dim=1)
+        objs, _ = self.self_att_2(objs, objs, objs)
+        objs = torch.relu(objs)
 
+        enc, _ = torch.max(objs, dim=0)
         output = self.mlp(enc)
 
         return output
+
+
+class EventObjNetwork(nn.Module):
+    def __init__(self, spec):
+        super(EventObjNetwork, self).__init__()
+
+        num_att_heads = 8
+        obj_enc_size = 20 + 8 + 4 + 4
+        obj_feat_size = 128
+
+        # self.obj_fc =
+        # self.self_att = nn.MultiheadAttention(obj_feat_size, num_att_heads)
+
+    def forward(self, x):
+        pass
 
 
 # ------------------------------------------------------------------------------------------------------
