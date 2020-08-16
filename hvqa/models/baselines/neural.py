@@ -15,7 +15,8 @@ from hvqa.models.baselines.datasets import (
     E2EDataset,
     E2EFilterDataset,
     E2EPreDataset,
-    E2EObjDataset
+    E2EObjDataset,
+    E2EObjFilterDataset
 )
 from hvqa.models.baselines.networks import (
     LangLstmNetwork,
@@ -24,7 +25,8 @@ from hvqa.models.baselines.networks import (
     PropRelNetwork,
     EventNetwork,
     CnnMlpPreNetwork,
-    CnnMlpObjNetwork
+    CnnMlpObjNetwork,
+    PropRelObjNetwork
 )
 
 
@@ -384,6 +386,11 @@ class CnnMlpPreModel(_AbsNeuralModel):
         return model
 
 
+# ********************************************************************************************
+# ************************************ Object Models *****************************************
+# ********************************************************************************************
+
+
 class CnnObjModel(_AbsNeuralModel):
     def __init__(self, spec, model, parse_q=False, att=False):
         super(CnnObjModel, self).__init__(spec, model)
@@ -482,4 +489,34 @@ class CnnObjModel(_AbsNeuralModel):
         model_path = Path(path) / "network.pt"
         network = util.load_model(CnnMlpObjNetwork, model_path, spec, parse_q, att)
         model = CnnObjModel(spec, network, parse_q=parse_q, att=att)
+        return model
+
+
+class PropRelObjModel(_AbsNeuralModel):
+    def __init__(self, spec, model):
+        super(PropRelObjModel, self).__init__(spec, model)
+
+    def _prepare_train_data(self, train_data):
+        pass
+
+    def _prepare_eval_data(self, eval_data):
+        pass
+
+    def _prepare_input(self, frames, questions, q_types, answers):
+        pass
+
+    def _set_hyperparams(self):
+        pass
+
+    @staticmethod
+    def new(spec):
+        network = PropRelObjNetwork(spec)
+        model = PropRelObjModel(spec, network)
+        return model
+
+    @staticmethod
+    def load(spec, path):
+        model_path = Path(path) / "network.pt"
+        network = util.load_model(PropRelObjNetwork, model_path, spec)
+        model = PropRelObjModel(spec, network)
         return model
