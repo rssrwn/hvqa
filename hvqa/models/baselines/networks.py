@@ -282,58 +282,6 @@ class CnnMlpObjNetwork(nn.Module):
         return output
 
 
-class PropRelObjNetwork(nn.Module):
-    def __init__(self, spec):
-        super(PropRelObjNetwork, self).__init__()
-
-        num_att_heads = 8
-        obj_enc_size = 20 + 16 + 4 + 4
-        obj_feat_size = 128
-
-        q_enc_size = 260
-
-        mlp_feat1 = 64
-        dropout = 0.5
-
-        self.obj_fc = nn.Linear(obj_enc_size, obj_feat_size)
-        self.self_att_1 = nn.MultiheadAttention(obj_feat_size, num_att_heads)
-
-        self.q_fc = nn.Linear(q_enc_size, obj_feat_size)
-        self.q_att = nn.MultiheadAttention(obj_feat_size, num_att_heads)
-
-        self.self_att_2 = nn.MultiheadAttention(obj_feat_size, num_att_heads)
-
-        self.mlp = nn.Sequential(
-            nn.Dropout(dropout),
-            nn.Linear(obj_feat_size, mlp_feat1),
-            nn.ReLU(),
-            _QANetwork(spec, mlp_feat1)
-        )
-
-    def forward(self, x):
-        objs, qs = x
-
-        objs = self.obj_fc(objs)
-        objs = torch.relu(objs)
-
-        objs, _ = self.self_att_1(objs, objs, objs)
-        objs = torch.relu(objs)
-
-        qs = self.q_fc(qs)
-        qs = torch.relu(qs)
-
-        objs, _ = self.q_att(objs, qs, qs)
-        objs = torch.relu(objs)
-
-        objs, _ = self.self_att_2(objs, objs, objs)
-        objs = torch.relu(objs)
-
-        enc, _ = torch.max(objs, dim=0)
-        output = self.mlp(enc)
-
-        return output
-
-
 class EventObjNetwork(nn.Module):
     def __init__(self, spec):
         super(EventObjNetwork, self).__init__()
@@ -393,6 +341,86 @@ class EventObjNetwork(nn.Module):
 # ------------------------------------------------------------------------------------------------------
 # ---------------------------------------- Helper Networks ---------------------------------------------
 # ------------------------------------------------------------------------------------------------------
+
+
+class _TvqaObjAttStream(nn.Module):
+    def __init__(self, spec):
+        super(_TvqaObjAttStream, self).__init__()
+
+        objs_enc_size = 128
+
+        q_size = 260
+        q_enc_size = objs_enc_size * 2
+        frame_enc_size = objs_enc_size * 2
+
+        num_att_heads = 8
+
+        dropout = 0.2
+        mlp_feat1 = 256
+        mlp_feat2 = 128
+
+        self.frame_enc = _ObjEncNetwork(objs_enc_size)
+        self.frames_lstm = nn.LSTM(objs_enc_size, objs_enc_size, bidirectional=True)
+
+        self.q_fc = nn.Linear(q_size, q_enc_size)
+        self.att = nn.MultiheadAttention(q_enc_size, num_att_heads)
+
+        self.video_lstm = nn.LSTM(frame_enc_size * 3, frame_enc_size, bidirectional=True)
+        self.mlp = nn.Sequential(
+            nn.Dropout(dropout),
+            nn.Linear(frame_enc_size * 2, mlp_feat1),
+            nn.ReLU(),
+            nn.Dropout(dropout),
+            nn.Linear(mlp_feat1, mlp_feat2),
+            nn.ReLU(),
+            _QANetwork(spec, mlp_feat2)
+        )
+
+
+class _ObjEncNetwork(nn.Module):
+    def __init__(self, obj_feat_size):
+        super(_ObjEncNetwork, self).__init__()
+
+        num_att_heads = 8
+        obj_enc_size = 20 + 16 + 4 + 4
+        q_enc_size = 260
+        dropout = 0.2
+
+        self.obj_fc = nn.Linear(obj_enc_size, obj_feat_size)
+        self.self_att_1 = nn.MultiheadAttention(obj_feat_size, num_att_heads)
+
+        self.q_fc = nn.Linear(q_enc_size, obj_feat_size)
+        self.q_att = nn.MultiheadAttention(obj_feat_size, num_att_heads)
+
+        self.self_att_2 = nn.MultiheadAttention(obj_feat_size, num_att_heads)
+        self.fc_out = nn.Sequential(
+            nn.Dropout(dropout),
+            nn.Linear(obj_feat_size, obj_feat_size),
+            nn.ReLU()
+        )
+
+    def forward(self, x):
+        objs, qs = x
+
+        objs = self.obj_fc(objs)
+        objs = torch.relu(objs)
+
+        objs, _ = self.self_att_1(objs, objs, objs)
+        objs = torch.relu(objs)
+
+        qs = self.q_fc(qs)
+        qs = torch.relu(qs)
+
+        objs, _ = self.q_att(objs, qs, qs)
+        objs = torch.relu(objs)
+
+        objs, _ = self.self_att_2(objs, objs, objs)
+        objs = torch.relu(objs)
+
+        enc, _ = torch.max(objs, dim=0)
+        output = self.fc_out(enc)
+
+        return output
 
 
 class _SmallFeatExtrNetwork(nn.Module):

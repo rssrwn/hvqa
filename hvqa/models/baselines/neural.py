@@ -26,7 +26,6 @@ from hvqa.models.baselines.networks import (
     EventNetwork,
     CnnMlpPreNetwork,
     CnnMlpObjNetwork,
-    PropRelObjNetwork,
     EventObjNetwork
 )
 
@@ -473,49 +472,6 @@ class CnnObjModel(_AbsNeuralModel):
         model_path = Path(path) / "network.pt"
         network = util.load_model(CnnMlpObjNetwork, model_path, spec, parse_q, att)
         model = CnnObjModel(spec, network, parse_q=parse_q, att=att)
-        return model
-
-
-class PropRelObjModel(_AbsNeuralModel):
-    def __init__(self, spec, model):
-        super(PropRelObjModel, self).__init__(spec, model)
-        self._print_freq = 1
-
-    def _prepare_train_data(self, train_data):
-        fn = util.collate_func
-        train_dataset = E2EObjFilterDataset.from_video_dataset(self.spec, train_data, filter_qs=[0, 1], parse_q=True)
-        train_loader = DataLoader(train_dataset, batch_size=self._batch_size, shuffle=True, collate_fn=fn)
-        return train_loader
-
-    def _prepare_eval_data(self, eval_data):
-        eval_dataset = E2EObjFilterDataset.from_video_dataset(self.spec, eval_data, filter_qs=[0, 1], parse_q=True)
-        eval_loader = DataLoader(eval_dataset, batch_size=self._batch_size, shuffle=True, collate_fn=util.collate_func)
-        return eval_loader
-
-    def _prepare_input(self, frames, questions, q_types, answers):
-        obj_frames = [[obj for obj, _ in frame] for frame in frames]
-        objs = [torch.stack(objs) for objs in obj_frames]
-        objs = pad_sequence(objs).to(self._device)
-        qs = torch.stack(questions)[None, :, :].to(self._device)
-        return objs, qs
-
-    def _set_hyperparams(self):
-        epochs = 10
-        lr = 0.001
-        batch_size = 256
-        return epochs, lr, batch_size
-
-    @staticmethod
-    def new(spec):
-        network = PropRelObjNetwork(spec)
-        model = PropRelObjModel(spec, network)
-        return model
-
-    @staticmethod
-    def load(spec, path):
-        model_path = Path(path) / "network.pt"
-        network = util.load_model(PropRelObjNetwork, model_path, spec)
-        model = PropRelObjModel(spec, network)
         return model
 
 
