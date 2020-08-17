@@ -787,7 +787,7 @@ class TvqaDataset(_AbsE2EObjDataset):
         frames = self.videos[v_idx]
         raw_video = self.raw_videos[v_idx]
 
-        return frames, raw_video, question, q_type, answer
+        return (frames, raw_video), question, q_type, answer
 
     @staticmethod
     def from_video_dataset(spec, dataset, transform=None, parse_q=True):
@@ -798,7 +798,7 @@ class TvqaDataset(_AbsE2EObjDataset):
             video, v_answers = dataset[v_idx]
             videos.append(video)
             answers.append(v_answers)
-            raw_video = torch.stack([frame.img for frame in video])
+            raw_video = [T.ToTensor()(frame.img) for frame in video]
             raw_videos.append(raw_video)
 
         tvqa_dataset = TvqaDataset(spec, videos, raw_videos, answers)

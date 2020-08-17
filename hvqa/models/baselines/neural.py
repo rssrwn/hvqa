@@ -16,7 +16,7 @@ from hvqa.models.baselines.datasets import (
     E2EFilterDataset,
     E2EPreDataset,
     E2EObjDataset,
-    E2EObjFilterDataset
+    TvqaDataset
 )
 from hvqa.models.baselines.networks import (
     LangLstmNetwork,
@@ -482,13 +482,32 @@ class TvqaModel(_AbsNeuralModel):
         self.print_freq = 10
 
     def _prepare_train_data(self, train_data):
-        pass
+        fn = util.collate_func
+        train_dataset = TvqaDataset.from_video_dataset(self.spec, train_data)
+        train_loader = DataLoader(train_dataset, batch_size=self._batch_size, shuffle=True, collate_fn=fn)
+        return train_loader
 
     def _prepare_eval_data(self, eval_data):
-        pass
+        eval_dataset = TvqaDataset.from_video_dataset(self.spec, eval_data)
+        eval_loader = DataLoader(eval_dataset, batch_size=self._batch_size, shuffle=True, collate_fn=util.collate_func)
+        return eval_loader
 
     def _prepare_input(self, frames, questions, q_types, answers):
-        pass
+        videos, raw_videos = tuple(zip(*frames))
+
+        qs = torch.stack(questions).to(self._device)
+
+        v_frames = [frame for video in videos for frame in video]
+        v_frames = [obj for frame in v_frames for obj, _ in frame]
+        v_frames = [torch.stack(frame) for frame in v_frames]
+        v_frames = pad_sequence(v_frames).to(self._device)
+
+        raw_pairs = [list(zip(video, video[1:])) for video in raw_videos]
+        raw_pairs = [[torch.cat(pair, dim=0) for pair in video] for video in raw_pairs]
+        raw_pairs = [frame_pair for video in raw_pairs for frame_pair in video]
+        raw_pairs = torch.stack(raw_pairs).to(self._device)
+
+        return v_frames, raw_pairs, qs
 
     def _set_hyperparams(self):
         epochs = 10
