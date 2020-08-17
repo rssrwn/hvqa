@@ -13,7 +13,7 @@ from hvqa.models.baselines.neural import (
     EventModel,
     CnnMlpPreModel,
     CnnObjModel,
-    EventObjModel
+    TvqaModel
 )
 
 
@@ -131,12 +131,12 @@ def main(train_dir, eval_dir, model_type):
     #     train_data = VideoDataset.from_data_dir(spec, train_dir, detector, hardcoded=False)
     #     eval_data = VideoDataset.from_data_dir(spec, eval_dir, detector, hardcoded=False)
 
-    elif model_type == "event-obj":
-        model_path = EVENT_OBJ_PATH
-        model = EventObjModel.new(spec)
-        detector = NeuralDetector.load(spec, DETECTOR_PATH)
-        train_data = VideoDataset.from_data_dir(spec, train_dir, detector, hardcoded=False)
-        eval_data = VideoDataset.from_data_dir(spec, eval_dir, detector, hardcoded=False)
+    # elif model_type == "event-obj":
+    #     model_path = EVENT_OBJ_PATH
+    #     model = EventObjModel.new(spec)
+    #     detector = NeuralDetector.load(spec, DETECTOR_PATH)
+    #     train_data = VideoDataset.from_data_dir(spec, train_dir, detector, hardcoded=False)
+    #     eval_data = VideoDataset.from_data_dir(spec, eval_dir, detector, hardcoded=False)
 
     else:
         print("That model type is not supported")

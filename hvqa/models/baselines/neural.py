@@ -26,7 +26,7 @@ from hvqa.models.baselines.networks import (
     EventNetwork,
     CnnMlpPreNetwork,
     CnnMlpObjNetwork,
-    EventObjNetwork
+    TvqaNetwork
 )
 
 
@@ -475,48 +475,36 @@ class CnnObjModel(_AbsNeuralModel):
         return model
 
 
-class EventObjModel(_AbsNeuralModel):
+class TvqaModel(_AbsNeuralModel):
     def __init__(self, spec, model):
-        super(EventObjModel, self).__init__(spec, model)
-        self._print_freq = 1
+        super(TvqaModel, self).__init__(spec, model)
+
+        self.print_freq = 10
 
     def _prepare_train_data(self, train_data):
-        fn = util.collate_func
-        train_dataset = E2EObjFilterDataset.from_video_dataset(self.spec, train_data, filter_qs=[2], parse_q=True)
-        train_loader = DataLoader(train_dataset, batch_size=self._batch_size, shuffle=True, collate_fn=fn)
-        return train_loader
+        pass
 
     def _prepare_eval_data(self, eval_data):
-        eval_dataset = E2EObjFilterDataset.from_video_dataset(self.spec, eval_data, filter_qs=[2], parse_q=True)
-        eval_loader = DataLoader(eval_dataset, batch_size=self._batch_size, shuffle=True, collate_fn=util.collate_func)
-        return eval_loader
+        pass
 
     def _prepare_input(self, frames, questions, q_types, answers):
-        obj1_frames = [[obj for obj, _ in frame[0]] for frame in frames]
-        obj1_pos = [[pos for _, pos in frame[0]] for frame in frames]
-        obj2_frames = [[obj for obj, _ in frame[1]] for frame in frames]
-        obj2_pos = [[pos for _, pos in frame[1]] for frame in frames]
-        objs = [torch.stack(objs) for objs in obj1_frames]
-        next_objs = [torch.stack(objs) for objs in obj2_frames]
-        objs = pad_sequence(objs).to(self._device)
-        next_objs = pad_sequence(next_objs).to(self._device)
-        return (objs, obj1_pos), (next_objs, obj2_pos)
+        pass
 
     def _set_hyperparams(self):
         epochs = 10
         lr = 0.001
-        batch_size = 64
+        batch_size = 8
         return epochs, lr, batch_size
 
     @staticmethod
     def new(spec):
-        network = EventObjNetwork(spec)
-        model = EventObjModel(spec, network)
+        network = TvqaNetwork(spec)
+        model = TvqaModel(spec, network)
         return model
 
     @staticmethod
     def load(spec, path):
         model_path = Path(path) / "network.pt"
-        network = util.load_model(EventObjNetwork, model_path, spec)
-        model = EventObjModel(spec, network)
+        network = util.load_model(TvqaNetwork, model_path, spec)
+        model = TvqaModel(spec, network)
         return model
