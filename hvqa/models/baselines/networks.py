@@ -347,11 +347,12 @@ class _TvqaObjAttStream(nn.Module):
     def __init__(self, spec):
         super(_TvqaObjAttStream, self).__init__()
 
-        objs_enc_size = 128
+        obj_size = 20 + 16 + 4 + 4
+        obj_enc_size = 128
 
         q_size = 260
-        q_enc_size = objs_enc_size * 2
-        frame_enc_size = objs_enc_size * 2
+        q_enc_size = obj_enc_size * 2
+        frame_enc_size = obj_enc_size * 2
 
         num_att_heads = 8
 
@@ -359,10 +360,16 @@ class _TvqaObjAttStream(nn.Module):
         mlp_feat1 = 256
         mlp_feat2 = 128
 
-        self.frame_enc = _ObjEncNetwork(objs_enc_size)
-        self.frames_lstm = nn.LSTM(objs_enc_size, objs_enc_size, bidirectional=True)
-
-        self.q_fc = nn.Linear(q_size, q_enc_size)
+        self.obj_fc = nn.Sequential(
+            nn.Linear(obj_size, obj_enc_size),
+            nn.ReLU()
+        )
+        self.q_fc = nn.Sequential(
+            nn.Linear(q_size, q_enc_size),
+            nn.ReLU()
+        )
+        self.frame_enc = _ObjEncNetwork(obj_enc_size, q_enc_size)
+        self.frames_lstm = nn.LSTM(obj_enc_size, obj_enc_size, bidirectional=True)
         self.att = nn.MultiheadAttention(q_enc_size, num_att_heads)
 
         self.video_lstm = nn.LSTM(frame_enc_size * 3, frame_enc_size, bidirectional=True)
@@ -376,14 +383,33 @@ class _TvqaObjAttStream(nn.Module):
             _QANetwork(spec, mlp_feat2)
         )
 
+    def forward(self, x):
+        frames, qs = x
+
+        frames = self.obj_fc(frames)
+        qs = self.q_fc(qs).unsqueeze(0)
+        frame_encs = self.frame_enc((frames, qs))
+
+        batch_size = frame_encs.shape[0] // 32
+        frame_encs = frame_encs.reshape((32, batch_size, -1))
+        frame_encs, _ = self.frames_lstm(frame_encs)
+        frame_encs_att, _ = self.att(frame_encs, qs, qs)
+
+        enc = frame_encs * frame_encs_att
+        enc = torch.cat([frame_encs, frame_encs_att, enc], dim=2)
+        enc, _ = self.video_lstm(enc)
+        enc, _ = torch.max(enc, dim=0)
+
+        output = self.mlp(enc)
+        return output
+
 
 class _ObjEncNetwork(nn.Module):
-    def __init__(self, obj_feat_size):
+    def __init__(self, obj_feat_size, q_enc_size):
         super(_ObjEncNetwork, self).__init__()
 
         num_att_heads = 8
         obj_enc_size = 20 + 16 + 4 + 4
-        q_enc_size = 260
         dropout = 0.2
 
         self.obj_fc = nn.Linear(obj_enc_size, obj_feat_size)
