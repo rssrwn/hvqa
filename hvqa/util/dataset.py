@@ -7,6 +7,8 @@ from more_itertools import grouper
 from concurrent.futures import ThreadPoolExecutor
 from torch.utils.data import Dataset
 
+import torch
+
 import hvqa.util.func as util
 from hvqa.util.interfaces import QADataset
 from hvqa.spec.repr import Obj, Frame, Video
@@ -50,7 +52,9 @@ class VideoDataset(QADataset):
     @classmethod
     def from_data_dir(cls, spec, data_dir, detector, hardcoded=False, group_videos=12, store_frames=False, err_prob=0):
         data_dir = Path(data_dir)
-        ids, videos, answers, timing = cls._find_videos(spec, data_dir, detector, hardcoded, group_videos, store_frames, err_prob)
+        group_videos = group_videos * torch.cuda.device_count()
+        ids, videos, answers, timing = cls._find_videos(spec, data_dir, detector, hardcoded,
+                                                        group_videos, store_frames, err_prob)
         ids = sorted(enumerate(ids), key=lambda idx_id: idx_id[1])
         videos = [videos[idx] for idx, _ in ids]
         answers = [answers[idx] for idx, _ in ids]
