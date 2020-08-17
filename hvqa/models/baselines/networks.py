@@ -282,6 +282,28 @@ class CnnMlpObjNetwork(nn.Module):
         return output
 
 
+class TvqaNetwork(nn.Module):
+    def __init__(self, spec):
+        super(TvqaNetwork, self).__init__()
+
+        self.obj_att_stream = _TvqaObjAttStream(spec)
+        self.event_stream = _TvqaEventStream(spec)
+
+    def forward(self, x):
+        obj_frames, frame_pairs, qs = x
+
+        obj_att_predction = self.obj_att_stream((obj_frames, qs))
+        event_prediction = self.event_stream((frame_pairs, qs))
+
+        output = {}
+        for q_type, obj_att_preds in obj_att_predction.items():
+            event_preds = event_prediction[q_type]
+            preds = obj_att_predction + event_preds
+            output[q_type] = preds
+
+        return output
+
+
 # ------------------------------------------------------------------------------------------------------
 # ---------------------------------------- Helper Networks ---------------------------------------------
 # ------------------------------------------------------------------------------------------------------
