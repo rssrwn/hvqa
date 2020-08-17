@@ -749,3 +749,60 @@ class E2EObjFilterDataset(_AbsE2EObjDataset):
             frame = (frame, next_frame)
 
         return frame
+
+
+class TvqaDataset(_AbsE2EObjDataset):
+    def __init__(self, spec, videos, raw_videos, answers):
+        super(TvqaDataset, self).__init__(spec, videos, answers, None, parse_q=True)
+
+        q_tensors = []
+        q_types_ = []
+        ans_tensors = []
+
+        for v_idx, video in enumerate(videos):
+            v_qs = video.questions
+            v_q_types = video.q_types
+            v_ans = answers[v_idx]
+            q_encs, a_encs = self._encode_qas(v_qs, v_q_types, v_ans)
+            q_tensors.append(q_encs)
+            q_types_.append(v_q_types)
+            ans_tensors.append(a_encs)
+
+        self.videos = self._videos_objs
+        self.raw_videos = raw_videos
+        self.questions = q_tensors
+        self.q_types = q_types_
+        self.answers = ans_tensors
+
+    def __len__(self):
+        return len(self.questions) * 10
+
+    def __getitem__(self, item):
+        v_idx = item // 10
+        q_idx = item % 10
+
+        question = self.questions[v_idx][q_idx]
+        q_type = self.q_types[v_idx][q_idx]
+        answer = self.answers[v_idx][q_idx]
+        frames = self.videos[v_idx]
+        raw_video = self.raw_videos[v_idx]
+
+        return frames, raw_video, question, q_type, answer
+
+    @staticmethod
+    def from_video_dataset(spec, dataset, transform=None, parse_q=True):
+        videos = []
+        answers = []
+        raw_videos = []
+        for v_idx in range(len(dataset)):
+            video, v_answers = dataset[v_idx]
+            videos.append(video)
+            answers.append(v_answers)
+            raw_video = torch.stack([frame.img for frame in video])
+            raw_videos.append(raw_video)
+
+        tvqa_dataset = TvqaDataset(spec, videos, raw_videos, answers)
+        return tvqa_dataset
+
+    def _position_in_obj_tensor(self):
+        return True
