@@ -495,17 +495,17 @@ class TvqaModel(_AbsNeuralModel):
     def _prepare_input(self, frames, questions, q_types, answers):
         videos, raw_videos = tuple(zip(*frames))
 
-        qs = torch.stack(questions).to(self._device)
+        qs = torch.stack(questions).float().to(self._device)
 
         v_frames = [frame for video in videos for frame in video]
         v_frames = [[obj for obj, _ in frame] for frame in v_frames]
         v_frames = [torch.stack(frame) for frame in v_frames]
-        v_frames = pad_sequence(v_frames).to(self._device)
+        v_frames = pad_sequence(v_frames).float().to(self._device)
 
         raw_pairs = [list(zip(video, video[1:])) for video in raw_videos]
         raw_pairs = [[torch.cat(pair, dim=0) for pair in video] for video in raw_pairs]
         raw_pairs = [frame_pair for video in raw_pairs for frame_pair in video]
-        raw_pairs = torch.stack(raw_pairs).to(self._device)
+        raw_pairs = torch.stack(raw_pairs).float().to(self._device)
 
         return v_frames, raw_pairs, qs
 
