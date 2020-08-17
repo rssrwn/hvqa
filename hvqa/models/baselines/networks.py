@@ -353,7 +353,7 @@ class _TvqaObjAttStream(nn.Module):
         frames, qs = x
 
         frames = self.obj_fc(frames)
-        qs = self.q_fc(qs).unsqueeze(0)
+        qs = self.q_fc(qs).unsqueeze(0).repeat_interleave(32, dim=1)
         frame_encs = self.frame_enc((frames, qs))
 
         batch_size = frame_encs.shape[0] // 32
@@ -465,10 +465,8 @@ class _ObjEncNetwork(nn.Module):
         super(_ObjEncNetwork, self).__init__()
 
         num_att_heads = 8
-        obj_enc_size = 20 + 16 + 4 + 4
         dropout = 0.2
 
-        self.obj_fc = nn.Linear(obj_enc_size, obj_feat_size)
         self.self_att_1 = nn.MultiheadAttention(obj_feat_size, num_att_heads)
 
         self.q_fc = nn.Linear(q_enc_size, obj_feat_size)
@@ -483,9 +481,6 @@ class _ObjEncNetwork(nn.Module):
 
     def forward(self, x):
         objs, qs = x
-
-        objs = self.obj_fc(objs)
-        objs = torch.relu(objs)
 
         objs, _ = self.self_att_1(objs, objs, objs)
         objs = torch.relu(objs)

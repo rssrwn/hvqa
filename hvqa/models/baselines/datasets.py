@@ -798,7 +798,7 @@ class TvqaDataset(_AbsE2EObjDataset):
             video, v_answers = dataset[v_idx]
             videos.append(video)
             answers.append(v_answers)
-            raw_video = [T.ToTensor()(frame.img) for frame in video]
+            raw_video = [T.ToTensor()(frame.img) for frame in video.frames]
             raw_videos.append(raw_video)
 
         tvqa_dataset = TvqaDataset(spec, videos, raw_videos, answers)

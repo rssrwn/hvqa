@@ -498,7 +498,7 @@ class TvqaModel(_AbsNeuralModel):
         qs = torch.stack(questions).to(self._device)
 
         v_frames = [frame for video in videos for frame in video]
-        v_frames = [obj for frame in v_frames for obj, _ in frame]
+        v_frames = [[obj for obj, _ in frame] for frame in v_frames]
         v_frames = [torch.stack(frame) for frame in v_frames]
         v_frames = pad_sequence(v_frames).to(self._device)
 
