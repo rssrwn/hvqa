@@ -532,9 +532,9 @@ class _MedFeatExtrNetwork(nn.Module):
     def __init__(self, in_channels, output_size):
         super(_MedFeatExtrNetwork, self).__init__()
 
-        feat1 = 64
-        feat2 = 128
-        feat3 = 256
+        feat1 = 32
+        feat2 = 64
+        feat3 = 128
 
         self.network = nn.Sequential(
             nn.Conv2d(in_channels, feat1, kernel_size=3),
