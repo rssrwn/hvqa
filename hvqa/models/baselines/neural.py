@@ -478,9 +478,10 @@ class CnnObjModel(_AbsNeuralModel):
 
 
 class TvqaModel(_AbsNeuralModel):
-    def __init__(self, spec, model):
+    def __init__(self, spec, model, curr_learning=False):
         super(TvqaModel, self).__init__(spec, model)
 
+        self.curr_learning = curr_learning
         self._print_freq = 10
         self._trans = T.ToTensor()
         self._optim = optim.Adam(self._model.parameters(), lr=self._lr)
@@ -491,8 +492,9 @@ class TvqaModel(_AbsNeuralModel):
         eval_dataset = TvqaDataset.from_video_dataset(self.spec, eval_data)
         print("Data preparation complete.")
 
-        for q_type in ["property", "relation", "action"]:
-            self._train_q_type(train_dataset, eval_dataset, q_type)
+        if self.curr_learning:
+            for q_type in ["property", "relation", "action"]:
+                self._train_q_type(train_dataset, eval_dataset, q_type)
 
         print("Training TVQA model...")
         self._print_freq = 50
@@ -579,14 +581,14 @@ class TvqaModel(_AbsNeuralModel):
         return epochs, lr, batch_size
 
     @staticmethod
-    def new(spec):
+    def new(spec, curr_learning=False):
         network = TvqaNetwork(spec)
-        model = TvqaModel(spec, network)
+        model = TvqaModel(spec, network, curr_learning=curr_learning)
         return model
 
     @staticmethod
-    def load(spec, path):
+    def load(spec, path, curr_learing=False):
         model_path = Path(path) / "network.pt"
         network = util.load_model(TvqaNetwork, model_path, spec)
-        model = TvqaModel(spec, network)
+        model = TvqaModel(spec, network, curr_learning=curr_learing)
         return model
