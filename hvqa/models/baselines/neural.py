@@ -480,6 +480,7 @@ class TvqaModel(_AbsNeuralModel):
         super(TvqaModel, self).__init__(spec, model)
 
         self.print_freq = 10
+        self._trans = T.ToTensor()
 
     def _prepare_train_data(self, train_data):
         fn = util.collate_func
@@ -503,6 +504,7 @@ class TvqaModel(_AbsNeuralModel):
         v_frames = pad_sequence(v_frames).float().to(self._device)
 
         raw_pairs = [list(zip(video, video[1:])) for video in raw_videos]
+        raw_pairs = [[(self._trans(i1), self._trans(i2)) for (i1, i2) in video] for video in raw_pairs]
         raw_pairs = [[torch.cat(pair, dim=0) for pair in video] for video in raw_pairs]
         raw_pairs = [frame_pair for video in raw_pairs for frame_pair in video]
         raw_pairs = torch.stack(raw_pairs).float().to(self._device)

@@ -791,8 +791,6 @@ class TvqaDataset(_AbsE2EObjDataset):
 
     @staticmethod
     def from_video_dataset(spec, dataset, transform=None, parse_q=True):
-        transform = T.ToTensor()
-
         videos = []
         answers = []
         raw_videos = []
@@ -803,7 +801,7 @@ class TvqaDataset(_AbsE2EObjDataset):
             video, v_answers = dataset[v_idx]
             videos.append(video)
             answers.append(v_answers)
-            raw_video = [transform(frame.img) for frame in video.frames]
+            raw_video = [frame.img for frame in video.frames]
             raw_videos.append(raw_video)
             if v_idx % 10 == 0:
                 print(f"Completed {v_idx}/{len(dataset)} videos")
