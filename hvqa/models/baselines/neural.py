@@ -479,7 +479,7 @@ class TvqaModel(_AbsNeuralModel):
     def __init__(self, spec, model):
         super(TvqaModel, self).__init__(spec, model)
 
-        self.print_freq = 10
+        self.print_freq = 50
         self._trans = T.ToTensor()
 
     def _prepare_train_data(self, train_data):

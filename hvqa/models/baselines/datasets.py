@@ -794,19 +794,12 @@ class TvqaDataset(_AbsE2EObjDataset):
         videos = []
         answers = []
         raw_videos = []
-
-        print("Started TVQA dataset collection")
-
         for v_idx in range(len(dataset)):
             video, v_answers = dataset[v_idx]
             videos.append(video)
             answers.append(v_answers)
             raw_video = [frame.img for frame in video.frames]
             raw_videos.append(raw_video)
-            if v_idx % 10 == 0:
-                print(f"Completed {v_idx}/{len(dataset)} videos")
-
-        print("Completed TVQA dataset collection")
 
         tvqa_dataset = TvqaDataset(spec, videos, raw_videos, answers)
         return tvqa_dataset
