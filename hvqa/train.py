@@ -31,8 +31,7 @@ CNN_MLP_PRE_PATH = "saved-models/cnn-mlp-pre"
 CNN_MLP_PRE_PQ_PATH = "saved-models/cnn-mlp-pre-pq"
 CNN_OBJ_PATH = "saved-models/cnn-obj"
 CNN_OBJ_ATT_PATH = "saved-models/cnn-obj-att"
-PROP_REL_OBJ_PATH = "saved-models/pre/prop-rel-obj"
-EVENT_OBJ_PATH = "saved-models/pre/event-obj"
+TVQA_MODEL_PATH = "saved-models/tvqa"
 
 spec = EnvSpec.from_dict({
     "num_frames": 32,
@@ -137,6 +136,13 @@ def main(train_dir, eval_dir, model_type):
     #     detector = NeuralDetector.load(spec, DETECTOR_PATH)
     #     train_data = VideoDataset.from_data_dir(spec, train_dir, detector, hardcoded=False)
     #     eval_data = VideoDataset.from_data_dir(spec, eval_dir, detector, hardcoded=False)
+
+    elif model_type == "tvqa":
+        model_path = TVQA_MODEL_PATH
+        model = TvqaModel.new(spec)
+        detector = NeuralDetector.load(spec, DETECTOR_PATH)
+        train_data = VideoDataset.from_data_dir(spec, train_dir, detector, hardcoded=False, store_frames=True)
+        eval_data = VideoDataset.from_data_dir(spec, eval_dir, detector, hardcoded=False, store_frames=True)
 
     else:
         print("That model type is not supported")
