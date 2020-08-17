@@ -282,62 +282,6 @@ class CnnMlpObjNetwork(nn.Module):
         return output
 
 
-class EventObjNetwork(nn.Module):
-    def __init__(self, spec):
-        super(EventObjNetwork, self).__init__()
-
-        num_workers = os.cpu_count()
-        self._executor = ThreadPoolExecutor(max_workers=num_workers)
-        self._device = util.get_device()
-
-        obj_enc_size = 20 + 16 + 4 + 4
-        obj_feat_size = 16
-
-        cnn_output = 32
-        dropout = 0.5
-        mlp_feat1 = 16
-
-        self.obj_fc = nn.Linear(obj_enc_size, obj_feat_size)
-        self.feat_extr = _SmallFeatExtrNetwork(obj_feat_size * 2, cnn_output)
-        self.mlp = nn.Sequential(
-            nn.Dropout(dropout),
-            nn.Linear(cnn_output, mlp_feat1),
-            nn.ReLU(),
-            _QANetwork(spec, mlp_feat1)
-        )
-
-    def forward(self, x):
-        (objs, objs_pos), (next_objs, next_objs_pos) = x
-
-        objs = self.obj_fc(objs)
-        objs = torch.relu(objs)
-
-        next_objs = self.obj_fc(next_objs)
-        next_objs = torch.relu(next_objs)
-
-        frames = self._enc_frames(objs, objs_pos)
-        next_frames = self._enc_frames(next_objs, next_objs_pos)
-        v_enc = torch.cat([frames, next_frames], dim=1)
-        enc = self.feat_extr(v_enc)
-
-        output = self.mlp(enc)
-
-        return output
-
-    def _enc_frames(self, objs, pos):
-        b_enc = []
-        for f_idx, frame in enumerate(pos):
-            f_encs = []
-            for o_idx, obj_pos in enumerate(frame):
-                obj_enc = objs[o_idx, f_idx, :]
-                f_encs.append((obj_enc, obj_pos))
-            b_enc.append(f_encs)
-
-        frames_enc = util.gen_object_frames(b_enc, self._executor)
-        frames = torch.stack(frames_enc).to(self._device)
-        return frames
-
-
 # ------------------------------------------------------------------------------------------------------
 # ---------------------------------------- Helper Networks ---------------------------------------------
 # ------------------------------------------------------------------------------------------------------
@@ -402,6 +346,96 @@ class _TvqaObjAttStream(nn.Module):
 
         output = self.mlp(enc)
         return output
+
+
+class _TvqaEventStream(nn.Module):
+    def __init__(self, spec):
+        super(_TvqaEventStream, self).__init__()
+
+        enc_size = 128
+
+        q_size = 260
+        q_enc_size = enc_size * 2
+        frame_enc_size = enc_size * 2
+
+        num_att_heads = 8
+
+        dropout = 0.2
+        mlp_feat1 = 256
+        mlp_feat2 = 128
+
+        self.event_enc = _EventEncNetwork(enc_size)
+        self.q_fc = nn.Sequential(
+            nn.Linear(q_size, q_enc_size),
+            nn.ReLU()
+        )
+
+        self.frames_lstm = nn.LSTM(enc_size, enc_size, bidirectional=True)
+        self.att = nn.MultiheadAttention(q_enc_size, num_att_heads)
+
+        self.video_lstm = nn.LSTM(frame_enc_size * 3, frame_enc_size, bidirectional=True)
+        self.mlp = nn.Sequential(
+            nn.Dropout(dropout),
+            nn.Linear(frame_enc_size * 2, mlp_feat1),
+            nn.ReLU(),
+            nn.Dropout(dropout),
+            nn.Linear(mlp_feat1, mlp_feat2),
+            nn.ReLU(),
+            _QANetwork(spec, mlp_feat2)
+        )
+
+    def forward(self, x):
+        frames, qs = x
+
+        frame_encs = self.event_enc(frames)
+        qs = self.q_fc(qs).unsqueeze(0)
+
+        batch_size = frame_encs.shape[0] // 31
+        frame_encs = frame_encs.reshape((31, batch_size, -1))
+        frame_encs, _ = self.frames_lstm(frame_encs)
+        frame_encs_att, _ = self.att(frame_encs, qs, qs)
+
+        enc = frame_encs * frame_encs_att
+        enc = torch.cat([frame_encs, frame_encs_att, enc], dim=2)
+        enc, _ = self.video_lstm(enc)
+        enc, _ = torch.max(enc, dim=0)
+
+        output = self.mlp(enc)
+        return output
+
+
+class _EventEncNetwork(nn.Module):
+    def __init__(self, enc_size):
+        super(_EventEncNetwork, self).__init__()
+
+        cnn_output = 256
+        dropout = 0.2
+
+        self.feat_extr = _MedFeatExtrNetwork(6, cnn_output)
+        self.mlp = nn.Sequential(
+            nn.Dropout(dropout),
+            nn.Linear(cnn_output, enc_size),
+            nn.ReLU(),
+        )
+
+    def forward(self, x):
+        frames = x
+        frame_encs = self.feat_extr(frames)
+        output = self.mlp(frame_encs)
+        return output
+
+    # def _enc_frames(self, objs, pos):
+    #     b_enc = []
+    #     for f_idx, frame in enumerate(pos):
+    #         f_encs = []
+    #         for o_idx, obj_pos in enumerate(frame):
+    #             obj_enc = objs[o_idx, f_idx, :]
+    #             f_encs.append((obj_enc, obj_pos))
+    #         b_enc.append(f_encs)
+    #
+    #     frames_enc = util.gen_object_frames(b_enc, self._executor)
+    #     frames = torch.stack(frames_enc).to(self._device)
+    #     return frames
 
 
 class _ObjEncNetwork(nn.Module):
