@@ -292,13 +292,13 @@ class TvqaNetwork(nn.Module):
     def forward(self, x):
         obj_frames, frame_pairs, qs = x
 
-        obj_att_predction = self.obj_att_stream((obj_frames, qs))
+        obj_att_prediction = self.obj_att_stream((obj_frames, qs))
         event_prediction = self.event_stream((frame_pairs, qs))
 
         output = {}
-        for q_type, obj_att_preds in obj_att_predction.items():
+        for q_type, obj_att_preds in obj_att_prediction.items():
             event_preds = event_prediction[q_type]
-            preds = obj_att_predction + event_preds
+            preds = obj_att_preds + event_preds
             output[q_type] = preds
 
         return output
