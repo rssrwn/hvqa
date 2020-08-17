@@ -806,3 +806,15 @@ class TvqaDataset(_AbsE2EObjDataset):
 
     def _position_in_obj_tensor(self):
         return True
+
+
+class BasicDataset(Dataset):
+    def __init__(self, data):
+        super(BasicDataset, self).__init__()
+        self.data = data
+
+    def __len__(self):
+        return len(self.data)
+
+    def __getitem__(self, item):
+        return self.data[item]

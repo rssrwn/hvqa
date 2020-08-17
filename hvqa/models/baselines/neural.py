@@ -10,13 +10,15 @@ from torch.utils.data import DataLoader
 from torch.nn.utils.rnn import pack_sequence, pad_sequence, pad_packed_sequence
 
 import hvqa.util.func as util
+from hvqa.util.exceptions import UnknownQuestionTypeException
 from hvqa.models.baselines.interfaces import _AbsBaselineModel
 from hvqa.models.baselines.datasets import (
     E2EDataset,
     E2EFilterDataset,
     E2EPreDataset,
     E2EObjDataset,
-    TvqaDataset
+    TvqaDataset,
+    BasicDataset
 )
 from hvqa.models.baselines.networks import (
     LangLstmNetwork,
@@ -479,8 +481,67 @@ class TvqaModel(_AbsNeuralModel):
     def __init__(self, spec, model):
         super(TvqaModel, self).__init__(spec, model)
 
-        self.print_freq = 50
+        self._print_freq = 10
         self._trans = T.ToTensor()
+        self._optim = optim.Adam(self._model.parameters(), lr=self._lr)
+
+    def train(self, train_data, eval_data, verbose=True, save_path=None):
+        print("Preparing data...")
+        train_dataset = TvqaDataset.from_video_dataset(self.spec, train_data)
+        eval_dataset = TvqaDataset.from_video_dataset(self.spec, eval_data)
+        print("Data preparation complete.")
+
+        for q_type in ["property", "relation", "action"]:
+            self._train_q_type(train_dataset, eval_dataset, q_type)
+
+        print("Training TVQA model...")
+        self._print_freq = 50
+
+        fn = util.collate_func
+        train_loader = DataLoader(train_dataset, batch_size=self._batch_size, shuffle=True, collate_fn=fn)
+        eval_loader = DataLoader(eval_dataset, batch_size=self._batch_size, shuffle=True, collate_fn=fn)
+
+        for e in range(self._epochs):
+            self._train_one_epoch(train_loader, self._optim, e, verbose)
+            print()
+            self._eval(eval_loader, verbose)
+            if save_path is not None:
+                self.save(save_path)
+
+        print("Training complete.")
+
+    def _train_q_type(self, train_dataset, eval_dataset, q_type, verbose=True):
+        print(f"Training on {q_type} questions...")
+        fn = util.collate_func
+        train_dataset_ = self._filter_q_type(train_dataset, q_type)
+        eval_dataset_ = self._filter_q_type(eval_dataset, q_type)
+        train_loader = DataLoader(train_dataset_, batch_size=self._batch_size, shuffle=True, collate_fn=fn)
+        eval_loader = DataLoader(eval_dataset_, batch_size=self._batch_size, shuffle=True, collate_fn=fn)
+        for e in range(self._epochs):
+            self._train_one_epoch(train_loader, self._optim, e, verbose)
+            print()
+            self._eval(eval_loader, verbose)
+
+        print(f"Completed training {q_type} questions.")
+
+    def _filter_q_type(self, tvqa_dataset, q_type):
+        if q_type == "property":
+            q_type = 0
+        elif q_type == "relation":
+            q_type = 1
+        elif q_type == "action":
+            q_type = 2
+        else:
+            raise UnknownQuestionTypeException(f"Question type {q_type} unknown")
+
+        new_data = []
+        for v_idx in range(len(tvqa_dataset)):
+            (frames, raw_video), question, q_type_, answer = tvqa_dataset[v_idx]
+            if q_type == q_type_:
+                new_data.append(((frames, raw_video), question, q_type_, answer))
+
+        dataset = BasicDataset(new_data)
+        return dataset
 
     def _prepare_train_data(self, train_data):
         fn = util.collate_func
