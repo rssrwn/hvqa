@@ -108,7 +108,7 @@ def main(data_dir, model_type, components):
         detector = NeuralDetector.load(spec, DETECTOR_PATH)
         data = VideoDataset.from_data_dir(spec, data_dir, detector, hardcoded=HARDCODED, store_frames=True)
 
-    elif model_type == "tvqa":
+    elif model_type == "tvqa-curr":
         model_path = TVQA_CURR_MODEL_PATH
         model = TvqaModel.load(spec, model_path)
         detector = NeuralDetector.load(spec, DETECTOR_PATH)
