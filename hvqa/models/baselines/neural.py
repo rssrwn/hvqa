@@ -52,7 +52,7 @@ class _AbsNeuralModel(_AbsBaselineModel):
         :param save_path: If provided, model will save at the end of each epoch
         """
 
-        print("Preparing data...")
+        print("\nPreparing data...")
         train_loader = self._prepare_train_data(train_data)
         eval_loader = self._prepare_eval_data(eval_data)
         print("Data preparation complete.")
@@ -487,7 +487,7 @@ class TvqaModel(_AbsNeuralModel):
         self._optim = optim.Adam(self._model.parameters(), lr=self._lr)
 
     def train(self, train_data, eval_data, verbose=True, save_path=None):
-        print("Preparing data...")
+        print("\nPreparing data...")
         train_dataset = TvqaDataset.from_video_dataset(self.spec, train_data)
         eval_dataset = TvqaDataset.from_video_dataset(self.spec, eval_data)
         print("Data preparation complete.")

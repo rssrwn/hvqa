@@ -288,6 +288,7 @@ class TvqaNetwork(nn.Module):
 
         self.obj_att_stream = _TvqaObjAttStream(spec)
         self.event_stream = _TvqaEventStream(spec)
+        self._log_sm = nn.LogSoftmax(dim=1)
 
     def forward(self, x):
         obj_frames, frame_pairs, qs = x
@@ -299,6 +300,7 @@ class TvqaNetwork(nn.Module):
         for q_type, obj_att_preds in obj_att_prediction.items():
             event_preds = event_prediction[q_type]
             preds = obj_att_preds + event_preds
+            preds = self._log_sm(preds)
             output[q_type] = preds
 
         return output
@@ -346,7 +348,7 @@ class _TvqaObjAttStream(nn.Module):
             nn.Dropout(dropout),
             nn.Linear(mlp_feat1, mlp_feat2),
             nn.ReLU(),
-            _QANetwork(spec, mlp_feat2)
+            _QANetwork(spec, mlp_feat2, apply_sm=False)
         )
 
     def forward(self, x):
@@ -403,7 +405,7 @@ class _TvqaEventStream(nn.Module):
             nn.Dropout(dropout),
             nn.Linear(mlp_feat1, mlp_feat2),
             nn.ReLU(),
-            _QANetwork(spec, mlp_feat2)
+            _QANetwork(spec, mlp_feat2, apply_sm=False)
         )
 
     def forward(self, x):
@@ -606,7 +608,7 @@ class _QuestionNetwork(nn.Module):
 
 
 class _QANetwork(nn.Module):
-    def __init__(self, spec, vector_size):
+    def __init__(self, spec, vector_size, apply_sm=True):
         super(_QANetwork, self).__init__()
 
         num_colours = len(spec.prop_values("colour"))
@@ -618,39 +620,39 @@ class _QANetwork(nn.Module):
 
         self.q_0_layer = nn.Sequential(
             nn.Linear(vector_size, num_colours + num_rotations),
-            nn.LogSoftmax(dim=1)
+            nn.LogSoftmax(dim=1) if apply_sm else nn.Identity()
         )
         self.q_1_layer = nn.Sequential(
             nn.Linear(vector_size, 2),
-            nn.LogSoftmax(dim=1)
+            nn.LogSoftmax(dim=1) if apply_sm else nn.Identity()
         )
         self.q_2_layer = nn.Sequential(
             nn.Linear(vector_size, num_actions),
-            nn.LogSoftmax(dim=1)
+            nn.LogSoftmax(dim=1) if apply_sm else nn.Identity()
         )
         self.q_3_layer = nn.Sequential(
             nn.Linear(vector_size, (num_colours * num_colours) + (num_rotations * num_rotations)),
-            nn.LogSoftmax(dim=1)
+            nn.LogSoftmax(dim=1) if apply_sm else nn.Identity()
         )
         self.q_4_layer = nn.Sequential(
             nn.Linear(vector_size, num_frames - 1),
-            nn.LogSoftmax(dim=1)
+            nn.LogSoftmax(dim=1) if apply_sm else nn.Identity()
         )
         self.q_5_layer = nn.Sequential(
             nn.Linear(vector_size, num_actions + num_effects),
-            nn.LogSoftmax(dim=1)
+            nn.LogSoftmax(dim=1) if apply_sm else nn.Identity()
         )
         self.q_6_layer = nn.Sequential(
             nn.Linear(vector_size, num_actions),
-            nn.LogSoftmax(dim=1)
+            nn.LogSoftmax(dim=1) if apply_sm else nn.Identity()
         )
         self.q_7_layer = nn.Sequential(
             nn.Linear(vector_size, num_mc_options_q_6),
-            nn.LogSoftmax(dim=1)
+            nn.LogSoftmax(dim=1) if apply_sm else nn.Identity()
         )
         self.q_8_layer = nn.Sequential(
             nn.Linear(vector_size, num_colours),
-            nn.LogSoftmax(dim=1)
+            nn.LogSoftmax(dim=1) if apply_sm else nn.Identity()
         )
 
     def forward(self, x):
