@@ -1,6 +1,3 @@
-import os
-from concurrent.futures import ThreadPoolExecutor
-
 import torch
 import torch.nn as nn
 import torchvision.models as models
@@ -125,94 +122,6 @@ class CnnLstmNetwork(nn.Module):
         video_enc = torch.cat([v_feats, q_feats], dim=1)
         output = self.mlp(video_enc)
 
-        return output
-
-
-class CnnMlpPreNetwork(nn.Module):
-    def __init__(self, spec, parse_q=False):
-        super(CnnMlpPreNetwork, self).__init__()
-
-        feat_output_size = (32 * 32) + (32 * 31)
-
-        q_input_size = 260 if parse_q else 300
-        q_hidden_size = 1024
-        q_layers = 2
-        self.q_enc = _QuestionNetwork(q_input_size, q_hidden_size, parse_q=parse_q, num_layers=q_layers)
-
-        mlp_input = feat_output_size + q_hidden_size
-        feat1 = 1024
-        feat2 = 256
-        dropout = 0.2
-        self.mlp = nn.Sequential(
-            nn.Dropout(dropout),
-            nn.Linear(mlp_input, feat1),
-            nn.ReLU(),
-            nn.Dropout(dropout),
-            nn.Linear(feat1, feat2),
-            _QANetwork(spec, feat2)
-        )
-
-    def forward(self, x):
-        feats, qs = x
-        q_feats = self.q_enc(qs)
-        video_enc = torch.cat([feats, q_feats], dim=1)
-        output = self.mlp(video_enc)
-        return output
-
-
-class PropRelNetwork(nn.Module):
-    def __init__(self, spec):
-        super(PropRelNetwork, self).__init__()
-
-        feat_output_size = 32
-        self.feat_extr = _SmallFeatExtrNetwork(3, feat_output_size)
-
-        word_vector_size = 300
-        q_hidden_size = 1024
-        q_layers = 2
-        self.lang_lstm = _QuestionNetwork(word_vector_size, q_hidden_size, num_layers=q_layers)
-
-        mlp_input = feat_output_size + q_hidden_size
-        feat1 = 512
-        dropout = 0.5
-        self.mlp = nn.Sequential(
-            nn.Dropout(dropout),
-            nn.Linear(mlp_input, feat1),
-            nn.ReLU(),
-            _QANetwork(spec, feat1)
-        )
-
-    def forward(self, x):
-        frames, qs = x
-
-        frame_feats = self.feat_extr(frames)
-        q_feats = self.lang_lstm(qs)
-
-        feats = torch.cat((frame_feats, q_feats), dim=1)
-        output = self.mlp(feats)
-
-        return output
-
-
-class EventNetwork(nn.Module):
-    def __init__(self, spec):
-        super(EventNetwork, self).__init__()
-
-        feat_output_size = 32
-        feat1 = 16
-        dropout = 0.2
-
-        self.feat_extr = _SmallFeatExtrNetwork(6, feat_output_size)
-        self.mlp = nn.Sequential(
-            nn.Dropout(dropout),
-            nn.Linear(feat_output_size, feat1),
-            nn.ReLU(),
-            _QANetwork(spec, feat1)
-        )
-
-    def forward(self, x):
-        feats = self.feat_extr(x)
-        output = self.mlp(feats)
         return output
 
 

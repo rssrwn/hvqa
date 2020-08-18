@@ -10,9 +10,6 @@ from hvqa.models.baselines.language import RandomAnsModel, BestChoiceModel
 from hvqa.models.baselines.neural import (
     LangLstmModel,
     CnnMlpModel,
-    PropRelModel,
-    EventModel,
-    CnnMlpPreModel,
     CnnObjModel,
     TvqaModel
 )
@@ -97,26 +94,6 @@ def main(data_dir, model_type, components):
         model = CnnMlpModel.load(spec, model_path, video_lstm=True)
         data = BaselineDataset.from_data_dir(data_dir)
 
-    elif model_type == "prop-rel":
-        model_path = PROP_REL_MODEL_PATH
-        model = PropRelModel.load(spec, model_path)
-        data = BaselineDataset.from_data_dir(data_dir)
-
-    elif model_type == "event":
-        model_path = EVENT_MODEL_PATH
-        model = EventModel.load(spec, model_path)
-        data = BaselineDataset.from_data_dir(data_dir)
-
-    elif model_type == "cnn-mlp-pre":
-        model_path = CNN_MLP_PRE_PATH
-        model = CnnMlpPreModel.load(spec, model_path)
-        data = BaselineDataset.from_data_dir(data_dir)
-
-    elif model_type == "cnn-mlp-pre-pq":
-        model_path = CNN_MLP_PRE_PQ_PATH
-        model = CnnMlpPreModel.load(spec, model_path, parse_q=True)
-        data = BaselineDataset.from_data_dir(data_dir)
-
     elif model_type == "cnn-obj":
         model_path = CNN_OBJ_PATH
         model = CnnObjModel.load(spec, model_path)
@@ -128,18 +105,6 @@ def main(data_dir, model_type, components):
         model = CnnObjModel.load(spec, model_path, att=True)
         detector = NeuralDetector.load(spec, DETECTOR_PATH)
         data = VideoDataset.from_data_dir(spec, data_dir, detector, hardcoded=HARDCODED)
-
-    # elif model_type == "prop-rel-obj":
-    #     model_path = PROP_REL_OBJ_PATH
-    #     model = PropRelObjModel.load(spec, model_path)
-    #     detector = NeuralDetector.load(spec, DETECTOR_PATH)
-    #     data = VideoDataset.from_data_dir(spec, data_dir, detector, hardcoded=HARDCODED)
-
-    # elif model_type == "event-obj":
-    #     model_path = EVENT_OBJ_PATH
-    #     model = EventObjModel.load(spec, model_path)
-    #     detector = NeuralDetector.load(spec, DETECTOR_PATH)
-    #     data = VideoDataset.from_data_dir(spec, data_dir, detector, hardcoded=HARDCODED)
 
     elif model_type == "tvqa":
         model_path = TVQA_MODEL_PATH

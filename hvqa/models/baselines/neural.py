@@ -15,8 +15,6 @@ from hvqa.util.exceptions import UnknownQuestionTypeException
 from hvqa.models.baselines.interfaces import _AbsBaselineModel
 from hvqa.models.baselines.datasets import (
     E2EDataset,
-    E2EFilterDataset,
-    E2EPreDataset,
     E2EObjDataset,
     TvqaDataset,
     BasicDataset
@@ -25,9 +23,6 @@ from hvqa.models.baselines.networks import (
     LangLstmNetwork,
     CnnMlpNetwork,
     CnnLstmNetwork,
-    PropRelNetwork,
-    EventNetwork,
-    CnnMlpPreNetwork,
     CnnMlpObjNetwork,
     TvqaNetwork
 )
@@ -253,147 +248,6 @@ class CnnMlpModel(_AbsNeuralModel):
         return model
 
 
-class PropRelModel(_AbsNeuralModel):
-    def __init__(self, spec, model):
-        super(PropRelModel, self).__init__(spec, model)
-
-        self.transform = T.Compose([
-            T.ToTensor(),
-        ])
-        self._print_freq = 1
-
-    def _prepare_train_data(self, train_data):
-        fn = util.collate_func
-        train_dataset = E2EFilterDataset.from_baseline_dataset(self.spec, train_data, self.transform, filter_qs=[0, 1])
-        train_loader = DataLoader(train_dataset, batch_size=self._batch_size, shuffle=True, collate_fn=fn)
-        return train_loader
-
-    def _prepare_eval_data(self, eval_data):
-        eval_dataset = E2EFilterDataset.from_baseline_dataset(self.spec, eval_data, self.transform, filter_qs=[0, 1])
-        eval_loader = DataLoader(eval_dataset, batch_size=self._batch_size, shuffle=True, collate_fn=util.collate_func)
-        return eval_loader
-
-    def _prepare_input(self, frames, questions, q_types, answers):
-        frames = torch.stack(frames).to(self._device)
-        qs = pack_sequence(questions, enforce_sorted=False).to(self._device)
-        return frames, qs
-
-    def _set_hyperparams(self):
-        epochs = 25
-        lr = 0.001
-        batch_size = 256
-        return epochs, lr, batch_size
-
-    @staticmethod
-    def new(spec):
-        network = PropRelNetwork(spec)
-        model = PropRelModel(spec, network)
-        return model
-
-    @staticmethod
-    def load(spec, path):
-        model_path = Path(path) / "network.pt"
-        network = util.load_model(PropRelNetwork, model_path, spec)
-        model = PropRelModel(spec, network)
-        return model
-
-
-class EventModel(_AbsNeuralModel):
-    def __init__(self, spec, model):
-        super(EventModel, self).__init__(spec, model)
-
-        self.transform = T.Compose([
-            T.ToTensor(),
-        ])
-        self._print_freq = 1
-
-    def _prepare_train_data(self, train_data):
-        fn = util.collate_func
-        train_dataset = E2EFilterDataset.from_baseline_dataset(self.spec, train_data, self.transform, filter_qs=[2])
-        train_loader = DataLoader(train_dataset, batch_size=self._batch_size, shuffle=True, collate_fn=fn)
-        return train_loader
-
-    def _prepare_eval_data(self, eval_data):
-        eval_dataset = E2EFilterDataset.from_baseline_dataset(self.spec, eval_data, self.transform, filter_qs=[2])
-        eval_loader = DataLoader(eval_dataset, batch_size=self._batch_size, shuffle=True, collate_fn=util.collate_func)
-        return eval_loader
-
-    def _prepare_input(self, frames, questions, q_types, answers):
-        frames = torch.stack(frames).to(self._device)
-        return frames
-
-    def _set_hyperparams(self):
-        epochs = 10
-        lr = 0.001
-        batch_size = 64
-        return epochs, lr, batch_size
-
-    @staticmethod
-    def new(spec):
-        network = EventNetwork(spec)
-        model = EventModel(spec, network)
-        return model
-
-    @staticmethod
-    def load(spec, path):
-        model_path = Path(path) / "network.pt"
-        network = util.load_model(EventNetwork, model_path, spec)
-        model = EventModel(spec, network)
-        return model
-
-
-class CnnMlpPreModel(_AbsNeuralModel):
-    def __init__(self, spec, model, parse_q=False):
-        super(CnnMlpPreModel, self).__init__(spec, model)
-
-        self.transform = T.Compose([
-            T.ToTensor(),
-        ])
-        self._print_freq = 2
-        self.parse_q = parse_q
-
-    def _prepare_train_data(self, train_data):
-        fn = util.collate_func
-        train_dataset = E2EPreDataset.from_baseline_dataset(self.spec, train_data,
-                                                            transform=self.transform, parse_q=self.parse_q)
-        train_loader = DataLoader(train_dataset, batch_size=self._batch_size, shuffle=True, collate_fn=fn)
-        return train_loader
-
-    def _prepare_eval_data(self, eval_data):
-        eval_dataset = E2EPreDataset.from_baseline_dataset(self.spec, eval_data,
-                                                           transform=self.transform, parse_q=self.parse_q)
-        eval_loader = DataLoader(eval_dataset, batch_size=self._batch_size, shuffle=True, collate_fn=util.collate_func)
-        return eval_loader
-
-    def _prepare_input(self, frames, questions, q_types, answers):
-        feats = torch.stack(frames).to(self._device)
-        if self.parse_q:
-            qs = torch.stack(questions).to(self._device)
-        else:
-            qs = pack_sequence(questions, enforce_sorted=False).to(self._device)
-
-        return feats, qs
-
-    def _set_hyperparams(self):
-        epochs = 20
-        lr = 0.001
-        batch_size = 256
-        return epochs, lr, batch_size
-
-    @staticmethod
-    def new(spec, parse_q=False):
-        network = CnnMlpPreNetwork(spec, parse_q=parse_q)
-        model = CnnMlpPreModel(spec, network, parse_q=parse_q)
-        return model
-
-    @staticmethod
-    def load(spec, path, parse_q=False):
-        model_path = Path(path) / "network.pt"
-        network = util.load_model(CnnMlpPreNetwork, model_path, spec, parse_q)
-        model = CnnMlpPreModel(spec, network, parse_q=parse_q)
-        return model
-
-
 # ********************************************************************************************
 # ************************************ Object Models *****************************************
 # ********************************************************************************************
@@ -498,11 +352,10 @@ class TvqaModel(_AbsNeuralModel):
         eval_dataset = TvqaDataset.from_video_dataset(self.spec, eval_data)
         print("Data preparation complete.")
 
-        self._epochs_q_t = 5
-
         if self.curr_learning:
+            epochs_q_t = 5
             for q_type in ["property", "relation", "action"]:
-                self._train_q_type(train_dataset, eval_dataset, q_type)
+                self._train_q_type(train_dataset, eval_dataset, q_type, epochs_q_t)
 
         print("Training TVQA model...")
         self._print_freq = 50
@@ -520,14 +373,14 @@ class TvqaModel(_AbsNeuralModel):
 
         print("Training complete.")
 
-    def _train_q_type(self, train_dataset, eval_dataset, q_type, verbose=True):
+    def _train_q_type(self, train_dataset, eval_dataset, q_type, epochs, verbose=True):
         print(f"Training on {q_type} questions...")
         fn = util.collate_func
         train_dataset_ = self._filter_q_type(train_dataset, q_type)
         eval_dataset_ = self._filter_q_type(eval_dataset, q_type)
         train_loader = DataLoader(train_dataset_, batch_size=self._batch_size, shuffle=True, collate_fn=fn)
         eval_loader = DataLoader(eval_dataset_, batch_size=self._batch_size, shuffle=True, collate_fn=fn)
-        for e in range(self._epochs_q_t):
+        for e in range(epochs):
             self._train_one_epoch(train_loader, self._optim, e, verbose)
             print()
             self._eval(eval_loader, verbose)

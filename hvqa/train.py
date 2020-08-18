@@ -9,9 +9,6 @@ from hvqa.models.baselines.language import BestChoiceModel
 from hvqa.models.baselines.neural import (
     LangLstmModel,
     CnnMlpModel,
-    PropRelModel,
-    EventModel,
-    CnnMlpPreModel,
     CnnObjModel,
     TvqaModel
 )
@@ -86,30 +83,6 @@ def main(train_dir, eval_dir, model_type):
         train_data = BaselineDataset.from_data_dir(train_dir)
         eval_data = BaselineDataset.from_data_dir(eval_dir)
 
-    elif model_type == "prop-rel":
-        model_path = PROP_REL_MODEL_PATH
-        model = PropRelModel.new(spec)
-        train_data = BaselineDataset.from_data_dir(train_dir)
-        eval_data = BaselineDataset.from_data_dir(eval_dir)
-
-    elif model_type == "event":
-        model_path = EVENT_MODEL_PATH
-        model = EventModel.new(spec)
-        train_data = BaselineDataset.from_data_dir(train_dir)
-        eval_data = BaselineDataset.from_data_dir(eval_dir)
-
-    elif model_type == "cnn-mlp-pre":
-        model_path = CNN_MLP_PRE_PATH
-        model = CnnMlpPreModel.new(spec)
-        train_data = BaselineDataset.from_data_dir(train_dir)
-        eval_data = BaselineDataset.from_data_dir(eval_dir)
-
-    elif model_type == "cnn-mlp-pre-pq":
-        model_path = CNN_MLP_PRE_PQ_PATH
-        model = CnnMlpPreModel.new(spec, parse_q=True)
-        train_data = BaselineDataset.from_data_dir(train_dir)
-        eval_data = BaselineDataset.from_data_dir(eval_dir)
-
     elif model_type == "cnn-obj":
         model_path = CNN_OBJ_PATH
         model = CnnObjModel.new(spec)
@@ -123,20 +96,6 @@ def main(train_dir, eval_dir, model_type):
         detector = NeuralDetector.load(spec, DETECTOR_PATH)
         train_data = VideoDataset.from_data_dir(spec, train_dir, detector, hardcoded=False)
         eval_data = VideoDataset.from_data_dir(spec, eval_dir, detector, hardcoded=False)
-
-    # elif model_type == "prop-rel-obj":
-    #     model_path = PROP_REL_OBJ_PATH
-    #     model = PropRelObjModel.new(spec)
-    #     detector = NeuralDetector.load(spec, DETECTOR_PATH)
-    #     train_data = VideoDataset.from_data_dir(spec, train_dir, detector, hardcoded=False)
-    #     eval_data = VideoDataset.from_data_dir(spec, eval_dir, detector, hardcoded=False)
-
-    # elif model_type == "event-obj":
-    #     model_path = EVENT_OBJ_PATH
-    #     model = EventObjModel.new(spec)
-    #     detector = NeuralDetector.load(spec, DETECTOR_PATH)
-    #     train_data = VideoDataset.from_data_dir(spec, train_dir, detector, hardcoded=False)
-    #     eval_data = VideoDataset.from_data_dir(spec, eval_dir, detector, hardcoded=False)
 
     elif model_type == "tvqa":
         model_path = TVQA_MODEL_PATH
