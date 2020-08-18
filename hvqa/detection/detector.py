@@ -1,4 +1,5 @@
 import torch
+import torch.nn as nn
 import torchvision.transforms as T
 
 from hvqa.detection.models import DetectionBackbone, DetectionModel
@@ -18,7 +19,8 @@ class NeuralDetector(Detector, Trainable):
         super(NeuralDetector, self).__init__()
 
         self.spec = spec
-        self.model = model
+        self._device = get_device()
+        self.model = nn.DataParallel(model).to(self._device)
 
     def train(self, train_data, eval_data, verbose=True):
         raise NotImplementedError()
@@ -50,13 +52,11 @@ class NeuralDetector(Detector, Trainable):
         :return: List of Frame objs
         """
 
-        device = get_device()
-        self.model = self.model.to(device)
         self.model.eval()
 
         imgs_trans = [_transform(img) for img in frames]
         imgs_batch = torch.stack(imgs_trans)
-        imgs_batch = imgs_batch.to(device)
+        imgs_batch = imgs_batch.to(self._device)
 
         with torch.no_grad():
             detector_out = self.model(imgs_batch)
