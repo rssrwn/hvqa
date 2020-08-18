@@ -261,7 +261,6 @@ class CnnObjModel(_AbsNeuralModel):
         self.parse_q = parse_q
 
         num_workers = os.cpu_count()
-        self._future_timeout = 5
         self._executor = ThreadPoolExecutor(max_workers=num_workers)
 
     def _prepare_train_data(self, train_data):
@@ -293,15 +292,15 @@ class CnnObjModel(_AbsNeuralModel):
         return epochs, lr, batch_size
 
     @staticmethod
-    def new(spec, parse_q=False, att=False):
+    def new(spec, parse_q=False):
         network = CnnMlpObjNetwork(spec, parse_q=parse_q)
         model = CnnObjModel(spec, network, parse_q=parse_q)
         return model
 
     @staticmethod
-    def load(spec, path, parse_q=False, att=False):
+    def load(spec, path, parse_q=False):
         model_path = Path(path) / "network.pt"
-        network = util.load_model(CnnMlpObjNetwork, model_path, spec, parse_q, att)
+        network = util.load_model(CnnMlpObjNetwork, model_path, spec, parse_q)
         model = CnnObjModel(spec, network, parse_q=parse_q)
         return model
 

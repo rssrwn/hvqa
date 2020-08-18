@@ -142,16 +142,30 @@ class CnnMlpObjNetwork(nn.Module):
         hidden_size = 1024
         num_lstm_layers = 2
 
+        parsed_q_input = 260
+        parsed_q_feat_1 = 4096
+        parsed_q_feat_2 = 2048
+
+        dropout = 0.2
         mlp_input = (32 * feat_output_size) + hidden_size
         feat1 = 4096
         feat2 = 512
 
-        dropout = 0.2
-
-        num_att_heads = 4
+        if parse_q:
+            self.lang_enc = nn.Sequential(
+                nn.Linear(parsed_q_input, parsed_q_feat_1),
+                nn.ReLU(),
+                nn.Dropout(dropout),
+                nn.Linear(parsed_q_feat_1, parsed_q_feat_2),
+                nn.ReLU(),
+                nn.Dropout(dropout),
+                nn.Linear(parsed_q_feat_2, hidden_size),
+                nn.ReLU(),
+            )
+        else:
+            self.lang_enc = _QuestionNetwork(word_vector_size, hidden_size, num_layers=num_lstm_layers)
 
         self.feat_extr = _MedFeatExtrNetwork(obj_feat_size, feat_output_size)
-        self.lang_lstm = _QuestionNetwork(word_vector_size, hidden_size, num_layers=num_lstm_layers)
         self.mlp = nn.Sequential(
             nn.Dropout(dropout),
             nn.Linear(mlp_input, feat1),
@@ -167,7 +181,7 @@ class CnnMlpObjNetwork(nn.Module):
 
         frame_feats = self.feat_extr(frames)
         batch_size = frame_feats.shape[0] // 32
-        q_feats = self.lang_lstm(qs)
+        q_feats = self.lang_enc(qs)
 
         v_feats = frame_feats.reshape((batch_size, -1))
         video_enc = torch.cat([v_feats, q_feats], dim=1)

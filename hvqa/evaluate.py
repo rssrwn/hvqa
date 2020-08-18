@@ -24,6 +24,7 @@ LANG_LSTM_MODEL_PATH = "saved-models/lang-lstm"
 CNN_MLP_MODEL_PATH = "saved-models/cnn-mlp"
 CNN_LSTM_MODEL_PATH = "saved-models/cnn-lstm"
 CNN_OBJ_PATH = "saved-models/cnn-obj"
+CNN_OBJ_PQ_PATH = "saved-models/cnn-obj-pq"
 TVQA_MODEL_PATH = "saved-models/tvqa"
 TVQA_CURR_MODEL_PATH = "saved-models/tvqa-curr"
 
@@ -92,6 +93,12 @@ def main(data_dir, model_type, components):
     elif model_type == "cnn-obj":
         model_path = CNN_OBJ_PATH
         model = CnnObjModel.load(spec, model_path)
+        detector = NeuralDetector.load(spec, DETECTOR_PATH)
+        data = VideoDataset.from_data_dir(spec, data_dir, detector, hardcoded=HARDCODED)
+
+    elif model_type == "cnn-obj-pq":
+        model_path = CNN_OBJ_PQ_PATH
+        model = CnnObjModel.load(spec, model_path, parse_q=True)
         detector = NeuralDetector.load(spec, DETECTOR_PATH)
         data = VideoDataset.from_data_dir(spec, data_dir, detector, hardcoded=HARDCODED)
 
