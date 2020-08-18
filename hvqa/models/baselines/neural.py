@@ -3,6 +3,7 @@ from concurrent.futures import ThreadPoolExecutor
 from pathlib import Path
 
 import torch
+import torch.nn as nn
 import torch.optim as optim
 import torchvision.transforms as T
 from torch.nn import NLLLoss
@@ -36,7 +37,7 @@ class _AbsNeuralModel(_AbsBaselineModel):
     def __init__(self, spec, model):
         super(_AbsNeuralModel, self).__init__(spec)
         self._device = util.get_device()
-        self._model = model.to(self._device)
+        self._model = nn.DataParallel(model).to(self._device)
         self._model.eval()
         self._loss_fn = NLLLoss(reduction="none")
         self._epochs, self._lr, self._batch_size = self._set_hyperparams()
