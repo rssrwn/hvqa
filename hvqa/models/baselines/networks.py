@@ -136,7 +136,7 @@ class CnnMlpObjNetwork(nn.Module):
 
         self.parse_q = parse_q
 
-        obj_feat_size = 8 + 4 + 20 + 4
+        obj_feat_size = 16 + 4 + 20
         feat_output_size = 256
         word_vector_size = 300
         hidden_size = 1024
