@@ -36,8 +36,13 @@ from hvqa.models.baselines.networks import (
 class _AbsNeuralModel(_AbsBaselineModel):
     def __init__(self, spec, model):
         super(_AbsNeuralModel, self).__init__(spec)
+
+        gpus = torch.cuda.device_count()
+        model = nn.DataParallel(model) if gpus > 1 else model
+        print(f"Neural VideoQA model using {gpus} cuda devices.")
+
         self._device = util.get_device()
-        self._model = nn.DataParallel(model).to(self._device)
+        self._model = model.to(self._device)
         self._model.eval()
         self._loss_fn = NLLLoss(reduction="none")
         self._epochs, self._lr, self._batch_size = self._set_hyperparams()

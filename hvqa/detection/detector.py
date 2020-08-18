@@ -18,9 +18,13 @@ class NeuralDetector(Detector, Trainable):
     def __init__(self, spec, model):
         super(NeuralDetector, self).__init__()
 
+        gpus = torch.cuda.device_count()
+        model = nn.DataParallel(model) if gpus > 1 else model
+        print(f"Object detector using {gpus} cuda devices.")
+
         self.spec = spec
         self._device = get_device()
-        self.model = nn.DataParallel(model).to(self._device)
+        self.model = model.to(self._device)
 
     def train(self, train_data, eval_data, verbose=True):
         raise NotImplementedError()
