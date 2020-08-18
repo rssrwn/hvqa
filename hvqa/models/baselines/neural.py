@@ -498,6 +498,8 @@ class TvqaModel(_AbsNeuralModel):
         eval_dataset = TvqaDataset.from_video_dataset(self.spec, eval_data)
         print("Data preparation complete.")
 
+        self._epochs_q_t = 5
+
         if self.curr_learning:
             for q_type in ["property", "relation", "action"]:
                 self._train_q_type(train_dataset, eval_dataset, q_type)
@@ -525,7 +527,7 @@ class TvqaModel(_AbsNeuralModel):
         eval_dataset_ = self._filter_q_type(eval_dataset, q_type)
         train_loader = DataLoader(train_dataset_, batch_size=self._batch_size, shuffle=True, collate_fn=fn)
         eval_loader = DataLoader(eval_dataset_, batch_size=self._batch_size, shuffle=True, collate_fn=fn)
-        for e in range(self._epochs):
+        for e in range(self._epochs_q_t):
             self._train_one_epoch(train_loader, self._optim, e, verbose)
             print()
             self._eval(eval_loader, verbose)
