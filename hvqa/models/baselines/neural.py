@@ -254,12 +254,11 @@ class CnnMlpModel(_AbsNeuralModel):
 
 
 class CnnObjModel(_AbsNeuralModel):
-    def __init__(self, spec, model, parse_q=False, att=False):
+    def __init__(self, spec, model, parse_q=False):
         super(CnnObjModel, self).__init__(spec, model)
 
         self._print_freq = 10
         self.parse_q = parse_q
-        self.att = att
 
         num_workers = os.cpu_count()
         self._future_timeout = 5
@@ -283,37 +282,7 @@ class CnnObjModel(_AbsNeuralModel):
             qs = pack_sequence(questions, enforce_sorted=False).to(self._device)
 
         frames = [frame for frames_ in frames for frame in frames_]
-        new_frames = frames
-
-        if self.att:
-            lens = []
-            frame_objs = []
-            for frame in frames:
-                lens.append(len(frame))
-                objs = [obj for obj, _ in frame]
-                frame_objs.append(torch.stack(objs))
-
-            frame_objs = pad_sequence(frame_objs)
-            qs_pad, _ = pad_packed_sequence(qs)
-
-            # Map questions to obj emb size and apply attention
-            qs_pad = qs_pad.transpose(0, 1)
-            qs_att = self._model.word_obj_map(qs_pad).transpose(0, 1).float()
-            qs_att = qs_att.repeat_interleave(32, dim=1)
-
-            frame_objs = frame_objs.float().to(self._device)
-            frames_objs, _ = self._model.obj_att(frame_objs, qs_att, qs_att)
-            frame_objs = list(frame_objs.cpu().transpose(0, 1))
-
-            new_frames = []
-            for f_idx, frame in enumerate(frames):
-                att_frame = []
-                for o_idx, (_, position) in enumerate(frame):
-                    obj = frame_objs[f_idx][o_idx, :]
-                    att_frame.append((obj, position))
-                new_frames.append(att_frame)
-
-        obj_frames = util.gen_object_frames(new_frames, self._executor)
+        obj_frames = util.gen_object_frames(frames, self._executor)
         obj_frames = torch.stack(obj_frames).to(self._device)
         return obj_frames, qs
 
@@ -325,15 +294,15 @@ class CnnObjModel(_AbsNeuralModel):
 
     @staticmethod
     def new(spec, parse_q=False, att=False):
-        network = CnnMlpObjNetwork(spec, parse_q=parse_q, att=att)
-        model = CnnObjModel(spec, network, parse_q=parse_q, att=att)
+        network = CnnMlpObjNetwork(spec, parse_q=parse_q)
+        model = CnnObjModel(spec, network, parse_q=parse_q)
         return model
 
     @staticmethod
     def load(spec, path, parse_q=False, att=False):
         model_path = Path(path) / "network.pt"
         network = util.load_model(CnnMlpObjNetwork, model_path, spec, parse_q, att)
-        model = CnnObjModel(spec, network, parse_q=parse_q, att=att)
+        model = CnnObjModel(spec, network, parse_q=parse_q)
         return model
 
 

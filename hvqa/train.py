@@ -22,12 +22,7 @@ BEST_CHOICE_MODEL_PATH = "saved-models/best-choice"
 LANG_LSTM_MODEL_PATH = "saved-models/lang-lstm"
 CNN_MLP_MODEL_PATH = "saved-models/cnn-mlp"
 CNN_LSTM_MODEL_PATH = "saved-models/cnn-lstm"
-PROP_REL_MODEL_PATH = "saved-models/pre/prop-rel"
-EVENT_MODEL_PATH = "saved-models/pre/event"
-CNN_MLP_PRE_PATH = "saved-models/cnn-mlp-pre"
-CNN_MLP_PRE_PQ_PATH = "saved-models/cnn-mlp-pre-pq"
 CNN_OBJ_PATH = "saved-models/cnn-obj"
-CNN_OBJ_ATT_PATH = "saved-models/cnn-obj-att"
 TVQA_MODEL_PATH = "saved-models/tvqa"
 TVQA_CURR_MODEL_PATH = "saved-models/tvqa-curr"
 
@@ -86,13 +81,6 @@ def main(train_dir, eval_dir, model_type):
     elif model_type == "cnn-obj":
         model_path = CNN_OBJ_PATH
         model = CnnObjModel.new(spec)
-        detector = NeuralDetector.load(spec, DETECTOR_PATH)
-        train_data = VideoDataset.from_data_dir(spec, train_dir, detector, hardcoded=False)
-        eval_data = VideoDataset.from_data_dir(spec, eval_dir, detector, hardcoded=False)
-
-    elif model_type == "cnn-obj-att":
-        model_path = CNN_OBJ_ATT_PATH
-        model = CnnObjModel.new(spec, att=True)
         detector = NeuralDetector.load(spec, DETECTOR_PATH)
         train_data = VideoDataset.from_data_dir(spec, train_dir, detector, hardcoded=False)
         eval_data = VideoDataset.from_data_dir(spec, eval_dir, detector, hardcoded=False)
