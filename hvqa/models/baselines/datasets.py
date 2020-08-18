@@ -583,7 +583,6 @@ class _AbsE2EObjDataset(_AbsE2EDataset):
                 objs.extend(frame.objs)
 
         objs = [self._obj_img_transform(obj.img) for obj in objs]
-        print(objs[0])
         obj_features = self._pca.fit_transform(objs)
 
         tensor_pos = self._position_in_obj_tensor()

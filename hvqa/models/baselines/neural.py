@@ -575,9 +575,11 @@ class TvqaModel(_AbsNeuralModel):
         return v_frames, raw_pairs, qs
 
     def _set_hyperparams(self):
+        devices = torch.cuda.device_count()
+        devices = 1 if devices == 0 else devices
         epochs = 10
         lr = 0.001
-        batch_size = 8 * torch.cuda.device_count()
+        batch_size = 8 * devices
         return epochs, lr, batch_size
 
     @staticmethod

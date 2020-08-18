@@ -52,7 +52,9 @@ class VideoDataset(QADataset):
     @classmethod
     def from_data_dir(cls, spec, data_dir, detector, hardcoded=False, group_videos=12, store_frames=False, err_prob=0):
         data_dir = Path(data_dir)
-        group_videos = group_videos * torch.cuda.device_count()
+        cuda_devices = torch.cuda.device_count()
+        devices = 1 if cuda_devices == 0 else cuda_devices
+        group_videos = group_videos * devices
         ids, videos, answers, timing = cls._find_videos(spec, data_dir, detector, hardcoded,
                                                         group_videos, store_frames, err_prob)
         ids = sorted(enumerate(ids), key=lambda idx_id: idx_id[1])
