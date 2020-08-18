@@ -32,6 +32,7 @@ CNN_MLP_PRE_PQ_PATH = "saved-models/cnn-mlp-pre-pq"
 CNN_OBJ_PATH = "saved-models/cnn-obj"
 CNN_OBJ_ATT_PATH = "saved-models/cnn-obj-att"
 TVQA_MODEL_PATH = "saved-models/tvqa"
+TVQA_CURR_MODEL_PATH = "saved-models/tvqa-curr"
 
 spec = EnvSpec.from_dict({
     "num_frames": 32,
@@ -140,6 +141,13 @@ def main(train_dir, eval_dir, model_type):
     elif model_type == "tvqa":
         model_path = TVQA_MODEL_PATH
         model = TvqaModel.new(spec)
+        detector = NeuralDetector.load(spec, DETECTOR_PATH)
+        train_data = VideoDataset.from_data_dir(spec, train_dir, detector, hardcoded=False, store_frames=True)
+        eval_data = VideoDataset.from_data_dir(spec, eval_dir, detector, hardcoded=False, store_frames=True)
+
+    elif model_type == "tvqa-curr":
+        model_path = TVQA_CURR_MODEL_PATH
+        model = TvqaModel.new(spec, curr_learning=True)
         detector = NeuralDetector.load(spec, DETECTOR_PATH)
         train_data = VideoDataset.from_data_dir(spec, train_dir, detector, hardcoded=False, store_frames=True)
         eval_data = VideoDataset.from_data_dir(spec, eval_dir, detector, hardcoded=False, store_frames=True)
