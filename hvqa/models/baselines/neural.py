@@ -253,6 +253,7 @@ class Cnn3DMlpModel(_AbsNeuralModel):
     def __init__(self, spec, model):
         super(Cnn3DMlpModel, self).__init__(spec, model)
 
+        self._print_freq = 50
         self.transform = T.Compose([
             T.ToTensor(),
         ])
@@ -277,7 +278,7 @@ class Cnn3DMlpModel(_AbsNeuralModel):
     def _set_hyperparams(self):
         epochs = 10
         lr = 0.001
-        batch_size = 12
+        batch_size = 8
         return epochs, lr, batch_size
 
     @staticmethod
