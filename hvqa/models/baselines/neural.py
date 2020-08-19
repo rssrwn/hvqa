@@ -8,7 +8,7 @@ import torch.optim as optim
 import torchvision.transforms as T
 from torch.nn import NLLLoss
 from torch.utils.data import DataLoader
-from torch.nn.utils.rnn import pack_sequence, pad_sequence, pad_packed_sequence
+from torch.nn.utils.rnn import pack_sequence, pad_sequence
 
 import hvqa.util.func as util
 from hvqa.util.exceptions import UnknownQuestionTypeException
@@ -23,6 +23,7 @@ from hvqa.models.baselines.networks import (
     LangLstmNetwork,
     CnnMlpNetwork,
     CnnLstmNetwork,
+    Cnn3DMlpNetwork,
     CnnMlpObjNetwork,
     TvqaNetwork
 )
@@ -245,6 +246,51 @@ class CnnMlpModel(_AbsNeuralModel):
             network = util.load_model(CnnMlpNetwork, model_path, spec)
 
         model = CnnMlpModel(spec, network)
+        return model
+
+
+class Cnn3DMlpModel(_AbsNeuralModel):
+    def __init__(self, spec, model):
+        super(Cnn3DMlpModel, self).__init__(spec, model)
+
+        self.transform = T.Compose([
+            T.ToTensor(),
+        ])
+
+    def _prepare_train_data(self, train_data):
+        fn = util.collate_func
+        train_dataset = E2EDataset.from_baseline_dataset(self.spec, train_data, self.transform, lang_only=False)
+        train_loader = DataLoader(train_dataset, batch_size=self._batch_size, shuffle=True, collate_fn=fn)
+        return train_loader
+
+    def _prepare_eval_data(self, eval_data):
+        eval_dataset = E2EDataset.from_baseline_dataset(self.spec, eval_data, self.transform, lang_only=False)
+        eval_loader = DataLoader(eval_dataset, batch_size=self._batch_size, shuffle=True, collate_fn=util.collate_func)
+        return eval_loader
+
+    def _prepare_input(self, frames, questions, q_types, answers):
+        frames = [torch.stack(v_frames).transpose(0, 1) for v_frames in frames]
+        frames = torch.stack(frames).to(self._device)
+        qs = pack_sequence(questions, enforce_sorted=False).to(self._device)
+        return frames, qs
+
+    def _set_hyperparams(self):
+        epochs = 10
+        lr = 0.001
+        batch_size = 8
+        return epochs, lr, batch_size
+
+    @staticmethod
+    def new(spec):
+        network = Cnn3DMlpNetwork(spec)
+        model = Cnn3DMlpModel(spec, network)
+        return model
+
+    @staticmethod
+    def load(spec, path):
+        model_path = Path(path) / "network.pt"
+        network = util.load_model(Cnn3DMlpNetwork, model_path, spec)
+        model = Cnn3DMlpModel(spec, network)
         return model
 
 
