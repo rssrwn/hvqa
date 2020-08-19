@@ -1,9 +1,6 @@
 import torch
 import torch.nn as nn
 import torchvision.models as models
-from torch.nn.utils.rnn import pad_packed_sequence
-
-import hvqa.util.func as util
 
 
 # ------------------------------------------------------------------------------------------------------
