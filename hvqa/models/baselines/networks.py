@@ -224,17 +224,17 @@ class _TvqaObjAttStream(nn.Module):
         super(_TvqaObjAttStream, self).__init__()
 
         obj_size = 20 + 16 + 4 + 4
-        obj_enc_size = 128
+        obj_enc_size = 32
 
         q_size = 260
         q_enc_size = obj_enc_size * 2
         frame_enc_size = obj_enc_size * 2
 
-        num_att_heads = 8
+        num_att_heads = 4
 
-        dropout = 0.2
-        mlp_feat1 = 256
-        mlp_feat2 = 128
+        dropout = 0.5
+        mlp_feat1 = 64
+        # mlp_feat2 = 128
 
         self.obj_fc = nn.Sequential(
             nn.Linear(obj_size, obj_enc_size),
@@ -254,9 +254,10 @@ class _TvqaObjAttStream(nn.Module):
             nn.Linear(frame_enc_size * 2, mlp_feat1),
             nn.ReLU(),
             nn.Dropout(dropout),
-            nn.Linear(mlp_feat1, mlp_feat2),
-            nn.ReLU(),
-            _QANetwork(spec, mlp_feat2, apply_sm=False)
+            # nn.Linear(mlp_feat1, mlp_feat2),
+            # nn.ReLU(),
+            # _QANetwork(spec, mlp_feat2, apply_sm=False)
+            _QANetwork(spec, mlp_feat1, apply_sm=False)
         )
 
     def forward(self, x):
@@ -284,17 +285,17 @@ class _TvqaEventStream(nn.Module):
     def __init__(self, spec):
         super(_TvqaEventStream, self).__init__()
 
-        enc_size = 128
+        enc_size = 32
 
         q_size = 260
         q_enc_size = enc_size * 2
         frame_enc_size = enc_size * 2
 
-        num_att_heads = 8
+        num_att_heads = 4
 
-        dropout = 0.2
-        mlp_feat1 = 256
-        mlp_feat2 = 128
+        dropout = 0.5
+        mlp_feat1 = 64
+        # mlp_feat2 = 128
 
         self.event_enc = _EventEncNetwork(enc_size)
         self.q_fc = nn.Sequential(
@@ -311,9 +312,10 @@ class _TvqaEventStream(nn.Module):
             nn.Linear(frame_enc_size * 2, mlp_feat1),
             nn.ReLU(),
             nn.Dropout(dropout),
-            nn.Linear(mlp_feat1, mlp_feat2),
-            nn.ReLU(),
-            _QANetwork(spec, mlp_feat2, apply_sm=False)
+            # nn.Linear(mlp_feat1, mlp_feat2),
+            # nn.ReLU(),
+            # _QANetwork(spec, mlp_feat2, apply_sm=False)
+            _QANetwork(spec, mlp_feat1, apply_sm=False)
         )
 
     def forward(self, x):
