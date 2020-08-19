@@ -125,10 +125,65 @@ class CnnLstmNetwork(nn.Module):
 class Cnn3DMlpNetwork(nn.Module):
     def __init__(self, spec):
         super(Cnn3DMlpNetwork, self).__init__()
-        pass
+
+        q_emb_size = 300
+        q_hidden_size = 512
+
+        cnn_feat1 = 32
+        cnn_feat2 = 64
+        cnn_feat3 = 128
+        cnn_feat4 = 256
+
+        dropout = 0.2
+        video_enc_size = 1024
+
+        mlp_feat1 = 1024
+        mlp_feat2 = 512
+        mlp_feat3 = 256
+
+        self.q_enc = _QuestionNetwork(q_emb_size, q_hidden_size, num_layers=2)
+        self.video_enc = nn.Sequential(
+            nn.Conv3d(3, cnn_feat1, kernel_size=3, stride=1),
+            nn.BatchNorm3d(cnn_feat1),
+            nn.ReLU(),
+            nn.Conv3d(cnn_feat1, cnn_feat2, kernel_size=3, stride=2),
+            nn.BatchNorm3d(cnn_feat2),
+            nn.ReLU(),
+            nn.Conv3d(cnn_feat2, cnn_feat3, kernel_size=3, stride=1),
+            nn.BatchNorm3d(cnn_feat3),
+            nn.ReLU(),
+            nn.Conv3d(cnn_feat3, cnn_feat4, kernel_size=3, stride=2),
+            nn.BatchNorm3d(cnn_feat3),
+            nn.ReLU(),
+            nn.AdaptiveMaxPool3d(1),
+            nn.Flatten(),
+            nn.Dropout(dropout),
+            nn.Linear(cnn_feat4, video_enc_size),
+            nn.ReLU()
+        )
+        self.mlp = nn.Sequential(
+            nn.Dropout(dropout),
+            nn.Linear(video_enc_size + q_hidden_size, mlp_feat1),
+            nn.ReLU(),
+            nn.Dropout(dropout),
+            nn.Linear(mlp_feat1, mlp_feat2),
+            nn.ReLU(),
+            nn.Dropout(dropout),
+            nn.Linear(mlp_feat2, mlp_feat3),
+            nn.ReLU(),
+            _QANetwork(spec, mlp_feat3)
+        )
 
     def forward(self, x):
-        pass
+        videos, qs = x
+
+        q_enc = self.q_enc(qs)
+        video_enc = self.video_enc(videos)
+
+        enc = torch.cat([video_enc, q_enc], dim=1)
+        output = self.mlp(enc)
+
+        return output
 
 
 # ------------------------------------------------------------------------------------------------------
