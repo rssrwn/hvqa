@@ -9,6 +9,7 @@ from hvqa.models.baselines.language import BestChoiceModel
 from hvqa.models.baselines.neural import (
     LangLstmModel,
     CnnMlpModel,
+    Cnn3DMlpModel,
     CnnObjModel,
     TvqaModel
 )
@@ -22,6 +23,7 @@ BEST_CHOICE_MODEL_PATH = "saved-models/best-choice"
 LANG_LSTM_MODEL_PATH = "saved-models/lang-lstm"
 CNN_MLP_MODEL_PATH = "saved-models/cnn-mlp"
 CNN_LSTM_MODEL_PATH = "saved-models/cnn-lstm"
+CNN_3D_MLP_MODEL_PATH = "saved-models/cnn-3d-mlp"
 CNN_OBJ_PATH = "saved-models/cnn-obj"
 CNN_OBJ_PQ_PATH = "saved-models/cnn-obj-pq"
 TVQA_MODEL_PATH = "saved-models/tvqa-sm"
@@ -76,6 +78,12 @@ def main(train_dir, eval_dir, model_type):
     elif model_type == "cnn-lstm":
         model_path = CNN_LSTM_MODEL_PATH
         model = CnnMlpModel.new(spec, video_lstm=True)
+        train_data = BaselineDataset.from_data_dir(train_dir)
+        eval_data = BaselineDataset.from_data_dir(eval_dir)
+
+    elif model_type == "cnn-3d-mlp":
+        model_path = CNN_3D_MLP_MODEL_PATH
+        model = Cnn3DMlpModel.new(spec)
         train_data = BaselineDataset.from_data_dir(train_dir)
         eval_data = BaselineDataset.from_data_dir(eval_dir)
 
