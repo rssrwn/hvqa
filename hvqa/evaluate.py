@@ -25,7 +25,7 @@ CNN_MLP_MODEL_PATH = "saved-models/cnn-mlp"
 CNN_LSTM_MODEL_PATH = "saved-models/cnn-lstm"
 CNN_OBJ_PATH = "saved-models/cnn-obj"
 CNN_OBJ_PQ_PATH = "saved-models/cnn-obj-pq"
-TVQA_MODEL_PATH = "saved-models/tvqa"
+TVQA_MODEL_PATH = "saved-models/tvqa-sm"
 TVQA_CURR_MODEL_PATH = "saved-models/tvqa-curr"
 
 spec = EnvSpec.from_dict({
