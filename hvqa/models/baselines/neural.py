@@ -408,7 +408,7 @@ class TvqaModel(_AbsNeuralModel):
         devices = 1 if devices == 0 else devices
         epochs = 10
         lr = 0.001
-        batch_size = 32 * devices
+        batch_size = 24 * devices
         return epochs, lr, batch_size
 
     @staticmethod
