@@ -288,6 +288,48 @@ class MacNetwork(nn.Module):
         pass
 
 
+class _MacCell(nn.Module):
+    def __init__(self):
+        super(_MacCell, self).__init__()
+
+    def forward(self, x):
+        pass
+
+
+class _MacControlUnit(nn.Module):
+    def __init__(self, hidden_size):
+        super(_MacControlUnit, self).__init__()
+
+        self.cq_i_map = nn.Linear(hidden_size * 2, hidden_size)
+        self.att = _MacAttention(hidden_size)
+
+    def forward(self, x):
+        ci_1, q_i, ctx_words = x
+
+        ctrl = torch.cat([q_i, ci_1], dim=1)
+        ctrl = self.cq_i_map(ctrl)
+        ci = self.att((ctx_words, ctx_words, ctrl))
+        return ci
+
+
+class _MacAttention(nn.Module):
+    def __init__(self, hidden_size):
+        super(_MacAttention, self).__init__()
+
+        self.compat_map = nn.Linear(hidden_size, 1)
+        self.softmax = nn.Softmax(dim=0)
+
+    def forward(self, x):
+        out_seq, query_seq, ctrl = x
+
+        compat = ctrl * query_seq
+        compat = self.compat_map(compat).squeeze(2)
+        compat = self.softmax(compat)
+        out = compat * out_seq
+        out = out.sum(dim=0)
+        return out
+
+
 class _MacQuestionEnc(nn.Module):
     def __init__(self, input_size, hidden_size):
         super(_MacQuestionEnc, self).__init__()
@@ -295,12 +337,12 @@ class _MacQuestionEnc(nn.Module):
         self.lstm = nn.LSTM(input_size, hidden_size, bidirectional=True, num_layers=1)
 
     def forward(self, x):
-        q, (cntxt_words, _) = self.lstm(x)
-        return q, cntxt_words
+        q, (ctx_words, _) = self.lstm(x)
+        return q, ctx_words
 
 
 class _MacVideoEnc(nn.Module):
-    def __init__(self, hidden_size, layer_4=True):
+    def __init__(self, hidden_size):
         super(_MacVideoEnc, self).__init__()
 
         self.feat_extr = _VideoFeatNetwork(hidden_size, in_channels=3)
