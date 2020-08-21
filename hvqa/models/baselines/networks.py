@@ -300,11 +300,20 @@ class _MacQuestionEnc(nn.Module):
 
 
 class _MacVideoEnc(nn.Module):
-    def __init__(self):
+    def __init__(self, hidden_size, layer_4=True):
         super(_MacVideoEnc, self).__init__()
 
+        self.feat_extr = _VideoFeatNetwork(hidden_size, in_channels=3)
+        # self.feat_extr = _MedFeatExtrNetwork(in_channels=3, output_size=hidden_size)
+
     def forward(self, x):
-        pass
+        frames, qs = x
+
+        video_feats = self.feat_extr(frames)
+        batch_size = video_feats.shape[0] // 32
+        video_feats = video_feats.reshape((32, batch_size, -1))
+
+        return video_feats
 
 
 # ------------------------------------------------------------------------------------------------------
