@@ -312,6 +312,27 @@ class _MacControlUnit(nn.Module):
         return ci
 
 
+class _MacReadUnit(nn.Module):
+    def __init__(self, hidden_size):
+        super(_MacReadUnit, self).__init__()
+
+        self.memory_map = nn.Linear(hidden_size, hidden_size)
+        self.knowledge_map = nn.Linear(hidden_size, hidden_size)
+
+        self.i_k_map = nn.Linear(hidden_size * 2, hidden_size)
+        self.att = _MacAttention(hidden_size)
+
+    def forward(self, x):
+        mi, k, ci = x
+
+        i = mi * k
+        i_k = torch.cat([i, k], dim=2)
+        i_k = self.i_k_map(i_k)
+        out = self.att((k, i_k, ci))
+        out = out.sum(dim=0)
+        return out
+
+
 class _MacAttention(nn.Module):
     def __init__(self, hidden_size):
         super(_MacAttention, self).__init__()
