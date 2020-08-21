@@ -20,11 +20,11 @@ class LangLstmNetwork(nn.Module):
 
         self.network = nn.Sequential(
             _QuestionNetwork(word_vector_size, hidden_size, num_layers=num_lstm_layers),
-            nn.ReLU(),
+            nn.ReLU(inplace=True),
             nn.Linear(hidden_size, feat1),
-            nn.ReLU(),
+            nn.ReLU(inplace=True),
             nn.Linear(feat1, feat2),
-            nn.ReLU(),
+            nn.ReLU(inplace=True),
             _QANetwork(spec, feat2)
         )
 
@@ -53,13 +53,13 @@ class CnnMlpNetwork(nn.Module):
         self.mlp = nn.Sequential(
             nn.Dropout(dropout),
             nn.Linear(mlp_input, feat1),
-            nn.ReLU(),
+            nn.ReLU(inplace=True),
             nn.Dropout(dropout),
             nn.Linear(feat1, feat2),
-            nn.ReLU(),
+            nn.ReLU(inplace=True),
             nn.Dropout(dropout),
             nn.Linear(feat2, feat3),
-            nn.ReLU(),
+            nn.ReLU(inplace=True),
             _QANetwork(spec, feat3)
         )
 
@@ -100,10 +100,10 @@ class CnnLstmNetwork(nn.Module):
         self.mlp = nn.Sequential(
             nn.Dropout(dropout),
             nn.Linear(mlp_input, feat1),
-            nn.ReLU(),
+            nn.ReLU(inplace=True),
             nn.Dropout(dropout),
             nn.Linear(feat1, feat2),
-            nn.ReLU(),
+            nn.ReLU(inplace=True),
             _QANetwork(spec, feat2)
         )
 
@@ -144,33 +144,33 @@ class Cnn3DMlpNetwork(nn.Module):
         self.q_enc = _QuestionNetwork(q_emb_size, q_hidden_size, num_layers=2)
         self.video_enc = nn.Sequential(
             nn.Conv3d(3, cnn_feat1, kernel_size=3, stride=1),
-            nn.ReLU(),
+            nn.ReLU(inplace=True),
             nn.BatchNorm3d(cnn_feat1),
             nn.Conv3d(cnn_feat1, cnn_feat2, kernel_size=3, stride=2),
-            nn.ReLU(),
+            nn.ReLU(inplace=True),
             nn.BatchNorm3d(cnn_feat2),
             nn.Conv3d(cnn_feat2, cnn_feat3, kernel_size=3, stride=1),
-            nn.ReLU(),
+            nn.ReLU(inplace=True),
             nn.BatchNorm3d(cnn_feat3),
             nn.Conv3d(cnn_feat3, cnn_feat4, kernel_size=3, stride=2),
-            nn.ReLU(),
+            nn.ReLU(inplace=True),
             nn.BatchNorm3d(cnn_feat4),
             nn.AdaptiveMaxPool3d(1),
             nn.Flatten(),
             nn.Dropout(dropout),
             nn.Linear(cnn_feat4, video_enc_size),
-            nn.ReLU()
+            nn.ReLU(inplace=True)
         )
         self.mlp = nn.Sequential(
             nn.Dropout(dropout),
             nn.Linear(video_enc_size + q_hidden_size, mlp_feat1),
-            nn.ReLU(),
+            nn.ReLU(inplace=True),
             nn.Dropout(dropout),
             nn.Linear(mlp_feat1, mlp_feat2),
-            nn.ReLU(),
+            nn.ReLU(inplace=True),
             nn.Dropout(dropout),
             nn.Linear(mlp_feat2, mlp_feat3),
-            nn.ReLU(),
+            nn.ReLU(inplace=True),
             _QANetwork(spec, mlp_feat3)
         )
 
@@ -230,10 +230,10 @@ class CnnMlpObjNetwork(nn.Module):
         self.mlp = nn.Sequential(
             nn.Dropout(dropout),
             nn.Linear(mlp_input, feat1),
-            nn.ReLU(),
+            nn.ReLU(inplace=True),
             nn.Dropout(dropout),
             nn.Linear(feat1, feat2),
-            nn.ReLU(),
+            nn.ReLU(inplace=True),
             _QANetwork(spec, feat2)
         )
 
@@ -276,6 +276,38 @@ class TvqaNetwork(nn.Module):
 
 
 # ------------------------------------------------------------------------------------------------------
+# ---------------------------------------- MAC Networks -----------------------------------------------
+# ------------------------------------------------------------------------------------------------------
+
+
+class MacNetwork(nn.Module):
+    def __init__(self):
+        super(MacNetwork, self).__init__()
+
+    def forward(self, x):
+        pass
+
+
+class _MacQuestionEnc(nn.Module):
+    def __init__(self, input_size, hidden_size):
+        super(_MacQuestionEnc, self).__init__()
+
+        self.lstm = nn.LSTM(input_size, hidden_size, bidirectional=True, num_layers=1)
+
+    def forward(self, x):
+        q, (cntxt_words, _) = self.lstm(x)
+        return q, cntxt_words
+
+
+class _MacVideoEnc(nn.Module):
+    def __init__(self):
+        super(_MacVideoEnc, self).__init__()
+
+    def forward(self, x):
+        pass
+
+
+# ------------------------------------------------------------------------------------------------------
 # ---------------------------------------- Helper Networks ---------------------------------------------
 # ------------------------------------------------------------------------------------------------------
 
@@ -299,11 +331,11 @@ class _TvqaObjAttStream(nn.Module):
 
         self.obj_fc = nn.Sequential(
             nn.Linear(obj_size, obj_enc_size),
-            nn.ReLU()
+            nn.ReLU(inplace=True)
         )
         self.q_fc = nn.Sequential(
             nn.Linear(q_size, q_enc_size),
-            nn.ReLU()
+            nn.ReLU(inplace=True)
         )
         self.frame_enc = _ObjEncNetwork(obj_enc_size, q_enc_size)
         self.frames_lstm = nn.LSTM(obj_enc_size, obj_enc_size, bidirectional=True)
@@ -313,10 +345,10 @@ class _TvqaObjAttStream(nn.Module):
         self.mlp = nn.Sequential(
             nn.Dropout(dropout),
             nn.Linear(frame_enc_size * 2, mlp_feat1),
-            nn.ReLU(),
+            nn.ReLU(inplace=True),
             nn.Dropout(dropout),
             nn.Linear(mlp_feat1, mlp_feat2),
-            nn.ReLU(),
+            nn.ReLU(inplace=True),
             _QANetwork(spec, mlp_feat2, apply_sm=False)
         )
 
@@ -370,10 +402,10 @@ class _TvqaEventStream(nn.Module):
         self.mlp = nn.Sequential(
             nn.Dropout(dropout),
             nn.Linear(frame_enc_size * 2, mlp_feat1),
-            nn.ReLU(),
+            nn.ReLU(inplace=True),
             nn.Dropout(dropout),
             nn.Linear(mlp_feat1, mlp_feat2),
-            nn.ReLU(),
+            nn.ReLU(inplace=True),
             _QANetwork(spec, mlp_feat2, apply_sm=False)
         )
 
@@ -408,7 +440,7 @@ class _EventEncNetwork(nn.Module):
         self.mlp = nn.Sequential(
             nn.Dropout(dropout),
             nn.Linear(cnn_output, enc_size),
-            nn.ReLU(),
+            nn.ReLU(inplace=True),
         )
 
     def forward(self, x):
@@ -447,7 +479,7 @@ class _ObjEncNetwork(nn.Module):
         self.fc_out = nn.Sequential(
             nn.Dropout(dropout),
             nn.Linear(obj_feat_size, obj_feat_size),
-            nn.ReLU()
+            nn.ReLU(inplace=True)
         )
 
     def forward(self, x):
@@ -482,13 +514,13 @@ class _SmallFeatExtrNetwork(nn.Module):
         self.network = nn.Sequential(
             nn.Conv2d(in_channels, feat1, kernel_size=3),
             nn.BatchNorm2d(feat1),
-            nn.ReLU(),
+            nn.ReLU(inplace=True),
             nn.Conv2d(feat1, feat2, kernel_size=3, stride=2),
             nn.BatchNorm2d(feat2),
-            nn.ReLU(),
+            nn.ReLU(inplace=True),
             nn.Conv2d(feat2, feat3, kernel_size=3, stride=2),
             nn.BatchNorm2d(feat3),
-            nn.ReLU(),
+            nn.ReLU(inplace=True),
             nn.AdaptiveMaxPool2d(1),
             nn.Flatten(),
             nn.Linear(feat3, output_size)
@@ -510,13 +542,13 @@ class _MedFeatExtrNetwork(nn.Module):
         self.network = nn.Sequential(
             nn.Conv2d(in_channels, feat1, kernel_size=3),
             nn.BatchNorm2d(feat1),
-            nn.ReLU(),
+            nn.ReLU(inplace=True),
             nn.Conv2d(feat1, feat2, kernel_size=3, stride=2),
             nn.BatchNorm2d(feat2),
-            nn.ReLU(),
+            nn.ReLU(inplace=True),
             nn.Conv2d(feat2, feat3, kernel_size=3, stride=2),
             nn.BatchNorm2d(feat3),
-            nn.ReLU(),
+            nn.ReLU(inplace=True),
             nn.AdaptiveMaxPool2d(1),
             nn.Flatten(),
             nn.Linear(feat3, output_size)
@@ -561,7 +593,7 @@ class _QuestionNetwork(nn.Module):
         if parse_q:
             self.mlp = nn.Sequential(
                 nn.Linear(input_size, hidden_size),
-                nn.ReLU(),
+                nn.ReLU(inplace=True),
             )
         else:
             self.lstm = nn.LSTM(input_size, hidden_size, num_layers=num_layers)
