@@ -329,15 +329,13 @@ class MacModel(_AbsNeuralModel):
         return epochs, lr, batch_size
 
     @staticmethod
-    def new(spec):
-        p = 8
+    def new(spec, p=8):
         network = MacNetwork(spec, p)
         model = MacModel(spec, network)
         return model
 
     @staticmethod
-    def load(spec, path):
-        p = 8
+    def load(spec, path, p=8):
         model_path = Path(path) / "network.pt"
         network = util.load_model(MacNetwork, model_path, spec, p)
         model = MacModel(spec, network)

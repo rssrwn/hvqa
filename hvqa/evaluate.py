@@ -12,7 +12,8 @@ from hvqa.models.baselines.neural import (
     CnnMlpModel,
     Cnn3DMlpModel,
     CnnObjModel,
-    TvqaModel
+    TvqaModel,
+    MacModel
 )
 
 
@@ -29,6 +30,7 @@ CNN_OBJ_PATH = "saved-models/cnn-obj"
 CNN_OBJ_PQ_PATH = "saved-models/cnn-obj-pq"
 TVQA_MODEL_PATH = "saved-models/tvqa-sm"
 TVQA_CURR_MODEL_PATH = "saved-models/tvqa-curr"
+MAC_MODEL_PATH = "saved-models/mac"
 
 spec = EnvSpec.from_dict({
     "num_frames": 32,
@@ -120,6 +122,11 @@ def main(data_dir, model_type, components):
         model = TvqaModel.load(spec, model_path)
         detector = NeuralDetector.load(spec, DETECTOR_PATH)
         data = VideoDataset.from_data_dir(spec, data_dir, detector, hardcoded=HARDCODED, store_frames=True)
+
+    elif model_type == "mac":
+        model_path = MAC_MODEL_PATH
+        model = MacModel.load(spec, model_path)
+        data = BaselineDataset.from_data_dir(data_dir)
 
     else:
         print("That type of model is not supported")
