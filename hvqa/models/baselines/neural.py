@@ -25,7 +25,8 @@ from hvqa.models.baselines.networks import (
     CnnLstmNetwork,
     Cnn3DMlpNetwork,
     CnnMlpObjNetwork,
-    TvqaNetwork
+    TvqaNetwork,
+    MacNetwork
 )
 
 
@@ -292,6 +293,54 @@ class Cnn3DMlpModel(_AbsNeuralModel):
         model_path = Path(path) / "network.pt"
         network = util.load_model(Cnn3DMlpNetwork, model_path, spec)
         model = Cnn3DMlpModel(spec, network)
+        return model
+
+
+class MacModel(_AbsNeuralModel):
+    def __init__(self, spec, model):
+        super(MacModel, self).__init__(spec, model)
+
+        self._print_freq = 50
+        self.transform = T.Compose([
+            T.ToTensor(),
+        ])
+
+    def _prepare_train_data(self, train_data):
+        fn = util.collate_func
+        train_dataset = E2EDataset.from_baseline_dataset(self.spec, train_data, self.transform, lang_only=False)
+        train_loader = DataLoader(train_dataset, batch_size=self._batch_size, shuffle=True, collate_fn=fn)
+        return train_loader
+
+    def _prepare_eval_data(self, eval_data):
+        eval_dataset = E2EDataset.from_baseline_dataset(self.spec, eval_data, self.transform, lang_only=False)
+        eval_loader = DataLoader(eval_dataset, batch_size=self._batch_size, shuffle=True, collate_fn=util.collate_func)
+        return eval_loader
+
+    def _prepare_input(self, frames, questions, q_types, answers):
+        frames = [torch.stack(v_frames) for v_frames in frames]
+        frames = torch.cat(frames, dim=0).to(self._device)
+        qs = pack_sequence(questions, enforce_sorted=False).to(self._device)
+        return frames, qs
+
+    def _set_hyperparams(self):
+        epochs = 10
+        lr = 0.0001
+        batch_size = 8
+        return epochs, lr, batch_size
+
+    @staticmethod
+    def new(spec):
+        p = 8
+        network = MacNetwork(spec, p)
+        model = MacModel(spec, network)
+        return model
+
+    @staticmethod
+    def load(spec, path):
+        p = 8
+        model_path = Path(path) / "network.pt"
+        network = util.load_model(MacNetwork, model_path, spec, p)
+        model = MacModel(spec, network)
         return model
 
 
