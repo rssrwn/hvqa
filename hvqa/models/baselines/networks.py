@@ -289,11 +289,24 @@ class MacNetwork(nn.Module):
 
 
 class _MacCell(nn.Module):
-    def __init__(self):
+    def __init__(self, hidden_size):
         super(_MacCell, self).__init__()
 
+        self.q_map = nn.Linear(hidden_size * 2, hidden_size)
+
+        self.ctrl = _MacControlUnit(hidden_size)
+        self.read = _MacReadUnit(hidden_size)
+        self.write = _MacWriteUnit(hidden_size)
+
     def forward(self, x):
-        pass
+        (ci_1, mi_1), (q, k, ctx_words) = x
+
+        qi = self.q_map(q)
+        ci = self.ctrl((ci_1, qi, ctx_words))
+        ri = self.read((mi_1, k, ci))
+        mi = self.write((ri, mi_1, ci))
+
+        return ci, mi
 
 
 class _MacControlUnit(nn.Module):
@@ -323,9 +336,9 @@ class _MacReadUnit(nn.Module):
         self.att = _MacAttention(hidden_size)
 
     def forward(self, x):
-        mi, k, ci = x
+        mi_1, k, ci = x
 
-        i = mi * k
+        i = mi_1 * k
         i_k = torch.cat([i, k], dim=2)
         i_k = self.i_k_map(i_k)
         out = self.att((k, i_k, ci))
