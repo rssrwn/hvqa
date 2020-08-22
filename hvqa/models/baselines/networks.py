@@ -333,6 +333,30 @@ class _MacReadUnit(nn.Module):
         return out
 
 
+class _MacWriteUnit(nn.Module):
+    def __init__(self, hidden_size, self_att=False):
+        super(_MacWriteUnit, self).__init__()
+
+        assert not self_att, "This operation is not yet supported"
+
+        self.memory_map = nn.Linear(hidden_size * 2, hidden_size)
+        self.ctrl_map = nn.Sequential(
+            nn.Linear(hidden_size, 1),
+            nn.Sigmoid()
+        )
+
+    def forward(self, x):
+        ri, mi_1, ci = x
+
+        mi_prime = torch.cat([mi_1, ri], dim=1)
+        mi_prime = self.memory_map(mi_prime)
+
+        ci = self.ctrl_map(ci)
+        mi = (ci * mi_1) + ((1 - ci) * mi_prime)
+
+        return mi
+
+
 class _MacAttention(nn.Module):
     def __init__(self, hidden_size):
         super(_MacAttention, self).__init__()
