@@ -281,13 +281,41 @@ class TvqaNetwork(nn.Module):
 
 
 class MacNetwork(nn.Module):
-    def __init__(self):
+    def __init__(self, spec, p):
         super(MacNetwork, self).__init__()
 
+        assert p >= 1, "Number of MAC cells must be at least 1"
+
+        q_enc_size = 300
         hidden_size = 256
 
+        self.q_enc = _MacQuestionEnc(q_enc_size, hidden_size)
+        self.video_enc = _MacVideoEnc(hidden_size)
+
+        self.mac_cells = nn.ModuleList()
+        for _ in range(p):
+            self.mac_cells.append(_MacCell(hidden_size))
+
+        self.c0 = nn.Parameter(torch.randn(hidden_size, requires_grad=True), True)
+        self.m0 = nn.Parameter(torch.randn(hidden_size, requires_grad=True), True)
+
+        self.output_unit = _MacOutputUnit(spec, hidden_size)
+
     def forward(self, x):
-        pass
+        videos, qs = x
+
+        q, ctx_words = self.q_enc(qs)
+        k = self.video_enc(videos)
+
+        ci = self.c0
+        mi = self.m0
+
+        for cell in self.mac_cells:
+            ci, mi = cell((ci, mi), (q, k, ctx_words))
+
+        output = self.output_unit((q, mi))
+
+        return output
 
 
 class _MacCell(nn.Module):
