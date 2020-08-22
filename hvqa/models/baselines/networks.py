@@ -284,6 +284,8 @@ class MacNetwork(nn.Module):
     def __init__(self):
         super(MacNetwork, self).__init__()
 
+        hidden_size = 256
+
     def forward(self, x):
         pass
 
@@ -307,6 +309,25 @@ class _MacCell(nn.Module):
         mi = self.write((ri, mi_1, ci))
 
         return ci, mi
+
+
+class _MacOutputUnit(nn.Module):
+    def __init__(self, spec, hidden_size):
+        super(_MacOutputUnit, self).__init__()
+
+        self.mlp = nn.Sequential(
+            nn.Linear(hidden_size * 2, hidden_size),
+            nn.ReLU(inplace=True),
+            _QANetwork(spec, hidden_size)
+        )
+
+    def forward(self, x):
+        q, m_out = x
+
+        enc = torch.cat([q, m_out], dim=1)
+        output = self.mlp(enc)
+
+        return output
 
 
 class _MacControlUnit(nn.Module):
