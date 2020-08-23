@@ -318,14 +318,14 @@ class MacModel(_AbsNeuralModel):
 
     def _prepare_input(self, frames, questions, q_types, answers):
         frames = [torch.stack(v_frames) for v_frames in frames]
-        frames = torch.cat(frames, dim=0).to(self._device)
-        qs = pad_sequence(questions).to(self._device)
+        frames = torch.cat(frames, dim=0).half().to(self._device)
+        qs = pad_sequence(questions).half().to(self._device)
         return frames, qs
 
     def _set_hyperparams(self):
         epochs = 10
         lr = 0.0001
-        batch_size = 8
+        batch_size = 32
         return epochs, lr, batch_size
 
     @staticmethod
