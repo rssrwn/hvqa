@@ -147,8 +147,8 @@ class _AbsNeuralModel(_AbsBaselineModel):
     def _calc_loss(self, output, q_types, ans):
         losses = []
         for idx, q_type in enumerate(q_types):
-            target = ans[idx][None].to("cpu").float()
-            pred = output[q_type][idx][None, :].to("cpu").float()
+            target = ans[idx][None].to("cpu").long()
+            pred = output[q_type][idx][None, :].to("cpu").long()
             loss = self._loss_fn(pred, target)
             losses.append(loss)
 
