@@ -319,7 +319,7 @@ class MacModel(_AbsNeuralModel):
     def _prepare_input(self, frames, questions, q_types, answers):
         frames = [torch.stack(v_frames) for v_frames in frames]
         frames = torch.cat(frames, dim=0).to(self._device)
-        qs = pack_sequence(questions, enforce_sorted=False).to(self._device)
+        qs = pad_sequence(questions).to(self._device)
         return frames, qs
 
     def _set_hyperparams(self):

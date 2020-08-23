@@ -296,8 +296,10 @@ class MacNetwork(nn.Module):
         for _ in range(p):
             self.mac_cells.append(_MacCell(hidden_size))
 
-        self.c0 = nn.Parameter(torch.randn(hidden_size, requires_grad=True), True)
-        self.m0 = nn.Parameter(torch.randn(hidden_size, requires_grad=True), True)
+        c0 = torch.randn((1, hidden_size), requires_grad=True)
+        m0 = torch.randn((1, hidden_size), requires_grad=True)
+        self.c0 = nn.Parameter(c0, True)
+        self.m0 = nn.Parameter(m0, True)
 
         self.output_unit = _MacOutputUnit(spec, hidden_size)
 
@@ -305,13 +307,15 @@ class MacNetwork(nn.Module):
         videos, qs = x
 
         q, ctx_words = self.q_enc(qs)
-        k = self.video_enc(videos)
+        k = self.video_enc((videos, qs))
 
-        ci = self.c0
-        mi = self.m0
+        batch_size = k.shape[1]
+
+        ci = self.c0.repeat_interleave(batch_size, dim=0)
+        mi = self.m0.repeat_interleave(batch_size, dim=0)
 
         for cell in self.mac_cells:
-            ci, mi = cell((ci, mi), (q, k, ctx_words))
+            ci, mi = cell(((ci, mi), (q, k, ctx_words)))
 
         output = self.output_unit((q, mi))
 
@@ -344,7 +348,7 @@ class _MacOutputUnit(nn.Module):
         super(_MacOutputUnit, self).__init__()
 
         self.mlp = nn.Sequential(
-            nn.Linear(hidden_size * 2, hidden_size),
+            nn.Linear(hidden_size * 3, hidden_size),
             nn.ReLU(inplace=True),
             _QANetwork(spec, hidden_size)
         )
@@ -366,9 +370,9 @@ class _MacControlUnit(nn.Module):
         self.att = _MacAttention(hidden_size)
 
     def forward(self, x):
-        ci_1, q_i, ctx_words = x
+        ci_1, qi, ctx_words = x
 
-        ctrl = torch.cat([q_i, ci_1], dim=1)
+        ctrl = torch.cat([qi, ci_1], dim=1)
         ctrl = self.cq_i_map(ctrl)
         ci = self.att((ctx_words, ctx_words, ctrl))
         return ci
@@ -391,7 +395,6 @@ class _MacReadUnit(nn.Module):
         i_k = torch.cat([i, k], dim=2)
         i_k = self.i_k_map(i_k)
         out = self.att((k, i_k, ci))
-        out = out.sum(dim=0)
         return out
 
 
@@ -432,7 +435,7 @@ class _MacAttention(nn.Module):
         compat = ctrl * query_seq
         compat = self.compat_map(compat).squeeze(2)
         compat = self.softmax(compat)
-        out = compat * out_seq
+        out = compat.unsqueeze(2) * out_seq
         out = out.sum(dim=0)
         return out
 
@@ -442,9 +445,12 @@ class _MacQuestionEnc(nn.Module):
         super(_MacQuestionEnc, self).__init__()
 
         self.lstm = nn.LSTM(input_size, hidden_size, bidirectional=True, num_layers=1)
+        self.ctx_words_map = nn.Linear(hidden_size * 2, hidden_size)
 
     def forward(self, x):
-        q, (ctx_words, _) = self.lstm(x)
+        ctx_words, (q, _) = self.lstm(x)
+        ctx_words = self.ctx_words_map(ctx_words)
+        q = torch.cat([q[0, :, :], q[1, :, :]], dim=1)
         return q, ctx_words
 
 
