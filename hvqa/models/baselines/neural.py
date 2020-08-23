@@ -62,7 +62,7 @@ class _AbsNeuralModel(_AbsBaselineModel):
 
         print("Training Neural baseline VideoQA model...")
 
-        optimiser = optim.Adam(self._model.parameters(), lr=self._lr)
+        optimiser = optim.Adam(self._model.parameters(), lr=self._lr, eps=1e-5)
         for e in range(self._epochs):
             self._train_one_epoch(train_loader, optimiser, e, verbose)
             print()
