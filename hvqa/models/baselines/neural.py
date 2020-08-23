@@ -114,7 +114,7 @@ class _AbsNeuralModel(_AbsBaselineModel):
             results = []
             for idx, q_type in enumerate(q_types):
                 answer = ans[idx].item()
-                pred = output[q_type][idx].to("cpu")
+                pred = output[q_type][idx].to("cpu").float()
                 _, max_idx = torch.max(pred, 0)
                 results.append(("", q_type, max_idx.item(), answer))
 
