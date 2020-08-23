@@ -254,6 +254,8 @@ class Cnn3DMlpModel(_AbsNeuralModel):
     def __init__(self, spec, model):
         super(Cnn3DMlpModel, self).__init__(spec, model)
 
+        self._model = self._model.half().to(self._device)
+
         self._print_freq = 50
         self.transform = T.Compose([
             T.ToTensor(),
@@ -272,14 +274,14 @@ class Cnn3DMlpModel(_AbsNeuralModel):
 
     def _prepare_input(self, frames, questions, q_types, answers):
         frames = [torch.stack(v_frames).transpose(0, 1) for v_frames in frames]
-        frames = torch.stack(frames).to(self._device)
-        qs = pack_sequence(questions, enforce_sorted=False).to(self._device)
+        frames = torch.stack(frames).half().to(self._device)
+        qs = pack_sequence(questions, enforce_sorted=False).half().to(self._device)
         return frames, qs
 
     def _set_hyperparams(self):
         epochs = 10
-        lr = 0.001
-        batch_size = 8
+        lr = 0.0001
+        batch_size = 16
         return epochs, lr, batch_size
 
     @staticmethod
@@ -356,6 +358,8 @@ class CnnObjModel(_AbsNeuralModel):
         self._print_freq = 10
         self.parse_q = parse_q
 
+        self._model = self._model.half().to(self._device)
+
         num_workers = os.cpu_count()
         self._executor = ThreadPoolExecutor(max_workers=num_workers)
 
@@ -372,9 +376,9 @@ class CnnObjModel(_AbsNeuralModel):
 
     def _prepare_input(self, frames, questions, q_types, answers):
         if self.parse_q:
-            qs = torch.stack(questions).to(self._device)
+            qs = torch.stack(questions).half().to(self._device)
         else:
-            qs = pack_sequence(questions, enforce_sorted=False).to(self._device)
+            qs = pack_sequence(questions, enforce_sorted=False).half().to(self._device)
 
         frames = [frame for frames_ in frames for frame in frames_]
         obj_frames = util.gen_object_frames(frames, self._executor)
@@ -383,8 +387,8 @@ class CnnObjModel(_AbsNeuralModel):
 
     def _set_hyperparams(self):
         epochs = 10
-        lr = 0.001
-        batch_size = 64
+        lr = 0.0001
+        batch_size = 128
         return epochs, lr, batch_size
 
     @staticmethod
@@ -404,6 +408,8 @@ class CnnObjModel(_AbsNeuralModel):
 class TvqaModel(_AbsNeuralModel):
     def __init__(self, spec, model, curr_learning=False):
         super(TvqaModel, self).__init__(spec, model)
+
+        self._model = self._model.half().to(self._device)
 
         self.curr_learning = curr_learning
         self._print_freq = 10
@@ -484,18 +490,18 @@ class TvqaModel(_AbsNeuralModel):
     def _prepare_input(self, frames, questions, q_types, answers):
         videos, raw_videos = tuple(zip(*frames))
 
-        qs = torch.stack(questions).float().to(self._device)
+        qs = torch.stack(questions).half().to(self._device)
 
         v_frames = [frame for video in videos for frame in video]
         v_frames = [[obj for obj, _ in frame] for frame in v_frames]
         v_frames = [torch.stack(frame) for frame in v_frames]
-        v_frames = pad_sequence(v_frames).float().to(self._device)
+        v_frames = pad_sequence(v_frames).half().to(self._device)
 
         raw_pairs = [list(zip(video, video[1:])) for video in raw_videos]
         raw_pairs = [[(self._trans(i1), self._trans(i2)) for (i1, i2) in video] for video in raw_pairs]
         raw_pairs = [[torch.cat(pair, dim=0) for pair in video] for video in raw_pairs]
         raw_pairs = [frame_pair for video in raw_pairs for frame_pair in video]
-        raw_pairs = torch.stack(raw_pairs).float().to(self._device)
+        raw_pairs = torch.stack(raw_pairs).half().to(self._device)
 
         return v_frames, raw_pairs, qs
 
@@ -503,8 +509,8 @@ class TvqaModel(_AbsNeuralModel):
         devices = torch.cuda.device_count()
         devices = 1 if devices == 0 else devices
         epochs = 10
-        lr = 0.001
-        batch_size = 8 * devices
+        lr = 0.0001
+        batch_size = 16 * devices
         return epochs, lr, batch_size
 
     @staticmethod
