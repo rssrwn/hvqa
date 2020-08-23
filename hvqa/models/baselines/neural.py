@@ -147,8 +147,8 @@ class _AbsNeuralModel(_AbsBaselineModel):
     def _calc_loss(self, output, q_types, ans):
         losses = []
         for idx, q_type in enumerate(q_types):
-            target = ans[idx][None].to("cpu").long()
-            pred = output[q_type][idx][None, :].to("cpu").long()
+            target = ans[idx][None].to("cpu")
+            pred = output[q_type][idx][None, :].to("cpu").float()
             loss = self._loss_fn(pred, target)
             losses.append(loss)
 
@@ -302,7 +302,7 @@ class MacModel(_AbsNeuralModel):
 
         self._model = self._model.half().to(self._device)
 
-        self._print_freq = 50
+        self._print_freq = 20
         self.transform = T.Compose([
             T.ToTensor(),
         ])
