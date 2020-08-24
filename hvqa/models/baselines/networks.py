@@ -363,7 +363,8 @@ class _MacOutputUnit(nn.Module):
         super(_MacOutputUnit, self).__init__()
 
         self.mlp = nn.Sequential(
-            nn.Linear(hidden_size * 3, hidden_size),
+            # nn.Linear(hidden_size * 3, hidden_size),
+            nn.Linear(hidden_size, hidden_size),
             nn.ReLU(inplace=True),
             _QANetwork(spec, hidden_size)
         )
@@ -371,7 +372,8 @@ class _MacOutputUnit(nn.Module):
     def forward(self, x):
         q, m_out = x
 
-        enc = torch.cat([q, m_out], dim=1)
+        # enc = torch.cat([q, m_out], dim=1)
+        enc = m_out
         output = self.mlp(enc)
 
         return output
