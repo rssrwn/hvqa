@@ -13,23 +13,28 @@ class LangLstmNetwork(nn.Module):
         super(LangLstmNetwork, self).__init__()
 
         word_vector_size = 300
-        hidden_size = 1024
-        num_lstm_layers = 2
+        hidden_size = 512
         feat1 = 512
         feat2 = 256
 
+        dropout = 0.2
+
+        self.lstm = nn.LSTM(word_vector_size, hidden_size, bidirectional=True)
+
         self.network = nn.Sequential(
-            _QuestionNetwork(word_vector_size, hidden_size, num_layers=num_lstm_layers),
+            nn.Linear(hidden_size * 2, feat1),
             nn.ReLU(inplace=True),
-            nn.Linear(hidden_size, feat1),
-            nn.ReLU(inplace=True),
+            nn.Dropout(dropout),
             nn.Linear(feat1, feat2),
             nn.ReLU(inplace=True),
             _QANetwork(spec, feat2)
         )
 
     def forward(self, x):
-        return self.network(x)
+        _, (enc, _) = self.lstm(x)
+        batch_size = enc.shape[1]
+        enc = enc.transpose(0, 1).reshape(batch_size, -1)
+        return self.network(enc)
 
 
 class CnnMlpNetwork(nn.Module):
