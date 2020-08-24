@@ -200,6 +200,8 @@ class CnnMlpModel(_AbsNeuralModel):
     def __init__(self, spec, model, video_lstm=False):
         super(CnnMlpModel, self).__init__(spec, model)
 
+        self._model = self._model.half().to(self._device)
+
         self.video_lstm = video_lstm
         self.transform = T.Compose([
             T.ToTensor(),
@@ -218,14 +220,14 @@ class CnnMlpModel(_AbsNeuralModel):
 
     def _prepare_input(self, frames, questions, q_types, answers):
         frames = [torch.stack(v_frames) for v_frames in frames]
-        frames = torch.cat(frames, dim=0).to(self._device)
-        qs = pack_sequence(questions, enforce_sorted=False).to(self._device)
+        frames = torch.cat(frames, dim=0).half().to(self._device)
+        qs = pack_sequence(questions, enforce_sorted=False).half().to(self._device)
         return frames, qs
 
     def _set_hyperparams(self):
         epochs = 10
-        lr = 0.001
-        batch_size = 8
+        lr = 0.0001
+        batch_size = 64
         return epochs, lr, batch_size
 
     @staticmethod

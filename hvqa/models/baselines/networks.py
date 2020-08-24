@@ -53,8 +53,16 @@ class CnnMlpNetwork(nn.Module):
 
         dropout = 0.2
 
-        self.feat_extr = _VideoFeatNetwork(feat_output_size)
-        self.lang_lstm = _QuestionNetwork(word_vector_size, hidden_size, num_layers=num_lstm_layers)
+        # self.feat_extr = _VideoFeatNetwork(feat_output_size)
+        # self.lang_lstm = _QuestionNetwork(word_vector_size, hidden_size, num_layers=num_lstm_layers)
+
+        self.feat_extr = _SmallFeatExtrNetwork(3, 32)
+        self.lang_lstm = nn.LSTM(word_vector_size, 256, bidirectional=True)
+
+        mlp_input = (32 * 32) + (256 * 2)
+        feat1 = 512
+        feat2 = 256
+
         self.mlp = nn.Sequential(
             nn.Dropout(dropout),
             nn.Linear(mlp_input, feat1),
@@ -62,20 +70,22 @@ class CnnMlpNetwork(nn.Module):
             nn.Dropout(dropout),
             nn.Linear(feat1, feat2),
             nn.ReLU(inplace=True),
-            nn.Dropout(dropout),
-            nn.Linear(feat2, feat3),
-            nn.ReLU(inplace=True),
-            _QANetwork(spec, feat3)
+            _QANetwork(spec, feat2)
         )
 
     def forward(self, x):
         frames, qs = x
         frame_feats = self.feat_extr(frames)
         batch_size = frame_feats.shape[0] // 32
-        q_feats = self.lang_lstm(qs)
+
+        # q_feats = self.lang_lstm(qs)
+        _, (q_feats, _) = self.lang_lstm(qs)
+        q_feats = q_feats.transpose(0, 1).reshape((batch_size, -1))
+
         v_feats = frame_feats.reshape((batch_size, -1))
         video_enc = torch.cat([v_feats, q_feats], dim=1)
         output = self.mlp(video_enc)
+
         return output
 
 
