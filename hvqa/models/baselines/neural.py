@@ -317,7 +317,7 @@ class MacModel(_AbsNeuralModel):
 
     def _prepare_eval_data(self, eval_data):
         eval_dataset = E2EDataset.from_baseline_dataset(self.spec, eval_data, self.transform, lang_only=False)
-        eval_loader = DataLoader(eval_dataset, batch_size=self._batch_size, shuffle=True, collate_fn=util.collate_func)
+        eval_loader = DataLoader(eval_dataset, batch_size=self._batch_size, shuffle=False, collate_fn=util.collate_func)
         return eval_loader
 
     def _prepare_input(self, frames, questions, q_types, answers):
