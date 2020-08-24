@@ -47,7 +47,7 @@ class _AbsNeuralModel(_AbsBaselineModel):
 
     def train(self, train_data, eval_data, verbose=True, save_path=None):
         """
-        Train the LSTM model
+        Train the model
 
         :param train_data: Training dataset: BaselineDataset
         :param eval_data: Validation dataset: BaselineDataset
@@ -344,6 +344,10 @@ class MacModel(_AbsNeuralModel):
         network = util.load_model(MacNetwork, model_path, spec, p)
         model = MacModel(spec, network)
         return model
+
+    # def train(self, train_data, eval_data, verbose=True, save_path=None):
+    #     train_loader = self._prepare_train_data(train_data)
+    #     dataset = train_loader.dataset
 
 
 # ********************************************************************************************

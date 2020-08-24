@@ -10,6 +10,8 @@ import hvqa.util.func as util
 from hvqa.tracking.obj_tracker import ObjTracker
 from hvqa.util.exceptions import UnknownQuestionTypeException, UnknownAnswerException
 
+import random
+
 
 class _AbsE2EDataset(Dataset):
     def __init__(self, spec, transform, parse_q=False):
@@ -30,7 +32,7 @@ class _AbsE2EDataset(Dataset):
         :return: Length of dataset
         """
 
-        return len(self.questions) * 10
+        return len(self.questions)  # * 10
 
     def __getitem__(self, item):
         """
@@ -42,8 +44,11 @@ class _AbsE2EDataset(Dataset):
         :return: frames, question, q_type, answer
         """
 
-        v_idx = item // 10
-        q_idx = item % 10
+        # v_idx = item // 10
+        # q_idx = item % 10
+
+        v_idx = item
+        q_idx = random.randint(0, 9)
 
         question = self.questions[v_idx][q_idx]
         q_type = self.q_types[v_idx][q_idx]
