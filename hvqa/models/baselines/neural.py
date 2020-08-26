@@ -1,6 +1,7 @@
 import os
 from concurrent.futures import ThreadPoolExecutor
 from pathlib import Path
+from PIL import ImageFilter
 
 import torch
 import torch.nn as nn
@@ -204,9 +205,25 @@ class CnnMlpModel(_AbsNeuralModel):
         self._model = self._model.half().to(self._device)
 
         self.video_lstm = video_lstm
+
+        # self.transform = T.Compose([
+        #     T.ToTensor(),
+        #     T.Normalize((0.2514, 0.7528, 0.7001), (0.0692, 0.0521, 0.0446))
+        # ])
+
+        filters = [
+            ImageFilter.BLUR,
+            ImageFilter.DETAIL,
+            ImageFilter.EDGE_ENHANCE,
+            ImageFilter.FIND_EDGES,
+            ImageFilter.SHARPEN
+        ]
+        to_tensor = T.ToTensor()
+
         self.transform = T.Compose([
-            T.ToTensor(),
-            T.Normalize((0.2514, 0.7528, 0.7001), (0.0692, 0.0521, 0.0446), inplace=True)
+            T.Lambda(lambda im: [im.filter(f) for f in filters] + [im]),
+            T.Lambda(lambda ims: [to_tensor(im) for im in ims]),
+            T.Lambda(lambda ims: torch.cat(ims, dim=0))
         ])
 
     def _prepare_train_data(self, train_data):
@@ -234,13 +251,10 @@ class CnnMlpModel(_AbsNeuralModel):
 
     @staticmethod
     def new(spec, video_lstm=False):
-        detector_path = "saved-models/detection/v1_0/after_20_epochs.pt"
         if video_lstm:
             network = CnnLstmNetwork(spec)
         else:
-            detector = NeuralDetector.load(spec, detector_path)
-            backbone = detector.model.f_rcnn.backbone
-            network = CnnMlpNetwork(spec, backbone)
+            network = CnnMlpNetwork(spec)
 
         model = CnnMlpModel(spec, network)
         return model
@@ -248,13 +262,10 @@ class CnnMlpModel(_AbsNeuralModel):
     @staticmethod
     def load(spec, path, video_lstm=False):
         model_path = Path(path) / "network.pt"
-        detector_path = "saved-models/detection/v1_0/after_20_epochs.pt"
         if video_lstm:
             network = util.load_model(CnnLstmNetwork, model_path, spec)
         else:
-            detector = NeuralDetector.load(spec, detector_path)
-            backbone = detector.model.f_rcnn.backbone
-            network = util.load_model(CnnMlpNetwork, model_path, spec, backbone)
+            network = util.load_model(CnnMlpNetwork, model_path, spec)
 
         model = CnnMlpModel(spec, network)
         return model
