@@ -689,7 +689,7 @@ class PreTrainedFeatExtr(nn.Module):
         self.network = nn.Sequential(
             backbone,
             nn.Conv2d(backbone_feat, feat, kernel_size=3, stride=2),
-            nn.ReLU(),
+            nn.ReLU(inplace=True),
             nn.BatchNorm2d(output_size),
             nn.AdaptiveMaxPool2d(1),
             nn.Flatten()
