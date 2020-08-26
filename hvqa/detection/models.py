@@ -104,12 +104,12 @@ class DetectionBackbone(nn.Module):
 
     def forward(self, img):
         out = self.conv1(img)
-        out = F.relu(out)
+        out = F.relu(out, inplace=True)
         out = self.norm1(out)
         out = self.conv2(out)
-        out = F.relu(out)
+        out = F.relu(out, inplace=True)
         out = self.norm2(out)
         out = self.conv3(out)
-        out = F.relu(out)
+        out = F.relu(out, inplace=True)
 
         return out
