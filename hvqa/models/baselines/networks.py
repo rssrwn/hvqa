@@ -38,30 +38,28 @@ class LangLstmNetwork(nn.Module):
 
 
 class CnnMlpNetwork(nn.Module):
-    def __init__(self, spec):
+    def __init__(self, spec, backbone):
         super(CnnMlpNetwork, self).__init__()
+
+        for param in backbone.parameters():
+            param.requires_grad = False
 
         feat_output_size = 256
         word_vector_size = 300
-        hidden_size = 1024
-        num_lstm_layers = 2
-
-        mlp_input = (32 * feat_output_size) + hidden_size
-        feat1 = 4096
-        feat2 = 1024
-        feat3 = 512
+        mlp_input = (32 * feat_output_size) + (256 * 2)
+        feat1 = 512
+        feat2 = 256
 
         dropout = 0.2
 
         # self.feat_extr = _VideoFeatNetwork(feat_output_size)
         # self.lang_lstm = _QuestionNetwork(word_vector_size, hidden_size, num_layers=num_lstm_layers)
 
-        self.feat_extr = _SmallFeatExtrNetwork(3, 32)
-        self.lang_lstm = nn.LSTM(word_vector_size, 256, bidirectional=True)
+        # self.feat_extr = _SmallFeatExtrNetwork(3, 32)
 
-        mlp_input = (32 * 32) + (256 * 2)
-        feat1 = 512
-        feat2 = 256
+        self.feat_extr = PreTrainedFeatExtr(backbone, 128, feat_output_size)
+
+        self.lang_lstm = nn.LSTM(word_vector_size, 256, bidirectional=True)
 
         self.mlp = nn.Sequential(
             nn.Dropout(dropout),
@@ -679,6 +677,26 @@ class _ObjEncNetwork(nn.Module):
         enc, _ = torch.max(objs, dim=0)
         output = self.fc_out(enc)
 
+        return output
+
+
+class PreTrainedFeatExtr(nn.Module):
+    def __init__(self, backbone, backbone_feat, output_size):
+        super(PreTrainedFeatExtr, self).__init__()
+
+        feat = 256
+
+        self.network = nn.Sequential(
+            backbone,
+            nn.Conv2d(backbone_feat, feat, kernel_size=3, stride=2),
+            nn.ReLU(),
+            nn.BatchNorm2d(output_size),
+            nn.AdaptiveMaxPool2d(1),
+            nn.Flatten()
+        )
+
+    def forward(self, x):
+        output = self.network(x)
         return output
 
 

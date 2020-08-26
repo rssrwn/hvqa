@@ -13,6 +13,7 @@ from torch.nn.utils.rnn import pack_sequence, pad_sequence
 import hvqa.util.func as util
 from hvqa.util.exceptions import UnknownQuestionTypeException
 from hvqa.models.baselines.interfaces import _AbsBaselineModel
+from hvqa.detection.detector import NeuralDetector
 from hvqa.models.baselines.datasets import (
     E2EDataset,
     E2EObjDataset,
@@ -205,6 +206,7 @@ class CnnMlpModel(_AbsNeuralModel):
         self.video_lstm = video_lstm
         self.transform = T.Compose([
             T.ToTensor(),
+            T.Normalize((0.2514, 0.7528, 0.7001), (0.0692, 0.0521, 0.0446), inplace=True)
         ])
 
     def _prepare_train_data(self, train_data):
@@ -232,10 +234,13 @@ class CnnMlpModel(_AbsNeuralModel):
 
     @staticmethod
     def new(spec, video_lstm=False):
+        detector_path = "saved-models/detection/v1_0/after_20_epochs.pt"
         if video_lstm:
             network = CnnLstmNetwork(spec)
         else:
-            network = CnnMlpNetwork(spec)
+            detector = NeuralDetector.load(spec, detector_path)
+            backbone = detector.model.f_rcnn.backbone
+            network = CnnMlpNetwork(spec, backbone)
 
         model = CnnMlpModel(spec, network)
         return model
@@ -243,10 +248,13 @@ class CnnMlpModel(_AbsNeuralModel):
     @staticmethod
     def load(spec, path, video_lstm=False):
         model_path = Path(path) / "network.pt"
+        detector_path = "saved-models/detection/v1_0/after_20_epochs.pt"
         if video_lstm:
             network = util.load_model(CnnLstmNetwork, model_path, spec)
         else:
-            network = util.load_model(CnnMlpNetwork, model_path, spec)
+            detector = NeuralDetector.load(spec, detector_path)
+            backbone = detector.model.f_rcnn.backbone
+            network = util.load_model(CnnMlpNetwork, model_path, spec, backbone)
 
         model = CnnMlpModel(spec, network)
         return model
