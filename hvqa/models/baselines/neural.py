@@ -229,7 +229,7 @@ class CnnMlpModel(_AbsNeuralModel):
     def _set_hyperparams(self):
         epochs = 10
         lr = 0.0001
-        batch_size = 64
+        batch_size = 32
         return epochs, lr, batch_size
 
     @staticmethod

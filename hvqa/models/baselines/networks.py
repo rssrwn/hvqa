@@ -44,10 +44,10 @@ class CnnMlpNetwork(nn.Module):
         for param in backbone.parameters():
             param.requires_grad = False
 
-        feat_output_size = 256
+        feat_output_size = 128
         word_vector_size = 300
         mlp_input = (32 * feat_output_size) + (256 * 2)
-        feat1 = 512
+        feat1 = 1024
         feat2 = 256
 
         dropout = 0.2
@@ -684,11 +684,9 @@ class PreTrainedFeatExtr(nn.Module):
     def __init__(self, backbone, backbone_feat, output_size):
         super(PreTrainedFeatExtr, self).__init__()
 
-        feat = 256
-
         self.network = nn.Sequential(
             backbone,
-            nn.Conv2d(backbone_feat, feat, kernel_size=3, stride=2),
+            nn.Conv2d(backbone_feat, output_size, kernel_size=3, stride=2),
             nn.ReLU(inplace=True),
             nn.BatchNorm2d(output_size),
             nn.AdaptiveMaxPool2d(1),
