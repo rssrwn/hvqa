@@ -23,6 +23,12 @@ class _AbsE2EDataset(Dataset):
         self.q_types = None
         self.answers = None
 
+        self._num_questions = None
+        self._q_idxs = None
+
+    def _setup_q_idxs(self):
+        raise NotImplementedError()
+
     def __len__(self):
         """
         Returns number of videos multiplied by the number of questions per video
@@ -30,7 +36,7 @@ class _AbsE2EDataset(Dataset):
         :return: Length of dataset
         """
 
-        return len(self.questions) * 10
+        return self._num_questions
 
     def __getitem__(self, item):
         """
@@ -42,8 +48,7 @@ class _AbsE2EDataset(Dataset):
         :return: frames, question, q_type, answer
         """
 
-        v_idx = item // 10
-        q_idx = item % 10
+        v_idx, q_idx = self._q_idxs[item]
 
         question = self.questions[v_idx][q_idx]
         q_type = self.q_types[v_idx][q_idx]
@@ -294,6 +299,19 @@ class E2EDataset(_AbsE2EDataset):
         self.q_types = q_types_
         self.answers = ans_tensors
 
+        self._setup_q_idxs()
+
+    def _setup_q_idxs(self):
+        q_idxs = {}
+        num_questions = 0
+        for v_idx, v_qs in enumerate(self.questions):
+            for q_idx, question in enumerate(v_qs):
+                q_idxs[num_questions] = (v_idx, q_idx)
+                num_questions += 1
+
+        self._num_questions = num_questions
+        self._q_idxs = q_idxs
+
     def __getitem__(self, item):
         """
         Get an item in the dataset
@@ -304,8 +322,7 @@ class E2EDataset(_AbsE2EDataset):
         :return: frames (could be None), question, q_type, answer
         """
 
-        v_idx = item // 10
-        q_idx = item % 10
+        v_idx, q_idx = self._q_idxs[item]
 
         question = self.questions[v_idx][q_idx]
         q_type = self.q_types[v_idx][q_idx]
@@ -373,6 +390,19 @@ class _AbsE2EObjDataset(_AbsE2EDataset):
         self.questions = q_tensors
         self.q_types = q_types_
         self.answers = ans_tensors
+
+        self._setup_q_idxs()
+
+    def _setup_q_idxs(self):
+        q_idxs = {}
+        num_questions = 0
+        for v_idx, v_qs in enumerate(self.questions):
+            for q_idx, question in enumerate(v_qs):
+                q_idxs[num_questions] = (v_idx, q_idx)
+                num_questions += 1
+
+        self._num_questions = num_questions
+        self._q_idxs = q_idxs
 
     def _preprocess(self, videos):
         [self._tracker.run_(video) for video in videos]
@@ -497,8 +527,7 @@ class TvqaDataset(_AbsE2EObjDataset):
         return len(self.questions) * 10
 
     def __getitem__(self, item):
-        v_idx = item // 10
-        q_idx = item % 10
+        v_idx, q_idx = self._q_idxs[item]
 
         question = self.questions[v_idx][q_idx]
         q_type = self.q_types[v_idx][q_idx]
