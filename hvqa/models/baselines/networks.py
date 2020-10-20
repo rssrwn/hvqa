@@ -52,7 +52,7 @@ class CnnMlpNetwork(nn.Module):
         # self.feat_extr = _VideoFeatNetwork(feat_output_size)
         # self.lang_lstm = _QuestionNetwork(word_vector_size, hidden_size, num_layers=num_lstm_layers)
 
-        self.feat_extr = _MedFeatExtrNetwork(18, feat_output_size)
+        self.feat_extr = _MedFeatExtrNetwork(3, feat_output_size)
         self.lang_lstm = nn.LSTM(word_vector_size, 256, bidirectional=True)
 
         self.mlp = nn.Sequential(
