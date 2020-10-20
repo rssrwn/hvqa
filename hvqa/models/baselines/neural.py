@@ -207,24 +207,8 @@ class CnnMlpModel(_AbsNeuralModel):
         self.video_lstm = video_lstm
 
         self.transform = T.Compose([
-            T.ToTensor(),
-            # T.Normalize((0.2514, 0.7528, 0.7001), (0.0692, 0.0521, 0.0446))
+            T.ToTensor()
         ])
-
-        # filters = [
-        #     ImageFilter.BLUR,
-        #     ImageFilter.DETAIL,
-        #     ImageFilter.EDGE_ENHANCE,
-        #     ImageFilter.FIND_EDGES,
-        #     ImageFilter.SHARPEN
-        # ]
-        # to_tensor = T.ToTensor()
-        #
-        # self.transform = T.Compose([
-        #     T.Lambda(lambda im: [im.filter(f) for f in filters] + [im]),
-        #     T.Lambda(lambda ims: [to_tensor(im) for im in ims]),
-        #     T.Lambda(lambda ims: torch.cat(ims, dim=0))
-        # ])
 
     def _prepare_train_data(self, train_data):
         train_dataset = E2EDataset.from_baseline_dataset(self.spec, train_data, self.transform, lang_only=False)
@@ -246,7 +230,7 @@ class CnnMlpModel(_AbsNeuralModel):
     def _set_hyperparams(self):
         epochs = 10
         lr = 0.0001
-        batch_size = 32
+        batch_size = 16
         return epochs, lr, batch_size
 
     @staticmethod
